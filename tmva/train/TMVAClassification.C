@@ -294,14 +294,14 @@ int TMVAClassification(std::string inputSname, std::string inputBname, std::stri
   // -  for signal    : `dataloader->SetSignalWeightExpression    ("weight1*weight2");`
   // -  for background: `dataloader->SetBackgroundWeightExpression("weight1*weight2");`
   //// dataloader->SetBackgroundWeightExpression( "weight" );
-  dataloader->SetSignalWeightExpression("pthatweight");
+  dataloader->SetSignalWeightExpression("pthatweight*Ncoll");
 
   // Apply additional cuts on the signal and background samples (can be different)
   //// TCut mycuts = ""; // for example: TCut mycuts = "abs(var1)<0.5 && abs(var2-0.5)<1";
   //// TCut mycutb = ""; // for example: TCut mycutb = "abs(var1)<0.5";
 
-  TString cuts = Form("(%s)&&Bpt>%f&&Bpt<%f&&hiBin>=0&&hiBin<=200", mycuts.c_str(), ptmin, ptmax);
-  TString cutb = Form("(%s)&&Bpt>%f&&Bpt<%f&&hiBin>=0&&hiBin<=200", mycutb.c_str(), ptmin, ptmax);
+  TString cuts = Form("(%s)&&Bpt>%f&&Bpt<%f&&hiBin>=0&&hiBin<=180", mycuts.c_str(), ptmin, ptmax);
+  TString cutb = Form("(%s)&&Bpt>%f&&Bpt<%f&&hiBin>=0&&hiBin<=180", mycutb.c_str(), ptmin, ptmax);
 
   TCut mycutS = (TCut)cuts;
   TCut mycutB = (TCut)cutb;
