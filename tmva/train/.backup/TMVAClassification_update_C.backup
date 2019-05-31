@@ -1,0 +1,97 @@
+#include <cstdlib>
+#include <iostream>
+#include <map>
+#include <string>
+
+#include "TChain.h"
+#include "TFile.h"
+#include "TTree.h"
+#include "TString.h"
+#include "TObjString.h"
+#include "TSystem.h"
+#include "TROOT.h"
+
+#include "TMVA/Factory.h"
+#include "TMVA/DataLoader.h"
+#include "TMVA/Tools.h"
+#include "TMVA/TMVAGui.h"
+
+#include "xjjcuti.h"
+#include "TMVAClassification.h"
+
+int TMVAClassification(std::string inputSname, std::string inputBname, std::string mycuts, std::string mycutb, 
+                       std::string outputname, float ptmin, float ptmax, std::string mymethod = "", std::string stage = "0,1,2,3,4,5,6,7,8,9,10")
+{
+  mymethod = xjjc::str_replaceall(mymethod, " ", "");
+  std::vector<std::string> methods(xjjc::str_divide(mymethod, ","));
+  stage = xjjc::str_replaceall(stage, " ", "");
+  std::vector<int> stages;
+  for(auto& ss : xjjc::str_divide(stage, ",")) { stages.push_back(atoi(ss.c_str())); }
+
+  std::string outfname(Form("%s_%s_%s_%s_%s.root", outputname.c_str(),xjjc::str_replaceallspecial(mymethod).c_str(),
+                            xjjc::number_to_string(ptmin).c_str(), (ptmax<0?"inf":xjjc::number_to_string(ptmax).c_str()), 
+                            xjjc::str_replaceall(stage, ",", "-").c_str()));
+  if(ptmax < 0) { ptmax = 1.e+10; }
+
+  TFile* outf = TFile::Open(outfname.c_str(), "update");
+
+  std::string varinfo = "";
+  TString VarSet = "";
+  int nvar = 0;
+  for(auto& s : stages)
+    {
+      // dataloader->AddVariable(mytmva::varlist[s].var);
+      VarSet += (Form(":VarProp[%d]=", nvar)+mytmva::varlist[s].cutsign);
+      varinfo += (";"+mytmva::varlist[s].varname);
+      std::cout << "==> " << __FUNCTION__ << ": Registered variable " << mytmva::varlist[s].var << std::endl;
+      nvar++;
+    }
+  if(!nvar) { std::cout << "==> Abort " << __FUNCTION__ << ": no variable registered." << std::endl; return 2; }
+  std::cout << "==> " << __FUNCTION__ << ": VarSet = " << VarSet << std::endl;
+
+  TString cuts = Form("(%s)&&Bpt>%f&&Bpt<%f&&hiBin>=0&&hiBin<=200", mycuts.c_str(), ptmin, ptmax);
+  TString cutb = Form("(%s)&&Bpt>%f&&Bpt<%f&&hiBin>=0&&hiBin<=200", mycutb.c_str(), ptmin, ptmax);
+
+  TCut mycutS = (TCut)cuts;
+  TCut mycutB = (TCut)cutb;
+
+  outf->cd("dataset");
+  TTree* info = new TTree("tmvainfo", "TMVA info");
+  info->Branch("cuts", &cuts);
+  info->Branch("cutb", &cutb);
+  info->Branch("var", &varinfo);
+  info->Fill();
+  info->Write();
+
+  // Save the output
+  outf->Close();
+
+  std::cout << "==> Wrote root file: " << outf->GetName() << std::endl;
+  std::cout << "==> TMVAClassification is done!" << std::endl;
+
+  return 0;
+}
+
+//// int main( int argc, char** argv )
+//// {
+////    // Select methods (don't look at this code - not of interest)
+////    TString methodList;
+////    for (int i=1; i<argc; i++) {
+////       TString regMethod(argv[i]);
+////       if(regMethod=="-b" || regMethod=="--batch") continue;
+////       if (!methodList.IsNull()) methodList += TString(",");
+////       methodList += regMethod;
+////    }
+////    return TMVAClassification(methodList);
+//// }
+
+int main(int argc, char* argv[])
+{
+  if(argc==10)
+    { return TMVAClassification(argv[1], argv[2], argv[3], argv[4], argv[5], atof(argv[6]), atof(argv[7]), argv[8], argv[9]); }
+  if(argc==9)
+    { return TMVAClassification(argv[1], argv[2], argv[3], argv[4], argv[5], atof(argv[6]), atof(argv[7]), argv[8]); }
+  if(argc==8)
+    { return TMVAClassification(argv[1], argv[2], argv[3], argv[4], argv[5], atof(argv[6]), atof(argv[7])); }
+  return 1;
+}
