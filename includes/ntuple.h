@@ -25,9 +25,10 @@ namespace mytmva
     ntuple(TTree* nt) : fnt(nt) { fweight = nt->FindBranch("pthatweight"); fgnt = 0; setbranchaddress(); }
     ~ntuple() { fnt = 0; fgnt = 0; }
     bool passedpre(int j);
-    bool passedsig(int j) { return Bgen[j]==23333; }
+    bool passedsig(int j) { return (Bgen[j]==23333 && BgencollisionId[j]==0); }
     // bool passedbkg(int j) { return ((Bmass[j]>3.74 && Bmass[j]<3.82) || (Bmass[j]>3.60 && Bmass[j]<3.65) || (Bmass[j]>3.92 && Bmass[j]<4.00)); }
-    bool passedbkg(int j) { return ((Bmass[j]>3.74 && Bmass[j]<3.83) || (Bmass[j]>3.93 && Bmass[j]<4.00)); }
+    // bool passedbkg(int j) { return ((Bmass[j]>3.74 && Bmass[j]<3.83) || (Bmass[j]>3.93 && Bmass[j]<4.00)); }
+    bool passedbkg(int j) { return (TMath::Abs(Bmass[j]-3.8719) > 0.07 && TMath::Abs(Bmass[j]-3.8719) < 0.128); }
     bool isweight() { return fweight; }
 
     TTree* getnt() { return fnt; }
@@ -36,6 +37,7 @@ namespace mytmva
     float  pthatweight;
     int    Bsize;
     float  Bgen[MAX_XB];
+    int    BgencollisionId[MAX_XB];
     float  Bpt[MAX_XB];
     float  Balpha[MAX_XB];
     float  Btrk1Pt[MAX_XB];
@@ -59,6 +61,12 @@ namespace mytmva
     float  Btrk2Dxy1[MAX_XB];
     float  Btrk1DxyError1[MAX_XB];
     float  Btrk2DxyError1[MAX_XB];
+    float  Btrk1Chi2ndf[MAX_XB];
+    float  Btrk2Chi2ndf[MAX_XB];
+    float  Btrk1nStripLayer[MAX_XB];
+    float  Btrk2nStripLayer[MAX_XB];
+    float  Btrk1nPixelLayer[MAX_XB];
+    float  Btrk2nPixelLayer[MAX_XB];
     float  By[MAX_XB];
 
     //
@@ -113,14 +121,23 @@ namespace mytmva
 
 bool mytmva::ntuple::passedpre(int j)
 {
-  if( Bmu1TMOneStationTight[j] && Bmu1InPixelLayer[j] > 1 && (Bmu1InPixelLayer[j]+Bmu1InStripLayer[j]) > 6 && Bmu1dxyPV[j] < 0.3 && Bmu1dzPV[j] < 20 && Bmu1isGlobalMuon[j] && TMath::Abs(Bmu1eta[j]) < 2 && Bmu1pt[j] > 1.5 && // mu1
-      Bmu2TMOneStationTight[j] && Bmu2InPixelLayer[j] > 1 && (Bmu2InPixelLayer[j]+Bmu2InStripLayer[j]) > 6 && Bmu2dxyPV[j] < 0.3 && Bmu2dzPV[j] < 20 && Bmu2isGlobalMuon[j] && TMath::Abs(Bmu2eta[j]) < 2 && Bmu2pt[j] > 1.5 && // mu2
-      TMath::Abs(Bmumumass[j]-3.096916) < 0.05 && TMath::Abs(Bujeta[j]) < 2.0 && // jpsi
-      Btrk1highPurity[j] &&  TMath::Abs(Btrk1Eta[j]) < 2 && Btrk1Pt[j] > 0.9 && (Btrk1PixelHit[j]+Btrk1StripHit[j]) > 11 && TMath::Abs(Btrk1PtErr[j]/Btrk1Pt[j]) < 0.1 && // trk1
-      Btrk2highPurity[j] &&  TMath::Abs(Btrk2Eta[j]) < 2 && Btrk2Pt[j] > 0.9 && (Btrk2PixelHit[j]+Btrk2StripHit[j]) > 11 && TMath::Abs(Btrk2PtErr[j]/Btrk2Pt[j]) < 0.1 && // trk2
-      // (Bmass[j]-3.096916-Btktkmass[j]) < 0.2 && // Btktkmass[j] > 0.47 && // ! tktkmass
-      TMath::Abs(By[j]) < 2.0 && Bchi2cl[j] > 0.1 // B
-      ) return true;
+  if(
+     Bpt[j] > 10 && TMath::Abs(Bmumumass[j]-3.096916) < 0.05 && TMath::Abs(Bujeta[j]) < 2.4 &&
+     (Bmu1SoftMuID[j] && Bmu2SoftMuID[j] && Bmu1isAcc[j] && Bmu2isAcc[j] && Bmu1isTriggered[j] && Bmu2isTriggered[j]) &&
+     Btrk1Pt[j] > 0.9 && Btrk2Pt[j] > 0.9 && TMath::Abs(Btrk1Eta[j]) < 2.4 && TMath::Abs(Btrk2Eta[j]) < 2.4 &&
+     Btrk1highPurity[j] && Btrk2highPurity[j] && (Btrk1PixelHit[j]+Btrk1StripHit[j]) >= 11 && (Btrk2PixelHit[j]+Btrk2StripHit[j]) >= 11 && TMath::Abs(Btrk1PtErr[j]/Btrk1Pt[j]) < 0.1 && TMath::Abs(Btrk2PtErr[j]/Btrk2Pt[j]) < 0.1 && (Btrk1Chi2ndf[j]/(Btrk1nStripLayer[j]+Btrk1nPixelLayer[j])) < 0.18 && (Btrk2Chi2ndf[j]/(Btrk2nStripLayer[j]+Btrk2nPixelLayer[j])) < 0.18 &&
+     TMath::Abs(By[j]) < 2.4 && Bchi2cl[j] > 0.1 &&
+     BsvpvDisErr[j] > 1.e-5 && BsvpvDisErr_2D[j] > 1.e-5 && 
+     (Bmass[j]-3.096916-Btktkmass[j]) < 0.2
+     ) return true;
+  // if( Bmu1TMOneStationTight[j] && Bmu1InPixelLayer[j] > 1 && (Bmu1InPixelLayer[j]+Bmu1InStripLayer[j]) > 6 && Bmu1dxyPV[j] < 0.3 && Bmu1dzPV[j] < 20 && Bmu1isGlobalMuon[j] && TMath::Abs(Bmu1eta[j]) < 2 && Bmu1pt[j] > 1.5 && // mu1
+  //     Bmu2TMOneStationTight[j] && Bmu2InPixelLayer[j] > 1 && (Bmu2InPixelLayer[j]+Bmu2InStripLayer[j]) > 6 && Bmu2dxyPV[j] < 0.3 && Bmu2dzPV[j] < 20 && Bmu2isGlobalMuon[j] && TMath::Abs(Bmu2eta[j]) < 2 && Bmu2pt[j] > 1.5 && // mu2
+  //     TMath::Abs(Bmumumass[j]-3.096916) < 0.05 && TMath::Abs(Bujeta[j]) < 2.0 && // jpsi
+  //     Btrk1highPurity[j] &&  TMath::Abs(Btrk1Eta[j]) < 2 && Btrk1Pt[j] > 0.9 && (Btrk1PixelHit[j]+Btrk1StripHit[j]) > 11 && TMath::Abs(Btrk1PtErr[j]/Btrk1Pt[j]) < 0.1 && // trk1
+  //     Btrk2highPurity[j] &&  TMath::Abs(Btrk2Eta[j]) < 2 && Btrk2Pt[j] > 0.9 && (Btrk2PixelHit[j]+Btrk2StripHit[j]) > 11 && TMath::Abs(Btrk2PtErr[j]/Btrk2Pt[j]) < 0.1 && // trk2
+  //     // (Bmass[j]-3.096916-Btktkmass[j]) < 0.2 && // Btktkmass[j] > 0.47 && // ! tktkmass
+  //     TMath::Abs(By[j]) < 2.0 && Bchi2cl[j] > 0.1 // B
+  //     ) return true;
   return false;
   /*
    */
@@ -133,6 +150,7 @@ void mytmva::ntuple::setbranchaddress()
 
   fnt->SetBranchAddress("Bsize", &Bsize);
   fnt->SetBranchAddress("Bgen", Bgen);
+  fnt->SetBranchAddress("BgencollisionId", BgencollisionId);
   fnt->SetBranchAddress("Bpt", Bpt);
   fnt->SetBranchAddress("Balpha", Balpha);
   fnt->SetBranchAddress("Btrk1Pt", Btrk1Pt);
@@ -156,6 +174,12 @@ void mytmva::ntuple::setbranchaddress()
   fnt->SetBranchAddress("Btrk2Dxy1", Btrk2Dxy1);
   fnt->SetBranchAddress("Btrk1DxyError1", Btrk1DxyError1);
   fnt->SetBranchAddress("Btrk2DxyError1", Btrk2DxyError1);
+  fnt->SetBranchAddress("Btrk1Chi2ndf", Btrk1Chi2ndf);
+  fnt->SetBranchAddress("Btrk2Chi2ndf", Btrk2Chi2ndf);
+  fnt->SetBranchAddress("Btrk1nStripLayer", Btrk1nStripLayer);
+  fnt->SetBranchAddress("Btrk2nStripLayer", Btrk2nStripLayer);
+  fnt->SetBranchAddress("Btrk1nPixelLayer", Btrk1nPixelLayer);
+  fnt->SetBranchAddress("Btrk2nPixelLayer", Btrk2nPixelLayer);
   // private
   fnt->SetBranchAddress("Bmu1TMOneStationTight", Bmu1TMOneStationTight);
   fnt->SetBranchAddress("Bmu1SoftMuID", Bmu1SoftMuID);
