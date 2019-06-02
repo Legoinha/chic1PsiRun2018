@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<MethodSetup Method="LD::LD">
+  <GeneralInfo>
+    <Info name="TMVA Release" value="4.2.1 [262657]"/>
+    <Info name="ROOT Release" value="6.12/07 [396295]"/>
+    <Info name="Creator" value="jwang"/>
+    <Info name="Date" value="Sun Jun  2 02:48:00 2019"/>
+    <Info name="Host" value="Linux vocms0315.cern.ch 2.6.32-696.30.1.el6.x86_64 #1 SMP Tue May 22 06:09:36 CEST 2018 x86_64 x86_64 x86_64 GNU/Linux"/>
+    <Info name="Dir" value="/export/d00/scratch/jwang/scratchHome/BmesonRun2018/CMSSW_10_3_3_patch1/src/chic1PsiRun2018/tmva/train"/>
+    <Info name="Training events" value="227238"/>
+    <Info name="TrainingTime" value="1.58808947e-01"/>
+    <Info name="AnalysisType" value="Classification"/>
+  </GeneralInfo>
+  <Options>
+    <Option name="V" modified="Yes">False</Option>
+    <Option name="VerbosityLevel" modified="No">Default</Option>
+    <Option name="VarTransform" modified="Yes">None</Option>
+    <Option name="H" modified="Yes">True</Option>
+    <Option name="CreateMVAPdfs" modified="Yes">True</Option>
+    <Option name="IgnoreNegWeightsInTraining" modified="No">False</Option>
+  </Options>
+  <Variables NVar="5">
+    <Variable VarIndex="0" Expression="Bchi2cl" Label="Bchi2cl" Title="Bchi2cl" Unit="" Internal="Bchi2cl" Type="F" Min="1.00001574e-01" Max="9.99997675e-01"/>
+    <Variable VarIndex="1" Expression="TMath::Abs((Btrk1Pt-Btrk2Pt)/(Btrk1Pt+Btrk2Pt))" Label="trkptimba" Title="trkptimba" Unit="" Internal="trkptimba" Type="F" Min="1.51457357e-07" Max="8.90305281e-01"/>
+    <Variable VarIndex="2" Expression="TMath::Sqrt(pow(TMath::ACos(TMath::Cos(Bujphi-Btrk1Phi)),2)+pow(Bujeta-Btrk1Eta,2))" Label="dRtrk1" Title="dRtrk1" Unit="" Internal="dRtrk1" Type="F" Min="2.66212854e-04" Max="6.85429573e-01"/>
+    <Variable VarIndex="3" Expression="TMath::Sqrt(pow(TMath::ACos(TMath::Cos(Bujphi-Btrk2Phi)),2)+pow(Bujeta-Btrk2Eta,2))" Label="dRtrk2" Title="dRtrk2" Unit="" Internal="dRtrk2" Type="F" Min="7.10899840e-05" Max="6.86152458e-01"/>
+    <Variable VarIndex="4" Expression="Btrk2Pt" Label="Btrk2Pt" Title="Btrk2Pt" Unit="" Internal="Btrk2Pt" Type="F" Min="9.00000572e-01" Max="2.19220104e+01"/>
+  </Variables>
+  <Spectators NSpec="0"/>
+  <Classes NClass="2">
+    <Class Name="Signal" Index="0"/>
+    <Class Name="Background" Index="1"/>
+  </Classes>
+  <Transformations NTransformations="0"/>
+  <MVAPdfs>
+    <PDF Name="LD_PDFSig" MinNSmooth="10" MaxNSmooth="10" InterpolMethod="2" KDE_type="1" KDE_iter="1" KDE_border="1" KDE_finefactor="1.0000000000000000e+00">
+      <Histogram Name="LD_tr_S_original" NBins="50" XMin="-1.2032800912857056e-01" XMax="2.7585263252258301e+00" HasEquidistantBins="1">
+        0.00000000e+00 1.24642851e-01 1.58304755e+00 4.51516371e+00 3.28959904e+00 2.65962732e+00 1.80380953e+00 1.18515043e+00 9.49531760e-01 4.64517965e-01 2.67855702e-01 1.87716613e-01 1.51161445e-01 5.27023656e-02 2.99754107e-02 3.22434292e-02 2.86085810e-02 4.87635336e-03 4.74746036e-03 5.41857088e-03 3.49480081e-03 4.17815569e-03 1.31778459e-02 1.52194304e-03 7.09683015e-04 1.11338770e-03 6.28216670e-04 3.61899088e-04 2.94449733e-04 2.78669709e-04 1.39041293e-04 1.00325721e-03 2.46542785e-04 1.64626454e-05 4.69959939e-05 3.63365675e-05 1.45451289e-04 2.78300302e-05 5.35071710e-05 2.32617043e-05 0.00000000e+00 8.92661348e-07 0.00000000e+00 0.00000000e+00 4.45805595e-05 1.61204134e-05 0.00000000e+00 0.00000000e+00 7.35132850e-07 6.39565621e-05 
+      </Histogram>
+    </PDF>
+    <PDF Name="LD_PDFBkg" MinNSmooth="10" MaxNSmooth="10" InterpolMethod="2" KDE_type="1" KDE_iter="1" KDE_border="1" KDE_finefactor="1.0000000000000000e+00">
+      <Histogram Name="LD_tr_B_original" NBins="50" XMin="-1.2032800912857056e-01" XMax="2.7585263252258301e+00" HasEquidistantBins="1">
+        5.49185464e-01 4.83553625e+00 6.86064274e+00 3.30068020e+00 1.17615563e+00 4.13420136e-01 1.44434584e-01 5.19360040e-02 1.81338575e-02 7.31717055e-03 4.21532651e-03 2.06789603e-03 1.74975818e-03 7.95344625e-04 4.77206775e-04 4.77206775e-04 1.59068925e-04 2.38603388e-04 1.59068925e-04 1.59068925e-04 0.00000000e+00 7.95344625e-05 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 
+      </Histogram>
+    </PDF>
+  </MVAPdfs>
+  <Weights NOut="1" NCoeff="6">
+    <Coefficient IndexOut="0" IndexCoeff="0" Value="-3.6557155425245194e-02"/>
+    <Coefficient IndexOut="0" IndexCoeff="1" Value="2.2090439011585083e-02"/>
+    <Coefficient IndexOut="0" IndexCoeff="2" Value="9.5683667528106087e-02"/>
+    <Coefficient IndexOut="0" IndexCoeff="3" Value="-2.6232924203841890e-01"/>
+    <Coefficient IndexOut="0" IndexCoeff="4" Value="-1.5149211206790603e-01"/>
+    <Coefficient IndexOut="0" IndexCoeff="5" Value="1.2485069237204749e-01"/>
+  </Weights>
+</MethodSetup>
