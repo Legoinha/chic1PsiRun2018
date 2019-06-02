@@ -47,26 +47,26 @@ void MCefficiency(std::string input_a, std::string input_b, std::string cut, std
   hempty_incl->GetXaxis()->SetLabelSize(hempty_incl->GetXaxis()->GetLabelSize()*1.5);
 
   TH1F* hmc_a = new TH1F("hmc_a", ";p_{T} (GeV/c);", MCeff::nPtBins, MCeff::ptBins.data()); hmc_a->Sumw2();
-  ntmix_a->Project("hmc_a", "Bpt", TCut("pthatweight")*(TCut(cut.c_str())&&TCut("Bgen==23333&&hiBin<=200")));
+  ntmix_a->Project("hmc_a", "Bpt", TCut("pthatweight*Ncoll")*(TCut(cut.c_str())&&TCut("Bgen==23333&&BgencollisionId==0&&hiBin>=0&&hiBin<180")));
   TH1F* hmc_incl_a = new TH1F("hmc_incl_a", "", 400, 0, 400); hmc_incl_a->Sumw2();
-  ntmix_a->Project("hmc_incl_a", "1", TCut("pthatweight")*(TCut(cut.c_str())&&TCut("Bgen==23333&&hiBin<=200")));
+  ntmix_a->Project("hmc_incl_a", "1", TCut("pthatweight*Ncoll")*(TCut(cut.c_str())&&TCut("Bgen==23333&&BgencollisionId==0&&hiBin>=0&&hiBin<180")));
   TH1F* hgen_a = new TH1F("hgen_a", ";p_{T} (GeV/c);", MCeff::nPtBins, MCeff::ptBins.data());
-  ntGen_a->Project("hgen_a", "Gpt", TCut("pthatweight")*(TCut(cutgen.c_str())&&TCut("hiBin<=200")));
+  ntGen_a->Project("hgen_a", "Gpt", TCut("pthatweight*Ncoll")*(TCut(cutgen.c_str())&&TCut("hiBin<=200")));
   TH1F* hgen_incl_a = new TH1F("hgen_incl_a", "", 400, 0, 400); hgen_incl_a->Sumw2();
-  ntGen_a->Project("hgen_incl_a", "1", TCut("pthatweight")*(TCut(cutgen.c_str())&&TCut("hiBin<=200")));
+  ntGen_a->Project("hgen_incl_a", "1", TCut("pthatweight*Ncoll")*(TCut(cutgen.c_str())&&TCut("hiBin<=200")));
   TEfficiency* greff_a = new TEfficiency(*hmc_a, *hgen_a); greff_a->SetName("greff_a");
   xjjroot::setthgrstyle(greff_a, 0, 0, 0, fitX::color_a, 2, 3, fitX::color_a, 0.1, 1001);
   TEfficiency* greff_incl_a = new TEfficiency(*hmc_incl_a, *hgen_incl_a); greff_incl_a->SetName("greff_incl_a");
   xjjroot::setthgrstyle(greff_incl_a, fitX::color_a, 20, 1.2, fitX::color_a, 2, 3, fitX::color_a, 0.1, 1001);
 
   TH1F* hmc_b = new TH1F("hmc_b", ";p_{T} (GeV/c);", MCeff::nPtBins, MCeff::ptBins.data()); hmc_b->Sumw2();
-  ntmix_b->Project("hmc_b", "Bpt", TCut("pthatweight")*(TCut(cut.c_str())&&TCut("Bgen==23333&&hiBin<=200")));
+  ntmix_b->Project("hmc_b", "Bpt", TCut("pthatweight*Ncoll")*(TCut(cut.c_str())&&TCut("Bgen==23333&&BgencollisionId==0&&hiBin>=0&&hiBin<180")));
   TH1F* hmc_incl_b = new TH1F("hmc_incl_b", "", 400, 0, 400); hmc_incl_b->Sumw2();
-  ntmix_b->Project("hmc_incl_b", "3", TCut("pthatweight")*(TCut(cut.c_str())&&TCut("Bgen==23333&&hiBin<=200")));
+  ntmix_b->Project("hmc_incl_b", "3", TCut("pthatweight*Ncoll")*(TCut(cut.c_str())&&TCut("Bgen==23333&&BgencollisionId==0&&hiBin>=0&&hiBin<180")));
   TH1F* hgen_b = new TH1F("hgen_b", ";p_{T} (GeV/c);", MCeff::nPtBins, MCeff::ptBins.data());
-  ntGen_b->Project("hgen_b", "Gpt", TCut("pthatweight")*(TCut(cutgen.c_str())&&TCut("hiBin<=200")));
+  ntGen_b->Project("hgen_b", "Gpt", TCut("pthatweight*Ncoll")*(TCut(cutgen.c_str())&&TCut("hiBin>=0 && hiBin<180")));
   TH1F* hgen_incl_b = new TH1F("hgen_incl_b", "", 400, 0, 400); hgen_incl_b->Sumw2();
-  ntGen_b->Project("hgen_incl_b", "3", TCut("pthatweight")*(TCut(cutgen.c_str())&&TCut("hiBin<=200")));
+  ntGen_b->Project("hgen_incl_b", "3", TCut("pthatweight*Ncoll")*(TCut(cutgen.c_str())&&TCut("hiBin>=0 && hiBin<180")));
   TEfficiency* greff_b = new TEfficiency(*hmc_b, *hgen_b); greff_b->SetName("greff_b");
   xjjroot::setthgrstyle(greff_b, 0, 0, 0, fitX::color_b, 2, 3, fitX::color_b, 0.1, 1001);
   TEfficiency* greff_incl_b = new TEfficiency(*hmc_incl_b, *hgen_incl_b); greff_incl_b->SetName("greff_incl_b");
