@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ifs=(5) # input directory
+ifs=(6) # input directory
 jns=(1) # tree
 
 ## ifs
@@ -11,6 +11,7 @@ inputdirs=(
     /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190513_HIDoubleMuon_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_326580_326855/             # 3
     /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190513_HIDoubleMuon_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_326856_327078/             # 4
     /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_samesign_20190513_HIDoubleMuonPsi_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_327123_327327/ # 5
+    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_samesign_20190513_HIDoubleMuonPsi_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_327400_327564/ # 6
 )
 
 ########################################

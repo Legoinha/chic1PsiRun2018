@@ -129,7 +129,7 @@ int main(int argc, char* argv[])
 {
   if(argc==5) { merge(argv[1], argv[2], argv[3], atoi(argv[4])); return 0; }
   if(argc==4) { merge(argv[1], argv[2], argv[3]); return 0; }
-  std::cout<<__FUNCTION__<<": ./merge.exe [outputname] [filelist] [treename](ntKp, ntphi, ntmix, root, empty) (optional)[number of events]"
+  std::cout<<__FUNCTION__<<": ./merge.exe [outputname] [filelist] [treename](ntKp, ntphi, ntmix, root, empty) (optional)[number of events]";
   return 1;
 }
 

@@ -7,12 +7,13 @@ ptmin=10 ; ptmax=-1 ; output=
 inputs=/export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190520_Hydjet_Pythia8_X3872ToJpsiRho_prompt_1033p1_pt6tkpt0p7dls0_v3_addSamplePthat_pthatweight.root ; output=rootfiles/TMVA_trainX ;
 # -- background sample
 inputb=/export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190513_HIDoubleMuon__PsiPeri__HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_skimhltBsize_ntmix_Xpt10__add_Bfinder-ntmix_BgencollisionId.root ; bkgstrategy=sideband ;
-# inputb=/export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_samesign_20190513_HIDoubleMuonPsi_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_327123_327327_skimhltBsize_ntmix.root ; bkgstrategy=samesign ;
+# inputb=/export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_samesign_20190513_HIDoubleMuonPsi_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_327123_327564_skimhltBsize_ntmix_Xpt10__add_Bfinder-ntmix_BgencollisionId.root ; bkgstrategy=samesign ;
 output=${output}_$bkgstrategy
 # -- data sample
-inputm=$inputb ; outputmva=/export/d00/scratch/jwang/BntupleRun2018/output_mva ;
-# inputm=/export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190520_Hydjet_Pythia8_Psi2SToJpsiPiPi_prompt_1033p1_pt6tkpt0p7dls0_v3_addSamplePthat_pthatweight.root ; outputmva=/export/d00/scratch/jwang/BntupleRun2018/output_mva_mcPsi ;
-# inputm=/export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190520_Hydjet_Pythia8_X3872ToJpsiRho_prompt_1033p1_pt6tkpt0p7dls0_v3_addSamplePthat_pthatweight.root ; outputmva=/export/d00/scratch/jwang/BntupleRun2018/output_mva_mcX ;
+# inputm=/export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190513_HIDoubleMuon__PsiPeri__HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_skimhltBsize_ntmix_Xpt10.root ; outputmva=/export/d00/scratch/jwang/BntupleRun2018/output_mva_data ;
+inputm=/export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_samesign_20190513_HIDoubleMuonPsi_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_327123_327564_skimhltBsize_ntmix_Xpt10.root ; outputmva=/export/d00/scratch/jwang/BntupleRun2018/output_mva_samesign ;
+# inputm=/export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190520_Hydjet_Pythia8_Psi2SToJpsiPiPi_prompt_1033p1_pt6tkpt0p7dls0_v3_addSamplePthat_pthatweight.root ; outputmva=/export/d00/scratch/jwang/BntupleRun2018/output_mva_promptPsi ;
+# inputm=/export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190520_Hydjet_Pythia8_X3872ToJpsiRho_prompt_1033p1_pt6tkpt0p7dls0_v3_addSamplePthat_pthatweight.root ; outputmva=/export/d00/scratch/jwang/BntupleRun2018/output_mva_promptX ;
 
 ##
 # -- event filter
@@ -27,6 +28,7 @@ cut=$cut" && (Bmu1SoftMuID && Bmu2SoftMuID && Bmu1isAcc && Bmu2isAcc && Bmu1isTr
 cut=$cut" && Btrk1Pt > 0.9 && Btrk2Pt > 0.9 && TMath::Abs(Btrk1Eta) < 2.4 && TMath::Abs(Btrk2Eta) < 2.4"
 # -- track qualirty
 cut=$cut" && Btrk1highPurity && Btrk2highPurity && (Btrk1PixelHit+Btrk1StripHit) >= 11 && (Btrk2PixelHit+Btrk2StripHit) >= 11 && TMath::Abs(Btrk1PtErr/Btrk1Pt) < 0.1 && TMath::Abs(Btrk2PtErr/Btrk2Pt) < 0.1 && (Btrk1Chi2ndf/(Btrk1nStripLayer+Btrk1nPixelLayer)) < 0.18 && (Btrk2Chi2ndf/(Btrk2nStripLayer+Btrk2nPixelLayer)) < 0.18"
+# cut=$cut" && Btrk1highPurity && Btrk2highPurity && (Btrk1PixelHit+Btrk1StripHit) >= 11 && (Btrk2PixelHit+Btrk2StripHit) >= 11 && TMath::Abs(Btrk1PtErr/Btrk1Pt) < 0.1 && TMath::Abs(Btrk2PtErr/Btrk2Pt) < 0.1 && (Btrk1Chi2ndf/(Btrk1nStripLayer+Btrk1nPixelLayer)) < 0.18 && (Btrk2Chi2ndf/(Btrk2nStripLayer+Btrk2nPixelLayer)) < 0.18 && TMath::Abs(Btrk1Dxy1/Btrk1DxyError1) < 3 && TMath::Abs(Btrk2Dxy1/Btrk2DxyError1) < 3"
 # -- X prefilter
 cut=$cut" && TMath::Abs(By) < 2.4 && Bchi2cl > 0.1"
 # -- tricky selection
@@ -38,8 +40,10 @@ cut=$cut" && (Bmass-3.096916-Btktkmass) < 0.2" ; output=${output}_tktk0p2 ;
 algo="BDT,BDTG,CutsGA,CutsSA,LD"
 # algo="BDT,BDTG"
 
-stages="0,10,1,2,9,8,4,5,6,7,15,16" ; sequence=1 ; # see definition below #
-# stages="0,10,1,2,9" ; sequence=0 ; # see definition below #
+# stages="0,10,1,2,9,8,4,5,6,7,15,16" ; sequence=1 ; # see definition below #
+stages="0,10,1,2,9" ; sequence=0 ; # see definition below #
+# stages="0,10,1,2,9,4" ; sequence=0 ; # see definition below #
+# stages="0,10,1,2,9,8,4,6" ; sequence=0 ; # see definition below #
 
 ## ===== do not change the lines below =====
 varstrategy=("Single set" "Sequence")
@@ -66,7 +70,7 @@ varlist=(
 
 cuts="${cut} && Bgen==23333 && BgencollisionId==0"
 [[ $bkgstrategy == "sideband" ]] && cutb="${cut} && TMath::Abs(Bmass-3.8719) > 0.07 && TMath::Abs(Bmass-3.8719) < 0.128" # sideband
-[[ $bkgstrategy == "samesign" ]] && cutb="${cut} && TMath::Abs(Bmass-3.8719) < 0.128" # samesign
+[[ $bkgstrategy == "samesign" ]] && cutb="${cut} && TMath::Abs(Bmass-3.8719) < 0.04" # samesign
 
 ## ===== do not do not do not change the lines below =====
 IFS=','; allstages=($stages); unset IFS;

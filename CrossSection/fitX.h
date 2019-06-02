@@ -9,26 +9,27 @@
 
 namespace fitX
 {
-  void setmasshist(TH1* h, float xoffset=0, float yoffset=0);
-  void fit(TH1F* h, TH1F* hmc_a, TH1F* hmc_b, std::string name);
+  void setmasshist(TH1* h, float xoffset=0, float yoffset=0, Color_t pcolor=kBlack);
+  TF1* fit(TH1F* h, TH1F* h_ss, TH1F* hmc_a, TH1F* hmc_b, std::string name, bool saveplot=true);
 
   const int NBIN = 38, NBIN_L = 50, NBIN_H = 50;
   const float BIN_MIN = 3.62, BIN_MAX = 4.0, BIN_MIN_L = 3.64, BIN_MAX_L = 3.74, BIN_MIN_H = 3.82, BIN_MAX_H = 3.92;
   float BIN_WIDTH = (BIN_MAX-BIN_MIN)/NBIN*1.0, BIN_WIDTH_L = (BIN_MAX_L-BIN_MIN_L)/NBIN_L*1.0, BIN_WIDTH_H = (BIN_MAX_H-BIN_MIN_H)/NBIN_H*1.0;
   void drawpull(TH1* hmc, TF1* f, Color_t color);
 
-  Color_t color_data = kRed, color_a = kAzure-1, color_b = kGreen+3;
+  Color_t color_data = kRed, color_a = kAzure-1, color_b = kGreen+3, color_ss = kGray+1;
 }
 
 
 // --->
-void fitX::fit(TH1F* h, TH1F* hmc_a, TH1F* hmc_b, std::string name)
+TF1* fitX::fit(TH1F* h, TH1F* h_ss, TH1F* hmc_a, TH1F* hmc_b, std::string name, bool saveplot)
 {
   xjjroot::setgstyle(2);
   gStyle->SetPadLeftMargin(gStyle->GetPadLeftMargin()*0.7);
 
   fitX::setmasshist(h, 0, -0.2);
   h->SetMinimum(0);
+  if(h_ss) fitX::setmasshist(h_ss, 0, -0.2, color_ss);
   fitX::setmasshist(hmc_a, 0, 0.05);
   hmc_a->SetMaximum(hmc_a->GetMaximum()*1.2);
   hmc_a->SetMinimum(0 - hmc_a->GetMaximum()*0.1);
@@ -108,7 +109,7 @@ void fitX::fit(TH1F* h, TH1F* hmc_a, TH1F* hmc_b, std::string name)
   xjjroot::drawCMSleft("#scale[1.25]{#bf{CMS}} #it{Simulation}");
   xjjroot::drawCMSright();
   cmc->RedrawAxis();
-  cmc->SaveAs(Form("plots/chmassmc_%s.pdf", name.c_str()));
+  if(saveplot) cmc->SaveAs(Form("plots/chmassmc_%s.pdf", name.c_str()));
 
   //
   xjjroot::settfstyle(f, color_data, 1, 3);
@@ -127,6 +128,7 @@ void fitX::fit(TH1F* h, TH1F* hmc_a, TH1F* hmc_b, std::string name)
   h->Fit("f","NLL");
 
   fitX::drawpull(h, f, color_data);
+  if(h_ss) h_ss->Draw("pe same");
 
   TF1 *fsig1 = xjjroot::copyobject(f, "fsig1");
   fsig1->SetRange(BIN_MIN_L, BIN_MAX_L);
@@ -168,15 +170,16 @@ void fitX::fit(TH1F* h, TH1F* hmc_a, TH1F* hmc_b, std::string name)
   xjjroot::drawtex(0.68, 0.31, Form("N_{X(3872)} = %.0f #pm %.0f", ysig2, f->GetParError(10)*ysig2/f->GetParameter(10)), 0.04, 12, 62, color_b);
   xjjroot::drawCMS();
 
-  c->SaveAs(Form("plots/chmass_%s.pdf", name.c_str()));
+  if(saveplot) c->SaveAs(Form("plots/chmass_%s.pdf", name.c_str()));
+  return f;
 }
 
-void fitX::setmasshist(TH1* h, float xoffset/*=0*/, float yoffset/*=0*/)
+void fitX::setmasshist(TH1* h, float xoffset/*=0*/, float yoffset/*=0*/, Color_t pcolor/*=kBlack*/)
 {
   xjjroot::sethempty(h, xoffset, yoffset);
   h->Sumw2();
-  h->SetLineColor(kBlack);
-  h->SetMarkerColor(kBlack);
+  h->SetLineColor(pcolor);
+  h->SetMarkerColor(pcolor);
   h->SetMarkerStyle(20);
   h->SetMarkerSize(1.0);
 }

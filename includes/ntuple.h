@@ -5,41 +5,64 @@
 #include <TMath.h>
 
 #ifndef MAX_XB
-#define MAX_XB     20000
-#endif
-
-#ifndef MASS_JPSI
-#define MASS_JPSI  3.096916
+#define MAX_XB      20000
 #endif
 
 #ifndef MAX_GEN
-#define MAX_GEN      6000
+#define MAX_GEN     6000
 #endif
+
+#define PDGID_JPSI  443
+#define MASS_JPSI   3.096916
+#define PDGID_X     20443
+#define MASS_X      3.87169
+#define PDGID_PSI2S 100443
+#define MASS_PSI2S  3.686097
 
 namespace mytmva
 {
   class ntuple
   {
   public:
-    ntuple(TTree* nt, TTree* gnt) : fnt(nt), fgnt(gnt) { fweight = nt->FindBranch("pthatweight"); setbranchaddress(); }
-    ntuple(TTree* nt) : fnt(nt) { fweight = nt->FindBranch("pthatweight"); fgnt = 0; setbranchaddress(); }
+    ntuple(TTree* nt, TTree* gnt) : fnt(nt), fgnt(gnt) { setbranchaddress(); }
+    ntuple(TTree* nt) : fnt(nt) { fgnt = 0; setbranchaddress(); }
     ~ntuple() { fnt = 0; fgnt = 0; }
     bool passedpre(int j);
     bool passedsig(int j) { return (Bgen[j]==23333 && BgencollisionId[j]==0); }
+    bool passedevtfil() { return (HLT_HIL3Mu0NHitQ10_L2Mu0_MAXdR3p5_M1to5_v1 && pprimaryVertexFilter && phfCoincFilter2Th4 && pclusterCompatibilityFilter && hiBin >=0 && hiBin < 180); }
     // bool passedbkg(int j) { return ((Bmass[j]>3.74 && Bmass[j]<3.82) || (Bmass[j]>3.60 && Bmass[j]<3.65) || (Bmass[j]>3.92 && Bmass[j]<4.00)); }
     // bool passedbkg(int j) { return ((Bmass[j]>3.74 && Bmass[j]<3.83) || (Bmass[j]>3.93 && Bmass[j]<4.00)); }
     bool passedbkg(int j) { return (TMath::Abs(Bmass[j]-3.8719) > 0.07 && TMath::Abs(Bmass[j]-3.8719) < 0.128); }
     bool isweight() { return fweight; }
+    bool ishlt() { return fhlt; }
+    bool isskim() { return fskim; }
+
+    // >>>
+    bool signalregionl(int j) { return (TMath::Abs(Bmass[j]-MASS_PSI2S) < 0.018); }
+    bool signalregionh(int j) { return (TMath::Abs(Bmass[j]-MASS_X) < 0.018); }
+    bool sidebandl(int j) { return (TMath::Abs(Bmass[j]-MASS_PSI2S) > 0.04 && TMath::Abs(Bmass[j]-MASS_PSI2S) < 0.12); }
+    bool sidebandh(int j) { return (TMath::Abs(Bmass[j]-MASS_X) > 0.02 && TMath::Abs(Bmass[j]-MASS_X) < 0.10); }
 
     TTree* getnt() { return fnt; }
     TTree* getgnt() { return fgnt; }
 
     float  pthatweight;
+    float  Ncoll;
+    int    hiBin;
+    int    HLT_HIL3Mu0NHitQ10_L2Mu0_MAXdR3p5_M1to5_v1;
+    int    pprimaryVertexFilter;
+    int    phfCoincFilter2Th4;
+    int    pclusterCompatibilityFilter;
+    float  BDT[MAX_XB];
+    float  BDTG[MAX_XB];
+    bool   mvapref[MAX_XB];
+
     int    Bsize;
     float  Bgen[MAX_XB];
     int    BgencollisionId[MAX_XB];
     float  Bpt[MAX_XB];
     float  Balpha[MAX_XB];
+    float  Blxy[MAX_XB];
     float  Btrk1Pt[MAX_XB];
     float  Btrk2Pt[MAX_XB];
     float  Bmass[MAX_XB];
@@ -114,6 +137,10 @@ namespace mytmva
     TTree* fnt;
     TTree* fgnt;
     bool   fweight;
+    bool   fskim;
+    bool   fhlt;
+    bool   fmva;
+    bool   fhi;
     void setbranchaddress();
 
   };
@@ -125,7 +152,8 @@ bool mytmva::ntuple::passedpre(int j)
      Bpt[j] > 10 && TMath::Abs(Bmumumass[j]-3.096916) < 0.05 && TMath::Abs(Bujeta[j]) < 2.4 &&
      (Bmu1SoftMuID[j] && Bmu2SoftMuID[j] && Bmu1isAcc[j] && Bmu2isAcc[j] && Bmu1isTriggered[j] && Bmu2isTriggered[j]) &&
      Btrk1Pt[j] > 0.9 && Btrk2Pt[j] > 0.9 && TMath::Abs(Btrk1Eta[j]) < 2.4 && TMath::Abs(Btrk2Eta[j]) < 2.4 &&
-     Btrk1highPurity[j] && Btrk2highPurity[j] && (Btrk1PixelHit[j]+Btrk1StripHit[j]) >= 11 && (Btrk2PixelHit[j]+Btrk2StripHit[j]) >= 11 && TMath::Abs(Btrk1PtErr[j]/Btrk1Pt[j]) < 0.1 && TMath::Abs(Btrk2PtErr[j]/Btrk2Pt[j]) < 0.1 && (Btrk1Chi2ndf[j]/(Btrk1nStripLayer[j]+Btrk1nPixelLayer[j])) < 0.18 && (Btrk2Chi2ndf[j]/(Btrk2nStripLayer[j]+Btrk2nPixelLayer[j])) < 0.18 &&
+     Btrk1highPurity[j] && Btrk2highPurity[j] && (Btrk1PixelHit[j]+Btrk1StripHit[j]) >= 11 && (Btrk2PixelHit[j]+Btrk2StripHit[j]) >= 11 && TMath::Abs(Btrk1PtErr[j]/Btrk1Pt[j]) < 0.1 && TMath::Abs(Btrk2PtErr[j]/Btrk2Pt[j]) < 0.1 && (Btrk1Chi2ndf[j]/(Btrk1nStripLayer[j]+Btrk1nPixelLayer[j])) < 0.18 && (Btrk2Chi2ndf[j]/(Btrk2nStripLayer[j]+Btrk2nPixelLayer[j])) < 0.18 && 
+     // TMath::Abs(Btrk1Dxy1[j]/Btrk1Dxy1[j]) < 3 && TMath::Abs(Btrk2Dxy1[j]/Btrk2DxyError1[j]) < 3 &&
      TMath::Abs(By[j]) < 2.4 && Bchi2cl[j] > 0.1 &&
      BsvpvDisErr[j] > 1.e-5 && BsvpvDisErr_2D[j] > 1.e-5 && 
      (Bmass[j]-3.096916-Btktkmass[j]) < 0.2
@@ -145,14 +173,53 @@ bool mytmva::ntuple::passedpre(int j)
 
 void mytmva::ntuple::setbranchaddress()
 {
+  fweight = fnt->FindBranch("pthatweight") && fnt->FindBranch("Ncoll");
+  // if(!fweight) { std::cout<<__FUNCTION__<<": warning: no branch \e[4mpthatweight\e[0m or \e[4mNcoll\e[0m."<<std::endl; }
+  fhlt = fnt->FindBranch("HLT_HIL3Mu0NHitQ10_L2Mu0_MAXdR3p5_M1to5_v1");
+  if(!fhlt) { std::cout<<__FUNCTION__<<": \e[31mwarning:\e[0m no branch \e[4m"<<"HLT_HIL3Mu0NHitQ10_L2Mu0_MAXdR3p5_M1to5_v1"<<"\e[0m"
+                       <<"."<<std::endl; }
+  fskim = fnt->FindBranch("pprimaryVertexFilter") && fnt->FindBranch("phfCoincFilter2Th4") && fnt->FindBranch("pclusterCompatibilityFilter");
+  if(!fskim) { std::cout<<__FUNCTION__<<": \e[31mwarning:\e[0m no branch \e[4m"<<"pprimaryVertexFilter"<<"\e[0m"
+                        <<" or \e[4m"<<"phfCoincFilter2Th4"<<"\e[0m"
+                        <<" or \e[4m"<<"pclusterCompatibilityFilter"<<"\e[0m"
+                        <<"."<<std::endl; }
+  fmva = fnt->FindBranch("mvapref");
+  if(!fmva) { std::cout<<__FUNCTION__<<": \e[31mwarning:\e[0m no branch \e[4m"<<"mvapref"<<"\e[0m"
+                       <<"."<<std::endl; }
+  fhi = fnt->FindBranch("hiBin");
   // public:
-  if(fweight) { fnt->SetBranchAddress("pthatweight", &pthatweight); }
+  if(fweight) 
+    { 
+      fnt->SetBranchAddress("pthatweight", &pthatweight); 
+      fnt->SetBranchAddress("Ncoll", &Ncoll); 
+    }
+  if(fhlt) 
+    { 
+      fnt->SetBranchAddress("HLT_HIL3Mu0NHitQ10_L2Mu0_MAXdR3p5_M1to5_v1", &HLT_HIL3Mu0NHitQ10_L2Mu0_MAXdR3p5_M1to5_v1); 
+    }
+  if(fskim)
+    {
+      fnt->SetBranchAddress("pprimaryVertexFilter", &pprimaryVertexFilter); 
+      fnt->SetBranchAddress("phfCoincFilter2Th4", &phfCoincFilter2Th4); 
+      fnt->SetBranchAddress("pclusterCompatibilityFilter", &pclusterCompatibilityFilter);       
+    }
+  if(fmva)
+    {
+      fnt->SetBranchAddress("mvapref", mvapref);
+      fnt->SetBranchAddress("BDT", BDT);
+      fnt->SetBranchAddress("BDTG", BDTG);
+    }
+  if(fhi)
+    {
+      fnt->SetBranchAddress("hiBin", &hiBin);
+    }
 
   fnt->SetBranchAddress("Bsize", &Bsize);
   fnt->SetBranchAddress("Bgen", Bgen);
   fnt->SetBranchAddress("BgencollisionId", BgencollisionId);
   fnt->SetBranchAddress("Bpt", Bpt);
   fnt->SetBranchAddress("Balpha", Balpha);
+  fnt->SetBranchAddress("Blxy", Blxy);
   fnt->SetBranchAddress("Btrk1Pt", Btrk1Pt);
   fnt->SetBranchAddress("Btrk2Pt", Btrk2Pt);
   fnt->SetBranchAddress("Bmass", Bmass);
