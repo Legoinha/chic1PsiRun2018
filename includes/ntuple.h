@@ -12,6 +12,9 @@
 #define MAX_GEN     6000
 #endif
 
+#ifndef PDG_VALUE__
+#define PDG_VALUE__
+
 #define PDGID_JPSI  443
 #define MASS_JPSI   3.096916
 #define PDGID_X     20443
@@ -19,8 +22,12 @@
 #define PDGID_PSI2S 100443
 #define MASS_PSI2S  3.686097
 
+#endif
+
 namespace mytmva
 {
+  const float sigwindowL = 0.018, sigwindowH = 0.018;
+
   class ntuple
   {
   public:
@@ -38,8 +45,8 @@ namespace mytmva
     bool isskim() { return fskim; }
 
     // >>>
-    bool signalregionl(int j) { return (TMath::Abs(Bmass[j]-MASS_PSI2S) < 0.018); }
-    bool signalregionh(int j) { return (TMath::Abs(Bmass[j]-MASS_X) < 0.018); }
+    bool signalregionl(int j) { return (TMath::Abs(Bmass[j]-MASS_PSI2S) < sigwindowL); }
+    bool signalregionh(int j) { return (TMath::Abs(Bmass[j]-MASS_X) < sigwindowH); }
     bool sidebandl(int j) { return (TMath::Abs(Bmass[j]-MASS_PSI2S) > 0.04 && TMath::Abs(Bmass[j]-MASS_PSI2S) < 0.12); }
     bool sidebandh(int j) { return (TMath::Abs(Bmass[j]-MASS_X) > 0.02 && TMath::Abs(Bmass[j]-MASS_X) < 0.10); }
 

@@ -77,7 +77,7 @@ void fitXvary(std::string inputdata, std::string inputmc_a, std::string inputmc_
             }
         }
     }
-
+  xjjc::progressbar_summary(nentries);
 
   pt = new xjjc::packtree(infmc_a, "Bfinder/ntmix", "mc_a");
   ntp = pt->ntp;
@@ -92,6 +92,7 @@ void fitXvary(std::string inputdata, std::string inputmc_a, std::string inputmc_
         {
           if(!ntp->mvapref[j]) continue;
           if(!(ntp->Bpt[j] > 15 && TMath::Abs(ntp->By[j]) < 1.5)) continue;
+          if(!(ntp->Bgen[j]==23333 && ntp->BgencollisionId[j]==0)) continue;
           for(int l=0; l<nbdtg; l++)
             {
               if(ntp->BDTG[j] > bdtg[l])
@@ -109,7 +110,7 @@ void fitXvary(std::string inputdata, std::string inputmc_a, std::string inputmc_
             }
         }
     }
-
+  xjjc::progressbar_summary(nentries);
 
   pt = new xjjc::packtree(infmc_b, "Bfinder/ntmix", "mc_b");
   ntp = pt->ntp;
@@ -123,7 +124,8 @@ void fitXvary(std::string inputdata, std::string inputmc_a, std::string inputmc_
       for(int j=0; j<ntp->Bsize; j++)
         {
           if(!ntp->mvapref[j]) continue;
-          if(!(ntp->Bpt[j] > 15 && TMath::Abs(ntp->By[j]) < 1.5)) continue;
+          if(!(ntp->Bpt[j] > 15 && TMath::Abs(ntp->By[j]) < 1.5)) continue; 
+          if(!(ntp->Bgen[j]==23333 && ntp->BgencollisionId[j]==0)) continue;
           for(int l=0; l<nbdtg; l++)
             {
               if(ntp->BDTG[j] > bdtg[l])
@@ -141,6 +143,7 @@ void fitXvary(std::string inputdata, std::string inputmc_a, std::string inputmc_
             }
         }
     }
+  xjjc::progressbar_summary(nentries);
 
   // int nentriesmc_a = ptmc_a->getentries();
   // int nentriesmc_b = ptmc_b->getentries();

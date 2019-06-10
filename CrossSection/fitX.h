@@ -7,23 +7,27 @@
 
 #include <string>
 
+#include "ntuple.h"
+
 namespace fitX
 {
   void setmasshist(TH1* h, float xoffset=0, float yoffset=0, Color_t pcolor=kBlack);
-  TF1* fit(TH1F* h, TH1F* h_ss, TH1F* hmc_a, TH1F* hmc_b, std::string name, bool saveplot=true);
+  std::vector<TF1*> fit(TH1F* h, TH1F* h_ss, TH1F* hmc_a, TH1F* hmc_b, std::string name, bool fixmean, bool saveplot);
 
   const int NBIN = 38, NBIN_L = 50, NBIN_H = 50;
+  // const int NBIN = 57, NBIN_L = 50, NBIN_H = 50;
   const float BIN_MIN = 3.62, BIN_MAX = 4.0, BIN_MIN_L = 3.64, BIN_MAX_L = 3.74, BIN_MIN_H = 3.82, BIN_MAX_H = 3.92;
   float BIN_WIDTH = (BIN_MAX-BIN_MIN)/NBIN*1.0, BIN_WIDTH_L = (BIN_MAX_L-BIN_MIN_L)/NBIN_L*1.0, BIN_WIDTH_H = (BIN_MAX_H-BIN_MIN_H)/NBIN_H*1.0;
   void drawpull(TH1* hmc, TF1* f, Color_t color);
 
-  Color_t color_data = kRed, color_a = kAzure-1, color_b = kGreen+3, color_ss = kGray+1;
+  Color_t color_data = kRed-3, color_a = kAzure+4, color_b = kGreen-1, color_ss = kGray+1, color_bkg = color_data;
 }
 
 
 // --->
-TF1* fitX::fit(TH1F* h, TH1F* h_ss, TH1F* hmc_a, TH1F* hmc_b, std::string name, bool saveplot)
+std::vector<TF1*> fitX::fit(TH1F* h, TH1F* h_ss, TH1F* hmc_a, TH1F* hmc_b, std::string name, bool fixmean, bool saveplot)
 {
+  std::vector<TF1*> funs;
   xjjroot::setgstyle(2);
   gStyle->SetPadLeftMargin(gStyle->GetPadLeftMargin()*0.7);
 
@@ -118,6 +122,17 @@ TF1* fitX::fit(TH1F* h, TH1F* h_ss, TH1F* hmc_a, TH1F* hmc_b, std::string name, 
   f->ReleaseParameter(2);
   f->ReleaseParameter(3);
   f->ReleaseParameter(4);
+  // >>>
+  if(!fixmean)
+    {
+      f->ReleaseParameter(6);
+      f->SetParLimits(6, MASS_PSI2S-mytmva::sigwindowL, MASS_PSI2S+mytmva::sigwindowL);
+      f->ReleaseParameter(11);
+      f->SetParLimits(11, MASS_X-mytmva::sigwindowH, MASS_X+mytmva::sigwindowH);
+    }
+  // <<<
+  f->SetParLimits(5, 0, 1.e+5);
+  f->SetParLimits(10, 0, 1.e+5);
 
   c->cd();
   f->SetLineColor(color_data);
@@ -125,6 +140,7 @@ TF1* fitX::fit(TH1F* h, TH1F* h_ss, TH1F* hmc_a, TH1F* hmc_b, std::string name, 
   h->Draw("pe");
   h->Fit("f","Nq");
   h->Fit("f","NLLq");
+  // TFitResultPtr r = histo->Fit(func, "S");
   h->Fit("f","NLL");
 
   fitX::drawpull(h, f, color_data);
@@ -132,27 +148,34 @@ TF1* fitX::fit(TH1F* h, TH1F* h_ss, TH1F* hmc_a, TH1F* hmc_b, std::string name, 
 
   TF1 *fsig1 = xjjroot::copyobject(f, "fsig1");
   fsig1->SetRange(BIN_MIN_L, BIN_MAX_L);
-  fsig1->SetParameter(10, 0);
-  fsig1->SetParameter(0, 0);
-  fsig1->SetParameter(1, 0);
-  fsig1->SetParameter(2, 0);
-  fsig1->SetParameter(3, 0);
-  fsig1->SetParameter(4, 0);
+  fsig1->FixParameter(10, 0);
+  fsig1->FixParameter(0, 0);
+  fsig1->FixParameter(1, 0);
+  fsig1->FixParameter(2, 0);
+  fsig1->FixParameter(3, 0);
+  fsig1->FixParameter(4, 0);
   fsig1->SetParError(5, f->GetParError(5));
   xjjroot::settfstyle(fsig1, color_a, 2, 3, color_a, 0.3, 1001);
   fsig1->Draw("same");
 
   TF1 *fsig2 = xjjroot::copyobject(f, "fsig2");
   fsig2->SetRange(BIN_MIN_H, BIN_MAX_H);
-  fsig2->SetParameter(5, 0);
-  fsig2->SetParameter(0, 0);
-  fsig2->SetParameter(1, 0);
-  fsig2->SetParameter(2, 0);
-  fsig2->SetParameter(3, 0);
-  fsig2->SetParameter(4, 0);
+  fsig2->FixParameter(5, 0);
+  fsig2->FixParameter(0, 0);
+  fsig2->FixParameter(1, 0);
+  fsig2->FixParameter(2, 0);
+  fsig2->FixParameter(3, 0);
+  fsig2->FixParameter(4, 0);
   fsig2->SetParError(10, f->GetParError(10));
   xjjroot::settfstyle(fsig2, color_b, 2, 3, color_b, 0.3, 1001);
   fsig2->Draw("same");
+
+  TF1 *fbkg = xjjroot::copyobject(f, "fbkg");
+  fbkg->SetRange(BIN_MIN, BIN_MAX);
+  fbkg->FixParameter(5, 0);
+  fbkg->FixParameter(10, 0);
+  xjjroot::settfstyle(fbkg, color_bkg, 2, 3);
+  fbkg->Draw("same");
 
   f->Draw("same");
   xjjroot::copyobject(h, "hclone")->Draw("pesame");  
@@ -161,7 +184,7 @@ TF1* fitX::fit(TH1F* h, TH1F* h_ss, TH1F* hmc_a, TH1F* hmc_b, std::string name, 
   float ysig2 = fsig2->Integral(BIN_MIN, BIN_MAX)/BIN_WIDTH;
 
   xjjroot::drawtex(0.92, 0.84, "p_{T} > 15 GeV/c", 0.042, 32, 62);
-  xjjroot::drawtex(0.92, 0.79, "|y| < 2", 0.042, 32, 62);
+  xjjroot::drawtex(0.92, 0.79, "|y| < 1.5", 0.042, 32, 62);
   xjjroot::drawtex(0.17, 0.84, Form("#chi^{2} Prob = %.1f%s", TMath::Prob(f->GetChisquare(), f->GetNDF())*100., "%"), 0.042, 12, 62);
 
   xjjroot::drawtex(0.32, 0.36, Form("#bar{m}_{#psi(2S)} = %.4f GeV", f->GetParameter(6)), 0.04, 12, 62, color_a);
@@ -171,7 +194,12 @@ TF1* fitX::fit(TH1F* h, TH1F* h_ss, TH1F* hmc_a, TH1F* hmc_b, std::string name, 
   xjjroot::drawCMS();
 
   if(saveplot) c->SaveAs(Form("plots/chmass_%s.pdf", name.c_str()));
-  return f;
+
+  funs.push_back(f);
+  funs.push_back(fsig1);
+  funs.push_back(fsig2);
+  funs.push_back(fbkg);
+  return funs;
 }
 
 void fitX::setmasshist(TH1* h, float xoffset/*=0*/, float yoffset/*=0*/, Color_t pcolor/*=kBlack*/)
