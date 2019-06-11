@@ -2,18 +2,34 @@
 
 ##
 ptmin=10 ; ptmax=-1 ; output=
+ioutmva=2
+
+##
 # -- signal sample
-# inputs=/export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190520_Hydjet_Pythia8_Psi2SToJpsiPiPi_prompt_1033p1_pt6tkpt0p7dls0_v3_addSamplePthat_pthatweight.root ; output=rootfiles/TMVA_trainPsi2S ;
 inputs=/export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190520_Hydjet_Pythia8_X3872ToJpsiRho_prompt_1033p1_pt6tkpt0p7dls0_v3_addSamplePthat_pthatweight.root ; output=rootfiles/TMVA_trainX ;
 # -- background sample
 inputb=/export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190513_HIDoubleMuon__PsiPeri__HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_skimhltBsize_ntmix_Xpt10__add_Bfinder-ntmix_BgencollisionId.root ; bkgstrategy=sideband ;
 # inputb=/export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_samesign_20190513_HIDoubleMuonPsi_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_327123_327564_skimhltBsize_ntmix_Xpt10__add_Bfinder-ntmix_BgencollisionId.root ; bkgstrategy=samesign ;
 output=${output}_$bkgstrategy
 # -- data sample
-# inputm=/export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190513_HIDoubleMuon__PsiPeri__HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_skimhltBsize_ntmix_Xpt10.root ; outputmva=/export/d00/scratch/jwang/BntupleRun2018/output_mva_data ;
-inputm=/export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_samesign_20190513_HIDoubleMuonPsi_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_327123_327564_skimhltBsize_ntmix_Xpt10.root ; outputmva=/export/d00/scratch/jwang/BntupleRun2018/output_mva_samesign ;
-# inputm=/export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190520_Hydjet_Pythia8_Psi2SToJpsiPiPi_prompt_1033p1_pt6tkpt0p7dls0_v3_addSamplePthat_pthatweight.root ; outputmva=/export/d00/scratch/jwang/BntupleRun2018/output_mva_promptPsi ;
-# inputm=/export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190520_Hydjet_Pythia8_X3872ToJpsiRho_prompt_1033p1_pt6tkpt0p7dls0_v3_addSamplePthat_pthatweight.root ; outputmva=/export/d00/scratch/jwang/BntupleRun2018/output_mva_promptX ;
+# (((( ioutmva ))))
+inputms=(
+    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190513_HIDoubleMuon__PsiPeri__HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_skimhltBsize_ntmix_Xpt10.root                 # 0
+    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_samesign_20190513_HIDoubleMuonPsi_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_327123_327564_skimhltBsize_ntmix_Xpt10.root # 1
+    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190520_Hydjet_Pythia8_Psi2SToJpsiPiPi_prompt_1033p1_pt6tkpt0p7dls0_v3_addSamplePthat_pthatweight.root                 # 2
+    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190520_Hydjet_Pythia8_X3872ToJpsiRho_prompt_1033p1_pt6tkpt0p7dls0_v3_addSamplePthat_pthatweight.root                  # 3
+    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190520_Hydjet_Pythia8_Psi2SToJpsiPiPi_nonprompt_1033p1_pt6tkpt0p7dls0_v3_addSamplePthat_pthatweight.root              # 4
+    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190520_Hydjet_Pythia8_X3872ToJpsiRho_nonprompt_1033p1_pt6tkpt0p7dls0_v3_addSamplePthat_pthatweight.root               # 5
+)
+outputmvas=(
+    /export/d00/scratch/jwang/BntupleRun2018/output_mva_data         # 0
+    /export/d00/scratch/jwang/BntupleRun2018/output_mva_samesign     # 1
+    /export/d00/scratch/jwang/BntupleRun2018/output_mva_promptPsi    # 2
+    /export/d00/scratch/jwang/BntupleRun2018/output_mva_promptX      # 3
+    /export/d00/scratch/jwang/BntupleRun2018/output_mva_nonpromptPsi # 4
+    /export/d00/scratch/jwang/BntupleRun2018/output_mva_nonpromptX   # 5
+)
+inputm=${inputms[ioutmva]} ; outputmva=${outputmvas[ioutmva]} ;
 
 ##
 # -- event filter
@@ -28,7 +44,6 @@ cut=$cut" && (Bmu1SoftMuID && Bmu2SoftMuID && Bmu1isAcc && Bmu2isAcc && Bmu1isTr
 cut=$cut" && Btrk1Pt > 0.9 && Btrk2Pt > 0.9 && TMath::Abs(Btrk1Eta) < 2.4 && TMath::Abs(Btrk2Eta) < 2.4"
 # -- track qualirty
 cut=$cut" && Btrk1highPurity && Btrk2highPurity && (Btrk1PixelHit+Btrk1StripHit) >= 11 && (Btrk2PixelHit+Btrk2StripHit) >= 11 && TMath::Abs(Btrk1PtErr/Btrk1Pt) < 0.1 && TMath::Abs(Btrk2PtErr/Btrk2Pt) < 0.1 && (Btrk1Chi2ndf/(Btrk1nStripLayer+Btrk1nPixelLayer)) < 0.18 && (Btrk2Chi2ndf/(Btrk2nStripLayer+Btrk2nPixelLayer)) < 0.18"
-# cut=$cut" && Btrk1highPurity && Btrk2highPurity && (Btrk1PixelHit+Btrk1StripHit) >= 11 && (Btrk2PixelHit+Btrk2StripHit) >= 11 && TMath::Abs(Btrk1PtErr/Btrk1Pt) < 0.1 && TMath::Abs(Btrk2PtErr/Btrk2Pt) < 0.1 && (Btrk1Chi2ndf/(Btrk1nStripLayer+Btrk1nPixelLayer)) < 0.18 && (Btrk2Chi2ndf/(Btrk2nStripLayer+Btrk2nPixelLayer)) < 0.18 && TMath::Abs(Btrk1Dxy1/Btrk1DxyError1) < 3 && TMath::Abs(Btrk2Dxy1/Btrk2DxyError1) < 3"
 # -- X prefilter
 cut=$cut" && TMath::Abs(By) < 2.4 && Bchi2cl > 0.1"
 # -- tricky selection
@@ -40,9 +55,8 @@ cut=$cut" && (Bmass-3.096916-Btktkmass) < 0.2" ; output=${output}_tktk0p2 ;
 algo="BDT,BDTG,CutsGA,CutsSA,LD"
 # algo="BDT,BDTG"
 
-# stages="0,10,1,2,9,8,4,5,6,7,15,16" ; sequence=1 ; # see definition below #
-stages="0,10,1,2,9" ; sequence=0 ; # see definition below #
-# stages="0,10,1,2,9,4" ; sequence=0 ; # see definition below #
+stages="0,10,1,2,9,8,4,5,6,7,15,16" ; sequence=1 ; # see definition below #
+# stages="0,10,1,2,9" ; sequence=0 ; # see definition below #
 # stages="0,10,1,2,9,8,4,6" ; sequence=0 ; # see definition below #
 
 ## ===== do not change the lines below =====
@@ -157,3 +171,6 @@ wait
 
 ##
 rm *_${tmp}.exe
+
+
+# inputs=/export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190520_Hydjet_Pythia8_Psi2SToJpsiPiPi_prompt_1033p1_pt6tkpt0p7dls0_v3_addSamplePthat_pthatweight.root ; output=rootfiles/TMVA_trainPsi2S ;
