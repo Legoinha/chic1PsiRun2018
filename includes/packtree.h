@@ -13,7 +13,7 @@ namespace xjjc
   class packtree
   {
   public:
-    packtree(TFile* inf, std::string treename, std::string type);
+    packtree(TFile* inf, std::string treename, std::string type, std::string gentreename = "");
     mytmva::ntuple* ntp;
     int getentries() { return fentries; }
     std::string getname() { return name; }
@@ -29,7 +29,9 @@ namespace xjjc
     TTree* skim;
     TTree* hi;
     TTree* mva;
+    TTree* ntgen;
     int fentries;
+    bool fgen;
   };
 }
 
@@ -40,11 +42,14 @@ void xjjc::packtree::getentry(int i)
   hi->GetEntry(i);
   skim->GetEntry(i);
   mva->GetEntry(i);
+  if(fgen) ntgen->GetEntry(i);
 }
 
-xjjc::packtree::packtree(TFile* inf, std::string treename, std::string type)
+xjjc::packtree::packtree(TFile* inf, std::string treename, std::string type, std::string gentreename)
 {
   name = type;
+  ntgen = 0; 
+  fgen = gentreename!="";
 
   nt = (TTree*)inf->Get(treename.c_str());
   fentries = nt->GetEntries();
@@ -63,7 +68,15 @@ xjjc::packtree::packtree(TFile* inf, std::string treename, std::string type)
   mva = (TTree*)inf->Get("dataset/mva");
   nt->AddFriend(mva);
 
-  ntp = new mytmva::ntuple(nt);
+  if(fgen) 
+    { 
+      ntgen = (TTree*)inf->Get(gentreename.c_str());
+      ntgen->AddFriend(hlt);
+      ntgen->AddFriend(skim);
+      ntgen->AddFriend(hi);
+    }
+
+  ntp = new mytmva::ntuple(nt, ntgen);
 }
 
 #endif
