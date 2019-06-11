@@ -8,3 +8,12 @@ std::vector<bool> pbdtg = {true , true , true, false, false, false, false, false
  int nbdtg = bdtg.size();
 std::vector<float> dls = {0, 0.8}; int ndls = dls.size();
 
+void drawalltext()
+{
+  xjjroot::drawCMSleft();
+  xjjroot::drawCMSright();
+  xjjroot::drawtex(0.24, 0.84, "#psi(2S)", 0.038, 12, 62, fitX::color_a);
+  xjjroot::drawtex(0.24, 0.84-0.042, "X(3872)", 0.038, 12, 62, fitX::color_b);
+  xjjroot::drawtex(0.90, 0.84, "p_{T} < 15 GeV/c", 0.038, 32, 62);
+  xjjroot::drawtex(0.90, 0.84-0.042, "|y| < 1.5", 0.038, 32, 62);
+}
