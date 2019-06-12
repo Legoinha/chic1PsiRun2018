@@ -37,7 +37,7 @@ namespace lxydis
   void setupdraw();
   std::map<std::string, std::vector<float>> setupbins();
   std::vector<double> nplxyfrac(TH1F* hlxynpL, TH1F* hlxynpH);
-  TEfficiency* calclxyfprompt(TH1F* hdata, TH1F* hBenr, TH1F* hlxyfrac, std::string name);
+  TEfficiency* calclxyfprompt(TH1F* hdata, TH1F* hBenr, TH1F* hlxyfrac, std::string name, TH1F** rhprompt);
 }
 
 void lxydis::setupdraw()
@@ -120,13 +120,14 @@ std::vector<double> lxydis::nplxyfrac(TH1F* hlxynpL, TH1F* hlxynpH)
   return r;
 }
 
-TEfficiency* lxydis::calclxyfprompt(TH1F* hdata, TH1F* hBenr, TH1F* hlxyfrac, std::string name)
+TEfficiency* lxydis::calclxyfprompt(TH1F* hdata, TH1F* hBenr, TH1F* hlxyfrac, std::string name, TH1F** rhprompt)
 {
   TH1F* hnonprompt = (TH1F*)hBenr->Clone("hnonprompt");
   hnonprompt->Divide(hlxyfrac);
-  TH1F* hprompt = (TH1F*)xjjroot::histMinusCorr(hdata, hnonprompt, "hprompt");
+  TH1F* hprompt = (TH1F*)xjjroot::histMinusCorr(hdata, hnonprompt, Form("hprompt_%s", name.c_str()));
   TEfficiency* grfprompt = new TEfficiency(*hprompt, *hdata); grfprompt->SetName(name.c_str());
 
+  *rhprompt = hprompt;
   return grfprompt;
 }
 

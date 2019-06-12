@@ -7,7 +7,7 @@
 #include <TTree.h>
 #include <string>
 
-namespace xjjc
+namespace xjjroot
 {
   typedef std::vector<TTree*> trlist;
   class packtree
@@ -35,7 +35,7 @@ namespace xjjc
   };
 }
 
-void xjjc::packtree::getentry(int i)
+void xjjroot::packtree::getentry(int i)
 {
   nt->GetEntry(i);
   hlt->GetEntry(i);
@@ -45,7 +45,7 @@ void xjjc::packtree::getentry(int i)
   if(fgen) ntgen->GetEntry(i);
 }
 
-xjjc::packtree::packtree(TFile* inf, std::string treename, std::string type, std::string gentreename)
+xjjroot::packtree::packtree(TFile* inf, std::string treename, std::string type, std::string gentreename)
 {
   name = type;
   ntgen = 0; 

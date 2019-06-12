@@ -46,7 +46,7 @@ void lxydisfun(std::string inputname, std::string type, float mvaval, std::strin
 
   //
   TFile* inf = TFile::Open(inputname.c_str()); 
-  xjjc::packtree* ptr = new xjjc::packtree(inf, "Bfinder/ntmix", type);
+  xjjroot::packtree* ptr = new xjjroot::packtree(inf, "Bfinder/ntmix", type);
   mytmva::ntuple* ntp = ptr->ntp;
   // float mva; ntp->getnt()->SetBranchAddress("", &mva); // !!
   if(ismc && !ntp->isweight())
