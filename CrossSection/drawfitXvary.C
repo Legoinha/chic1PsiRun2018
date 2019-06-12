@@ -6,9 +6,10 @@
 #include <TH1F.h>
 #include <TH2F.h>
 #include <TEfficiency.h>
+#include <TGraphErrors.h>
+#include <TGraphAsymmErrors.h>
 #include <string>
 
-#include "packtree.h"
 #include "ntuple.h"
 #include "xjjcuti.h"
 #include "xjjrootuti.h"
@@ -20,11 +21,7 @@ void drawfitXvary(std::string output)
 {
   xjjroot::setgstyle(3);
   TFile* inf = new TFile(Form("rootfiles/root_fitXvary_%s.root", output.c_str()));
-  std::vector<TH1F*> hdata(nbdtg*ndls), hdatagt(nbdtg*ndls), hmc_a(nbdtg*ndls), hmc_b(nbdtg*ndls);
-  std::vector<TF1*> ff(nbdtg*ndls, 0), ffgt(nbdtg*ndls, 0);
-  std::vector<TH1F*> heff_a(ndls), heff_b(ndls), hlxymcnp_a(nbdtg*ndls), hlxymcnp_b(nbdtg*ndls);
-  std::vector<TEfficiency*> greff_a(ndls), greff_b(ndls);
-
+  // read
   for(int k=0; k<ndls; k++)
     {
       for(int l=0, lp=0; l<nbdtg; l++)
@@ -50,6 +47,7 @@ void drawfitXvary(std::string output)
       greff_b[k] = (TEfficiency*)inf->Get(Form("greff_b_%d", k));
     }
 
+  // yield
   std::vector<TH1F*> hyieldbdtgL(ndls), hyieldbdtgH(ndls), hbkgbdtgL(ndls), hbkgbdtgH(ndls), hsigfbdtgL(ndls), hsigfbdtgH(ndls);
   std::vector<TH1F*> hyieldbdtgBenrL(ndls), hyieldbdtgBenrH(ndls), hbkgbdtgBenrL(ndls), hbkgbdtgBenrH(ndls), hsigfbdtgBenrL(ndls), hsigfbdtgBenrH(ndls);
   std::vector<TH1F*> hlxyfracL(ndls), hlxyfracH(ndls);
@@ -194,7 +192,6 @@ void drawfitXvary(std::string output)
           hlxymcnp_a[idx]->Scale(1./hlxymcnp_a[idx]->Integral(), "width");
           hlxymcnp_b[idx]->Scale(1./hlxymcnp_b[idx]->Integral(), "width");
           std::vector<double> vlxyfrac = lxydis::nplxyfrac(hlxymcnp_a[idx], hlxymcnp_b[idx]);
-          std::cout<<vlxyfrac[0]<<" "<<vlxyfrac[2]<<std::endl;
           hlxyfracL[k]->SetBinContent(l+1, vlxyfrac[0]);
           hlxyfracL[k]->SetBinError(l+1, vlxyfrac[1]);
           hlxyfracH[k]->SetBinContent(l+1, vlxyfrac[2]);
@@ -203,25 +200,10 @@ void drawfitXvary(std::string output)
 
     }
 
+  // >>>>
   const int idls = 0;
-  xjjroot::sethempty(hyieldbdtgL[idls], 0, 0.3);
-  xjjroot::setthgrstyle(hyieldbdtgL[idls], fitX::color_a, 20, 1.2, fitX::color_a, 1, 1);
-  xjjroot::sethempty(hyieldbdtgH[idls], 0, 0.3);
-  xjjroot::setthgrstyle(hyieldbdtgH[idls], fitX::color_b, 20, 1.2, fitX::color_b, 1, 1);
-  xjjroot::sethempty(hsigfbdtgL[idls], 0, 0.3);
-  xjjroot::setthgrstyle(hsigfbdtgL[idls], fitX::color_a, 46, 1.2, fitX::color_a, 1, 1);
-  xjjroot::sethempty(hsigfbdtgH[idls], 0, 0.3);
-  xjjroot::setthgrstyle(hsigfbdtgH[idls], fitX::color_b, 46, 1.2, fitX::color_b, 1, 1);
-  TH2F* hemptyeff = new TH2F("hemptyeff", ";BDTG;#alpha #times #epsilon", 10, -1, 1, 10, 0, 0.1);
-  xjjroot::sethempty(hemptyeff, 0, 0.3);
-  xjjroot::setthgrstyle(greff_a[idls], fitX::color_a, 34, 1.2, fitX::color_a, 1, 1, fitX::color_a, 0.2, 1001);
-  xjjroot::setthgrstyle(greff_b[idls], fitX::color_b, 34, 1.2, fitX::color_b, 1, 1, fitX::color_b, 0.2, 1001);
 
-  xjjroot::sethempty(hyieldbdtgBenrL[idls], 0, 0.3);
-  xjjroot::setthgrstyle(hyieldbdtgBenrL[idls], fitX::color_a, 20, 1.2, fitX::color_a, 1, 1);
-  xjjroot::sethempty(hyieldbdtgBenrH[idls], 0, 0.3);
-  xjjroot::setthgrstyle(hyieldbdtgBenrH[idls], fitX::color_b, 20, 1.2, fitX::color_b, 1, 1);
-
+  // fprompt
   TH1F* hyieldbdtgeraseH = new TH1F("hyieldbdtgeraseH", ";BDTG;N_{Signal}", bdtg.size()-1, bdtg.data());
   TH1F* hyieldbdtgeraseBenrH = new TH1F("hyieldbdtgeraseBenrH", ";BDTG;N_{Signal}", bdtg.size()-1, bdtg.data());
   for(int l=0; l<hyieldbdtgH[idls]->GetNbinsX(); l++)
@@ -232,45 +214,113 @@ void drawfitXvary(std::string output)
       hyieldbdtgeraseBenrH->SetBinContent(l+1, hyieldbdtgBenrH[idls]->GetBinContent(l+1));
       hyieldbdtgeraseBenrH->SetBinError(l+1, hyieldbdtgBenrH[idls]->GetBinError(l+1));
     }
+  TH1F *hyieldpromptL, *hyieldpromptH;
+  TEfficiency* grfpromptL = lxydis::calclxyfprompt(hyieldbdtgL[idls], hyieldbdtgBenrL[idls], hlxyfracL[idls], "grfpromptL", &hyieldpromptL);
+  TEfficiency* grfpromptH = lxydis::calclxyfprompt(hyieldbdtgeraseH, hyieldbdtgeraseBenrH, hlxyfracH[idls], "grfpromptH", &hyieldpromptH);
 
-  TEfficiency* grfpromptL = lxydis::calclxyfprompt(hyieldbdtgL[idls], hyieldbdtgBenrL[idls], hlxyfracL[idls], "grfpromptL");
-  TEfficiency* grfpromptH = lxydis::calclxyfprompt(hyieldbdtgeraseH, hyieldbdtgeraseBenrH, hlxyfracH[idls], "grfpromptH");
-  TH2F* hemptyfprompt = new TH2F("hemptyfprompt", ";BDTG;f_{prompt} After Cuts", 10, -1, 1, 10, 0, 1.2);
-  xjjroot::sethempty(hemptyfprompt, 0, 0.3);
-  xjjroot::setthgrstyle(grfpromptL, fitX::color_a, 45, 1.2, fitX::color_a, 1, 1, fitX::color_a, 0.2, 1001);
-  xjjroot::setthgrstyle(grfpromptH, fitX::color_b, 45, 1.2, fitX::color_b, 1, 1, fitX::color_b, 0.2, 1001);
+  // corrected yield
+  TH1F* hyieldCorrL = (TH1F*)hyieldbdtgL[idls]->Clone("hyieldCorrL");
+  hyieldCorrL->Divide(heff_a[idls]);
+  TH1F* hyieldCorrH = (TH1F*)hyieldbdtgeraseH->Clone("hyieldCorrH");
+  hyieldCorrH->Divide(heff_b[idls]);
+  TH1F* hyieldPromptCorrL = (TH1F*)hyieldpromptL->Clone("hyieldCorrL");
+  hyieldPromptCorrL->Divide(heff_a[idls]);
+  TH1F* hyieldPromptCorrH = (TH1F*)hyieldpromptH->Clone("hyieldCorrH");
+  hyieldPromptCorrH->Divide(heff_b[idls]);
 
+  // draw
+  TH2F* hemptyyd = new TH2F("hemptyyd", ";BDTG;Raw N_{Signal} by Fit", 10, -1.1, 1, 10, 0, hyieldbdtgL[idls]->GetMaximum()*1.4);
+  xjjroot::sethempty(hemptyyd, 0, 0.4);
+  TGraphErrors* gr_hyieldbdtgL = xjjroot::shifthistcenter(hyieldbdtgL[idls], "gr_hyieldbdtgL");
+  TGraphErrors* gr_hyieldbdtgH = xjjroot::shifthistcenter(hyieldbdtgH[idls], "gr_hyieldbdtgH");
+  xjjroot::setthgrstyle(gr_hyieldbdtgL, fitX::color_a, 20, 1.2, fitX::color_a, 1, 1);
+  xjjroot::setthgrstyle(gr_hyieldbdtgH, fitX::color_b, 20, 1.2, fitX::color_b, 1, 1);
+  TH2F* hemptyeff = new TH2F("hemptyeff", ";BDTG;(#alpha #times #epsilon )_{prompt}", 10, -1.1, 1, 10, 0, 0.1);
+  xjjroot::sethempty(hemptyeff, 0, 0.4);
+  TGraphAsymmErrors* gr_greff_a = xjjroot::shifthistcenter(greff_a[idls], "gr_greff_a");
+  TGraphAsymmErrors* gr_greff_b = xjjroot::shifthistcenter(greff_b[idls], "gr_greff_b");
+  xjjroot::setthgrstyle(gr_greff_a, fitX::color_a, 34, 1.2, fitX::color_a, 1, 1, fitX::color_a, 0.2, 1001);
+  xjjroot::setthgrstyle(gr_greff_b, fitX::color_b, 34, 1.2, fitX::color_b, 1, 1, fitX::color_b, 0.2, 1001);
+  TH2F* hemptysigf = new TH2F("hemptysigf", ";BDTG;S / #sqrt{S+B} by Fit", 10, -1.1, 1, 10, 0, hsigfbdtgH[idls]->GetMaximum()*1.4);
+  xjjroot::sethempty(hemptysigf, 0, 0.4);
+  TGraphErrors* gr_hsigfbdtgL = xjjroot::shifthistcenter(hsigfbdtgL[idls], "gr_hsigfbdtgL");
+  TGraphErrors* gr_hsigfbdtgH = xjjroot::shifthistcenter(hsigfbdtgH[idls], "gr_hsigfbdtgH");
+  xjjroot::setthgrstyle(gr_hsigfbdtgL, fitX::color_a, 46, 1.2, fitX::color_a, 1, 1);
+  xjjroot::setthgrstyle(gr_hsigfbdtgH, fitX::color_b, 46, 1.2, fitX::color_b, 1, 1);
+  TH2F* hemptyBenr = new TH2F("hemptyBenr", ";BDTG;N_{Signal} (l_{xy} > 100#mum) by Fit", 10, -1.1, 1, 10, 0, hyieldbdtgBenrL[idls]->GetMaximum()*1.4);
+  xjjroot::sethempty(hemptyBenr, 0, 0.4);
+  TGraphErrors* gr_hyieldbdtgBenrL = xjjroot::shifthistcenter(hyieldbdtgBenrL[idls], "gr_hyieldbdtgBenrL");
+  TGraphErrors* gr_hyieldbdtgBenrH = xjjroot::shifthistcenter(hyieldbdtgBenrH[idls], "gr_hyieldbdtgBenrH");
+  xjjroot::setthgrstyle(gr_hyieldbdtgBenrL, fitX::color_a, 24, 1.2, fitX::color_a, 1, 1);
+  xjjroot::setthgrstyle(gr_hyieldbdtgBenrH, fitX::color_b, 24, 1.2, fitX::color_b, 1, 1);
+  TH2F* hemptyydprompt = new TH2F("hemptyydprompt", ";BDTG;N_{Signal} #times f_{prompt}", 10, -1.1, 1, 10, 0, hyieldpromptL->GetMaximum()*1.4);
+  xjjroot::sethempty(hemptyydprompt, 0, 0.4);
+  TGraphErrors* gr_hyieldpromptL = xjjroot::shifthistcenter(hyieldpromptL, "gr_hyieldpromptL");
+  TGraphErrors* gr_hyieldpromptH = xjjroot::shifthistcenter(hyieldpromptH, "gr_hyieldpromptH");
+  xjjroot::setthgrstyle(gr_hyieldpromptL, fitX::color_a, 21, 1.2, fitX::color_a, 1, 1);
+  xjjroot::setthgrstyle(gr_hyieldpromptH, fitX::color_b, 21, 1.2, fitX::color_b, 1, 1);
+  TH2F* hemptyfprompt = new TH2F("hemptyfprompt", ";BDTG;f_{prompt} After Cuts", 10, -1.1, 1, 10, 0, 1.2);
+  xjjroot::sethempty(hemptyfprompt, 0, 0.4);
+  TGraphAsymmErrors* gr_grfpromptL = xjjroot::shifthistcenter(grfpromptL, "gr_grfpromptL");
+  TGraphAsymmErrors* gr_grfpromptH = xjjroot::shifthistcenter(grfpromptH, "gr_grfpromptH");
+  xjjroot::setthgrstyle(gr_grfpromptL, fitX::color_a, 45, 1.2, fitX::color_a, 1, 1, fitX::color_a, 0.2, 1001);
+  xjjroot::setthgrstyle(gr_grfpromptH, fitX::color_b, 45, 1.2, fitX::color_b, 1, 1, fitX::color_b, 0.2, 1001);
+  TH2F* hemptyCorr = new TH2F("hemptyCorr", ";BDTG;N_{Signal} / (#alpha #times #epsilon )_{prompt}", 10, -1.1, 1, 10, 0, hyieldCorrH->GetMaximum()*1.5);
+  xjjroot::sethempty(hemptyCorr, 0, 0.4);
+  TGraphErrors* gr_hyieldCorrL = xjjroot::shifthistcenter(hyieldCorrL, "gr_hyieldCorrL");
+  TGraphErrors* gr_hyieldCorrH = xjjroot::shifthistcenter(hyieldCorrH, "gr_hyieldCorrH");
+  xjjroot::setthgrstyle(gr_hyieldCorrL, fitX::color_a, 3, 1.2, fitX::color_a, 1, 1);
+  xjjroot::setthgrstyle(gr_hyieldCorrH, fitX::color_b, 3, 1.2, fitX::color_b, 1, 1);
+  TH2F* hemptyPromptCorr = new TH2F("hemptyPromptCorr", ";BDTG;N_{Signal} #times f_{prompt} / (#alpha #times #epsilon )_{prompt}", 10, -1.1, 1, 10, 0, hyieldPromptCorrH->GetMaximum()*1.5);
+  xjjroot::sethempty(hemptyPromptCorr, 0, 0.4);
+  TGraphErrors* gr_hyieldPromptCorrL = xjjroot::shifthistcenter(hyieldPromptCorrL, "gr_hyieldPromptCorrL");
+  TGraphErrors* gr_hyieldPromptCorrH = xjjroot::shifthistcenter(hyieldPromptCorrH, "gr_hyieldPromptCorrH");
+  xjjroot::setthgrstyle(gr_hyieldPromptCorrL, fitX::color_a, 5, 1.2, fitX::color_a, 1, 1);
+  xjjroot::setthgrstyle(gr_hyieldPromptCorrH, fitX::color_b, 5, 1.2, fitX::color_b, 1, 1);
+
+  // do draw
   xjjroot::setgstyle(1);
-  TCanvas* c3 = new TCanvas("c3", "", 1800, 1200);
-  c3->Divide(3, 2);
+  TCanvas* c3 = new TCanvas("c3", "", 2400, 1200);
+  c3->Divide(4, 2);
   c3->cd(1);
-  hyieldbdtgL[idls]->SetMaximum(hyieldbdtgL[idls]->GetMaximum()*1.5);
-  hyieldbdtgL[idls]->SetMinimum(0);
-  hyieldbdtgL[idls]->Draw("peX0");
-  hyieldbdtgH[idls]->Draw("peX0 same");
+  hemptyyd->Draw();
+  gr_hyieldbdtgL->Draw("pe same");
+  gr_hyieldbdtgH->Draw("pe same");
   drawalltext();
   c3->cd(2);
-  gStyle->SetErrorX(0);
   hemptyeff->Draw();
-  greff_a[idls]->Draw("p3 same");
-  greff_b[idls]->Draw("p3 same");
+  gr_greff_a->Draw("p3e same");
+  gr_greff_b->Draw("p3e same");
   drawalltext();
   c3->cd(3);
-  hsigfbdtgH[idls]->SetMaximum(hsigfbdtgH[idls]->GetMaximum()*1.5);
-  hsigfbdtgH[idls]->Draw("pl");
-  hsigfbdtgL[idls]->Draw("pl same");
+  hemptysigf->Draw();
+  gr_hsigfbdtgH->Draw("plX0 same");
+  gr_hsigfbdtgL->Draw("plX0 same");
   drawalltext();
   c3->cd(4);
-  hyieldbdtgBenrL[idls]->SetMaximum(hyieldbdtgBenrL[idls]->GetMaximum()*1.5);
-  hyieldbdtgBenrL[idls]->SetMinimum(0);
-  hyieldbdtgBenrL[idls]->Draw("peX0");
-  hyieldbdtgBenrH[idls]->Draw("peX0 same");
+  hemptyCorr->Draw();
+  gr_hyieldCorrL->Draw("pe same");
+  gr_hyieldCorrH->Draw("pe same");
   drawalltext();
   c3->cd(5);
-  gStyle->SetErrorX(0);
+  hemptyBenr->Draw();
+  gr_hyieldbdtgBenrL->Draw("pe same");
+  gr_hyieldbdtgBenrH->Draw("pe same");
+  drawalltext();
+  c3->cd(6);
+  hemptyydprompt->Draw();
+  gr_hyieldpromptL->Draw("pe same");
+  gr_hyieldpromptH->Draw("pe same");
+  drawalltext();
+  c3->cd(7);
   hemptyfprompt->Draw();
-  grfpromptL->Draw("pe same");
-  grfpromptH->Draw("pe same");
+  gr_grfpromptL->Draw("pe same");
+  gr_grfpromptH->Draw("pe same");
+  drawalltext();
+  c3->cd(8);
+  hemptyPromptCorr->Draw();
+  gr_hyieldPromptCorrL->Draw("pe same");
+  gr_hyieldPromptCorrH->Draw("pe same");
   drawalltext();
   c3->SaveAs(Form("plots/csig_varybdtg_%s.pdf", output.c_str()));
 
