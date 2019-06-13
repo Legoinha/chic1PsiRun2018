@@ -85,30 +85,30 @@ void xjjc::addbranch(std::string inputname, std::string outputname, std::string 
           BtrkWhichH[j] = 0;
           if(Btrk1Pt[j] > Btrk2Pt[j])
             {
-              BtrkWhichH[j] = 1;
-              BtrkHPt[j] = Btrk1Pt[j];
-              BtrkHEta[j] = Btrk1Eta[j];
-              BtrkHPhi[j] = Btrk1Phi[j];
-              BtrkHDxy1[j] = Btrk1Dxy1[j];
+              BtrkWhichH[j]     = 1;
+              BtrkHPt[j]        = Btrk1Pt[j];
+              BtrkHEta[j]       = Btrk1Eta[j];
+              BtrkHPhi[j]       = Btrk1Phi[j];
+              BtrkHDxy1[j]      = Btrk1Dxy1[j];
               BtrkHDxyError1[j] = Btrk1DxyError1[j];
-              BtrkLPt[j] = Btrk2Pt[j];
-              BtrkLEta[j] = Btrk2Eta[j];
-              BtrkLPhi[j] = Btrk2Phi[j];
-              BtrkLDxy1[j] = Btrk2Dxy1[j];
+              BtrkLPt[j]        = Btrk2Pt[j];
+              BtrkLEta[j]       = Btrk2Eta[j];
+              BtrkLPhi[j]       = Btrk2Phi[j];
+              BtrkLDxy1[j]      = Btrk2Dxy1[j];
               BtrkLDxyError1[j] = Btrk2DxyError1[j];
             }
           else
             {
-              BtrkWhichH[j] = 2;
-              BtrkHPt[j] = Btrk2Pt[j];
-              BtrkHEta[j] = Btrk2Eta[j];
-              BtrkHPhi[j] = Btrk2Phi[j];
-              BtrkHDxy1[j] = Btrk2Dxy1[j];
+              BtrkWhichH[j]     = 2;
+              BtrkHPt[j]        = Btrk2Pt[j];
+              BtrkHEta[j]       = Btrk2Eta[j];
+              BtrkHPhi[j]       = Btrk2Phi[j];
+              BtrkHDxy1[j]      = Btrk2Dxy1[j];
               BtrkHDxyError1[j] = Btrk2DxyError1[j];
-              BtrkLPt[j] = Btrk1Pt[j];
-              BtrkLEta[j] = Btrk1Eta[j];
-              BtrkLPhi[j] = Btrk1Phi[j];
-              BtrkLDxy1[j] = Btrk1Dxy1[j];
+              BtrkLPt[j]        = Btrk1Pt[j];
+              BtrkLEta[j]       = Btrk1Eta[j];
+              BtrkLPhi[j]       = Btrk1Phi[j];
+              BtrkLDxy1[j]      = Btrk1Dxy1[j];
               BtrkLDxyError1[j] = Btrk1DxyError1[j];
             }
         }
