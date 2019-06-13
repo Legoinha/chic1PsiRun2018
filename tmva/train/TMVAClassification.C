@@ -23,17 +23,11 @@
 int TMVAClassification(std::string inputSname, std::string inputBname, std::string mycuts, std::string mycutb, 
                        std::string outputname, float ptmin, float ptmax, std::string mymethod = "", std::string stage = "0,1,2,3,4,5,6,7,8,9,10")
 {
-  mymethod = xjjc::str_replaceall(mymethod, " ", "");
-  std::vector<std::string> methods(xjjc::str_divide(mymethod, ","));
-  stage = xjjc::str_replaceall(stage, " ", "");
+  std::vector<std::string> methods;
   std::vector<int> stages;
-  for(auto& ss : xjjc::str_divide(stage, ",")) { stages.push_back(atoi(ss.c_str())); }
-
-  std::string outfname(Form("%s_%s_%s_%s_%s.root", outputname.c_str(),xjjc::str_replaceallspecial(mymethod).c_str(),
-                            xjjc::number_to_string(ptmin).c_str(), (ptmax<0?"inf":xjjc::number_to_string(ptmax).c_str()), 
-                            xjjc::str_replaceall(stage, ",", "-").c_str()));
-  if(ptmax < 0) { ptmax = 1.e+10; }
+  std::string outfname = mytmva::mkname(outputname, ptmin, ptmax, mymethod, stage, methods, stages);
   std::string outputstr = xjjc::str_replaceallspecial(outfname);
+  if(ptmax < 0) { ptmax = 1.e+10; }
 
   // The explicit loading of the shared libTMVA is done in TMVAlogon.C, defined in .rootrc
   // if you use your private .rootrc, or run from a different directory, please copy the
@@ -300,8 +294,8 @@ int TMVAClassification(std::string inputSname, std::string inputBname, std::stri
   //// TCut mycuts = ""; // for example: TCut mycuts = "abs(var1)<0.5 && abs(var2-0.5)<1";
   //// TCut mycutb = ""; // for example: TCut mycutb = "abs(var1)<0.5";
 
-  TString cuts = Form("(%s)&&Bpt>%f&&Bpt<%f&&hiBin>=0&&hiBin<=180", mycuts.c_str(), ptmin, ptmax);
-  TString cutb = Form("(%s)&&Bpt>%f&&Bpt<%f&&hiBin>=0&&hiBin<=180", mycutb.c_str(), ptmin, ptmax);
+  TString cuts = Form("(%s) && Bpt>%f && Bpt<%f && hiBin>=0 && hiBin<=180", mycuts.c_str(), ptmin, ptmax);
+  TString cutb = Form("(%s) && Bpt>%f && Bpt<%f && hiBin>=0 && hiBin<=180", mycutb.c_str(), ptmin, ptmax);
 
   TCut mycutS = (TCut)cuts;
   TCut mycutB = (TCut)cutb;

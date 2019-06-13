@@ -65,6 +65,7 @@ namespace mytmva
     bool   mvapref[MAX_XB];
 
     int    Bsize;
+    int    BsizeH;
     float  Bgen[MAX_XB];
     int    BgencollisionId[MAX_XB];
     float  Bpt[MAX_XB];
@@ -232,6 +233,7 @@ void mytmva::ntuple::setbranchaddress()
     }
 
   fnt->SetBranchAddress("Bsize", &Bsize);
+  fnt->SetBranchAddress("BsizeH", &BsizeH);
   fnt->SetBranchAddress("Bgen", Bgen);
   fnt->SetBranchAddress("BgencollisionId", BgencollisionId);
   fnt->SetBranchAddress("Bpt", Bpt);

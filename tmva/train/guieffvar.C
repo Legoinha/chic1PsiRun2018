@@ -14,6 +14,7 @@
 #include <TH2F.h>
 #include "TMVA/tmvaglob.h"
 
+#include "TMVAClassification.h"
 #include "xjjcuti.h"
 #include "xjjrootuti.h"
 
@@ -27,20 +28,15 @@ void mytmva::guieffvar(std::string outputname, float ptmin, float ptmax, std::st
 {
   TMVA::TMVAGlob::SetTMVAStyle();
 
-  mymethod = xjjc::str_replaceall(mymethod, " ", "");
-  stage = xjjc::str_replaceall(stage, " ", "");
-  std::vector<std::string> outfname;
+  std::vector<std::string> outfname, methods;
   while(xjjc::str_contains(stage, ","))
     {
-      outfname.push_back(Form("%s_%s_%s_%s_%s.root", outputname.c_str(), xjjc::str_replaceallspecial(mymethod).c_str(),
-                              xjjc::number_to_string(ptmin).c_str(), (ptmax<0?"inf":xjjc::number_to_string(ptmax).c_str()),
-                              xjjc::str_replaceall(stage, ",", "-").c_str()));
+      outfname.push_back(mytmva::mkname(outputname, ptmin, ptmax, mymethod, stage, methods));
       stage.erase(stage.rfind(','));
     }
   std::string outputstr(xjjc::str_replaceallspecial(outfname[0]));
   std::sort(outfname.begin(), outfname.end(), xjjc::sortbydes<std::string>);
-  
-  std::vector<std::string> methods(xjjc::str_divide(mymethod, ","));
+
   for(auto& mm : methods)
     { 
       mytmva::effvar(outfname, mm); 

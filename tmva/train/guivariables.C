@@ -8,6 +8,7 @@
 #include <TObjString.h>
 #include "TMVA/variables.h"
 
+#include "TMVAClassification.h"
 #include "xjjcuti.h"
 
 namespace mytmva
@@ -20,10 +21,7 @@ namespace mytmva
 
 void mytmva::guivariables(std::string outputname, float ptmin, float ptmax, std::string mymethod, std::string stage/* = "0,1,2,3"*/)
 {
-  mymethod = xjjc::str_replaceall(mymethod, " ", "");
-  std::string outfname(Form("%s_%s_%s_%s_%s.root", outputname.c_str(), xjjc::str_replaceallspecial(mymethod).c_str(), 
-                            xjjc::number_to_string(ptmin).c_str(), (ptmax<0?"inf":xjjc::number_to_string(ptmax).c_str()), 
-                            xjjc::str_replaceall(stage, ",", "-").c_str()));
+  std::string outfname = mytmva::mkname(outputname, ptmin, ptmax, mymethod, stage);
   mytmva::variables(outfname);
 }
 
