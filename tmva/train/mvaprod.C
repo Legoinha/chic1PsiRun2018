@@ -7,7 +7,7 @@ void mvaprob_main(std::string inputname, std::string treename, std::string outpu
                   float ptmin, float ptmax, std::string mymethod = "", std::string stage = "0,1,2,3,4,5,6,7,8,9,10")
 {
   std::string outfname = xjjc::str_replaceallspecial(mytmva::mkname(outputname, ptmin, ptmax, mymethod, stage));
-  mytmva::mvaprob(inputname, "Bfinder/ntmix", outputname, Form("dataset/weights/%s", outfname.c_str()));
+  mytmva::mvaprob(inputname, "Bfinder/ntmix", outputfilename, Form("dataset/weights/%s", outfname.c_str()));
 }
 
 int main(int argc, char* argv[])  
