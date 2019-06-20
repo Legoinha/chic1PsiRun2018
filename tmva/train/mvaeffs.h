@@ -2,6 +2,11 @@
 #define _MVAEFFS_H_
 
 #include "TMVA/mvaeffs.h"
+#include <TFormula.h>
+#include <TString.h>
+#include <TList.h>
+#include <TDirectory.h>
+#include <TKey.h>
 
 namespace mytmva
 {
