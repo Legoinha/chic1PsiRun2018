@@ -54,6 +54,9 @@ void mytmva::mvaprob(std::string inputname, std::string treename, std::string ou
   std::cout<<mytmva::titlecolor<<"==> "<<__FUNCTION__<<": input file:"<<mytmva::nocolor<<std::endl<<inputname<<mytmva::nocolor<<std::endl;
   std::string outfname(Form("%s_%s.root", outputname.c_str(), xjjc::str_replaceallspecial(weightdir).c_str()));
   std::cout<<mytmva::titlecolor<<"==> "<<__FUNCTION__<<": output file:"<<mytmva::nocolor<<std::endl<<outfname<<mytmva::nocolor<<std::endl;
+  std::cout<<__FUNCTION__<<": warning: application of mva values will take long time. would you want to continue? [y/n]"<<std::endl; char ans='x';
+  while(ans!='y' && ans!='n') { std::cin>>ans; }
+  if(ans=='n') return;
 
   // training rootfile
   if(rootfname == "")
