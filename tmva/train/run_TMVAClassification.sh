@@ -4,30 +4,33 @@
 ptmin=10 ; ptmax=-1 ; output=
 outmvas=(0)
 
+PREFIX=/export/d00/scratch/jwang/
+[[ -d /raid5/data/ ]] && { PREFIX=/raid5/data/wangj/ ; }
+
 ##
 # -- signal sample
-inputs=/export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190520_Hydjet_Pythia8_X3872ToJpsiRho_prompt_1033p1_pt6tkpt0p7dls0_v3_addSamplePthat_pthatweight.root ; output=rootfiles/TMVA_trainX ;
+inputs=$PREFIX/BntupleRun2018/crab_Bfinder_20190520_Hydjet_Pythia8_X3872ToJpsiRho_prompt_1033p1_pt6tkpt0p7dls0_v3_addSamplePthat_pthatweight.root ; output=rootfiles/TMVA_trainX ;
 # -- background sample
-inputb=/export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190513_HIDoubleMuon__PsiPeri__HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_skimhltBsize_ntmix_Xpt10.root ; bkgstrategy=sideband ;
-# inputb=/export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_samesign_20190513_HIDoubleMuonPsi_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_327123_327564_skimhltBsize_ntmix_Xpt10.root ; bkgstrategy=samesign ;
+inputb=$PREFIX/BntupleRun2018/crab_Bfinder_20190513_HIDoubleMuon__PsiPeri__HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_skimhltBsize_ntmix_Xpt10_10p0per.root ; bkgstrategy=sideband ;
+# inputb=$PREFIX/BntupleRun2018/crab_Bfinder_samesign_20190513_HIDoubleMuonPsi_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_327123_327564_skimhltBsize_ntmix_Xpt10.root ; bkgstrategy=samesign ;
 output=${output}_$bkgstrategy
 # -- data sample
 # (((( ioutmva ))))
 inputms=(
-    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190513_HIDoubleMuon__PsiPeri__HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_skimhltBsize_ntmix_Xpt10.root                 # 0
-    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_samesign_20190513_HIDoubleMuonPsi_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_327123_327564_skimhltBsize_ntmix_Xpt10.root # 1
-    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190520_Hydjet_Pythia8_Psi2SToJpsiPiPi_prompt_1033p1_pt6tkpt0p7dls0_v3_addSamplePthat_pthatweight.root                 # 2
-    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190520_Hydjet_Pythia8_X3872ToJpsiRho_prompt_1033p1_pt6tkpt0p7dls0_v3_addSamplePthat_pthatweight.root                  # 3
-    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190520_Hydjet_Pythia8_Psi2SToJpsiPiPi_nonprompt_1033p1_pt6tkpt0p7dls0_v3_addSamplePthat_pthatweight.root              # 4
-    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190520_Hydjet_Pythia8_X3872ToJpsiRho_nonprompt_1033p1_pt6tkpt0p7dls0_v3_addSamplePthat_pthatweight.root               # 5
+    $PREFIX/BntupleRun2018/crab_Bfinder_20190513_HIDoubleMuon__PsiPeri__HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_skimhltBsize_ntmix_Xpt10_10p0per.root         # 0
+    $PREFIX/BntupleRun2018/crab_Bfinder_samesign_20190513_HIDoubleMuonPsi_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_327123_327564_skimhltBsize_ntmix_Xpt10.root # 1
+    $PREFIX/BntupleRun2018/crab_Bfinder_20190520_Hydjet_Pythia8_Psi2SToJpsiPiPi_prompt_1033p1_pt6tkpt0p7dls0_v3_addSamplePthat_pthatweight.root                 # 2
+    $PREFIX/BntupleRun2018/crab_Bfinder_20190520_Hydjet_Pythia8_X3872ToJpsiRho_prompt_1033p1_pt6tkpt0p7dls0_v3_addSamplePthat_pthatweight.root                  # 3
+    $PREFIX/BntupleRun2018/crab_Bfinder_20190520_Hydjet_Pythia8_Psi2SToJpsiPiPi_nonprompt_1033p1_pt6tkpt0p7dls0_v3_addSamplePthat_pthatweight.root              # 4
+    $PREFIX/BntupleRun2018/crab_Bfinder_20190520_Hydjet_Pythia8_X3872ToJpsiRho_nonprompt_1033p1_pt6tkpt0p7dls0_v3_addSamplePthat_pthatweight.root               # 5
 )
 outputmvas=(
-    /export/d00/scratch/jwang/BntupleRun2018/output_mva_data         # 0
-    /export/d00/scratch/jwang/BntupleRun2018/output_mva_samesign     # 1
-    /export/d00/scratch/jwang/BntupleRun2018/output_mva_promptPsi    # 2
-    /export/d00/scratch/jwang/BntupleRun2018/output_mva_promptX      # 3
-    /export/d00/scratch/jwang/BntupleRun2018/output_mva_nonpromptPsi # 4
-    /export/d00/scratch/jwang/BntupleRun2018/output_mva_nonpromptX   # 5
+    $PREFIX/BntupleRun2018/output_mva_data         # 0
+    $PREFIX/BntupleRun2018/output_mva_samesign     # 1
+    $PREFIX/BntupleRun2018/output_mva_promptPsi    # 2
+    $PREFIX/BntupleRun2018/output_mva_promptX      # 3
+    $PREFIX/BntupleRun2018/output_mva_nonpromptPsi # 4
+    $PREFIX/BntupleRun2018/output_mva_nonpromptX   # 5
 )
 
 ##
@@ -51,7 +54,8 @@ cut=$cut" && BsvpvDisErr>1.e-5 && BsvpvDisErr_2D>1.e-5"
 cut=$cut" && (Bmass-3.096916-Btktkmass) < 0.2" ; output=${output}_tktk0p2 ;
 
 ##
-algo="BDT,BDTG,CutsGA,CutsSA,LD"
+# algo="BDT,BDTG,CutsGA,CutsSA,LD"
+algo="BDT,BDTG,LD,DNN_GPU"
 # algo="BDT,BDTG"
 
 # stages="0,10,1,2,9,8,4,5,6,7,15,16" ; sequence=1 ; # see definition below #
@@ -126,6 +130,13 @@ echo -e "
 >>>>>> Background strategy
   >>>> \e[32m[$bkgstrategy]\e[0m
 
+>>>>>> Algorithms
+  >>>> \e[32m[$algo]\e[0m
+
+>>>>>> Input files
+  >>>> Signal:      \e[32m$inputs\e[0m
+  >>>> Background:  \e[32m$inputb\e[0m
+
 >>>>>> Selections
   >>>> Prefilters
     >> \e[32m\"$cut\"\e[0m
@@ -141,6 +152,7 @@ tmp=$(date +%y%m%d%H%M%S)
 
 ##
 [[ $# -eq 0 ]] && echo "usage: ./run_TMVAClassification.sh [train] [draw curves] [create BDT tree]"
+echo "Compiling .cc macros ..."
 
 g++ TMVAClassification.C $(root-config --libs --cflags) -lTMVA -lTMVAGui -g -o TMVAClassification_${tmp}.exe || { exit 1 ; }
 g++ guivariables.C $(root-config --libs --cflags) -lTMVA -lTMVAGui -g -o guivariables_${tmp}.exe             || { rm *_${tmp}.exe ; exit 1 ; }
@@ -186,4 +198,4 @@ for ioutmva in ${outmvas[@]}
 rm *_${tmp}.exe
 
 
-# inputs=/export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190520_Hydjet_Pythia8_Psi2SToJpsiPiPi_prompt_1033p1_pt6tkpt0p7dls0_v3_addSamplePthat_pthatweight.root ; output=rootfiles/TMVA_trainPsi2S ;
+# inputs=$PREFIX/BntupleRun2018/crab_Bfinder_20190520_Hydjet_Pythia8_Psi2SToJpsiPiPi_prompt_1033p1_pt6tkpt0p7dls0_v3_addSamplePthat_pthatweight.root ; output=rootfiles/TMVA_trainPsi2S ;
