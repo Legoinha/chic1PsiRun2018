@@ -36,10 +36,10 @@ outputmvas=(
 ##
 # -- event filter
 cut="pprimaryVertexFilter && phfCoincFilter2Th4 && pclusterCompatibilityFilter"
-# -- jpsi
-cut=$cut" && Bpt > 10 && TMath::Abs(Bmumumass-3.096916) < 0.05 && TMath::Abs(Bujeta) < 2.4"
 # -- HLT
 cut=$cut" && HLT_HIL3Mu0NHitQ10_L2Mu0_MAXdR3p5_M1to5_v1"
+# -- jpsi
+cut=$cut" && Bpt > 10 && TMath::Abs(Bmumumass-3.096916) < 0.05 && TMath::Abs(Bujeta) < 2.4"
 # -- muon
 cut=$cut" && (Bmu1SoftMuID && Bmu2SoftMuID && Bmu1isAcc && Bmu2isAcc && Bmu1isTriggered && Bmu2isTriggered)"
 # -- track kinematics
@@ -67,62 +67,39 @@ stages="0,10,1,2,9" ; sequence=0 ; # see definition below #
 
 ## ===== do not change the lines below =====
 varstrategy=("Single set" "Sequence")
-varlist=(
-    '#  0  :  ("Bchi2cl"    , "Bchi2cl"                                                                                        , "FMax")  #' 
-    '#  1  :  ("dRtrk1"     , "dRtrk1 := TMath::Sqrt(pow(TMath::ACos(TMath::Cos(Bujphi-Btrk1Phi)),2) + pow(Bujeta-Btrk1Eta,2))", "FMin")  #' 
-    '#  2  :  ("dRtrk2"     , "dRtrk2 := TMath::Sqrt(pow(TMath::ACos(TMath::Cos(Bujphi-Btrk2Phi)),2) + pow(Bujeta-Btrk2Eta,2))", "FMin")  #' 
-    '#  3  :  ("Qvalue"     , "Qvalue := (Bmass-3.096916-Btktkmass)"                                                           , "FMin")  #' 
-    '#  4  :  ("Balpha"     , "Balpha"                                                                                         , "FMin")  #' 
-    '#  5  :  ("costheta"   , "costheta := TMath::Cos(Bdtheta)"                                                                , "FMax")  #' 
-    '#  6  :  ("dls3D"      , "dls3D := TMath::Abs(BsvpvDistance/BsvpvDisErr)"                                                 , "FMax")  #' 
-    '#  7  :  ("dls2D"      , "dls2D := TMath::Abs(BsvpvDistance_2D/BsvpvDisErr_2D)"                                           , "FMax")  #' 
-    '#  8  :  ("Btrk1Pt"    , "Btrk1Pt"                                                                                        , "FMax")  #' 
-    '#  9  :  ("Btrk2Pt"    , "Btrk2Pt"                                                                                        , "FMax")  #' 
-    '#  10 :  ("trkptimba"  , "trkptimba := TMath::Abs((Btrk1Pt-Btrk2Pt) / (Btrk1Pt+Btrk2Pt))"                                 , "FMax")  #' 
-    '#  11 :  ("By"         , "By"                                                                                             , ""    )  #'
-    '#  12 :  ("Bmass"      , "Bmass"                                                                                          , ""    )  #'
-    '#  13 :  ("Btrk1Eta"   , "Btrk1Eta"                                                                                       , ""    )  #'
-    '#  14 :  ("Btrk2Eta"   , "Btrk2Eta"                                                                                       , ""    )  #'
-    '#  15 :  ("Btrk1DxySig", "Btrk1DxySig := TMath::Abs(Btrk1Dxy1/Btrk1DxyError1)"                                            , ""    )  #'
-    '#  16 :  ("Btrk2DxySig", "Btrk2DxySig := TMath::Abs(Btrk2Dxy1/Btrk2DxyError1)"                                            , ""    )  #'
-    '#  17 :  ("dRtrkH"     , "dRtrkH := TMath::Sqrt(pow(TMath::ACos(TMath::Cos(Bujphi-BtrkHPhi)),2) + pow(Bujeta-BtrkHEta,2))", "FMin")  #' 
-    '#  18 :  ("dRtrkL"     , "dRtrkL := TMath::Sqrt(pow(TMath::ACos(TMath::Cos(Bujphi-BtrkLPhi)),2) + pow(Bujeta-BtrkLEta,2))", "FMin")  #' 
-    '#  19 :  ("BtrkHPt"    , "BtrkHPt"                                                                                        , "FMax")  #' 
-    '#  20 :  ("BtrkLPt"    , "BtrkLPt"                                                                                        , "FMax")  #' 
-    '#  21 :  ("BtrkHEta"   , "BtrkHEta"                                                                                       , ""    )  #'
-    '#  22 :  ("BtrkLEta"   , "BtrkLEta"                                                                                       , ""    )  #'
-    '#  23 :  ("BtrkHDxySig", "BtrkHDxySig := TMath::Abs(BtrkHDxy1/BtrkHDxyError1)"                                            , ""    )  #'
-    '#  24 :  ("BtrkLDxySig", "BtrkLDxySig := TMath::Abs(BtrkLDxy1/BtrkLDxyError1)"                                            , ""    )  #'
-)
-
 
 cuts="${cut} && Bgen==23333 && BgencollisionId==0"
 [[ $bkgstrategy == "sideband" ]] && cutb="${cut} && TMath::Abs(Bmass-3.8719) > 0.07 && TMath::Abs(Bmass-3.8719) < 0.128" # sideband
 [[ $bkgstrategy == "samesign" ]] && cutb="${cut} && TMath::Abs(Bmass-3.8719) < 0.04" # samesign
 
 ## ===== do not do not do not change the lines below =====
+function catspace() { echo -e $(cat "$@" | sed  's/$/\\n/' | sed 's/ /\\a /g') ; }
 IFS=','; allstages=($stages); unset IFS;
 echo -e '
-
-######################################################################################################################################
-#                                                 Variables \e[1;32m(To be used)\e[0m                                                             #
-######################################################################################################################################
-#                                                                                                                                    #'
+##########################
+# Variables \e[1;32m(To be used)\e[0m #
+##########################'
 vv=0
-while(( $vv < ${#varlist[@]})) ; do
+catspace TMVAClassification.h | grep --color=no 'mytmva::tmvavar("' > tmpvarlist.list
+while read -r line
+do
     for ss in ${allstages[@]} ; do [[ $ss == $vv ]] && { echo -en "\e[1;32m" ; break ; } ; done ;
-    echo -e "${varlist[vv]}\e[0m"
+    echo -e $line | sed 's/mytmva::tmvavar//' | sed 's/\*\///' | sed 's/\a \a \/\*//' ; echo -ne "\e[0m" ;
     vv=$((vv+1))
-done
-echo '#                                                                                                                                    #
-######################################################################################################################################
-'
+done < tmpvarlist.list
+rm tmpvarlist.list
+# while(( $vv < ${#varlist[@]})) ; do
+#     for ss in ${allstages[@]} ; do [[ $ss == $vv ]] && { echo -en "\e[1;32m" ; break ; } ; done ;
+#     echo -e "${varlist[vv]}\e[0m"
+#     vv=$((vv+1))
+# done
+# echo '##########################'
 
 ##
 echo -e "
-######################################################################################################################################
-#                                                   Training Configurations                                                          #
-######################################################################################################################################
+###########################
+# Training Configurations #
+###########################
 
 >>>>>> Variables training strategy
   >>>> \e[32m[${varstrategy[sequence]}]\e[0m

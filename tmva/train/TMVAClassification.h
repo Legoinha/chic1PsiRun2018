@@ -24,31 +24,31 @@ namespace mytmva
   };
 
   const std::vector<mytmva::tmvavar> varlist = {
-    mytmva::tmvavar("Bchi2cl"    , "Bchi2cl"                                                                                        , "FMax", "vertex #chi^{2} prob"                 , 0   , 1)  , // 0
-    mytmva::tmvavar("dRtrk1"     , "dRtrk1 := TMath::Sqrt(pow(TMath::ACos(TMath::Cos(Bujphi-Btrk1Phi)),2) + pow(Bujeta-Btrk1Eta,2))", "FMin", "#DeltaR(#pi_{1},J/#psi)"              , 0   , 0.5), // 1
-    mytmva::tmvavar("dRtrk2"     , "dRtrk2 := TMath::Sqrt(pow(TMath::ACos(TMath::Cos(Bujphi-Btrk2Phi)),2) + pow(Bujeta-Btrk2Eta,2))", "FMin", "#DeltaR(#pi_{2},J/#psi)"              , 0   , 0.5), // 2
-    mytmva::tmvavar("Qvalue"     , "Qvalue := (Bmass-3.096916-Btktkmass)"                                                           , "FMin", "Q (GeV/c^{2})"                        , 0   , 0.5), // 3
-    mytmva::tmvavar("Balpha"     , "Balpha"                                                                                         , "FMin", "#alpha"                               , 0   , 3.2), // 4
-    mytmva::tmvavar("costheta"   , "costheta := TMath::Cos(Bdtheta)"                                                                , "FMax", "cos(#theta)"                          , -1  , 1)  , // 5
-    mytmva::tmvavar("dls3D"      , "dls3D := TMath::Abs(BsvpvDistance/BsvpvDisErr)"                                                 , "FMax", "l_{xyz}/#sigma(l_{xyz})"              , 0   , 10) , // 6
-    mytmva::tmvavar("dls2D"      , "dls2D := TMath::Abs(BsvpvDistance_2D/BsvpvDisErr_2D)"                                           , "FMax", "l_{xy}/#sigma(l_{xy})"                , 0   , 10) , // 7
-    mytmva::tmvavar("Btrk1Pt"    , "Btrk1Pt"                                                                                        , "FMax", "#pi_{1} p_{T} (GeV/c)"                , 0   , 10) , // 8
-    mytmva::tmvavar("Btrk2Pt"    , "Btrk2Pt"                                                                                        , "FMax", "#pi_{2} p_{T} (GeV/c)"                , 0   , 10) , // 9
-    mytmva::tmvavar("trkptimba"  , "trkptimba := TMath::Abs((Btrk1Pt-Btrk2Pt) / (Btrk1Pt+Btrk2Pt))"                                 , "FMax", "p_{T}(1)-p_{T}(2) / p_{T}(1)+p_{T}(2)", 0   , 1)  , // 10
-    mytmva::tmvavar("By"         , "By"                                                                                             , ""    , "y"                                    , -2.4, 2.4), // 11
-    mytmva::tmvavar("Bmass"      , "Bmass"                                                                                          , ""    , "m_{#mu#mu#pi#pi}"                     , 3.6 , 4.0), // 12
-    mytmva::tmvavar("Btrk1Eta"   , "Btrk1Eta"                                                                                       , ""    , "#pi_{1} #eta"                         , -2  , 2)  , // 13
-    mytmva::tmvavar("Btrk2Eta"   , "Btrk2Eta"                                                                                       , ""    , "#pi_{2} #eta"                         , -2  , 2)  , // 14
-    mytmva::tmvavar("Btrk1DxySig", "Btrk1DxySig := TMath::Abs(Btrk1Dxy1/Btrk1DxyError1)"                                            , ""    , "#pi_{1} |D_{xy}/#sigma(D_{xy})|"      , 0   , 4)  , // 15
-    mytmva::tmvavar("Btrk2DxySig", "Btrk2DxySig := TMath::Abs(Btrk2Dxy1/Btrk2DxyError1)"                                            , ""    , "#pi_{2} |D_{xy}/#sigma(D_{xy})|"      , 0   , 4)  , // 16
-    mytmva::tmvavar("dRtrkH"     , "dRtrkH := TMath::Sqrt(pow(TMath::ACos(TMath::Cos(Bujphi-BtrkHPhi)),2) + pow(Bujeta-BtrkHEta,2))", "FMin", "#DeltaR(#pi_{lead},J/#psi)"           , 0   , 0.5), // 17
-    mytmva::tmvavar("dRtrkL"     , "dRtrkL := TMath::Sqrt(pow(TMath::ACos(TMath::Cos(Bujphi-BtrkLPhi)),2) + pow(Bujeta-BtrkLEta,2))", "FMin", "#DeltaR(#pi_{sub},J/#psi)"            , 0   , 0.5), // 18
-    mytmva::tmvavar("BtrkHPt"    , "BtrkHPt"                                                                                        , "FMax", "#pi_{lead} p_{T} (GeV/c)"             , 0   , 10) , // 19
-    mytmva::tmvavar("BtrkLPt"    , "BtrkLPt"                                                                                        , "FMax", "#pi_{sub} p_{T} (GeV/c)"              , 0   , 10) , // 20
-    mytmva::tmvavar("BtrkHEta"   , "BtrkHEta"                                                                                       , ""    , "#pi_{lead} #eta"                      , -2  , 2)  , // 21
-    mytmva::tmvavar("BtrkLEta"   , "BtrkLEta"                                                                                       , ""    , "#pi_{sub} #eta"                       , -2  , 2)  , // 22
-    mytmva::tmvavar("BtrkHDxySig", "BtrkHDxySig := TMath::Abs(BtrkHDxy1/BtrkHDxyError1)"                                            , ""    , "#pi_{lead} |D_{xy}/#sigma(D_{xy})|"   , 0   , 4)  , // 23
-    mytmva::tmvavar("BtrkLDxySig", "BtrkLDxySig := TMath::Abs(BtrkLDxy1/BtrkLDxyError1)"                                            , ""    , "#pi_{sub} |D_{xy}/#sigma(D_{xy})|"    , 0   , 4)  , // 24
+    /*0: */ mytmva::tmvavar("Bchi2cl"    , "Bchi2cl"                                                                                        , "FMax", "vertex #chi^{2} prob"                 , 0   , 1)  ,
+    /*1: */ mytmva::tmvavar("dRtrk1"     , "dRtrk1 := TMath::Sqrt(pow(TMath::ACos(TMath::Cos(Bujphi-Btrk1Phi)),2) + pow(Bujeta-Btrk1Eta,2))", "FMin", "#DeltaR(#pi_{1},J/#psi)"              , 0   , 0.5),
+    /*2: */ mytmva::tmvavar("dRtrk2"     , "dRtrk2 := TMath::Sqrt(pow(TMath::ACos(TMath::Cos(Bujphi-Btrk2Phi)),2) + pow(Bujeta-Btrk2Eta,2))", "FMin", "#DeltaR(#pi_{2},J/#psi)"              , 0   , 0.5),
+    /*3: */ mytmva::tmvavar("Qvalue"     , "Qvalue := (Bmass-3.096916-Btktkmass)"                                                           , "FMin", "Q (GeV/c^{2})"                        , 0   , 0.5),
+    /*4: */ mytmva::tmvavar("Balpha"     , "Balpha"                                                                                         , "FMin", "#alpha"                               , 0   , 3.2),
+    /*5: */ mytmva::tmvavar("costheta"   , "costheta := TMath::Cos(Bdtheta)"                                                                , "FMax", "cos(#theta)"                          , -1  , 1)  ,
+    /*6: */ mytmva::tmvavar("dls3D"      , "dls3D := TMath::Abs(BsvpvDistance/BsvpvDisErr)"                                                 , "FMax", "l_{xyz}/#sigma(l_{xyz})"              , 0   , 10) ,
+    /*7: */ mytmva::tmvavar("dls2D"      , "dls2D := TMath::Abs(BsvpvDistance_2D/BsvpvDisErr_2D)"                                           , "FMax", "l_{xy}/#sigma(l_{xy})"                , 0   , 10) ,
+    /*8: */ mytmva::tmvavar("Btrk1Pt"    , "Btrk1Pt"                                                                                        , "FMax", "#pi_{1} p_{T} (GeV/c)"                , 0   , 10) ,
+    /*9: */ mytmva::tmvavar("Btrk2Pt"    , "Btrk2Pt"                                                                                        , "FMax", "#pi_{2} p_{T} (GeV/c)"                , 0   , 10) ,
+    /*10:*/ mytmva::tmvavar("trkptimba"  , "trkptimba := TMath::Abs((Btrk1Pt-Btrk2Pt) / (Btrk1Pt+Btrk2Pt))"                                 , "FMax", "p_{T}(1)-p_{T}(2) / p_{T}(1)+p_{T}(2)", 0   , 1)  ,
+    /*11:*/ mytmva::tmvavar("By"         , "By"                                                                                             , ""    , "y"                                    , -2.4, 2.4),
+    /*12:*/ mytmva::tmvavar("Bmass"      , "Bmass"                                                                                          , ""    , "m_{#mu#mu#pi#pi}"                     , 3.6 , 4.0),
+    /*13:*/ mytmva::tmvavar("Btrk1Eta"   , "Btrk1Eta"                                                                                       , ""    , "#pi_{1} #eta"                         , -2  , 2)  ,
+    /*14:*/ mytmva::tmvavar("Btrk2Eta"   , "Btrk2Eta"                                                                                       , ""    , "#pi_{2} #eta"                         , -2  , 2)  ,
+    /*15:*/ mytmva::tmvavar("Btrk1DxySig", "Btrk1DxySig := TMath::Abs(Btrk1Dxy1/Btrk1DxyError1)"                                            , ""    , "#pi_{1} |D_{xy}/#sigma(D_{xy})|"      , 0   , 4)  ,
+    /*16:*/ mytmva::tmvavar("Btrk2DxySig", "Btrk2DxySig := TMath::Abs(Btrk2Dxy1/Btrk2DxyError1)"                                            , ""    , "#pi_{2} |D_{xy}/#sigma(D_{xy})|"      , 0   , 4)  ,
+    /*17:*/ mytmva::tmvavar("dRtrkH"     , "dRtrkH := TMath::Sqrt(pow(TMath::ACos(TMath::Cos(Bujphi-BtrkHPhi)),2) + pow(Bujeta-BtrkHEta,2))", "FMin", "#DeltaR(#pi_{lead},J/#psi)"           , 0   , 0.5),
+    /*18:*/ mytmva::tmvavar("dRtrkL"     , "dRtrkL := TMath::Sqrt(pow(TMath::ACos(TMath::Cos(Bujphi-BtrkLPhi)),2) + pow(Bujeta-BtrkLEta,2))", "FMin", "#DeltaR(#pi_{sub},J/#psi)"            , 0   , 0.5),
+    /*19:*/ mytmva::tmvavar("BtrkHPt"    , "BtrkHPt"                                                                                        , "FMax", "#pi_{lead} p_{T} (GeV/c)"             , 0   , 10) ,
+    /*20:*/ mytmva::tmvavar("BtrkLPt"    , "BtrkLPt"                                                                                        , "FMax", "#pi_{sub} p_{T} (GeV/c)"              , 0   , 10) ,
+    /*21:*/ mytmva::tmvavar("BtrkHEta"   , "BtrkHEta"                                                                                       , ""    , "#pi_{lead} #eta"                      , -2  , 2)  ,
+    /*22:*/ mytmva::tmvavar("BtrkLEta"   , "BtrkLEta"                                                                                       , ""    , "#pi_{sub} #eta"                       , -2  , 2)  ,
+    /*23:*/ mytmva::tmvavar("BtrkHDxySig", "BtrkHDxySig := TMath::Abs(BtrkHDxy1/BtrkHDxyError1)"                                            , ""    , "#pi_{lead} |D_{xy}/#sigma(D_{xy})|"   , 0   , 4)  ,
+    /*24:*/ mytmva::tmvavar("BtrkLDxySig", "BtrkLDxySig := TMath::Abs(BtrkLDxy1/BtrkLDxyError1)"                                            , ""    , "#pi_{sub} |D_{xy}/#sigma(D_{xy})|"    , 0   , 4)  ,
   };
   const mytmva::tmvavar* findvar(std::string varlabel);
 
