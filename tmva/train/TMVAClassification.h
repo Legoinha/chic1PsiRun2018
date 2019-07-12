@@ -87,28 +87,37 @@ namespace mytmva
       fval["BtrkLEta"]    = j<0?0:(float)fnt->BtrkLEta[j];
       fval["BtrkHDxySig"] = j<0?0:(float)TMath::Abs(fnt->BtrkHDxy1[j]/fnt->BtrkHDxyError1[j]);
       fval["BtrkLDxySig"] = j<0?0:(float)TMath::Abs(fnt->BtrkLDxy1[j]/fnt->BtrkLDxyError1[j]);
-      if(ll)
-        {
-          fval["dRtrk1"]      = j<0?0:(float)TMath::Sqrt(pow(TMath::ACos(TMath::Cos(fnt->Bujphi[j] - fnt->Btrk1Phi[j])), 2) + pow(fnt->Bujeta[j] - fnt->Btrk1Eta[j], 2));
-          fval["dRtrk2"]      = j<0?0:(float)TMath::Sqrt(pow(TMath::ACos(TMath::Cos(fnt->Bujphi[j] - fnt->Btrk2Phi[j])), 2) + pow(fnt->Bujeta[j] - fnt->Btrk2Eta[j], 2));
-          fval["Btrk1Pt"]     = j<0?0:(float)fnt->Btrk1Pt[j];
-          fval["Btrk2Pt"]     = j<0?0:(float)fnt->Btrk2Pt[j];
-          fval["Btrk1Eta"]    = j<0?0:(float)fnt->Btrk1Eta[j];
-          fval["Btrk2Eta"]    = j<0?0:(float)fnt->Btrk2Eta[j];
-          fval["Btrk1DxySig"] = j<0?0:(float)TMath::Abs(fnt->Btrk1Dxy1[j]/fnt->Btrk1DxyError1[j]);
-          fval["Btrk2DxySig"] = j<0?0:(float)TMath::Abs(fnt->Btrk2Dxy1[j]/fnt->Btrk2DxyError1[j]);          
-        }
-      else
-        {
-          fval["dRtrk2"]      = j<0?0:(float)TMath::Sqrt(pow(TMath::ACos(TMath::Cos(fnt->Bujphi[j] - fnt->Btrk1Phi[j])), 2) + pow(fnt->Bujeta[j] - fnt->Btrk1Eta[j], 2));
-          fval["dRtrk1"]      = j<0?0:(float)TMath::Sqrt(pow(TMath::ACos(TMath::Cos(fnt->Bujphi[j] - fnt->Btrk2Phi[j])), 2) + pow(fnt->Bujeta[j] - fnt->Btrk2Eta[j], 2));
-          fval["Btrk2Pt"]     = j<0?0:(float)fnt->Btrk1Pt[j];
-          fval["Btrk1Pt"]     = j<0?0:(float)fnt->Btrk2Pt[j];
-          fval["Btrk2Eta"]    = j<0?0:(float)fnt->Btrk1Eta[j];
-          fval["Btrk1Eta"]    = j<0?0:(float)fnt->Btrk2Eta[j];
-          fval["Btrk2DxySig"] = j<0?0:(float)TMath::Abs(fnt->Btrk1Dxy1[j]/fnt->Btrk1DxyError1[j]);
-          fval["Btrk1DxySig"] = j<0?0:(float)TMath::Abs(fnt->Btrk2Dxy1[j]/fnt->Btrk2DxyError1[j]);
-        }
+      fval["dRtrk1"]      = j<0?0:(float)TMath::Sqrt(pow(TMath::ACos(TMath::Cos(fnt->Bujphi[j] - fnt->Btrk1Phi[j])), 2) + pow(fnt->Bujeta[j] - fnt->Btrk1Eta[j], 2));
+      fval["dRtrk2"]      = j<0?0:(float)TMath::Sqrt(pow(TMath::ACos(TMath::Cos(fnt->Bujphi[j] - fnt->Btrk2Phi[j])), 2) + pow(fnt->Bujeta[j] - fnt->Btrk2Eta[j], 2));
+      fval["Btrk1Pt"]     = j<0?0:(float)fnt->Btrk1Pt[j];
+      fval["Btrk2Pt"]     = j<0?0:(float)fnt->Btrk2Pt[j];
+      fval["Btrk1Eta"]    = j<0?0:(float)fnt->Btrk1Eta[j];
+      fval["Btrk2Eta"]    = j<0?0:(float)fnt->Btrk2Eta[j];
+      fval["Btrk1DxySig"] = j<0?0:(float)TMath::Abs(fnt->Btrk1Dxy1[j]/fnt->Btrk1DxyError1[j]);
+      fval["Btrk2DxySig"] = j<0?0:(float)TMath::Abs(fnt->Btrk2Dxy1[j]/fnt->Btrk2DxyError1[j]);          
+
+      // if(ll)
+      //   {
+      //     fval["dRtrk1"]      = j<0?0:(float)TMath::Sqrt(pow(TMath::ACos(TMath::Cos(fnt->Bujphi[j] - fnt->Btrk1Phi[j])), 2) + pow(fnt->Bujeta[j] - fnt->Btrk1Eta[j], 2));
+      //     fval["dRtrk2"]      = j<0?0:(float)TMath::Sqrt(pow(TMath::ACos(TMath::Cos(fnt->Bujphi[j] - fnt->Btrk2Phi[j])), 2) + pow(fnt->Bujeta[j] - fnt->Btrk2Eta[j], 2));
+      //     fval["Btrk1Pt"]     = j<0?0:(float)fnt->Btrk1Pt[j];
+      //     fval["Btrk2Pt"]     = j<0?0:(float)fnt->Btrk2Pt[j];
+      //     fval["Btrk1Eta"]    = j<0?0:(float)fnt->Btrk1Eta[j];
+      //     fval["Btrk2Eta"]    = j<0?0:(float)fnt->Btrk2Eta[j];
+      //     fval["Btrk1DxySig"] = j<0?0:(float)TMath::Abs(fnt->Btrk1Dxy1[j]/fnt->Btrk1DxyError1[j]);
+      //     fval["Btrk2DxySig"] = j<0?0:(float)TMath::Abs(fnt->Btrk2Dxy1[j]/fnt->Btrk2DxyError1[j]);          
+      //   }
+      // else
+      //   {
+      //     fval["dRtrk2"]      = j<0?0:(float)TMath::Sqrt(pow(TMath::ACos(TMath::Cos(fnt->Bujphi[j] - fnt->Btrk1Phi[j])), 2) + pow(fnt->Bujeta[j] - fnt->Btrk1Eta[j], 2));
+      //     fval["dRtrk1"]      = j<0?0:(float)TMath::Sqrt(pow(TMath::ACos(TMath::Cos(fnt->Bujphi[j] - fnt->Btrk2Phi[j])), 2) + pow(fnt->Bujeta[j] - fnt->Btrk2Eta[j], 2));
+      //     fval["Btrk2Pt"]     = j<0?0:(float)fnt->Btrk1Pt[j];
+      //     fval["Btrk1Pt"]     = j<0?0:(float)fnt->Btrk2Pt[j];
+      //     fval["Btrk2Eta"]    = j<0?0:(float)fnt->Btrk1Eta[j];
+      //     fval["Btrk1Eta"]    = j<0?0:(float)fnt->Btrk2Eta[j];
+      //     fval["Btrk2DxySig"] = j<0?0:(float)TMath::Abs(fnt->Btrk1Dxy1[j]/fnt->Btrk1DxyError1[j]);
+      //     fval["Btrk1DxySig"] = j<0?0:(float)TMath::Abs(fnt->Btrk2Dxy1[j]/fnt->Btrk2DxyError1[j]);
+      //   }
     }
     bool checkvarlist() 
     {  
