@@ -1,17 +1,17 @@
 #!/bin/bash
 
-ifs=(6) # input directory
+ifs=(0 1 3 4) # input directory
 jns=(1) # tree
 
 ## ifs
 inputdirs=(
-    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190513_HIDoubleMuonPsiPeri_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_327123_327327/      # 0
-    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190513_HIDoubleMuonPsiPeri_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_327400_327564_v2/   # 1
-    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190513_HIDoubleMuon_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_326381_326577/             # 2
-    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190513_HIDoubleMuon_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_326580_326855/             # 3
-    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190513_HIDoubleMuon_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_326856_327078/             # 4
-    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_samesign_20190513_HIDoubleMuonPsi_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_327123_327327/ # 5
-    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_samesign_20190513_HIDoubleMuonPsi_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_327400_327564/ # 6
+    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190711_Bfinder_20190513_HIDoubleMuonPsiPeri_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_327123_327327_skimBpt10/      # 0
+    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190711_Bfinder_20190513_HIDoubleMuonPsiPeri_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_327400_327564_v2_skimBpt10/   # 1
+    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190711_Bfinder_20190513_HIDoubleMuon_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_326381_326577_skimBpt10/             # 2
+    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190711_Bfinder_20190513_HIDoubleMuon_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_326580_326855_skimBpt10/             # 3
+    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190711_Bfinder_20190513_HIDoubleMuon_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_326856_327078_skimBpt10/             # 4
+    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190711_Bfinder_samesign_20190513_HIDoubleMuonPsi_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_327123_327327_skimBpt10/ # 5
+    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190711_Bfinder_samesign_20190513_HIDoubleMuonPsi_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_327400_327564_skimBpt10/ # 6
 )
 
 ########################################
@@ -32,7 +32,7 @@ do
     inputdir=${inputdirs[i]}
     IFS='/'; subdir=($inputdir); unset IFS;
     request=${subdir[${#subdir[@]}-1]}
-    primedir=${inputdir%%crab_*}
+    primedir=${inputdir%%${request}*}
 
 ##
     filelist=filelist_${request}.txt
