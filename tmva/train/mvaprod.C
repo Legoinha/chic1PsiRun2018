@@ -3,9 +3,11 @@
 #include "TMVAClassification.h"
 #include "mvaprod.h"
 
-void mvaprob_main(std::string inputname, std::string treename, std::string outputname, std::string outputfilename,
+void mvaprob_main(std::string inputname, std::string treename, std::string outputname, std::string outputfiledir,
                   float ptmin, float ptmax, std::string mymethod = "", std::string stage = "0,1,2,3,4,5,6,7,8,9,10")
 {
+  std::string outputfilename = xjjc::str_replaceall(xjjc::str_divide(inputname, "/").back(), ".root", "");
+  outputfilename = outputfiledir + "/" + outputfilename;
   std::string outfname = xjjc::str_replaceallspecial(mytmva::mkname(outputname, ptmin, ptmax, mymethod, stage));
   mytmva::mvaprob(inputname, "Bfinder/ntmix", outputfilename, Form("dataset/weights/%s", outfname.c_str()));
 }

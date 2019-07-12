@@ -25,7 +25,7 @@ namespace fs = std::experimental::filesystem;
 namespace mytmva
 {
   void createmva(TTree* nttree, TFile* outf, std::vector<std::string> xmlname, int nevt=-1);
-  std::string titlecolor = "\e[34;3m", nocolor = "\e[0m", contentcolor = "\e[34m";
+  std::string titlecolor = "\e[34;3m", nocolor = "\e[0m", contentcolor = "\e[34m", errorcolor = "\e[31;1m";
   void mvaprob(std::string inputname, std::string treename, std::string outputname, std::string weightdir,
                int nevt=-1, std::string rootfname="");
 }
@@ -52,11 +52,14 @@ void mytmva::mvaprob(std::string inputname, std::string treename, std::string ou
 
   // input/output file  
   std::cout<<mytmva::titlecolor<<"==> "<<__FUNCTION__<<": input file:"<<mytmva::nocolor<<std::endl<<inputname<<mytmva::nocolor<<std::endl;
-  std::string outfname(Form("%s_%s.root", outputname.c_str(), xjjc::str_replaceallspecial(weightdir).c_str()));
+  std::string weightlabel = xjjc::str_replaceall(xjjc::str_replaceallspecial(weightdir), "dataset_weights_rootfiles_TMVA_", "");
+  std::string outfname(Form("%s_%s.root", outputname.c_str(), weightlabel.c_str())); outfname = xjjc::str_replaceall(outfname, "_root.root", ".root");
   std::cout<<mytmva::titlecolor<<"==> "<<__FUNCTION__<<": output file:"<<mytmva::nocolor<<std::endl<<outfname<<mytmva::nocolor<<std::endl;
-  std::cout<<__FUNCTION__<<": warning: application of mva values will take long time. would you want to continue? [y/n]"<<std::endl; char ans='x';
+  if(std::experimental::filesystem::exists(outfname)) { std::cout<<mytmva::errorcolor<<"==> "<<__FUNCTION__<<": warning: output file already exists."<<mytmva::nocolor<<std::endl; }
+  std::cout<<"==> "<<__FUNCTION__<<": warning: application of mva values will take long time. would you want to continue? [y/n]"<<std::endl; char ans='x';
   while(ans!='y' && ans!='n') { std::cin>>ans; }
   if(ans=='n') return;
+  gSystem->Exec(Form("rsync --progress %s %s", inputname.c_str(), outfname.c_str()));
 
   // training rootfile
   if(rootfname == "")
@@ -72,9 +75,9 @@ void mytmva::mvaprob(std::string inputname, std::string treename, std::string ou
       TString *cuts_ = 0, *cutb_ = 0; std::string *varinfo_ = 0;
       TFile* rootf = TFile::Open(rootfname.c_str());
       std::cout<<mytmva::titlecolor<<"==> "<<__FUNCTION__<<": opening file:"<<mytmva::nocolor<<std::endl<<rootfname<<mytmva::nocolor<<std::endl;
-      if(!rootf) { std::cout<<"\e[31;1m"<<"==> "<<__FUNCTION__<<": error: file is not opened."<<mytmva::nocolor<<std::endl; return; }
+      if(!rootf) { std::cout<<mytmva::errorcolor<<"==> "<<__FUNCTION__<<": error: file is not opened."<<mytmva::nocolor<<std::endl; return; }
       TTree* rinfo = (TTree*)rootf->Get("dataset/tmvainfo");
-      if(!rinfo) { std::cout<<"\e[31;1m"<<"==> "<<__FUNCTION__<<": error: tree is not opened."<<mytmva::nocolor<<std::endl; return; }
+      if(!rinfo) { std::cout<<mytmva::errorcolor<<"==> "<<__FUNCTION__<<": error: tree is not opened."<<mytmva::nocolor<<std::endl; return; }
       rinfo->SetBranchAddress("cuts", &cuts_);
       rinfo->SetBranchAddress("cutb", &cutb_);
       rinfo->SetBranchAddress("var", &varinfo_);
@@ -85,12 +88,12 @@ void mytmva::mvaprob(std::string inputname, std::string treename, std::string ou
       cuts = *cuts_; cutb = *cutb_; varinfo = *varinfo_;
       rootf->Close();
     }
-  else { std::cout<<"\e[31;1m"<<"==> "<<__FUNCTION__<<": warning: file:"<<rootfname.c_str()<<" doesn't exist. skipped."<<mytmva::nocolor<<std::endl; }
+  else { std::cout<<"\e[33m"<<"==> "<<__FUNCTION__<<": warning: file:"<<rootfname.c_str()<<" doesn't exist. skipped."<<mytmva::nocolor<<std::endl; }
 
   // fill cut info
   TFile* inf = TFile::Open(inputname.c_str());
   TTree* nttree = (TTree*)inf->Get(treename.c_str());
-  TFile* outf = TFile::Open(outfname.c_str(), "recreate");
+  TFile* outf = TFile::Open(outfname.c_str(), "update");
   outf->mkdir("dataset");
   outf->cd("dataset");
   TTree* info = new TTree("tmvainfo", "TMVA info");
@@ -98,6 +101,7 @@ void mytmva::mvaprob(std::string inputname, std::string treename, std::string ou
   info->Branch("cutb", &cutb);
   info->Branch("var", &varinfo);
   info->Fill();
+  info->Write("", TObject::kOverwrite);
 
   outf->cd();
   mytmva::createmva(nttree, outf, xmlname, nevt);
@@ -215,8 +219,10 @@ void mytmva::createmva(TTree* nttree, TFile* outf, std::vector<std::string> xmln
     }
   xjjc::progressbar_summary(nentries);
 
+  outf->cd("dataset");
+  mvatree->Write("", TObject::kOverwrite);
+  // outf->Write();
   outf->cd();
-  outf->Write();
   outf->Close();
 }
 
