@@ -116,7 +116,7 @@ void mytmva::createmva(TTree* nttree, TFile* outf, std::vector<std::string> xmln
 
   // read weight file
   std::vector<std::string> methods;
-  std::map<std::string, std::vector<std::string>> varlabels;
+  std::map<std::string, std::vector<std::string>> varlabels, speclabels;
   std::cout<<mytmva::titlecolor<<"==> "<<__FUNCTION__<<": Found method:"<<mytmva::nocolor<<std::endl;
   for(auto& ww : xmlname)
     {
@@ -143,6 +143,18 @@ void mytmva::createmva(TTree* nttree, TFile* outf, std::vector<std::string> xmln
           varlabels[method].push_back(varlabel);
           var = TMVA::gTools().GetNextChild(var);
         }
+      // spectator
+      void* spectators = TMVA::gTools().GetChild(rootnode, "Spectators");
+      UInt_t NSpec=0;
+      TMVA::gTools().ReadAttr(spectators, "NSpec", NSpec);
+      void* spec = TMVA::gTools().GetChild(spectators, "Spectator");
+      for(unsigned int k=0;k<NSpec;k++)
+        {
+          std::string speclabel("");
+          TMVA::gTools().ReadAttr(spec, "Label", speclabel);
+          speclabels[method].push_back(speclabel);
+          spec = TMVA::gTools().GetNextChild(spec);
+        }
     }
   if(methods.size() <= 0) { std::cout<<__FUNCTION__<<": error: no method is registered."<<std::endl; return; }
 
@@ -150,8 +162,11 @@ void mytmva::createmva(TTree* nttree, TFile* outf, std::vector<std::string> xmln
   int nmeth = methods.size();
   std::vector<std::string> varnames = varlabels[methods[0]];
   int nvar = varnames.size();
+  std::vector<std::string> specnames = speclabels[methods[0]];
+  int nspec = specnames.size();
   for(auto& mm : methods)
     {
+      // check variable
       if(varlabels[mm].size() != nvar)
         { std::cout<<__FUNCTION__<<": error: inconsistent variable number among methods."<<std::endl; return; }
       for(int vv=0; vv<nvar; vv++)
@@ -159,10 +174,18 @@ void mytmva::createmva(TTree* nttree, TFile* outf, std::vector<std::string> xmln
           if(varlabels[mm].at(vv) != varnames[vv]) 
             { std::cout<<__FUNCTION__<<": error: inconsistent variable among methods."<<std::endl; return; }
         }
+      // check spectator
+      if(speclabels[mm].size() != nspec)
+        { std::cout<<__FUNCTION__<<": error: inconsistent spectator number among methods."<<std::endl; return; }
+      for(int vv=0; vv<nspec; vv++)
+        {
+          if(speclabels[mm].at(vv) != specnames[vv]) 
+            { std::cout<<__FUNCTION__<<": error: inconsistent spectator among methods."<<std::endl; return; }
+        }
     }
   //
   std::string varnote("");
-  std::vector<float> __varval(nvar, 0);
+  std::vector<float> __varval(nvar, 0), __specval(nspec, 0);
   TMVA::Reader *reader = new TMVA::Reader( "!Color:!Silent" ); 
   std::cout<<mytmva::titlecolor<<"==> "<<__FUNCTION__<<": Add variable:"<<mytmva::nocolor<<std::endl;
   for(int vv=0; vv<nvar; vv++)
@@ -171,6 +194,14 @@ void mytmva::createmva(TTree* nttree, TFile* outf, std::vector<std::string> xmln
       reader->AddVariable(mytmva::findvar(varnames[vv])->var.c_str(), &(__varval[vv])); 
       varnote += (";"+varnames[vv]);
     }
+  std::cout<<mytmva::titlecolor<<"==> "<<__FUNCTION__<<": Add spectator:"<<mytmva::nocolor<<std::endl;
+  for(int vv=0; vv<nspec; vv++)
+    {
+      std::cout<<std::left<<std::setw(10)<<specnames[vv]<<" // "<<mytmva::findvar(specnames[vv])->var.c_str()<<std::endl;
+      reader->AddSpectator(mytmva::findvar(specnames[vv])->var.c_str(), &(__specval[vv])); 
+      // varnote += (";"+specnames[vv]);
+    }
+
   std::cout<<mytmva::titlecolor<<"==> "<<__FUNCTION__<<": Book method:"<<mytmva::nocolor<<std::endl;
   for(int mm=0; mm<nmeth; mm++)
     {
@@ -207,6 +238,8 @@ void mytmva::createmva(TTree* nttree, TFile* outf, std::vector<std::string> xmln
         {
           for(int vv=0; vv<nvar; vv++)
             { __varval[vv] = values->getval(varnames[vv], j); }
+          for(int vv=0; vv<nspec; vv++)
+            { __specval[vv] = values->getval(specnames[vv], j); }
           for(int mm=0; mm<nmeth; mm++)
             {
               std::string methodtag(methods[mm] + " method");
