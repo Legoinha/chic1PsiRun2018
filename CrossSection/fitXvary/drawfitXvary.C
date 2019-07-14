@@ -63,8 +63,8 @@ void drawfitXvary(std::string output)
   TH1F* hyieldbdtg_b = new TH1F("hyieldbdtg_b"        , ";BDTG;N_{Signal}"                 , bdtg.size()-1, bdtg.data());
   TH1F* hbkgbdtg_a = new TH1F("hbkgbdtg_a"            , ";BDTG;N_{Background}"             , bdtg.size()-1, bdtg.data());
   TH1F* hbkgbdtg_b = new TH1F("hbkgbdtg_b"            , ";BDTG;N_{Background}"             , bdtg.size()-1, bdtg.data());
-  TH1F* hsigfitbdtg_a = new TH1F("hsigfitbdtg_a"          , ";BDTG;S / #sqrt{S+B}"             , bdtg.size()-1, bdtg.data());
-  TH1F* hsigfitbdtg_b = new TH1F("hsigfitbdtg_b"          , ";BDTG;S / #sqrt{S+B}"             , bdtg.size()-1, bdtg.data());
+  TH1F* hsigfitbdtg_a = new TH1F("hsigfitbdtg_a"      , ";BDTG;S / #sqrt{S+B}"             , bdtg.size()-1, bdtg.data());
+  TH1F* hsigfitbdtg_b = new TH1F("hsigfitbdtg_b"      , ";BDTG;S / #sqrt{S+B}"             , bdtg.size()-1, bdtg.data());
   TH1F* hyieldbdtgBenr_a = new TH1F("hyieldbdtgBenr_a", ";BDTG;N_{Signal} (l_{xy} > 0.1mm)", bdtg.size()-1, bdtg.data());
   TH1F* hyieldbdtgBenr_b = new TH1F("hyieldbdtgBenr_b", ";BDTG;N_{Signal} (l_{xy} > 0.1mm)", bdtg.size()-1, bdtg.data());
   TH1F* hlxyfracbdtg_a = new TH1F("hlxyfracbdtg_a"    , ";BDTG;"                           , bdtg.size()-1, bdtg.data());
@@ -75,7 +75,7 @@ void drawfitXvary(std::string output)
   std::vector<std::vector<TH1F*>*> vhdata        = {&vc.hdata,       &vc.hdataBenr};
   std::vector<TH1F*>               vhyieldbdtg_a = {hyieldbdtg_a, hyieldbdtgBenr_a};
   std::vector<TH1F*>               vhyieldbdtg_b = {hyieldbdtg_b, hyieldbdtgBenr_b};
-  std::vector<std::string>         vtitle        = {"Inclusive",  "l_{xy} > 100#mum"};
+  std::vector<std::string>         vtitle        = {"Inclusive",  "l_{xy} > 100 #mum"};
   for(int cc=0; cc<vhdata.size(); cc++)
     {
       c->cd(cc+1);
@@ -94,7 +94,7 @@ void drawfitXvary(std::string output)
               xjjroot::drawtex(0.70+0.08*(lp%3), 0.75-0.04*(lp/3), Form("> %.2f%s", bdtg[l], (lp%3==2?"":", ")), 0.03, 12, 62, xjjroot::colorlist_dark[lp]);
               lp++;
             }
-          xjjroot::drawtex(0.90, 0.85, vtitle[cc].c_str(), 0.04, 33, kBlack);
+          xjjroot::drawtex(0.90, 0.85, vtitle[cc].c_str(), 0.04, 33, 42, kBlack);
           if(l==nbdtg-1) continue;
           float ysig_a = funs[1]->Integral(fitX::BIN_MIN, fitX::BIN_MAX) / fitX::BIN_WIDTH; if(ysig_a < 0) ysig_a = 0;
           float ysig_aerr = funs[0]->GetParError(5)*ysig_a/funs[0]->GetParameter(5);
@@ -137,7 +137,6 @@ void drawfitXvary(std::string output)
       float nbkg_b = vc.hsideband_b->GetBinContent(l+1) / (masswinH-masswinL) * 0.0093*3;
       float significance_a = nsig_a / TMath::Sqrt(nsig_a + nbkg_a);
       float significance_b = nsig_b / TMath::Sqrt(nsig_b + nbkg_b);
-      std::cout<<nsig_a<<" "<<nsig_b<<" "<<nbkg_a<<" "<<nbkg_b<<std::endl;
       hsigbdtg_a->SetBinContent(l+1, significance_a);
       hsigbdtg_b->SetBinContent(l+1, significance_b);
     }
