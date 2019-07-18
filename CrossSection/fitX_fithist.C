@@ -25,6 +25,8 @@ void fitX_fithist(std::string input, std::string output)
   TH1F* hmcp_b = (TH1F*)inf->Get("hmcp_b");
   TH1F* hlxymcnp_a = (TH1F*)inf->Get("hlxymcnp_a");
   TH1F* hlxymcnp_b = (TH1F*)inf->Get("hlxymcnp_b");
+  TH1F* hlxymcp_a = (TH1F*)inf->Get("hlxymcp_a");
+  TH1F* hlxymcp_b = (TH1F*)inf->Get("hlxymcp_b");
   MCeff::MCefficiency mceff_a(inf, "_a");
   MCeff::MCefficiency mceff_b(inf, "_b");
 
@@ -86,6 +88,40 @@ void fitX_fithist(std::string input, std::string output)
   // fprompt
   hlxymcnp_a->Scale(1./hlxymcnp_a->Integral(), "width");
   hlxymcnp_b->Scale(1./hlxymcnp_b->Integral(), "width");
+  hlxymcp_a->Scale(1./hlxymcp_a->Integral(), "width");
+  hlxymcp_b->Scale(1./hlxymcp_b->Integral(), "width");
+  xjjroot::sethempty(hlxymcnp_a, 0, 0);
+  xjjroot::sethempty(hlxymcp_a, 0, 0);
+  xjjroot::setthgrstyle(hlxymcp_a, fitX::color_a, 21, 1, fitX::color_a, 1, 2);
+  xjjroot::setthgrstyle(hlxymcp_b, fitX::color_b, 21, 1, fitX::color_b, 1, 2);
+  xjjroot::setthgrstyle(hlxymcnp_a, fitX::color_a, 21, 1, fitX::color_a, 1, 2);
+  xjjroot::setthgrstyle(hlxymcnp_b, fitX::color_b, 21, 1, fitX::color_b, 1, 2);
+  hlxymcp_a->SetMaximum(hlxymcp_a->GetMaximum()*10.);
+  hlxymcnp_a->SetMaximum(hlxymcnp_a->GetMaximum()*10.);
+  TCanvas* clxy = new TCanvas("clxy", "", 1200, 600);
+  clxy->Divide(2, 1);
+  clxy->cd(1);
+  gPad->SetLogy();
+  hlxymcp_a->Draw("histe");
+  hlxymcp_b->Draw("histe same");
+  xjjroot::drawline(0.1, 0, 0.1, hlxymcp_a->GetMaximum(), kGray+1, 2, 2);
+  drawkinematic();
+  xjjroot::drawtex(0.23, 0.85, "#psi(2S)", 0.042, 12, 62, fitX::color_a);
+  xjjroot::drawtex(0.23, 0.78, "X(3872)", 0.042, 12, 62, fitX::color_b);
+  xjjroot::drawtex(0.57, 0.85, "Prompt", 0.042, 22, 62);
+  xjjroot::drawCMS("Simulation");
+  clxy->cd(2);
+  gPad->SetLogy();
+  hlxymcnp_a->Draw("histe");
+  hlxymcnp_b->Draw("histe same");
+  xjjroot::drawline(0.1, 0, 0.1, hlxymcnp_a->GetMaximum(), kGray+1, 2, 2);
+  drawkinematic();
+  xjjroot::drawtex(0.23, 0.85, "#psi(2S)", 0.042, 12, 62, fitX::color_a);
+  xjjroot::drawtex(0.23, 0.78, "X(3872)", 0.042, 12, 62, fitX::color_b);
+  xjjroot::drawtex(0.57, 0.85, "Nonprompt", 0.042, 22, 62);
+  xjjroot::drawCMS("Simulation");
+  clxy->SaveAs(Form("plots/%s/clxy.pdf", output.c_str()));
+  
   std::vector<double> vlxyfrac = lxydis::nplxyfrac(hlxymcnp_a, hlxymcnp_b);
   TH1F* hlxyfrac_a = new TH1F("hlxyfrac_a", "", 5, 0, 5); //hlxyfrac_a->Sumw2();
   hlxyfrac_a->SetBinContent(2, vlxyfrac[0]);
@@ -186,8 +222,8 @@ void fitX_fithist(std::string input, std::string output)
   float yyieldpromptCorr_b = hyieldpromptCorr_b->GetBinContent(fitX::ibin_b);
   float yerryieldpromptCorr_b = hyieldpromptCorr_b->GetBinError(fitX::ibin_b);
   xjjroot::drawtex(0.72, yyieldpromptCorr_b/ymaxyieldpromptCorr*(1-gStyle->GetPadBottomMargin()-gStyle->GetPadTopMargin()) + gStyle->GetPadBottomMargin() + 0.1, Form("%.0f #pm %.0f", yyieldpromptCorr_b, yerryieldpromptCorr_b), 0.042, 22, 62, fitX::color_b);
-  drawkinematic();
   xjjroot::drawCMS();
+  drawkinematic();
   cyieldpromptCorr->SaveAs(Form("plots/%s/cyieldpromptCorr.pdf", output.c_str()));
 
   // merge a + b

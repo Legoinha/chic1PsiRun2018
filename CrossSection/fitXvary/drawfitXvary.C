@@ -91,7 +91,7 @@ void drawfitXvary(std::string output)
           if(pbdtg[l])
             {
               xjjroot::copyobject(funs[0], Form("ff_%s_%d", vhdata[cc]->at(l)->GetName(), l))->Draw("l same");
-              xjjroot::drawtex(0.70+0.08*(lp%3), 0.75-0.04*(lp/3), Form("> %.2f%s", bdtg[l], (lp%3==2?"":", ")), 0.03, 12, 62, xjjroot::colorlist_dark[lp]);
+              xjjroot::drawtex(0.70+0.08*(lp%3), 0.78-0.04*(lp/3), Form("> %.2f%s", bdtg[l], (lp%3==2?"":", ")), 0.03, 12, 62, xjjroot::colorlist_dark[lp]);
               lp++;
             }
           if(l==nbdtg-1) continue;
@@ -117,7 +117,7 @@ void drawfitXvary(std::string output)
         }
       xjjroot::drawtex(0.90, 0.85, vtitle[cc].c_str(), 0.04, 33, 62, kBlack);
       xjjroot::setgstyle(1);
-      xjjroot::drawtex(0.70-0.08, 0.75, "BDTG", 0.03, 12, 62, kBlack);
+      xjjroot::drawtex(0.70-0.08, 0.78, "BDTG", 0.03, 12, 62, kBlack);
       xjjroot::drawCMSleft();
       xjjroot::drawCMSright();
     }

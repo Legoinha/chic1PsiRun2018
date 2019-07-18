@@ -39,6 +39,8 @@ void fitX_savehist(std::string input, std::string inputmcp_a, std::string inputm
   TH1F* hmcp_b = new TH1F("hmcp_b", Form(";m_{#mu#mu#pi#pi} (GeV/c^{2});Entries / %.0f MeV", fitX::BIN_WIDTH_H*1.e+3), fitX::NBIN_H, fitX::BIN_MIN_H, fitX::BIN_MAX_H); hmcp_b->Sumw2();
   TH1F* hlxymcnp_a = new TH1F("hlxymcnp_a", ";l_{xy} (mm);Probability", lxyxbins["lxynonprompt"].size()-1, lxyxbins["lxynonprompt"].data()); hlxymcnp_a->Sumw2();
   TH1F* hlxymcnp_b = new TH1F("hlxymcnp_b", ";l_{xy} (mm);Probability", lxyxbins["lxynonprompt"].size()-1, lxyxbins["lxynonprompt"].data()); hlxymcnp_b->Sumw2();
+  TH1F* hlxymcp_a = new TH1F("hlxymcp_a", ";l_{xy} (mm);Probability", lxyxbins["lxyprompt"].size()-1, lxyxbins["lxyprompt"].data()); hlxymcp_a->Sumw2();
+  TH1F* hlxymcp_b = new TH1F("hlxymcp_b", ";l_{xy} (mm);Probability", lxyxbins["lxyprompt"].size()-1, lxyxbins["lxyprompt"].data()); hlxymcp_b->Sumw2();
   MCeff::MCefficiency mceff_a("_a");
   MCeff::MCefficiency mceff_b("_b");
 
@@ -58,6 +60,7 @@ void fitX_savehist(std::string input, std::string inputmcp_a, std::string inputm
   hmcp_a->Scale(hmcp_a->GetEntries()/hmcp_a->Integral());
   ntmixmcp_a->Project(mceff_a.heffmc->GetName(), "Bpt", TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
   ntmixmcp_a->Project(mceff_a.heffmc_incl->GetName(), Form("%d", fitX::ibin_a-1), TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
+  ntmixmcp_a->Project("hlxymcp_a", "Blxy", TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
 
   std::cout<<" == mcp_b ==>"<<std::endl;
   ntmixmcp_b->Project("hmcp_b", "Bmass", TCut("1")*TCut(cutmcreco.c_str()));
@@ -65,6 +68,7 @@ void fitX_savehist(std::string input, std::string inputmcp_a, std::string inputm
   hmcp_b->Scale(hmcp_b->GetEntries()/hmcp_b->Integral());
   ntmixmcp_b->Project(mceff_b.heffmc->GetName(), "Bpt", TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
   ntmixmcp_b->Project(mceff_b.heffmc_incl->GetName(), Form("%d", fitX::ibin_b-1), TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
+  ntmixmcp_b->Project("hlxymcp_b", "Blxy", TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
 
   std::cout<<" == mcgenp_a ==>"<<std::endl;
   ntGenmcp_a->Project(mceff_a.heffgen->GetName(), "Gpt", TCut(mcweight.c_str())*TCut(cutmcgen.c_str()));
@@ -90,6 +94,8 @@ void fitX_savehist(std::string input, std::string inputmcp_a, std::string inputm
   hmcp_b->Write();
   hlxymcnp_a->Write();
   hlxymcnp_b->Write();
+  hlxymcp_a->Write();
+  hlxymcp_b->Write();
   mceff_a.heffmc->Write();
   mceff_a.heffmc_incl->Write();
   mceff_a.heffgen->Write();
