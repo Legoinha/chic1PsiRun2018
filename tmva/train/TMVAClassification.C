@@ -212,6 +212,7 @@ int TMVAClassification(std::string inputSname, std::string inputBname, std::stri
   //// dataloader->AddVariable( "var3",                "Variable 3", "units", 'F' );
   //// dataloader->AddVariable( "var4",                "Variable 4", "units", 'F' );
 
+  // Variable
   std::string varinfo = "";
   TString VarSet = "";
   int nvar = 0;
@@ -226,6 +227,10 @@ int TMVAClassification(std::string inputSname, std::string inputBname, std::stri
     }
   if(!nvar) { std::cout << "==> Abort " << __FUNCTION__ << ": no variable registered." << std::endl; return 2; }
   std::cout << "==> " << __FUNCTION__ << ": VarSet = " << VarSet << std::endl;
+
+  // Spectator
+  dataloader->AddSpectator("Bmass");
+  // dataloader->AddSpectator("Btrk1Pt");
 
   // You can add so-called "Spectator variables", which are not used in the MVA training,
   // but will appear in the final "TestTree" produced by TMVA. This TestTree will contain the
@@ -557,6 +562,7 @@ int TMVAClassification(std::string inputSname, std::string inputBname, std::stri
   if (Use["BDTG"]) // Gradient Boost
     factory->BookMethod( dataloader, TMVA::Types::kBDT, "BDTG",
                          "!H:!V:NTrees=1000:MinNodeSize=2.5%:BoostType=Grad:Shrinkage=0.10:UseBaggedBoost:BaggedSampleFraction=0.5:nCuts=20:MaxDepth=2" );
+                         // "!H:!V:NTrees=505:MinNodeSize=15.5:BoostType=Grad:Shrinkage=0.275:UseBaggedBoost:BaggedSampleFraction=0.5:nCuts=20:MaxDepth=3" );
 
   if (Use["BDT"])  // Adaptive Boost
     factory->BookMethod( dataloader, TMVA::Types::kBDT, "BDT",
