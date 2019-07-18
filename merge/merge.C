@@ -15,7 +15,7 @@ namespace xjjc
   bool str_contains(std::string str1, std::string str2) { return str1.find(str2)!=std::string::npos; }
 }
 
-void merge(std::string outputname, std::string filelist, std::string ntname = "ntmix", int ntotal = -1)
+void merge(std::string outputname, std::string filelist, std::string ntname = "ntmix", bool isskim = false, int ntotal = -1)
 {
   TTree::SetMaxTreeSize(1LL * 1024 * 1024 * 1024 * 1024);
 
@@ -31,27 +31,43 @@ void merge(std::string outputname, std::string filelist, std::string ntname = "n
       count++;
     }
 
-  bool isbnt = (ntname!="empty");
+  bool isbnt = (ntname!="empty"); bool isnt = xjjc::str_contains(ntname, "nt");
 
   TChain* hlt = new TChain("hltanalysis/HltTree");
   TChain* hltobj = new TChain("hltobject/HLT_HIL3Mu0NHitQ10_L2Mu0_MAXdR3p5_M1to5_v");
   TChain* skim = new TChain("skimanalysis/HltTree");
   TChain* hi = new TChain("hiEvtAnalyzer/HiTree");
-  TChain* nt = 0;
-  if(isbnt) nt = new TChain(Form("Bfinder/%s", ntname.c_str()));
+  TChain *nt = 0, *ntJpsi = 0, *ntGen = 0;
+  if(isbnt) 
+    {
+      nt = new TChain(Form("Bfinder/%s", ntname.c_str()));
+      if(isnt)
+        {
+          ntJpsi = new TChain(Form("Bfinder/%s", "ntJpsi"));
+          ntGen = new TChain(Form("Bfinder/%s", "ntGen"));
+        }
+    }
   for(auto& i : files)
     {
       hlt->Add(i.c_str());
       hltobj->Add(i.c_str());
       skim->Add(i.c_str());
       hi->Add(i.c_str());
-      if(isbnt) nt->Add(i.c_str());
+      if(isbnt) 
+        {
+          nt->Add(i.c_str());
+          if(isnt)
+            {
+              ntJpsi->Add(i.c_str());
+              ntGen->Add(i.c_str());
+            }
+        }
       std::cout<<i<<std::endl;
     }
   std::cout<<"Merged \e[31;1m"<<count<<"\e[0m files"<<std::endl;
 
   hlt->SetBranchStatus("*", 0);
-  hlt->SetBranchStatus("HLT_HIL3Mu0NHitQ10_L2Mu0_MAXdR3p5_M1to5_v1", 1);
+  hlt->SetBranchStatus("HLT_HIL3Mu0NHitQ10_L2Mu0_MAXdR3p5_M1to5_v1*", 1);
   if(ntname == "root")
     {
       nt->SetBranchStatus("*", 0);
@@ -78,30 +94,47 @@ void merge(std::string outputname, std::string filelist, std::string ntname = "n
   dhi->cd();
   TTree* new_hi = hi->CloneTree(0);
   int Bsize = 0;
-  TTree* new_nt = 0;
+  TTree *new_nt = 0, *new_ntJpsi = 0, *new_ntGen = 0;
   if(isbnt)
     {
       dBfinder->cd();
       new_nt = nt->CloneTree(0);
-      if(xjjc::str_contains(ntname, "nt")) nt->SetBranchAddress("Bsize", &Bsize);
+      if(isnt)
+        {
+          nt->SetBranchAddress("Bsize", &Bsize);
+          new_ntJpsi = ntJpsi->CloneTree(0);
+          new_ntGen = ntGen->CloneTree(0);
+        }
     }
+  int nevtGen = ntGen->GetEntries();
 
   Long64_t nentries = hi->GetEntries();
   std::cout<<" -- Event reading"<<std::endl;
   Long64_t j=0;
   for(Long64_t i=0;i<nentries;i++)
     {
-      if(i%100==0) { xjjc::progressbar(i, nentries); }
+      if(i%1000==0) { xjjc::progressbar(i, nentries); }
 
       hlt->GetEntry(i);
       hltobj->GetEntry(i);
       skim->GetEntry(i);
       hi->GetEntry(i);
-      if(isbnt) nt->GetEntry(i);
+      if(isbnt) 
+        {
+          nt->GetEntry(i);
+          if(isnt)
+            {
+              ntJpsi->GetEntry(i); 
+              if(i < nevtGen) ntGen->GetEntry(i);
+            }
+        }
 
-      if(!HLT_HIL3Mu0NHitQ10_L2Mu0_MAXdR3p5_M1to5_v1) continue; //
-
-      if(isbnt && xjjc::str_contains(ntname, "nt") && !Bsize) continue;
+      if(isskim)
+        {
+          // skim content
+          if(!HLT_HIL3Mu0NHitQ10_L2Mu0_MAXdR3p5_M1to5_v1) continue; //
+          if(isbnt && xjjc::str_contains(ntname, "nt") && !Bsize) continue; //
+        }
 
       dhlt->cd();
       new_hlt->Fill();
@@ -115,6 +148,11 @@ void merge(std::string outputname, std::string filelist, std::string ntname = "n
         {
           dBfinder->cd();
           new_nt->Fill();
+          if(isnt)
+            {
+              new_ntJpsi->Fill();
+              if(i < nevtGen) new_ntGen->Fill();
+            }
         }
     }
   xjjc::progressbar_summary(nentries);
@@ -127,9 +165,9 @@ void merge(std::string outputname, std::string filelist, std::string ntname = "n
 
 int main(int argc, char* argv[])
 {
+  if(argc==6) { merge(argv[1], argv[2], argv[3], atoi(argv[4]), atoi(argv[5])); return 0; }
   if(argc==5) { merge(argv[1], argv[2], argv[3], atoi(argv[4])); return 0; }
-  if(argc==4) { merge(argv[1], argv[2], argv[3]); return 0; }
-  std::cout<<__FUNCTION__<<": ./merge.exe [outputname] [filelist] [treename](ntKp, ntphi, ntmix, root, empty) (optional)[number of events]";
+  std::cout<<__FUNCTION__<<": ./merge.exe [outputname] [filelist] [treename](ntKp, ntphi, ntmix, root, empty) [skim] (optional)[number of events]";
   return 1;
 }
 
