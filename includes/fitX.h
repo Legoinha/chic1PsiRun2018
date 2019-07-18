@@ -1,4 +1,8 @@
+#ifndef __FITX_H_
+#define __FITX_H_
+
 #include "xjjrootuti.h"
+#include "xjjcuti.h"
 
 #include <TF1.h>
 #include <TH1F.h>
@@ -7,12 +11,16 @@
 
 #include <string>
 
-#include "ntuple.h"
+namespace fitX
+{
+  const float ptcut = 15.;
+  const float ycut = 1.6;
+}
 
 namespace fitX
 {
   void setmasshist(TH1* h, float xoffset=0, float yoffset=0, Color_t pcolor=kBlack);
-  std::vector<TF1*> fit(TH1F* h, TH1F* h_ss, TH1F* hmc_a, TH1F* hmc_b, std::string name, bool fixmean, bool saveplot);
+  std::vector<TF1*> fit(TH1F* hh, TH1F* hh_ss, TH1F* hhmc_a, TH1F* hhmc_b, std::string outputdir, bool fixmean, bool saveplot, std::string name="");
 
   const int NBIN = 38, NBIN_L = 50, NBIN_H = 50;
   // const int NBIN = 57, NBIN_L = 50, NBIN_H = 50;
@@ -21,12 +29,20 @@ namespace fitX
   void drawpull(TH1* hmc, TF1* f, Color_t color);
 
   Color_t color_data = kRed-3, color_a = kAzure+4, color_b = kGreen-1, color_ss = kGray+1, color_bkg = color_data;
+  int ibin_a = 2, ibin_b = 4;
 }
 
 
 // --->
-std::vector<TF1*> fitX::fit(TH1F* h, TH1F* h_ss, TH1F* hmc_a, TH1F* hmc_b, std::string name, bool fixmean, bool saveplot)
+std::vector<TF1*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* hhmc_a, TH1F* hhmc_b, std::string outputdir, bool fixmean, bool saveplot, std::string name)
 {
+  std::string uniqstr(xjjc::currenttime());
+
+  TH1F* h = new TH1F(*hh); h->SetName(std::string("h_"+uniqstr).c_str());
+  TH1F* h_ss = 0; if(hh_ss) { h_ss = new TH1F(*hh_ss); h_ss->SetName(std::string("h_ss_"+uniqstr).c_str()); }
+  TH1F* hmc_a = new TH1F(*hhmc_a); hmc_a->SetName(std::string("hmc_a_"+uniqstr).c_str());
+  TH1F* hmc_b = new TH1F(*hhmc_b); hmc_b->SetName(std::string("hmc_b_"+uniqstr).c_str());
+
   std::vector<TF1*> funs;
   xjjroot::setgstyle(2);
   gStyle->SetPadLeftMargin(gStyle->GetPadLeftMargin()*0.7);
@@ -43,7 +59,7 @@ std::vector<TF1*> fitX::fit(TH1F* h, TH1F* h_ss, TH1F* hmc_a, TH1F* hmc_b, std::
   hmc_b->SetMinimum(0 - hmc_b->GetMaximum()*0.1);
   hmc_b->SetNdivisions(-505);
 
-  TCanvas* c = new TCanvas("c", "", 800, 600);
+  TCanvas* c = new TCanvas("c", "", 700, 600);
   TCanvas* cmc = new TCanvas("cmc", "", 1200, 600);
   cmc->Divide(2, 1);
   
@@ -55,6 +71,7 @@ std::vector<TF1*> fitX::fit(TH1F* h, TH1F* h_ss, TH1F* hmc_a, TH1F* hmc_b, std::
                               1., 3.686  , 0.00357, 0.03, 0.5, // 5-9
                               1., 3.87169, 0.001  , 0.01, 0.5, // 10-14
   };
+  f->SetNpx(1000);
   f->SetParameters(parinit);
   f->SetParLimits(9, 0, 1);
   f->SetParLimits(14, 0, 1);
@@ -72,7 +89,8 @@ std::vector<TF1*> fitX::fit(TH1F* h, TH1F* h_ss, TH1F* hmc_a, TH1F* hmc_b, std::
   hmc_a->Fit("f", "Nq");
   hmc_a->Fit("f", "NLLq");
   f->ReleaseParameter(6);
-  hmc_a->Fit("f", "NLL");
+  hmc_a->Fit("f", "NLLq");
+  float mean_a = f->GetParameter(6), meanerr_a = f->GetParError(6);
   f->FixParameter(6, f->GetParameter(6));
   f->FixParameter(7, f->GetParameter(7));
   f->FixParameter(8, f->GetParameter(8));
@@ -97,7 +115,8 @@ std::vector<TF1*> fitX::fit(TH1F* h, TH1F* h_ss, TH1F* hmc_a, TH1F* hmc_b, std::
   hmc_b->Fit("f", "Nq");
   hmc_b->Fit("f", "NLLq");
   f->ReleaseParameter(11);
-  hmc_b->Fit("f", "NLL");
+  hmc_b->Fit("f", "NLLq");
+  float mean_b = f->GetParameter(11), meanerr_b = f->GetParError(11);
   f->FixParameter(11, f->GetParameter(11));
   f->FixParameter(12, f->GetParameter(12));
   f->FixParameter(13, f->GetParameter(13));
@@ -113,7 +132,7 @@ std::vector<TF1*> fitX::fit(TH1F* h, TH1F* h_ss, TH1F* hmc_a, TH1F* hmc_b, std::
   xjjroot::drawCMSleft("#scale[1.25]{#bf{CMS}} #it{Simulation}");
   xjjroot::drawCMSright();
   cmc->RedrawAxis();
-  if(saveplot) cmc->SaveAs(Form("plots/chmassmc_%s.pdf", name.c_str()));
+  if(saveplot) cmc->SaveAs(Form("%s/chmassmc%s.pdf", outputdir.c_str(), name.c_str()));
 
   //
   xjjroot::settfstyle(f, color_data, 1, 3);
@@ -122,14 +141,24 @@ std::vector<TF1*> fitX::fit(TH1F* h, TH1F* h_ss, TH1F* hmc_a, TH1F* hmc_b, std::
   f->ReleaseParameter(2);
   f->ReleaseParameter(3);
   f->ReleaseParameter(4);
+
   // >>>
   if(!fixmean)
     {
       f->ReleaseParameter(6);
-      f->SetParLimits(6, MASS_PSI2S-mytmva::sigwindowL, MASS_PSI2S+mytmva::sigwindowL);
       f->ReleaseParameter(11);
-      f->SetParLimits(11, MASS_X-mytmva::sigwindowH, MASS_X+mytmva::sigwindowH);
     }
+  // if(fixmean)
+  //   {
+  //     f->SetParLimits(6, mean_a - meanerr_a, mean_a + meanerr_a);
+  //     f->SetParLimits(11, mean_b - meanerr_b, mean_b + meanerr_b);
+  //   }
+  // else
+  //   {
+  //     f->SetParLimits(6, MASS_PSI2S-mytmva::sigwindowL, MASS_PSI2S+mytmva::sigwindowL);
+  //     f->SetParLimits(11, MASS_X-mytmva::sigwindowH, MASS_X+mytmva::sigwindowH);
+  //   }
+
   // <<<
   f->SetParLimits(5, 0, 1.e+5);
   f->SetParLimits(10, 0, 1.e+5);
@@ -141,7 +170,7 @@ std::vector<TF1*> fitX::fit(TH1F* h, TH1F* h_ss, TH1F* hmc_a, TH1F* hmc_b, std::
   h->Fit("f","Nq");
   h->Fit("f","NLLq");
   // TFitResultPtr r = histo->Fit(func, "S");
-  h->Fit("f","NLL");
+  h->Fit("f","NLLq");
 
   fitX::drawpull(h, f, color_data);
   if(h_ss) h_ss->Draw("pe same");
@@ -183,17 +212,20 @@ std::vector<TF1*> fitX::fit(TH1F* h, TH1F* h_ss, TH1F* hmc_a, TH1F* hmc_b, std::
   float ysig1 = fsig1->Integral(BIN_MIN, BIN_MAX)/BIN_WIDTH;
   float ysig2 = fsig2->Integral(BIN_MIN, BIN_MAX)/BIN_WIDTH;
 
-  xjjroot::drawtex(0.92, 0.84, "p_{T} > 15 GeV/c", 0.042, 32, 62);
-  xjjroot::drawtex(0.92, 0.79, "|y| < 1.5", 0.042, 32, 62);
+  xjjroot::drawtex(0.92, 0.84, Form("p_{T} > %.0f GeV/c", fitX::ptcut), 0.042, 32, 62);
+  xjjroot::drawtex(0.92, 0.79, Form("|y| < %.1f", fitX::ycut), 0.042, 32, 62);
   xjjroot::drawtex(0.17, 0.84, Form("#chi^{2} Prob = %.1f%s", TMath::Prob(f->GetChisquare(), f->GetNDF())*100., "%"), 0.042, 12, 62);
 
-  xjjroot::drawtex(0.32, 0.36, Form("#bar{m}_{#psi(2S)} = %.4f GeV", f->GetParameter(6)), 0.04, 12, 62, color_a);
-  xjjroot::drawtex(0.32, 0.31, Form("N_{#psi(2S)} = %.0f #pm %.0f", ysig1, f->GetParError(5)*ysig1/f->GetParameter(5)), 0.04, 12, 62, color_a);
-  xjjroot::drawtex(0.68, 0.36, Form("#bar{m}_{X(3872)} = %.4f GeV", f->GetParameter(11)), 0.04, 12, 62, color_b);
-  xjjroot::drawtex(0.68, 0.31, Form("N_{X(3872)} = %.0f #pm %.0f", ysig2, f->GetParError(10)*ysig2/f->GetParameter(10)), 0.04, 12, 62, color_b);
+  xjjroot::drawtex(0.32, 0.36, Form("#bar{m}_{#psi(2S)} = %.4f GeV", f->GetParameter(6)), 0.034, 12, 62, color_a);
+  xjjroot::drawtex(0.32, 0.31, Form("N_{#psi(2S)} = %.0f #pm %.0f", ysig1, f->GetParError(5)*ysig1/f->GetParameter(5)), 0.034, 12, 62, color_a);
+  xjjroot::drawtex(0.68, 0.36, Form("#bar{m}_{X(3872)} = %.4f GeV", f->GetParameter(11)), 0.034, 12, 62, color_b);
+  xjjroot::drawtex(0.68, 0.31, Form("N_{X(3872)} = %.0f #pm %.0f", ysig2, f->GetParError(10)*ysig2/f->GetParameter(10)), 0.034, 12, 62, color_b);
   xjjroot::drawCMS();
 
-  if(saveplot) c->SaveAs(Form("plots/chmass_%s.pdf", name.c_str()));
+  if(saveplot) c->SaveAs(Form("%s/chmass%s.pdf", outputdir.c_str(), name.c_str()));
+
+  delete cmc;
+  delete c;
 
   funs.push_back(f);
   funs.push_back(fsig1);
@@ -227,3 +259,5 @@ void fitX::drawpull(TH1* hmc, TF1* f, Color_t color)
   xjjroot::drawaxis(binmax, 0, binmax, hmc->GetMaximum(), -4, 4, color, 1, 2, "+L");
   xjjroot::drawtex(0.93, 0.55, "Pull", 0.04, 33, 62, color);
 }
+
+#endif
