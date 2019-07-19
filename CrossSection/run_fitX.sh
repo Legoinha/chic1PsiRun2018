@@ -15,7 +15,7 @@ cutgen="hiBin >=0 && hiBin < 180"
 name=trainX_sideband_tktk0p2_10p0_inf_0-10-1-2-9_oldLH
 outputdir=rootfiles/$name
 
-mkdir -p $outputdir plots/$name 
+mkdir -p $outputdir 
 
 g++ fitX_savehist.C $(root-config --libs --cflags) -g -o fitX_savehist.exe || exit 1
 g++ fitX_fithist.C $(root-config --libs --cflags) -g -o fitX_fithist.exe || exit 1
@@ -29,6 +29,12 @@ rm fitX_drawhist.exe
 rm fitX_fithist.exe
 rm fitX_savehist.exe
 
+# syst
+g++ fitX_pdfvar.C $(root-config --libs --cflags) -g -o fitX_pdfvar.exe || exit 1
+
+[[ ${4:-0} -eq 1 ]] && ./fitX_pdfvar.exe "$outputdir/fitX_savehist" "$name"
+
+rm fitX_pdfvar.exe
 
 
 # input=/export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190513_HIDoubleMuon__PsiPeri__HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_skimhltBsize_ntmix_Xpt10_trainX_sideband_tktk0p2_BDT_BDTG_CutsGA_CutsSA_LD_10p0_inf_0-10-1-2-9_oldLH.root

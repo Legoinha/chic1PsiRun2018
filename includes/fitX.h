@@ -8,6 +8,7 @@
 #include <TH1F.h>
 #include <TMath.h>
 #include <TCanvas.h>
+#include <TSystem.h>
 
 #include <string>
 
@@ -20,7 +21,7 @@ namespace fitX
 namespace fitX
 {
   void setmasshist(TH1* h, float xoffset=0, float yoffset=0, Color_t pcolor=kBlack);
-  std::vector<TF1*> fit(TH1F* hh, TH1F* hh_ss, TH1F* hhmc_a, TH1F* hhmc_b, std::string outputdir, bool fixmean, bool saveplot, std::string name="");
+  std::vector<TF1*> fit(TH1F* hh, TH1F* hh_ss, TH1F* hhmc_a, TH1F* hhmc_b, std::string outputdir, bool fixmean, bool saveplot, std::string name="", std::string option="default");
 
   const int NBIN = 38, NBIN_L = 50, NBIN_H = 50;
   // const int NBIN = 57, NBIN_L = 50, NBIN_H = 50;
@@ -30,13 +31,14 @@ namespace fitX
 
   Color_t color_data = kRed-3, color_a = kAzure+4, color_b = kGreen-1, color_ss = kGray+1, color_bkg = color_data;
   int ibin_a = 2, ibin_b = 4;
+  std::string title_a = "#psi(2S)", title_b = "X(3872)";
 }
 
-
 // --->
-std::vector<TF1*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* hhmc_a, TH1F* hhmc_b, std::string outputdir, bool fixmean, bool saveplot, std::string name)
+std::vector<TF1*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* hhmc_a, TH1F* hhmc_b, std::string outputdir, bool fixmean, bool saveplot, std::string name, std::string option)
 {
   std::string uniqstr(xjjc::currenttime());
+  if(saveplot) gSystem->Exec(Form("mkdir -p %s", outputdir.c_str()));
 
   TH1F* h = new TH1F(*hh); h->SetName(std::string("h_"+uniqstr).c_str());
   TH1F* h_ss = 0; if(hh_ss) { h_ss = new TH1F(*hh_ss); h_ss->SetName(std::string("h_ss_"+uniqstr).c_str()); }
@@ -64,6 +66,7 @@ std::vector<TF1*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* hhmc_a, TH1F* hhmc_b, s
   cmc->Divide(2, 1);
   
   TString str_bkg = "[0]+[1]*x+[2]*x*x+[3]*x*x*x+[4]*x*x*x*x";
+  if(xjjc::str_contains(option,"cheb")) { str_bkg = option; }
   TString str_sig1 = "[5]*([9]*TMath::Gaus(x,[6],[7])/(TMath::Sqrt(2*3.14159)*[7]) + (1-[9])*TMath::Gaus(x,[6],[8])/(TMath::Sqrt(2*3.14159)*[8]))";
   TString str_sig2 = "[10]*([14]*TMath::Gaus(x,[11],[12])/(TMath::Sqrt(2*3.14159)*[7]) + (1-[14])*TMath::Gaus(x,[11],[13])/(TMath::Sqrt(2*3.14159)*[13]))";
   TF1 *f = new TF1("f", str_bkg+"+"+str_sig1+"+"+str_sig2, BIN_MIN, BIN_MAX);
@@ -141,6 +144,8 @@ std::vector<TF1*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* hhmc_a, TH1F* hhmc_b, s
   f->ReleaseParameter(2);
   f->ReleaseParameter(3);
   f->ReleaseParameter(4);
+  if(option=="poly3") { f->FixParameter(4, 0); }
+  if(option=="poly2") { f->FixParameter(4, 0); f->FixParameter(3, 0); }
 
   // >>>
   if(!fixmean)
