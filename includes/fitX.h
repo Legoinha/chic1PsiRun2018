@@ -18,10 +18,25 @@ namespace fitX
   const float ycut = 1.6;
 }
 
+/* ----------------------------------------
+// ==> Usage <==
+#include "fitX.h"
+
+// hdata: data mass; hmc_psi, hmc_x: mc template;
+std::vector<TF1*> funs = fitX::fit(hdata, 0, hmc_a, hmc_b, "plots/", true, true, "name"); 
+// psi' yield:
+float ysig1 = funs[1]->Integral(fitX::BIN_MIN, fitX::BIN_MAX) / fitX::BIN_WIDTH;
+float ysig1err = funs[0]->GetParError(5)*ysig1/funs[0]->GetParameter(5);
+// X(3872) yield:
+float ysig2 = funs[2]->Integral(fitX::BIN_MIN, fitX::BIN_MAX) / fitX::BIN_WIDTH;
+float ysig2err = funs[0]->GetParError(10)*ysig2/funs[0]->GetParameter(10);
+
+---------------------------------------- */
+
 namespace fitX
 {
-  void setmasshist(TH1* h, float xoffset=0, float yoffset=0, Color_t pcolor=kBlack);
   std::vector<TF1*> fit(TH1F* hh, TH1F* hh_ss, TH1F* hhmc_a, TH1F* hhmc_b, std::string outputdir, bool fixmean, bool saveplot, std::string name="", std::string option="default");
+  void setmasshist(TH1* h, float xoffset=0, float yoffset=0, Color_t pcolor=kBlack);
 
   const int NBIN = 38, NBIN_L = 50, NBIN_H = 50;
   // const int NBIN = 57, NBIN_L = 50, NBIN_H = 50;
