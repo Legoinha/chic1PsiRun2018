@@ -30,29 +30,23 @@ namespace ppRef
       std::pair<std::string, std::string>("promptX", "Prompt X(3872)"),
       std::pair<std::string, std::string>("nonpromptX", "Nonprompt X(3872)"),
     };
-    std::map<std::string, std::string> formulanum = {
-      std::pair<std::string, std::string>("promptPsi", ""),
-      std::pair<std::string, std::string>("nonpromptPsi", ""),
-      std::pair<std::string, std::string>("promptX", ""),
-      std::pair<std::string, std::string>("nonpromptX", ""),
-    };
-    std::map<std::string, std::string> formuladen = {
-      std::pair<std::string, std::string>("promptPsi", ""),
-      std::pair<std::string, std::string>("nonpromptPsi", ""),
-      std::pair<std::string, std::string>("promptX", ""),
-      std::pair<std::string, std::string>("nonpromptX", ""),
-    };
-
-  private:
-    const float ycut = 0.75;
-    std::string fdir;
-    void init();
+    // std::map<std::string, std::string> formulanum = {
+    //   std::pair<std::string, std::string>("promptPsi", ""),
+    //   std::pair<std::string, std::string>("nonpromptPsi", ""),
+    //   std::pair<std::string, std::string>("promptX", ""),
+    //   std::pair<std::string, std::string>("nonpromptX", ""),
+    // };
     std::map<std::string, std::string> formula = {
       std::pair<std::string, std::string>("promptPsi", "(0.000017+TMath::Exp(-3.426132-0.202144*x+34.850532/x))/(0.000001+TMath::Exp(-8.128359-0.088624*x+99.751422/x-322.373215/(x*x)))"),
       std::pair<std::string, std::string>("nonpromptPsi", "(0.000033+TMath::Exp(-3.275975-0.174123*x+25.609737/x))/(0.000002+TMath::Exp(-7.853838-0.086783*x+99.999999/x-369.451690/(x*x)))"),
       std::pair<std::string, std::string>("promptX", "(0.000003+TMath::Exp(-2.326617-0.289528*x+4.143284/x))/(0.000000+TMath::Exp(-9.265172-0.131857*x+87.146198/x-184.762029/(x*x)))"),
       std::pair<std::string, std::string>("nonpromptX", "(0.000001+TMath::Exp(-3.713476-0.267920*x+8.699709/x))/(0.000000+TMath::Exp(-9.995278-0.098159*x+74.733928/x-176.118111/(x*x)))"),
     };
+
+  private:
+    const float ycut = 0.75;
+    std::string fdir;
+    void init();
     std::map<std::string, TF1*> ff;
   };
 }

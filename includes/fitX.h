@@ -14,7 +14,8 @@
 
 namespace fitX
 {
-  const float ptcut = 15.;
+  const float ptmincut = 15.;
+  const float ptmaxcut = 50.;
   const float ycut = 1.6;
 }
 
@@ -45,7 +46,7 @@ namespace fitX
   void drawpull(TH1* hmc, TF1* f, Color_t color);
 
   Color_t color_data = kRed-3, color_a = kAzure+4, color_b = kGreen-1, color_ss = kGray+1, color_bkg = color_data;
-  int ibin_a = 2, ibin_b = 4;
+  int ibin_a = 2, ibin_b = 4, nbin = 5;
   std::string title_a = "#psi(2S)", title_b = "X(3872)";
 }
 
@@ -232,7 +233,7 @@ std::vector<TF1*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* hhmc_a, TH1F* hhmc_b, s
   float ysig1 = fsig1->Integral(BIN_MIN, BIN_MAX)/BIN_WIDTH;
   float ysig2 = fsig2->Integral(BIN_MIN, BIN_MAX)/BIN_WIDTH;
 
-  xjjroot::drawtex(0.92, 0.84, Form("p_{T} > %.0f GeV/c", fitX::ptcut), 0.042, 32, 62);
+  xjjroot::drawtex(0.92, 0.84, Form("%.0f < p_{T} < %.0f GeV/c", fitX::ptmincut, fitX::ptmaxcut), 0.042, 32, 62);
   xjjroot::drawtex(0.92, 0.79, Form("|y| < %.1f", fitX::ycut), 0.042, 32, 62);
   xjjroot::drawtex(0.17, 0.84, Form("#chi^{2} Prob = %.1f%s", TMath::Prob(f->GetChisquare(), f->GetNDF())*100., "%"), 0.042, 12, 62);
 

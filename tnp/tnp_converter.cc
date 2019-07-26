@@ -16,10 +16,10 @@
 
 #include "tnpcc.h"
 
-void tnp_converter(std::string inputname, int nevt=-1)
+void tnp_converter(std::string inputname, std::string dirname, int nevt=-1)
 {
-  std::string outputname = "rootfiles/tnp_"+(xjjc::str_divide(inputname, "/").back());
-  gSystem->Exec("mkdir -p rootfiles");
+  std::string outputname = "rootfiles/"+dirname+"/tnp_"+(xjjc::str_divide(inputname, "/").back());
+  gSystem->Exec(Form("mkdir -p rootfiles/%s", dirname.c_str()));
 
   std::cout<<"==> Opening files"<<std::endl;
   std::cout<<"input: "<<inputname<<std::endl;
@@ -97,8 +97,8 @@ void tnp_converter(std::string inputname, int nevt=-1)
 
 int main(int argc, char* argv[])
 {
-  if(argc==3) { tnp_converter(argv[1], atoi(argv[2])); return 0; }
-  if(argc==2) { tnp_converter(argv[1]); return 0; }
+  if(argc==4) { tnp_converter(argv[1], argv[2], atoi(argv[3])); return 0; }
+  if(argc==3) { tnp_converter(argv[1], argv[2]); return 0; }
   return 1;
 }
 

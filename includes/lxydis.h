@@ -95,9 +95,9 @@ std::map<std::string, std::vector<float>> lxydis::setupbins()
   while(pos < 2.6)
     {
       xbins["lxynonprompt"].push_back(pos);
-      if(pos < -0.11) { pos += 0.1; }
+      if(pos < 0.5) { pos += 0.05; }
       else if(pos >= 1.2) { pos += 0.2; }
-      else { pos += 0.05; }
+      else { pos += 0.1; }
     }
 
   return xbins;

@@ -148,5 +148,5 @@ void fitX_pdfvar(std::string input, std::string output)
 void drawkinematic()
 {
   xjjroot::drawtex(0.92, 0.84, Form("|y| < %s", xjjc::number_remove_zero(fitX::ycut).c_str()), 0.042, 32, 42);
-  xjjroot::drawtex(0.92, 0.77, Form("p_{T} > %s GeV/c", xjjc::number_remove_zero(fitX::ptcut).c_str()), 0.042, 32, 42);
+  xjjroot::drawtex(0.92, 0.77, Form("%s < p_{T} < %s GeV/c", xjjc::number_remove_zero(fitX::ptmincut).c_str(), xjjc::number_remove_zero(fitX::ptmaxcut).c_str()), 0.042, 32, 42);
 }

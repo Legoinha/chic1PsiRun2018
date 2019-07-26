@@ -32,14 +32,12 @@ namespace mytmva
   class ntuple
   {
   public:
-    ntuple(TTree* nt, TTree* gnt) : fnt(nt), fgnt(gnt) { setbranchaddress(); }
-    ntuple(TTree* nt) : fnt(nt) { fgnt = 0; setbranchaddress(); }
+    ntuple(TTree* nt, TTree* gnt) : fnt(nt), fgnt(gnt) { std::cout<<__FUNCTION__<<": constructer running."<<std::endl; setbranchaddress(); }
+    ntuple(TTree* nt) : fnt(nt) { std::cout<<__FUNCTION__<<": constructer running."<<std::endl; fgnt = 0; setbranchaddress(); }
     ~ntuple() { fnt = 0; fgnt = 0; }
     bool passedpre(int j);
-    bool passedsig(int j) { return (Bgen[j]==23333 && BgencollisionId[j]==0); }
+    bool passedsig(int j) { return (Bgen[j]>=23333 && BgencollisionId[j]==0); }
     bool passedevtfil() { return (HLT_HIL3Mu0NHitQ10_L2Mu0_MAXdR3p5_M1to5_v1 && pprimaryVertexFilter && phfCoincFilter2Th4 && pclusterCompatibilityFilter && hiBin >=0 && hiBin < 180); }
-    // bool passedbkg(int j) { return ((Bmass[j]>3.74 && Bmass[j]<3.82) || (Bmass[j]>3.60 && Bmass[j]<3.65) || (Bmass[j]>3.92 && Bmass[j]<4.00)); }
-    // bool passedbkg(int j) { return ((Bmass[j]>3.74 && Bmass[j]<3.83) || (Bmass[j]>3.93 && Bmass[j]<4.00)); }
     bool passedbkg(int j) { return (TMath::Abs(Bmass[j]-3.8719) > 0.07 && TMath::Abs(Bmass[j]-3.8719) < 0.128); }
     bool isweight() { return fweight; }
     bool ishlt() { return fhlt; }
@@ -66,7 +64,6 @@ namespace mytmva
     bool   mvapref[MAX_XB];
 
     int    Bsize;
-    int    BsizeH;
     float  Bgen[MAX_XB];
     int    BgencollisionId[MAX_XB];
     float  Bpt[MAX_XB];
@@ -234,7 +231,6 @@ void mytmva::ntuple::setbranchaddress()
     }
 
   fnt->SetBranchAddress("Bsize", &Bsize);
-  fnt->SetBranchAddress("BsizeH", &BsizeH);
   fnt->SetBranchAddress("Bgen", Bgen);
   fnt->SetBranchAddress("BgencollisionId", BgencollisionId);
   fnt->SetBranchAddress("Bpt", Bpt);

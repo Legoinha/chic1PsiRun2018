@@ -44,9 +44,9 @@ void fitX_savehist(std::string input, std::string inputmcp_a, std::string inputm
   MCeff::MCefficiency mceff_a("_a");
   MCeff::MCefficiency mceff_b("_b");
 
-  std::string cutreco = Form("(%s) && Bpt>%f && TMath::Abs(By)<%f", cut.c_str(), fitX::ptcut, fitX::ycut);
-  std::string cutmcreco = Form("%s && Bgen>=23333 && BgencollisionId==0", cutreco.c_str(), fitX::ptcut, fitX::ycut);
-  std::string cutmcgen = Form("(%s) && Gpt>%f && TMath::Abs(Gy)<%f && GisSignal==7 && GcollisionId==0", cutgen.c_str(), fitX::ptcut, fitX::ycut);
+  std::string cutreco = Form("(%s) && Bpt>%f && Bpt<%f && TMath::Abs(By)<%f", cut.c_str(), fitX::ptmincut, fitX::ptmaxcut, fitX::ycut);
+  std::string cutmcreco = Form("%s && Bgen>=23333 && BgencollisionId==0", cutreco.c_str());
+  std::string cutmcgen = Form("(%s) && Gpt>%f && Gpt<%f && TMath::Abs(Gy)<%f && GisSignal==7 && GcollisionId==0", cutgen.c_str(), fitX::ptmincut, fitX::ptmaxcut, fitX::ycut);
 
   std::cout<<" == data ==>"<<std::endl;
   ntmix->Project("h", "Bmass", TCut(cutreco.c_str()));
@@ -55,7 +55,7 @@ void fitX_savehist(std::string input, std::string inputmcp_a, std::string inputm
   std::cout<<hBenr->GetEntries()<<std::endl;
 
   std::cout<<" == mcp_a ==>"<<std::endl;
-  ntmixmcp_a->Project("hmcp_a", "Bmass", TCut("1")*TCut(cutmcreco.c_str()));
+  ntmixmcp_a->Project("hmcp_a", "Bmass", TCut("pthatweight")*TCut(cutmcreco.c_str())); // mass shape weight
   std::cout<<hmcp_a->GetEntries()<<std::endl;
   hmcp_a->Scale(hmcp_a->GetEntries()/hmcp_a->Integral());
   ntmixmcp_a->Project(mceff_a.heffmc->GetName(), "Bpt", TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
@@ -63,7 +63,7 @@ void fitX_savehist(std::string input, std::string inputmcp_a, std::string inputm
   ntmixmcp_a->Project("hlxymcp_a", "Blxy", TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
 
   std::cout<<" == mcp_b ==>"<<std::endl;
-  ntmixmcp_b->Project("hmcp_b", "Bmass", TCut("1")*TCut(cutmcreco.c_str()));
+  ntmixmcp_b->Project("hmcp_b", "Bmass", TCut("pthatweight")*TCut(cutmcreco.c_str())); // mass shape weight
   std::cout<<hmcp_b->GetEntries()<<std::endl;
   hmcp_b->Scale(hmcp_b->GetEntries()/hmcp_b->Integral());
   ntmixmcp_b->Project(mceff_b.heffmc->GetName(), "Bpt", TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));

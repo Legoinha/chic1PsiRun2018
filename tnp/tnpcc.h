@@ -28,6 +28,6 @@ namespace tnpcc
     std::pair<std::string, Style_t>("nominal", 1),
   };
   std::vector<std::string> err({"stat", "syst"});
-  // float ptbins[] = {15., 50.}; int nptbins = sizeof(ptbins)/sizeof(ptbins[0]) - 1;
-  float ptbins[] = {15., 20., 25., 30., 35., 40., 45., 50.}; int nptbins = sizeof(ptbins)/sizeof(ptbins[0]) - 1;
+  __PTBIN_INPUT__
+  int nptbins = sizeof(ptbins)/sizeof(ptbins[0]) - 1;
 }

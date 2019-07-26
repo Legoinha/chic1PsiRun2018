@@ -22,7 +22,7 @@ void drawalltext()
   xjjroot::drawCMSright();
   xjjroot::drawtex(0.24, 0.84, "#psi(2S)", 0.038, 12, 62, fitX::color_a);
   xjjroot::drawtex(0.24, 0.84-0.042, "X(3872)", 0.038, 12, 62, fitX::color_b);
-  xjjroot::drawtex(0.90, 0.84, Form("p_{T} > %.0f GeV/c", fitX::ptcut), 0.038, 32, 62);
+  xjjroot::drawtex(0.90, 0.84, Form("%.0f < p_{T} < %.0f GeV/c", fitX::ptmincut, fitX::ptmaxcut), 0.038, 32, 62);
   xjjroot::drawtex(0.90, 0.84-0.042, Form("|y| < %.1f", fitX::ycut), 0.038, 32, 62);
 }
 
@@ -109,7 +109,7 @@ int fitX::varycut::loop_vary_data(xjjroot::packtree* pt, int nentries)
         {
           if(!ntp->mvapref[j]) continue;
           
-          if(!(ntp->Bpt[j] > fitX::ptcut && TMath::Abs(ntp->By[j]) < fitX::ycut)) continue;
+          if(!(ntp->Bpt[j] > fitX::ptmincut && ntp->Bpt[j] < fitX::ptmaxcut && TMath::Abs(ntp->By[j]) < fitX::ycut)) continue;
           for(int l=0; l<fnv; l++)
             {
               if(ntp->BDTG[j] > fvv[l])
@@ -147,7 +147,7 @@ int fitX::varycut::loop_vary_mcprompt(xjjroot::packtree* pt, int nentries, std::
       for(int j=0; j<ntp->Gsize; j++)
         {
           if(!(ntp->GisSignal[j]==7 && ntp->GcollisionId[j]==0)) continue;
-          if(!(ntp->Gpt[j] > fitX::ptcut && TMath::Abs(ntp->Gy[j]) < fitX::ycut)) continue;
+          if(!(ntp->Gpt[j] > fitX::ptmincut && ntp->Gpt[j] < fitX::ptmaxcut && TMath::Abs(ntp->Gy[j]) < fitX::ycut)) continue;
           for(int l=0; l<fnv; l++)
             {
               fheffgen->Fill(fheffgen->GetBinCenter(l+1), weight);
@@ -160,7 +160,7 @@ int fitX::varycut::loop_vary_mcprompt(xjjroot::packtree* pt, int nentries, std::
           if(!ntp->mvapref[j]) continue;
           if(!(ntp->Bgen[j]>=23333 && ntp->BgencollisionId[j]==0)) continue;
 
-          if(!(ntp->Bpt[j] > fitX::ptcut && TMath::Abs(ntp->By[j]) < fitX::ycut)) continue;
+          if(!(ntp->Bpt[j] > fitX::ptmincut && ntp->Bpt[j] < fitX::ptmaxcut && TMath::Abs(ntp->By[j]) < fitX::ycut)) continue;
           for(int l=0; l<fnv; l++)
             {
               if(ntp->BDTG[j] > fvv[l])
@@ -195,7 +195,7 @@ int fitX::varycut::loop_vary_mcnonprompt(xjjroot::packtree* pt, int nentries, st
       for(int j=0; j<ntp->Bsize; j++)
         {
           if(!ntp->mvapref[j]) continue;
-          if(!(ntp->Bpt[j] > fitX::ptcut && TMath::Abs(ntp->By[j]) < fitX::ycut)) continue;
+          if(!(ntp->Bpt[j] > fitX::ptmincut && ntp->Bpt[j] < fitX::ptmaxcut && TMath::Abs(ntp->By[j]) < fitX::ycut)) continue;
           if(!(ntp->Bgen[j]>=23333 && ntp->BgencollisionId[j]==0)) continue;
           for(int l=0; l<fnv; l++)
             {

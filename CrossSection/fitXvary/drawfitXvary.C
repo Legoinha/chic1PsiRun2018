@@ -140,8 +140,13 @@ void drawfitXvary(std::string output)
       float significance_b = nsig_b / TMath::Sqrt(nsig_b + nbkg_b);
       hsigbdtg_a->SetBinContent(l+1, significance_a);
       hsigbdtg_b->SetBinContent(l+1, significance_b);
-      if(significance_b > maxsig) { maxsig = significance_b; ibinsig = l+1; xmaxsig = hsigbdtg_b->GetBinCenter(l+1)-hsigbdtg_b->GetBinWidth(l+1)/2.; }
+      // !!!!!
+      // if(significance_b > maxsig) { maxsig = significance_b; ibinsig = l+1; xmaxsig = hsigbdtg_b->GetBinCenter(l+1)-hsigbdtg_b->GetBinWidth(l+1)/2.; }
+      if(TMath::Abs((hsigbdtg_b->GetBinCenter(l+1)-hsigbdtg_b->GetBinWidth(l+1)/2.)-0.7)<0.01) 
+        { maxsig = significance_b; ibinsig = l+1; xmaxsig = hsigbdtg_b->GetBinCenter(l+1)-hsigbdtg_b->GetBinWidth(l+1)/2.; }
+      // !!!!!
     }
+  std::cout<<"\e[33;1m"<<xmaxsig<<"\e[0m"<<std::endl;
 
   // ==> treatment for low-stat X
   TH1F* hyieldbdtgerase_b = new TH1F("hyieldbdtgerase_b", ";BDTG;N_{Signal}", nbdtg-1, bdtg.data());

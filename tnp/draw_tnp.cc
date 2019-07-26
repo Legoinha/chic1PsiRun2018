@@ -9,7 +9,7 @@
 #include <string>
 #include "tnpcc.h"
 
-void draw_tnp(std::string inputname)
+void draw_tnp(std::string inputname, std::string dirname)
 {
   std::string tparticle("untitled");
   if(xjjc::str_contains(inputname, "romptX")) tparticle = "X(3872)";
@@ -30,10 +30,10 @@ void draw_tnp(std::string inputname)
           xjjroot::sethempty(h, 0, 0.3);
           xjjroot::setthgrstyle(h, tnpcc::typecolor[tt], 21, 0.8, tnpcc::typecolor[tt], tnpcc::idxstyle[idxk.second], 1, 0, 0, 1001);
         }
-      hhp[tt]["nominal"] = (TH1D*)hh[tt]["nominal"]->Clone(Form("ratio_%s", hh[tt]["nominal"]->GetName()));
+      hhp[tt]["nominal"] = (TH1D*)hh[tt]["nominal"]->Clone(Form("scale_%s", hh[tt]["nominal"]->GetName()));
       hhp[tt]["nominal"]->Divide(hh["nominal"]["nominal"]);
       for(int i=0; i<tnpcc::nptbins; i++) { hhp[tt]["nominal"]->SetBinError(i+1, 0); }
-      hhp[tt]["nominal"]->GetYaxis()->SetTitle("Scale");
+      hhp[tt]["nominal"]->GetYaxis()->SetTitle("#beta^{TnP}");
       for(auto& ee : tnpcc::err)
         {
           xx.clear(); xxe.clear(); yy.clear(); yye_d.clear(); yye_u.clear();
@@ -75,7 +75,8 @@ void draw_tnp(std::string inputname)
   c->Divide(2, 1);
   c->cd(1);
   // gPad->SetLogy();
-  hh["nominal"]["nominal"]->SetMaximum(hh["nominal"]["nominal"]->GetMaximum()*1.5);
+  if(tnpcc::nptbins < 3) hh["nominal"]["nominal"]->SetMaximum(hh["nominal"]["nominal"]->GetMaximum()*3.5);
+  else hh["nominal"]["nominal"]->SetMaximum(hh["nominal"]["nominal"]->GetMaximum()*1.5);
   hh["nominal"]["nominal"]->SetMinimum(0.1);
   hh["nominal"]["nominal"]->Draw("hist");
   for(auto& ee : tnpcc::err)
@@ -115,7 +116,7 @@ void draw_tnp(std::string inputname)
       if(tt == "nominal") continue;
       for(auto& ee : tnpcc::err)
         {
-          leg->AddEntry(gg[tt][ee], tt.c_str(), "f");
+          leg->AddEntry(ggp[tt][ee], tt.c_str(), "f");
         }
     }
   leg->AddEntry(hh["nominal"]["nominal"], "Nominal", "l");
@@ -130,14 +131,23 @@ void draw_tnp(std::string inputname)
   xjjroot::drawtex(0.22, ty-0.043, "TnP Correction", 0.04, 13, 62);
   leg->Draw();
   c->cd();
-  std::string outputname = xjjc::str_replaceall(xjjc::str_replaceall(inputname, "rootfiles/", "plots/c"), ".root", ".pdf");
-  gSystem->Exec("mkdir -p plots");
+  std::string outputname = xjjc::str_replaceall(xjjc::str_replaceall(inputname, "rootfiles/"+dirname+"/", "plots/"+dirname+"/c"), ".root", ".pdf");
+  gSystem->Exec(Form("mkdir -p plots/%s", dirname.c_str()));
   c->SaveAs(outputname.c_str());
+
+  TFile* outf = new TFile(xjjc::str_replaceall(inputname, "rootfiles/"+dirname+"/", "rootfiles/"+dirname+"/draw_").c_str(), "recreate");
+  for(auto& hp : hhp) (hp.second)["nominal"]->Write();
+  for(auto& gp : ggp) 
+    {
+      for(auto& gr : gp.second)
+        gr.second->Write();
+    }
+  outf->Close();
   
 }
 
 int main(int argc, char* argv[])
 {
-  if(argc==2) { draw_tnp(argv[1]); return 0; }
+  if(argc==3) { draw_tnp(argv[1], argv[2]); return 0; }
   return 1;
 }

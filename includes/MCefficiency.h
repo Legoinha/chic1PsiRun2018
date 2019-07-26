@@ -9,14 +9,17 @@
 
 namespace MCeff
 {
-  std::vector<float> ptBins = {15, 20, 25, 30, 40, 60, 80, 100};
+  std::vector<float> ptBins = {15, 20, 25, 30, 35, 40, 45, 55, 56};
   const int nPtBins = ptBins.size() - 1;
+
+  std::vector<float> ptBins_incl = {15, 50};
+  const int nPtBins_incl = ptBins_incl.size() - 1;
 
   class MCefficiency
   {
   public:
-    MCefficiency(std::string name);
-    MCefficiency(TFile* inf, std::string name);
+    MCefficiency(std::string name, int whichincl=0);
+    MCefficiency(TFile* inf, std::string name, int whichincl=0);
     TH1F* heffmc;
     TH1F* heffmc_incl;
     TH1F* heffgen;
@@ -27,8 +30,9 @@ namespace MCeff
     TH1F* heff_incl;
 
     void calceff();
-    void setstyle(Color_t color);
+    void setstyle(Color_t color, Style_t mstyle=20, Style_t lstyle=2);
   private:
+    int fincl;
     std::string fname;
     void createhist();
     void readhist(TFile* inf);
@@ -36,12 +40,12 @@ namespace MCeff
   };
 }
 
-MCeff::MCefficiency::MCefficiency(std::string name) : fname(name)
+MCeff::MCefficiency::MCefficiency(std::string name, int whichincl) : fname(name), fincl(whichincl)
 {
   createhist();
 }
 
-MCeff::MCefficiency::MCefficiency(TFile* inf, std::string name) : fname(name)
+MCeff::MCefficiency::MCefficiency(TFile* inf, std::string name, int whichincl) : fname(name), fincl(whichincl)
 {
   readhist(inf);
 }
@@ -49,9 +53,11 @@ MCeff::MCefficiency::MCefficiency(TFile* inf, std::string name) : fname(name)
 void MCeff::MCefficiency::createhist()
 {
   heffmc = new TH1F(Form("heffmc%s", fname.c_str()), ";p_{T} (GeV/c);", MCeff::nPtBins, MCeff::ptBins.data()); heffmc->Sumw2();
-  heffmc_incl = new TH1F(Form("heffmc_incl%s", fname.c_str()), "", 5, 0, 5); heffmc_incl->Sumw2();
+  if(fincl==0) { heffmc_incl = new TH1F(Form("heffmc_incl%s", fname.c_str()), "", 5, 0, 5); heffmc_incl->Sumw2(); }
+  if(fincl==1) { heffmc_incl = new TH1F(Form("heffmc_incl%s", fname.c_str()), "", MCeff::nPtBins_incl, MCeff::ptBins_incl.data()); heffmc_incl->Sumw2(); }
   heffgen = new TH1F(Form("heffgen%s", fname.c_str()), ";p_{T} (GeV/c);", MCeff::nPtBins, MCeff::ptBins.data());
-  heffgen_incl = new TH1F(Form("heffgen_incl%s", fname.c_str()), "", 5, 0, 5); heffgen_incl->Sumw2();
+  if(fincl==0) { heffgen_incl = new TH1F(Form("heffgen_incl%s", fname.c_str()), "", 5, 0, 5); heffgen_incl->Sumw2(); }
+  if(fincl==1) { heffgen_incl = new TH1F(Form("heffgen_incl%s", fname.c_str()), "", MCeff::nPtBins_incl, MCeff::ptBins_incl.data()); heffgen_incl->Sumw2(); }
 }
 
 void MCeff::MCefficiency::readhist(TFile* inf)
@@ -72,10 +78,10 @@ void MCeff::MCefficiency::calceff()
   heff_incl->Divide(heffgen_incl);
 }
 
-void MCeff::MCefficiency::setstyle(Color_t color)
+void MCeff::MCefficiency::setstyle(Color_t color, Style_t mstyle/*=20*/, Style_t lstyle/*=2*/)
 {
-  xjjroot::setthgrstyle(heff, 0, 0, 0, color, 2, 3, color, 0.1, 1001);
-  xjjroot::setthgrstyle(heff_incl, color, 20, 1.2, color, 2, 3, color, 0.1, 1001);
-  xjjroot::setthgrstyle(greff, 0, 0, 0, color, 2, 3, color, 0.1, 1001);
-  xjjroot::setthgrstyle(greff_incl, color, 20, 1.2, color, 2, 3, color, 0.1, 1001);
+  xjjroot::setthgrstyle(heff, 0, 0, 0, color, lstyle, 3, color, 0.1, 1001);
+  xjjroot::setthgrstyle(heff_incl, color, mstyle, 1.2, color, lstyle, 3, color, 0.1, 1001);
+  xjjroot::setthgrstyle(greff, 0, 0, 0, color, lstyle, 3, color, 0.1, 1001);
+  xjjroot::setthgrstyle(greff_incl, color, mstyle, 1.2, color, lstyle, 3, color, 0.1, 1001);
 }
