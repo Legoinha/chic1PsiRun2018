@@ -8,6 +8,7 @@
 #include <TGraphAsymmErrors.h>
 #include <TFile.h>
 #include <TMath.h>
+#include <TF1.h>
 
 namespace ppRef
 {
@@ -22,11 +23,37 @@ namespace ppRef
     std::map<std::string, std::map<std::string, TH1F*>> hh;
     TH2F* hempty;
     float getycut() { return ycut; }
+    float getweight(float pt, std::string type);
+    std::map<std::string, std::string> tpar = {
+      std::pair<std::string, std::string>("promptPsi", "Prompt #psi(2S)"),
+      std::pair<std::string, std::string>("nonpromptPsi", "Nonprompt #psi(2S)"),
+      std::pair<std::string, std::string>("promptX", "Prompt X(3872)"),
+      std::pair<std::string, std::string>("nonpromptX", "Nonprompt X(3872)"),
+    };
+    std::map<std::string, std::string> formulanum = {
+      std::pair<std::string, std::string>("promptPsi", ""),
+      std::pair<std::string, std::string>("nonpromptPsi", ""),
+      std::pair<std::string, std::string>("promptX", ""),
+      std::pair<std::string, std::string>("nonpromptX", ""),
+    };
+    std::map<std::string, std::string> formuladen = {
+      std::pair<std::string, std::string>("promptPsi", ""),
+      std::pair<std::string, std::string>("nonpromptPsi", ""),
+      std::pair<std::string, std::string>("promptX", ""),
+      std::pair<std::string, std::string>("nonpromptX", ""),
+    };
 
   private:
     const float ycut = 0.75;
     std::string fdir;
     void init();
+    std::map<std::string, std::string> formula = {
+      std::pair<std::string, std::string>("promptPsi", "(0.000017+TMath::Exp(-3.426132-0.202144*x+34.850532/x))/(0.000001+TMath::Exp(-8.128359-0.088624*x+99.751422/x-322.373215/(x*x)))"),
+      std::pair<std::string, std::string>("nonpromptPsi", "(0.000033+TMath::Exp(-3.275975-0.174123*x+25.609737/x))/(0.000002+TMath::Exp(-7.853838-0.086783*x+99.999999/x-369.451690/(x*x)))"),
+      std::pair<std::string, std::string>("promptX", "(0.000003+TMath::Exp(-2.326617-0.289528*x+4.143284/x))/(0.000000+TMath::Exp(-9.265172-0.131857*x+87.146198/x-184.762029/(x*x)))"),
+      std::pair<std::string, std::string>("nonpromptX", "(0.000001+TMath::Exp(-3.713476-0.267920*x+8.699709/x))/(0.000000+TMath::Exp(-9.995278-0.098159*x+74.733928/x-176.118111/(x*x)))"),
+    };
+    std::map<std::string, TF1*> ff;
   };
 }
 
@@ -34,6 +61,7 @@ void ppRef::ppATLAS::init()
 {
   for(auto& tt : types)
     {
+      ff[tt] = new TF1(Form("ff_%s", tt.c_str()), formula[tt].c_str());
       std::ifstream inf(fdir+"/"+tt+".dat");
       std::string line;
       std::vector<float> xx, yy, xxel, xxeh, yyel_stat, yyeh_stat, yyel_syst, yyeh_syst;
@@ -80,4 +108,10 @@ void ppRef::ppATLAS::init()
       inf.close();
     }
   hempty = new TH2F("hempty_ppATLAS", ";p_{T} (GeV/c);Br #times d#sigma/dp_{T}", 10, 10, 70, 10, 1.e-7, 1.);
+}
+
+float ppRef::ppATLAS::getweight(float pt, std::string type)
+{
+  if(pt < 15 || pt > 50) { return 0; }
+  else { return ff[type]->Eval(pt); }
 }

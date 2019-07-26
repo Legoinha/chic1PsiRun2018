@@ -6,10 +6,14 @@
 #include "ntuple.h"
 #include "xjjcuti.h"
 
-void fillptshape(std::string inputname, std::string outputname)
+#include "HEPData-ins1495026-v1-csv/ppATLAS.h"
+
+void fillptshape(std::string inputname, std::string type, std::string outputname, std::string inputdir="HEPData-ins1495026-v1-csv")
 {
   std::string outdir = xjjc::str_replaceall(outputname, xjjc::str_divide(outputname, "/").back(), "");
   gSystem->Exec(Form("mkdir -p %s", outdir.c_str()));
+
+  ppRef::ppATLAS getpp(inputdir);
 
   std::cout<<"==> Opening files"<<std::endl;
   std::cout<<"input: "<<inputname<<std::endl;
@@ -18,6 +22,8 @@ void fillptshape(std::string inputname, std::string outputname)
   std::cout<<"==> Building histograms"<<std::endl;
   TH1F* hmc = new TH1F("hmc", ";Gen p_{T} (GeV/c);", 24, 10, 70); //
   hmc->Sumw2();
+  TH1F* hmcweight = new TH1F("hmcweight", ";Gen p_{T} (GeV/c);", 24, 10, 70); //
+  hmcweight->Sumw2();
 
   TFile* inf = TFile::Open(inputname.c_str());
   xjjroot::packtree* pt = new xjjroot::packtree(inf, "Bfinder/ntmix", "mcp_ptshape", "Bfinder/ntGen");
@@ -33,21 +39,25 @@ void fillptshape(std::string inputname, std::string outputname)
       float weight = ntp->pthatweight * ntp->Ncoll;
       for(int j=0; j<ntp->Gsize; j++)
         {
-          if(xjjc::str_contains(inputname, "PromptXRho") && ntp->Gpt[j] < 15.) continue; // !!
+          // if(xjjc::str_contains(inputname, "PromptXRho") && ntp->Gpt[j] < 15.) continue; // !!
+          if(ntp->Gpt[j] < 15.) continue; // !!
           if(!(ntp->GisSignal[j]==7 && ntp->GcollisionId[j]==0)) continue;
           if(!(TMath::Abs(ntp->Gy[j]) < 0.75)) continue; //
           hmc->Fill(ntp->Gpt[j], weight);
+          hmcweight->Fill(ntp->Gpt[j], weight*getpp.getweight(ntp->Gpt[j], type));
         }
     }
   xjjc::progressbar_summary(nentries);
 
   TFile* outf = new TFile(outputname.c_str(), "recreate");
   hmc->Write();
+  hmcweight->Write();
   outf->Close();
 }
 
 int main(int argc, char* argv[])
 {
-  if(argc==3) { fillptshape(argv[1], argv[2]); return 0; }
+  if(argc==5) { fillptshape(argv[1], argv[2], argv[3], argv[4]); return 0; }
+  if(argc==4) { fillptshape(argv[1], argv[2], argv[3]); return 0; }
   return 1;
 }
