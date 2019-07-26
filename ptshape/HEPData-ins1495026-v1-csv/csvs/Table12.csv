@@ -1,0 +1,17 @@
+#: table_doi: 10.17182/hepdata.76839.v1/t12
+#: name: Table 12
+#: description: Measured non-prompt fraction for $\psi(2S)$ production.
+#: data_file: Table12.yml
+#: keyword reactions: P P --> Psi(2S) X
+#: keyword observables: non-prompt fraction
+#: keyword phrases: Proton-Proton Scattering | Psi(2S) | Non-prompt fraction
+#: keyword cmenergies: 8000.0
+#: ABS(y(psi(2S) )),,,< 0.75
+#: SQRT(S) [GeV],,,8000.0
+PT [GeV],PT [GeV] LOW,PT [GeV] HIGH,non-prompt psi(2S) fraction [],stat +,stat -,sys +,sys -
+10.8,12.0,10.0,0.4,0.01,-0.01,0.02,-0.02
+13.5,16.0,12.0,0.46,0.0,-0.0,0.01,-0.01
+18.2,22.0,16.0,0.54,0.0,-0.0,0.01,-0.01
+26.6,40.0,22.0,0.63,0.0,-0.0,0.01,-0.01
+47.9,70.0,40.0,0.69,0.01,-0.01,0.02,-0.02
+

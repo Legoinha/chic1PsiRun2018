@@ -1,0 +1,17 @@
+#: table_doi: 10.17182/hepdata.76839.v1/t9
+#: name: Table 9
+#: description: Measured cross section times branching fractions as a function of pT for non-prompt $\psi$(2S) production.
+#: data_file: Table9.yml
+#: keyword reactions: P P --> Psi(2S) X
+#: keyword observables: cross-section
+#: keyword phrases: Proton-Proton Scattering | Psi(2S) | Non-prompt
+#: keyword cmenergies: 8000.0
+#: ABS(y(Psi(2S) )),,,< 0.75
+#: SQRT(S) [GeV],,,8000.0
+PT [GeV],PT [GeV] LOW,PT [GeV] HIGH,non-prompt psi(2S) cross section [pb / GeV],stat +,stat -,sys +,sys -
+10.8,12.0,10.0,61.9,1.9,-1.9,3.4,-3.4
+13.5,16.0,12.0,23.66,0.27,-0.27,0.85,-0.85
+18.2,22.0,16.0,6.63,0.06,-0.06,0.22,-0.22
+26.6,40.0,22.0,0.97,0.01,-0.01,0.03,-0.03
+47.9,70.0,40.0,0.048,0.001,-0.001,0.003,-0.003
+

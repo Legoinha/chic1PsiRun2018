@@ -1,0 +1,17 @@
+#: table_doi: 10.17182/hepdata.76839.v1/t11
+#: name: Table 11
+#: description: Measured cross section times branching fractions as a function of pT for non-prompt X(3872) production.
+#: data_file: Table11.yml
+#: keyword reactions: P P --> X(3872) X
+#: keyword observables: cross-section
+#: keyword phrases: Proton-Proton Scattering | X(3872) | Non-prompt
+#: keyword cmenergies: 8000.0
+#: ABS(y(X(3872) )),,,< 0.75
+#: SQRT(S) [GeV],,,8000.0
+PT [GeV],PT [GeV] LOW,PT [GeV] HIGH,non-prompt X(3872) cross section [pb / GeV],stat +,stat -,sys +,sys -
+10.9,12.0,10.0,2.9,1.2,-1.2,0.21,-0.21
+13.5,16.0,12.0,1.28,0.2,-0.2,0.07,-0.07
+18.2,22.0,16.0,0.29,0.04,-0.04,0.01,-0.01
+26.6,40.0,22.0,0.03,0.01,-0.01,0.0,-0.0
+47.6,70.0,40.0,0.001,0.001,-0.001,0.0,-0.0
+

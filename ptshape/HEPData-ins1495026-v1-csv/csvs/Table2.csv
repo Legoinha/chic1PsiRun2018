@@ -1,0 +1,17 @@
+#: table_doi: 10.17182/hepdata.76839.v1/t2
+#: name: Table 2
+#: description: Measured effective pseudo-proper lifetime for non-prompt $X(3872)$ production.
+#: data_file: Table2.yml
+#: keyword reactions: P P --> X(3872) X
+#: keyword observables: tau
+#: keyword phrases: Proton-Proton Scattering | X(3872) | Non-prompt | Lifetime
+#: keyword cmenergies: 8000.0
+#: ABS(y(X(3872) )),,,< 0.75
+#: SQRT(S) [GeV],,,8000.0
+PT(X(3872) ) [GeV],PT(X(3872) ) [GeV] LOW,PT(X(3872) ) [GeV] HIGH,$\tau$ [ps],stat +,stat -
+10.9,12.0,10.0,1.12,0.4,-0.4
+13.5,16.0,12.0,1.18,0.17,-0.17
+18.2,22.0,16.0,1.45,0.21,-0.21
+26.6,40.0,22.0,1.37,0.26,-0.26
+47.6,70.0,40.0,1.27,0.62,-0.62
+

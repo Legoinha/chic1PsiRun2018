@@ -1,0 +1,17 @@
+#: table_doi: 10.17182/hepdata.76839.v1/t1
+#: name: Table 1
+#: description: Measured effective pseudo-proper lifetime for non-prompt $\psi(2S)$ production.
+#: data_file: Table1.yml
+#: keyword reactions: P P --> Psi(2S) X
+#: keyword observables: tau
+#: keyword phrases: Proton-Proton Scattering | Psi(2S) | Non-prompt | Lifetime
+#: keyword cmenergies: 8000.0
+#: ABS(y(Psi(2S) )),,,< 0.75
+#: SQRT(S) [GeV],,,8000.0
+PT(Psi(2S) ) [GeV],PT(Psi(2S) ) [GeV] LOW,PT(Psi(2S) ) [GeV] HIGH,$\tau$ [ps],stat +,stat -
+10.8,12.0,10.0,1.44,0.04,-0.04
+13.5,16.0,12.0,1.43,0.02,-0.02
+18.2,22.0,16.0,1.43,0.01,-0.01
+26.6,40.0,22.0,1.41,0.01,-0.01
+47.9,70.0,40.0,1.44,0.04,-0.04
+

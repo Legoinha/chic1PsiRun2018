@@ -1,0 +1,23 @@
+#: table_doi: 10.17182/hepdata.76839.v1/t15
+#: name: Table 15
+#: description: Normalised differential decay width of $X(3872) \rightarrow J/\psi \pi\pi$ in bins of $m_{\pi\pi}$.
+#: data_file: Table15.yml
+#: keyword reactions: P P --> X(3872) X
+#: keyword observables: $d\sigma / m_{\pi\pi}$
+#: keyword phrases: Proton-Proton Scattering | X(3872)
+#: keyword cmenergies: 8000.0
+#: ABS(y(X(3872) )),,,< 0.75
+#: SQRT(S) [GeV],,,8000.0
+$m_{\pi\pi}$ [GeV],$m_{\pi\pi}$ [GeV] LOW,$m_{\pi\pi}$ [GeV] HIGH,Normalised differential X(3872) cross-section in $m_{\pi\pi}$ [],stat +,stat -
+0.325,0.37,0.28,0.002931,0.00597,-0.00597
+0.4,0.43,0.37,0.019567,0.009015,-0.009015
+0.45999999999999996,0.49,0.43,0.0,0.004163,-0.004163
+0.52,0.55,0.49,0.015807,0.01054,-0.01054
+0.5800000000000001,0.61,0.55,0.02275,0.01087,-0.01087
+0.625,0.64,0.61,0.069782,0.016096,-0.016096
+0.655,0.67,0.64,0.08936,0.015696,-0.015696
+0.685,0.7,0.67,0.14513,0.017169,-0.017169
+0.715,0.73,0.7,0.180827,0.018356,-0.018356
+0.745,0.76,0.73,0.350417,0.025564,-0.025564
+0.775,0.79,0.76,0.104444,0.037564,-0.037564
+
