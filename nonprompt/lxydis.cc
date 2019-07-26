@@ -1,138 +1,84 @@
 #include <TFile.h>
 #include <TTree.h>
 #include <TH1F.h>
-#include <TMath.h>
+#include <TCut.h>
 
 #include <string>
 #include <iostream>
-#include <map>
+#include <vector>
 
-#include "ntuple.h"
-#include "packtree.h"
+#include "fitX.h"
+#include "project.h"
 #include "xjjcuti.h"
-
 #include "lxydis.h"
 
-void lxydisfun(std::string inputname, std::string type, float mvaval, std::string outputname)
+void lxydis_vary(std::string input, std::string inputmcp_a, std::string inputmcp_b, std::string inputmcnp_a, std::string inputmcnp_b, 
+                 std::string cut, std::string output)
 {
-  std::map<std::string, std::vector<float>> xbins = lxydis::setupbins();
-  
+  std::string mcweight = "(pthatweight*Ncoll)";
+  std::map<std::string, std::vector<float>> lxyxbins = lxydis::setupbins();  
+
+  std::string cutreco = Form("(%s) && Bpt>%f && Bpt<%f && TMath::Abs(By)<%f", cut.c_str(), fitX::ptmincut, fitX::ptmaxcut, fitX::ycut);
+  std::string cutmcreco = Form("%s && Bgen>=23333 && BgencollisionId==0", cutreco.c_str());
+  std::cout<<cutreco<<std::endl;
   //
-  std::map<std::string, TH1F*> hBlxy, hBlxySignalRegionL, hBlxySignalRegionH, hBlxySidebandL, hBlxySidebandH;
-  for(auto& vv : lxydis::vars) 
-    {
-      std::string var = vv.first, vartitle = vv.second;
-      hBlxy[var]              = new TH1F(Form("hB%s",              var.c_str()), Form(";%s;Probability", vartitle.c_str()), xbins[var].size()-1, xbins[var].data()); hBlxy[var]->Sumw2();
-      hBlxySignalRegionL[var] = new TH1F(Form("hB%sSignalRegionL", var.c_str()), Form(";%s;Probability", vartitle.c_str()), xbins[var].size()-1, xbins[var].data()); hBlxySignalRegionL[var]->Sumw2();
-      hBlxySignalRegionH[var] = new TH1F(Form("hB%sSignalRegionH", var.c_str()), Form(";%s;Probability", vartitle.c_str()), xbins[var].size()-1, xbins[var].data()); hBlxySignalRegionH[var]->Sumw2();
-      hBlxySidebandL[var]     = new TH1F(Form("hB%sSidebandL",     var.c_str()), Form(";%s;Probability", vartitle.c_str()), xbins[var].size()-1, xbins[var].data()); hBlxySidebandL[var]->Sumw2();
-      hBlxySidebandH[var]     = new TH1F(Form("hB%sSidebandH",     var.c_str()), Form(";%s;Probability", vartitle.c_str()), xbins[var].size()-1, xbins[var].data()); hBlxySidebandH[var]->Sumw2();
-    }
-  bool ismc = !(xjjc::str_contains(type, "data") || xjjc::str_contains(type, "samesign"));
+  TTree* ntmix = (TTree*)fitX::getnt(input, "ntmix"); if(!ntmix) { return; }
+  TTree* ntmixmcp_a = fitX::getnt(inputmcp_a, "ntmix"); if(!ntmixmcp_a) { return; }
+  TTree* ntmixmcp_b = fitX::getnt(inputmcp_b, "ntmix"); if(!ntmixmcp_b) { return; }
+  TTree* ntmixmcnp_a = fitX::getnt(inputmcnp_a, "ntmix"); if(!ntmixmcnp_a) { return; }
+  TTree* ntmixmcnp_b = fitX::getnt(inputmcnp_b, "ntmix"); if(!ntmixmcnp_b) { return; }
 
-  std::vector<TH1F*> hBlxyBdtgPromptL(lxydis::mvalist.size()), hBlxyBdtgPromptH(lxydis::mvalist.size()), 
-    hBlxyBdtgNonpromptL(lxydis::mvalist.size()), hBlxyBdtgNonpromptH(lxydis::mvalist.size());
-  for(int k=0; k<lxydis::mvalist.size(); k++)
+  TH1F* h = new TH1F("h", Form(";m_{#mu#mu#pi#pi} (GeV/c^{2});Entries / %.0f MeV", fitX::BIN_WIDTH*1.e+3), fitX::NBIN, fitX::BIN_MIN, fitX::BIN_MAX); h->Sumw2();
+  TH1F* hlxymcnp_a = new TH1F("hlxymcnp_a", ";l_{xy} (mm);Probability", lxyxbins["lxynonprompt"].size()-1, lxyxbins["lxynonprompt"].data()); hlxymcnp_a->Sumw2();
+  TH1F* hlxymcnp_b = new TH1F("hlxymcnp_b", ";l_{xy} (mm);Probability", lxyxbins["lxynonprompt"].size()-1, lxyxbins["lxynonprompt"].data()); hlxymcnp_b->Sumw2();
+  TH1F* hmcp_a = new TH1F("hmcp_a", Form(";m_{#mu#mu#pi#pi} (GeV/c^{2});Entries / %.0f MeV", fitX::BIN_WIDTH_L*1.e+3), fitX::NBIN_L, fitX::BIN_MIN_L, fitX::BIN_MAX_L); hmcp_a->Sumw2();
+  TH1F* hmcp_b = new TH1F("hmcp_b", Form(";m_{#mu#mu#pi#pi} (GeV/c^{2});Entries / %.0f MeV", fitX::BIN_WIDTH_H*1.e+3), fitX::NBIN_H, fitX::BIN_MIN_H, fitX::BIN_MAX_H); hmcp_b->Sumw2();
+  std::vector<TH1F*> hBenr(lxydis::lxycut.size());
+  for(int k=0; k<lxydis::lxycut.size(); k++)
     {
-      hBlxyBdtgPromptL[k] = new TH1F(Form("hBlxyBdtgPromptL_%d", k), ";l_{xy} (mm);Probability", xbins["lxyprompt"].size()-1, xbins["lxyprompt"].data()); 
-      hBlxyBdtgPromptL[k]->Sumw2();
-      hBlxyBdtgPromptH[k] = new TH1F(Form("hBlxyBdtgPromptH_%d", k), ";l_{xy} (mm);Probability", xbins["lxyprompt"].size()-1, xbins["lxyprompt"].data()); 
-      hBlxyBdtgPromptH[k]->Sumw2();
-      hBlxyBdtgNonpromptL[k] = new TH1F(Form("hBlxyBdtgNonpromptL_%d", k), ";l_{xy} (mm);Probability", xbins["lxynonprompt"].size()-1, xbins["lxynonprompt"].data()); 
-      hBlxyBdtgNonpromptL[k]->Sumw2();
-      hBlxyBdtgNonpromptH[k] = new TH1F(Form("hBlxyBdtgNonpromptH_%d", k), ";l_{xy} (mm);Probability", xbins["lxynonprompt"].size()-1, xbins["lxynonprompt"].data()); 
-      hBlxyBdtgNonpromptH[k]->Sumw2();
+      hBenr[k] = new TH1F(Form("hBenr_%d", k), Form(";m_{#mu#mu#pi#pi} (GeV/c^{2});Entries / %.0f MeV", fitX::BIN_WIDTH*1.e+3), fitX::NBIN, fitX::BIN_MIN, fitX::BIN_MAX);
+      hBenr[k]->Sumw2();
     }
 
-  //
-  TFile* inf = TFile::Open(inputname.c_str()); 
-  xjjroot::packtree* ptr = new xjjroot::packtree(inf, "Bfinder/ntmix", type);
-  mytmva::ntuple* ntp = ptr->ntp;
-  // float mva; ntp->getnt()->SetBranchAddress("", &mva); // !!
-  if(ismc && !ntp->isweight())
-    { std::cout<<__FUNCTION__<<": error: weight is not correctly placed in MC sample."<<std::endl; return; }
-
-  int nentries = ptr->getentries();
-  for(int i=0; i<nentries; i++)
+  std::cout<<" == data ==>"<<std::endl;
+  ntmix->Project("h", "Bmass", TCut(cutreco.c_str()));
+  std::cout<<h->GetEntries()<<std::endl;
+  for(int k=0; k<lxydis::lxycut.size(); k++)
     {
-      ptr->getentry(i);
-      if(i%1000 == 0) xjjc::progressbar(i, nentries);
-
-      if(!ntp->passedevtfil()) continue;
-
-      float weight = ntp->isweight()?(ntp->pthatweight*ntp->Ncoll):1;
-
-      for(int j=0; j<ntp->Bsize; j++)
-        {
-          if(ismc && !(ntp->Bgen[j]==23333 && ntp->BgencollisionId[j]==0)) continue;
-          if(!ntp->passedpre(j)) continue;
-          
-          if(ntp->Bpt[j] < 15 || TMath::Abs(ntp->By[j]) > 1.5) continue;
-
-          //
-          std::map<std::string, float> fillval;
-          fillval[ "lxy" ] = ntp->Blxy[j];
-          fillval[ "dls" ] = ntp->BsvpvDistance[j] / ntp->BsvpvDisErr[j];
-          fillval[ "dca" ] = ntp->BsvpvDistance[j] * TMath::Sin(ntp->Balpha[j]);
-          
-          for(int k=0; k<lxydis::mvalist.size(); k++)
-            {
-              if(ntp->BDTG[j] > lxydis::mvalist[k])
-                {
-                  hBlxyBdtgPromptL[k]->Fill(fillval["lxy"], weight);
-                  hBlxyBdtgPromptH[k]->Fill(fillval["lxy"], weight);
-                  hBlxyBdtgNonpromptL[k]->Fill(fillval["lxy"], weight);
-                  hBlxyBdtgNonpromptH[k]->Fill(fillval["lxy"], weight);
-                }
-            }
-
-          if(ntp->BDTG[j] < mvaval) continue; // !!
-
-          // 
-          for(auto& vv : lxydis::vars) 
-            { 
-              hBlxy[vv.first]->Fill(fillval[vv.first], weight);
-              // SignalRegionL
-              if(ntp->signalregionl(j)) // 
-                { hBlxySignalRegionL[vv.first]->Fill(fillval[vv.first], weight); }
-              // SignalRegionH
-              if(ntp->signalregionh(j)) // 
-                { hBlxySignalRegionH[vv.first]->Fill(fillval[vv.first], weight); }
-              // SidebandL
-              if(ntp->sidebandl(j)) // 
-                { hBlxySidebandL[vv.first]->Fill(fillval[vv.first], weight); }
-              // SidebandH
-              if(ntp->sidebandh(j)) // 
-                { hBlxySidebandH[vv.first]->Fill(fillval[vv.first], weight); }
-            }
-        }
+      ntmix->Project(Form("hBenr_%d", k), "Bmass", TCut(Form("%s && Blxy > %f", cutreco.c_str(), lxydis::lxycut[k])));
+      std::cout<<hBenr[k]->GetEntries()<<std::endl;
     }
-  xjjc::progressbar_summary(nentries);
-  inf->Close();
 
-  TFile* outf = new TFile(Form("%s.root", outputname.c_str()), "recreate");
+  std::cout<<" == mcp_a ==>"<<std::endl;
+  ntmixmcp_a->Project("hmcp_a", "Bmass", TCut("pthatweight")*TCut(cutmcreco.c_str())); // mass shape weight
+  std::cout<<hmcp_a->GetEntries()<<std::endl;
+  hmcp_a->Scale(hmcp_a->GetEntries()/hmcp_a->Integral());
+  std::cout<<" == mcp_b ==>"<<std::endl;
+  ntmixmcp_b->Project("hmcp_b", "Bmass", TCut("pthatweight")*TCut(cutmcreco.c_str())); // mass shape weight
+  std::cout<<hmcp_b->GetEntries()<<std::endl;
+  hmcp_b->Scale(hmcp_b->GetEntries()/hmcp_b->Integral());
+
+  std::cout<<" == mcnp_a ==>"<<std::endl;
+  ntmixmcnp_a->Project("hlxymcnp_a", "Blxy", TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
+  std::cout<<hlxymcnp_a->GetEntries()<<std::endl;
+  std::cout<<" == mcnp_b ==>"<<std::endl;
+  ntmixmcnp_b->Project("hlxymcnp_b", "Blxy", TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
+  std::cout<<hlxymcnp_b->GetEntries()<<std::endl;
+
+  TFile* outf = new TFile(Form("%s.root", output.c_str()), "recreate");
   outf->cd();
-  for(auto& vv : lxydis::vars)
-    {
-      hBlxy[vv.first]->Write();
-      hBlxySignalRegionL[vv.first]->Write();
-      hBlxySignalRegionH[vv.first]->Write();
-      hBlxySidebandL[vv.first]->Write();
-      hBlxySidebandH[vv.first]->Write();
-    }
-  for(int k=0; k<lxydis::mvalist.size(); k++)
-    {
-      hBlxyBdtgPromptL[k]->Write();
-      hBlxyBdtgPromptH[k]->Write();
-      hBlxyBdtgNonpromptL[k]->Write();
-      hBlxyBdtgNonpromptH[k]->Write();
-    }
+  h->Write();
+  for(auto& hh: hBenr) { hh->Write(); }
+  hmcp_a->Write();
+  hmcp_b->Write();
+  hlxymcnp_a->Write();
+  hlxymcnp_b->Write();
   outf->Close();
 
 }
 
 int main(int argc, char* argv[])
 {
-  if(argc==5) { lxydisfun(argv[1], argv[2], atof(argv[3]), argv[4]); return 0; }
+  if(argc==8) { lxydis_vary(argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7]); return 0; }
   return 1;
 }
