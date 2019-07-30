@@ -1,20 +1,19 @@
 #!/bin/bash
 
 ###
-# filelist="/export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190520_Hydjet_Pythia8_Psi2SToJpsiPiPi_prompt_Pthat*_1033p1_pt6tkpt0p7dls0_v3.root"    ; chan=1 ;
-# filelist="/export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190520_Hydjet_Pythia8_Psi2SToJpsiPiPi_nonprompt_Pthat*_1033p1_pt6tkpt0p7dls0_v3.root" ; chan=4 ;
-# filelist="/export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190520_Hydjet_Pythia8_X3872ToJpsiRho_prompt_Pthat*_1033p1_pt6tkpt0p7dls0_v3.root"     ; chan=2 ;
-# filelist="/export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190520_Hydjet_Pythia8_X3872ToJpsiRho_nonprompt_Pthat*_1033p1_pt6tkpt0p7dls0_v3.root"  ; chan=5 ;
-filelist="/export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190520_Hydjet_Pythia8_BuToJpsiK_Pthat*_1033p1_pt3tkpt0p7dls2_v2.root"                ; chan=3 ;
+filelist="/export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190712_Hydjet_Pythia8_NonPromptPsi2S_Pthat-*_1033p1_official_pt6tkpt0p9dls0.root" ; chan=0 ; # 0: nonprompt psi'
+# filelist="/export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190712_Hydjet_Pythia8_NonPromptXRho_Pthat-*_1033p1_official_pt6tkpt0p9dls0.root"  ; chan=1 ; # 1: nonprompt X
+# filelist="/export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190712_Hydjet_Pythia8_PromptPsi2S_Pthat-*_1033p1_official_pt6tkpt0p9dls0.root"    ; chan=2 ; # 2: prompt psi'
+# filelist="/export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190712_Hydjet_Pythia8_PromptXPiPi_Pthat-*_1033p1_official_pt6tkpt0p9dls0.root"    ; chan=3 ; # 3: prompt X pipi
+# filelist="/export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190712_Hydjet_Pythia8_PromptXRho_Pthat-*_1033p1_official_pt6tkpt0p9dls0.root"     ; chan=4 ; # 4: prompt X rho
 
 ##
 crosssec=(
-    'const int nBins=5; float pthatBin[nBins]={5, 10, 15, 30, 50}; float crosssec[nBins+1]={6.123e+06, 2.864e+06, 9.652e+05, 1.299e+05, 1.895e+04, 0.}; int genSignal[1]={6};' # 0: Bs
-    'const int nBins=5; float pthatBin[nBins]={5, 10, 15, 30, 50}; float crosssec[nBins+1]={1.296e+05, 1.954e+04, 4.672e+03, 3.522e+02, 4.040e+01, 0.}; int genSignal[1]={7};' # 1: prompt psi'
-    'const int nBins=5; float pthatBin[nBins]={5, 10, 15, 30, 50}; float crosssec[nBins+1]={2.653e+04, 1.979e+04, 6.670e+03, 3.053e+02, 2.768e+01, 0.}; int genSignal[1]={7};' # 2: prompt X->jpsi + rho
-    'const int nBins=5; float pthatBin[nBins]={5, 10, 15, 30, 50}; float crosssec[nBins+1]={5.790e+07, 1.734e+07, 5.364e+06, 5.793e+05, 7.805e+04, 0.}; int genSignal[1]={1};' # 3: Bu
-    'const int nBins=5; float pthatBin[nBins]={5, 10, 15, 30, 50}; float crosssec[nBins+1]={1.230e+07, 2.868e+06, 8.902e+05, 7.930e+04, 9.631e+03, 0.}; int genSignal[1]={7};' # 4: nonprompt psi'
-    'const int nBins=5; float pthatBin[nBins]={5, 10, 15, 30, 50}; float crosssec[nBins+1]={7.622e+06, 1.776e+06, 5.638e+05, 4.973e+04, 6.273e+03, 0.}; int genSignal[1]={7};' # 5: nonprompt X->jpsi + rho
+    'const int nBins=5; float pthatBin[nBins]={5, 10, 15, 30, 50}; float crosssec[nBins+1]={1.230e+07, 2.868e+06, 8.902e+05, 7.930e+04, 9.631e+03, 0.}; int genSignal[1]={7};' # 0: nonprompt psi'
+    'const int nBins=5; float pthatBin[nBins]={5, 10, 15, 30, 50}; float crosssec[nBins+1]={7.622e+06, 1.776e+06, 5.638e+05, 4.973e+04, 6.273e+03, 0.}; int genSignal[1]={7};' # 1: nonprompt X
+    'const int nBins=5; float pthatBin[nBins]={5, 10, 15, 30, 50}; float crosssec[nBins+1]={1.296e+05, 1.954e+04, 4.672e+03, 3.522e+02, 4.040e+01, 0.}; int genSignal[1]={7};' # 2: prompt psi'
+    'const int nBins=5; float pthatBin[nBins]={5, 10, 15, 30, 50}; float crosssec[nBins+1]={2.617e+04, 1.987e+04, 6.830e+03, 3.076e+02, 2.775e+01, 0.}; int genSignal[1]={7};' # 3: prompt X pipi
+    'const int nBins=5; float pthatBin[nBins]={5, 10, 15, 30, 50}; float crosssec[nBins+1]={2.653e+04, 1.979e+04, 6.670e+03, 3.053e+02, 2.768e+01, 0.}; int genSignal[1]={7};' # 4: prompt X rho
 )
 
 ##
