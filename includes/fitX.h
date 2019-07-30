@@ -94,6 +94,10 @@ std::vector<TF1*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* hhmc_a, TH1F* hhmc_b, s
   f->SetParameters(parinit);
   f->SetParLimits(9, 0, 1);
   f->SetParLimits(14, 0, 1);
+  f->SetParLimits(7, 0, 0.02);
+  f->SetParLimits(8, 0, 0.02);
+  f->SetParLimits(12, 0, 0.02);
+  f->SetParLimits(13, 0, 0.02);
   f->FixParameter(0, 0);
   f->FixParameter(1, 0);
   f->FixParameter(2, 0);
