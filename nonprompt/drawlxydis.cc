@@ -139,6 +139,27 @@ void drawlxydis(std::string input, std::string output)
   for(auto& gg : grfprompt_a) gg->Write();
   for(auto& gg : grfprompt_b) gg->Write();
   outf->Close();
+
+  // print
+  float ix, iy;
+  iy = grfprompt_a[0]->GetEfficiency(fitX::ibin_a);
+  float nominal_a = iy; std::cout<<iy<<std::endl;
+  float per_a = 0;
+  for(auto& gg : grfprompt_a)
+    {
+      iy = gg->GetEfficiency(fitX::ibin_a);
+      if(TMath::Abs(iy - nominal_a)/nominal_a > per_a) { per_a = TMath::Abs(iy - nominal_a)/nominal_a; }
+    }
+  iy = grfprompt_b[0]->GetEfficiency(fitX::ibin_b);
+  float nominal_b = iy;
+  float per_b = 0;
+  for(auto& gg : grfprompt_b)
+    {
+      iy = gg->GetEfficiency(fitX::ibin_b);
+      if(TMath::Abs(iy - nominal_b)/nominal_b > per_b) { per_b = TMath::Abs(iy - nominal_b)/nominal_b; }
+    }
+  float per_ab = TMath::Sqrt(per_a*per_a + per_b*per_b);
+  std::cout<<"Prompt Fraction & "<<Form("%.1f", per_a*1.e+2)<<"\\% & "<<Form("%.1f", per_b*1.e+2)<<"\\% & "<<Form("%.1f", per_ab*1.e+2)<<"\\% \\\\"<<std::endl;
 }
 
 int main(int argc, char* argv[])

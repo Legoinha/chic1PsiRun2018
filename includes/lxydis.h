@@ -12,6 +12,7 @@ namespace lxydis
 {
   const int nbin = 60;
   float binmin = -0.5, binmax = 2.5;
+  std::vector<float> lxycut = {0.1, 0.15, 0.2, 0.3, 0.8};
 
   std::vector<float> mvalist = {-1., 0, 0.4, 0.6, 0.7, 0.76, 0.80}; int thismva = 5;
 
@@ -36,7 +37,7 @@ namespace lxydis
   std::map<std::string, drawopt*> drawset;
   void setupdraw();
   std::map<std::string, std::vector<float>> setupbins();
-  std::vector<double> nplxyfrac(TH1F* hlxynpL, TH1F* hlxynpH);
+  std::vector<double> nplxyfrac(TH1F* hlxynpL, TH1F* hlxynpH, float xdiv=0.1);
   TEfficiency* calclxyfprompt(TH1F* hdata, TH1F* hBenr, TH1F* hlxyfrac, std::string name, TH1F** rhprompt);
 }
 
@@ -103,10 +104,10 @@ std::map<std::string, std::vector<float>> lxydis::setupbins()
   return xbins;
 }
 
-std::vector<double> lxydis::nplxyfrac(TH1F* hlxynpL, TH1F* hlxynpH)
+std::vector<double> lxydis::nplxyfrac(TH1F* hlxynpL, TH1F* hlxynpH, float xdiv)
 {
-  int nbinnonpromptL = hlxynpL->GetXaxis()->FindBin(0.1)-1;
-  int nbinnonpromptH = hlxynpH->GetXaxis()->FindBin(0.1)-1;
+  int nbinnonpromptL = hlxynpL->GetXaxis()->FindBin(xdiv)-1;
+  int nbinnonpromptH = hlxynpH->GetXaxis()->FindBin(xdiv)-1;
   double fltLerr, fgtLerr, fltHerr, fgtHerr;
   double fltL = hlxynpL->IntegralAndError(1,                nbinnonpromptL,       fltLerr, "width");
   double fgtL = hlxynpL->IntegralAndError(nbinnonpromptL+1, hlxynpL->GetNbinsX(), fgtLerr, "width");
