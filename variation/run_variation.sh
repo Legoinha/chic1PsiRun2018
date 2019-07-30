@@ -5,20 +5,20 @@
 # varname="BDTGcut"
 # iscut=1
 
-varlatex="BDTG"
-variable="ntp->BDTG[j]"
-varname="BDTG"
-iscut=0
+# varlatex="BDTG"
+# variable="ntp->BDTG[j]"
+# varname="BDTG"
+# iscut=0
 
 # varlatex="#chi^{2} probability"
 # variable="ntp->Bchi2cl[j]"
 # varname="Bchi2cl"
 # iscut=0
 
-# varlatex="|p_{T}^{trk1}-p_{T}^{trk2}|/(p_{T}^{trk1}+p_{T}^{trk2})"
-# variable="TMath::Abs((ntp->Btrk1Pt[j]-ntp->Btrk2Pt[j]) / (ntp->Btrk1Pt[j]+ntp->Btrk2Pt[j]))"
-# varname="Btrkptimba"
-# iscut=0
+varlatex="|p_{T}^{trk1}-p_{T}^{trk2}|/(p_{T}^{trk1}+p_{T}^{trk2})"
+variable="TMath::Abs((ntp->Btrk1Pt[j]-ntp->Btrk2Pt[j]) \/ (ntp->Btrk1Pt[j]+ntp->Btrk2Pt[j]))"
+varname="Btrkptimba"
+iscut=0
 
 # varlatex="p_{T}^{trk}"
 # variable="ntp->Btrk2Pt[j]"
