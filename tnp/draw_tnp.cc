@@ -7,7 +7,7 @@
 #include "xjjrootuti.h"
 #include "xjjcuti.h"
 #include <string>
-#include "tnpcc.h"
+#include "tnpcc_tmp.h"
 
 void draw_tnp(std::string inputname, std::string dirname)
 {

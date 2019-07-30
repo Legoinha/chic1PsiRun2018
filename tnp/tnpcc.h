@@ -28,6 +28,8 @@ namespace tnpcc
     std::pair<std::string, Style_t>("nominal", 1),
   };
   std::vector<std::string> err({"stat", "syst"});
+
   __PTBIN_INPUT__
   int nptbins = sizeof(ptbins)/sizeof(ptbins[0]) - 1;
+  float scalemin = 0.9, scalemax = 1.4;
 }

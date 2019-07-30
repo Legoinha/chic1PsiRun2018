@@ -8,7 +8,7 @@
 #include "xjjcuti.h"
 #include <string>
 #include <algorithm>
-#include "tnpcc.h"
+#include "tnpcc_tmp.h"
 
 void draw_tnp_ratio(std::string inputname_a, std::string inputname_b, std::string dirname)
 {
@@ -112,6 +112,42 @@ void draw_tnp_ratio(std::string inputname_a, std::string inputname_b, std::strin
   std::string outputname = xjjc::str_replaceall(xjjc::str_replaceall(xjjc::str_replaceall(inputname_a, "rootfiles/"+dirname+"/", "plots/"+dirname+"/c"), "Psi2SPiPi", ""), ".root", ".pdf");
   gSystem->Exec(Form("mkdir -p plots/%s", dirname.c_str()));
   c->SaveAs(outputname.c_str());  
+
+  // print
+  float per_a_u, per_a_d, per_b_u, per_b_d, per_ab_u, per_ab_d;
+  for(int i=0; i<tnpcc::nptbins; i++)
+    {
+      double ix,iy;
+      ggp_a["total"]["stat"]->GetPoint(i, ix, iy);
+      float per_a_u_stat = ggp_a["total"]["stat"]->GetErrorYhigh(i)/iy;
+      float per_a_d_stat = ggp_a["total"]["stat"]->GetErrorYlow(i)/iy;
+      ggp_a["total"]["syst"]->GetPoint(i, ix, iy);
+      float per_a_u_syst = ggp_a["total"]["syst"]->GetErrorYhigh(i)/iy;
+      float per_a_d_syst = ggp_a["total"]["syst"]->GetErrorYlow(i)/iy;
+      per_a_u = TMath::Sqrt(per_a_u_stat*per_a_u_stat+per_a_u_syst*per_a_u_syst);
+      per_a_d = TMath::Sqrt(per_a_d_stat*per_a_d_stat+per_a_d_syst*per_a_d_syst);
+
+      ggp_b["total"]["stat"]->GetPoint(i, ix, iy);
+      float per_b_u_stat = ggp_b["total"]["stat"]->GetErrorYhigh(i)/iy;
+      float per_b_d_stat = ggp_b["total"]["stat"]->GetErrorYlow(i)/iy;
+      ggp_b["total"]["syst"]->GetPoint(i, ix, iy);
+      float per_b_u_syst = ggp_b["total"]["syst"]->GetErrorYhigh(i)/iy;
+      float per_b_d_syst = ggp_b["total"]["syst"]->GetErrorYlow(i)/iy;
+      per_b_u = TMath::Sqrt(per_b_u_stat*per_b_u_stat+per_b_u_syst*per_b_u_syst);
+      per_b_d = TMath::Sqrt(per_b_d_stat*per_b_d_stat+per_b_d_syst*per_b_d_syst);
+
+      ggp_ratio["total"]["stat"]->GetPoint(i, ix, iy);
+      float per_ab_u_stat = ggp_ratio["total"]["stat"]->GetErrorYhigh(i)/iy;
+      float per_ab_d_stat = ggp_ratio["total"]["stat"]->GetErrorYlow(i)/iy;
+      ggp_ratio["total"]["syst"]->GetPoint(i, ix, iy);
+      float per_ab_u_syst = ggp_ratio["total"]["syst"]->GetErrorYhigh(i)/iy;
+      float per_ab_d_syst = ggp_ratio["total"]["syst"]->GetErrorYlow(i)/iy;
+      per_ab_u = TMath::Sqrt(per_ab_u_stat*per_ab_u_stat+per_ab_u_syst*per_ab_u_syst);
+      per_ab_d = TMath::Sqrt(per_ab_d_stat*per_ab_d_stat+per_ab_d_syst*per_ab_d_syst);
+    }
+  std::cout<<"TnP & "<<Form("+%.1f", per_a_u*1.e+2)<<"\\% & "<<Form("+%.1f", per_b_u*1.e+2)<<"\\% & "<<Form("+%.1f", per_ab_u*1.e+2)<<"\\% \\\\"<<std::endl;
+  std::cout<<" & "<<Form("-%.1f", per_a_d*1.e+2)<<"\\% & "<<Form("-%.1f", per_b_d*1.e+2)<<"\\% & "<<Form("-%.1f", per_ab_d*1.e+2)<<"\\% \\\\"<<std::endl;
+
 }
 
 int main(int argc, char* argv[])

@@ -14,7 +14,7 @@
 #include "fitX.h"
 #include "xjjcuti.h"
 
-#include "tnpcc.h"
+#include "tnpcc_tmp.h"
 
 void tnp_converter(std::string inputname, std::string dirname, int nevt=-1)
 {
@@ -27,6 +27,7 @@ void tnp_converter(std::string inputname, std::string dirname, int nevt=-1)
 
   std::cout<<"==> Building histograms"<<std::endl;
   std::map<std::string, std::map<std::string, TH1D*>> hh;
+  // std::map<std::string, std::map<std::string, TH1D*>> hscales;
   std::map<std::string, std::map<std::string, double>> scales;
   for(auto& tt : tnpcc::types)
     {
@@ -34,6 +35,8 @@ void tnp_converter(std::string inputname, std::string dirname, int nevt=-1)
         {
           hh[tt][idxk.second] = new TH1D(Form("htnp_%s_%s", tt.c_str(), idxk.second.c_str()), ";p_{T} (GeV/c);", tnpcc::nptbins, tnpcc::ptbins);
           hh[tt][idxk.second]->Sumw2();
+          // hhscale[tt][idxk.second] = new TH1D(Form("hscaletnp_%s_%s", tt.c_str(), idxk.second.c_str()), ";#beta;", tnpcc::scalemin, tnpcc::scalemax);
+          // hhscale[tt][idxk.second]->Sumw2();
         }
     }
   
