@@ -36,7 +36,7 @@ inputdirs=(
     /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190712_Hydjet_Pythia8_PromptXRho_Pthat-10_1033p1_official_pt6tkpt0p9dls0/
     /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190712_Hydjet_Pythia8_PromptXRho_Pthat-15_1033p1_official_pt6tkpt0p9dls0/
     /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190712_Hydjet_Pythia8_PromptXRho_Pthat-30_1033p1_official_pt6tkpt0p9dls0/
-    # /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190712_Hydjet_Pythia8_PromptXRho_Pthat-50_1033p1_official_pt6tkpt0p9dls0/
+    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190712_Hydjet_Pythia8_PromptXRho_Pthat-50_1033p1_official_pt6tkpt0p9dls0/
     /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190712_Hydjet_Pythia8_PromptXRho_Pthat-5_1033p1_official_pt6tkpt0p9dls0/ # 31
 )
 
