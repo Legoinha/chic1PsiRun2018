@@ -9,7 +9,8 @@
 
 namespace MCeff
 {
-  std::vector<float> ptBins = {15, 20, 25, 30, 35, 40, 45, 55, 56};
+  std::vector<float> ptBins = {15, 20, 25, 30, 35, 40, 45, 50};
+  // std::vector<float> ptBins = {15, 25, 35, 45, 55};
   const int nPtBins = ptBins.size() - 1;
 
   std::vector<float> ptBins_incl = {15, 50};

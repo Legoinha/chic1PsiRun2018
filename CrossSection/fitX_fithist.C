@@ -9,12 +9,13 @@
 #include "lxydis.h"
 #include "fitX.h"
 #include "MCefficiency.h"
+#include "systematics.h"
 
 float weight_ss = 1./0.681;
 
 void drawkinematic();
 
-void fitX_fithist(std::string input, std::string output)
+void fitX_fithist(std::string input, std::string output, std::string inputtnp_a="tnps/draw_tnp_PromptPsi2S.root", std::string inputtnp_b="tnps/draw_tnp_PromptXRho.root")
 {
   TFile* inf = new TFile(Form("%s.root", input.c_str()));
   TH1F* h = (TH1F*)inf->Get("h");
@@ -198,12 +199,46 @@ void fitX_fithist(std::string input, std::string output)
   xjjroot::drawtex(0.92, 0.84, Form("|y| < %s", xjjc::number_remove_zero(fitX::ycut).c_str()), 0.042, 32, 42);
   ceff->SaveAs(Form("plots/%s/ceff.pdf", output.c_str()));
 
+  // tnp
+  TFile* inftnp_a = TFile::Open("draw_tnp_crab_Bfinder_20190712_Hydjet_Pythia8_PromptPsi2S_1033p1_official_pt6tkpt0p9dls0_skimhltBsize_pthatweight_trainX_sideband_tktk0p2_BDT_BDTG_CutsGA_CutsSA_LD_10p0_inf_0-10-1-2-9.root");
+  TH1D* hscale_htnp_total_nominal_a = (TH1D*)inftnp_a->Get("scale_htnp_total_nominal");
+  hyieldprompt_a->Scale(hscale_htnp_total_nominal_a->GetBinContent(1));
+  TFile* inftnp_b = TFile::Open("draw_tnp_crab_Bfinder_20190712_Hydjet_Pythia8_PromptXRho_1033p1_official_pt6tkpt0p9dls0_skimhltBsize_pthatweight_trainX_sideband_tktk0p2_BDT_BDTG_CutsGA_CutsSA_LD_10p0_inf_0-10-1-2-9.root");
+  TH1D* hscale_htnp_total_nominal_b = (TH1D*)inftnp_b->Get("scale_htnp_total_nominal");
+  hyieldprompt_b->Scale(hscale_htnp_total_nominal_b->GetBinContent(1));
   // correct eff
   xjjroot::setgstyle(2);
   TH1F* hyieldpromptCorr_a = (TH1F*)hyieldprompt_a->Clone("hyieldpromptCorr_a");
   hyieldpromptCorr_a->Divide(mceff_a.heff_incl);
   TH1F* hyieldpromptCorr_b = (TH1F*)hyieldprompt_b->Clone("hyieldpromptCorr_b");
   hyieldpromptCorr_b->Divide(mceff_b.heff_incl);
+  std::vector<float> xx_a, yy_a, xel_a, xeh_a, yel_a, yeh_a;
+  xx_a.push_back(hyieldpromptCorr_a->GetBinCenter(fitX::ibin_a));
+  xel_a.push_back(0.1);
+  xeh_a.push_back(0.1);
+  yy_a.push_back(hyieldpromptCorr_a->GetBinContent(fitX::ibin_a));
+  yel_a.push_back(syst::getsyst(0, "d")*hyieldpromptCorr_a->GetBinContent(fitX::ibin_a));
+  yeh_a.push_back(syst::getsyst(0, "u")*hyieldpromptCorr_a->GetBinContent(fitX::ibin_a));
+  TGraphAsymmErrors* gsyst_a = new TGraphAsymmErrors(1, xx_a.data(), yy_a.data(), xel_a.data(), xeh_a.data(), yel_a.data(), yeh_a.data());
+  gsyst_a->SetName("gr_a_syst");
+  xjjroot::setthgrstyle(gsyst_a, fitX::color_a, 20, 1.2, 0, 0, 0, fitX::color_a, 0.3, 1001);
+  std::vector<float> xx_b, yy_b, xel_b, xeh_b, yel_b, yeh_b;
+  xx_b.push_back(hyieldpromptCorr_b->GetBinCenter(fitX::ibin_b));
+  xel_b.push_back(0.1);
+  xeh_b.push_back(0.1);
+  yy_b.push_back(hyieldpromptCorr_b->GetBinContent(fitX::ibin_b));
+  yel_b.push_back(syst::getsyst(1, "d")*hyieldpromptCorr_b->GetBinContent(fitX::ibin_b));
+  yeh_b.push_back(syst::getsyst(1, "u")*hyieldpromptCorr_b->GetBinContent(fitX::ibin_b));
+  TGraphAsymmErrors* gsyst_b = new TGraphAsymmErrors(1, xx_b.data(), yy_b.data(), xel_b.data(), xeh_b.data(), yel_b.data(), yeh_b.data());
+  gsyst_b->SetName("gr_b_syst");
+  xjjroot::setthgrstyle(gsyst_b, fitX::color_b, 20, 1.2, 0, 0, 0, fitX::color_b, 0.3, 1001);
+  TLegend* leg = new TLegend(0.24, 0.85-0.05*2, 0.65, 0.85);
+  xjjroot::setleg(leg, 0.042);
+  leg->SetNColumns(2);
+  leg->AddEntry(hyieldpromptCorr_a, " ", "pe");
+  leg->AddEntry(hyieldpromptCorr_b, "Stat.", "pe");
+  leg->AddEntry(gsyst_a, " ", "pf");
+  leg->AddEntry(gsyst_b, "Syst.", "pf");
   float ymaxyieldpromptCorr = hyieldpromptCorr_b->GetMaximum()*2.5; // !
   TH2F* hemptyyieldpromptCorr = new TH2F("hemptyyieldpromptCorr", ";;N_{signal} #times f_{prompt} / (#alpha #times #epsilon )_{prompt}", 5, 0, 5, 10, 0, ymaxyieldpromptCorr);
   xjjroot::sethempty(hemptyyieldpromptCorr, 0, 0.3);
@@ -212,14 +247,17 @@ void fitX_fithist(std::string input, std::string output)
   hemptyyieldpromptCorr->GetXaxis()->SetLabelSize(hemptyyieldpromptCorr->GetXaxis()->GetLabelSize()*1.5);
   TCanvas* cyieldpromptCorr = new TCanvas("cyieldpromptCorr", "", 600, 600);
   hemptyyieldpromptCorr->Draw();
+  gsyst_a->Draw("2 same");
+  gsyst_b->Draw("2 same");
   hyieldpromptCorr_a->Draw("ple same");
   hyieldpromptCorr_b->Draw("ple same");
+  leg->Draw();
   float yyieldpromptCorr_a = hyieldpromptCorr_a->GetBinContent(fitX::ibin_a);
   float yerryieldpromptCorr_a = hyieldpromptCorr_a->GetBinError(fitX::ibin_a);
-  xjjroot::drawtex(0.42, yyieldpromptCorr_a/ymaxyieldpromptCorr*(1-gStyle->GetPadBottomMargin()-gStyle->GetPadTopMargin()) + gStyle->GetPadBottomMargin() + 0.1, Form("%.0f #pm %.0f", yyieldpromptCorr_a, yerryieldpromptCorr_a), 0.042, 22, 62, fitX::color_a);
+  xjjroot::drawtex(0.42, yyieldpromptCorr_a/ymaxyieldpromptCorr*(1-gStyle->GetPadBottomMargin()-gStyle->GetPadTopMargin()) + gStyle->GetPadBottomMargin() + 0.2, Form("%.0f #pm %.0f", yyieldpromptCorr_a, yerryieldpromptCorr_a), 0.042, 22, 62, fitX::color_a);
   float yyieldpromptCorr_b = hyieldpromptCorr_b->GetBinContent(fitX::ibin_b);
   float yerryieldpromptCorr_b = hyieldpromptCorr_b->GetBinError(fitX::ibin_b);
-  xjjroot::drawtex(0.72, yyieldpromptCorr_b/ymaxyieldpromptCorr*(1-gStyle->GetPadBottomMargin()-gStyle->GetPadTopMargin()) + gStyle->GetPadBottomMargin() + 0.1, Form("%.0f #pm %.0f", yyieldpromptCorr_b, yerryieldpromptCorr_b), 0.042, 22, 62, fitX::color_b);
+  xjjroot::drawtex(0.72, yyieldpromptCorr_b/ymaxyieldpromptCorr*(1-gStyle->GetPadBottomMargin()-gStyle->GetPadTopMargin()) + gStyle->GetPadBottomMargin() + 0.2, Form("%.0f #pm %.0f", yyieldpromptCorr_b, yerryieldpromptCorr_b), 0.042, 22, 62, fitX::color_b);
   xjjroot::drawCMS();
   drawkinematic();
   cyieldpromptCorr->SaveAs(Form("plots/%s/cyieldpromptCorr.pdf", output.c_str()));
@@ -279,6 +317,7 @@ void fitX_fithist(std::string input, std::string output)
 
 int main(int argc, char* argv[])
 {
+  if(argc==5) { fitX_fithist(argv[1], argv[2], argv[3], argv[4]); return 0; }
   if(argc==3) { fitX_fithist(argv[1], argv[2]); return 0; }
   return 1;
 }

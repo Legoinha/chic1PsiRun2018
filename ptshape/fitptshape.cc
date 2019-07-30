@@ -8,12 +8,12 @@
 #include <TF1.h>
 #include <string>
 
-#include "HEPData-ins1495026-v1-csv/ppATLAS.h"
+#include "HEPData-ins1495026-v1/ppATLAS.h"
 
 #include "xjjrootuti.h"
 #include "xjjcuti.h"
 
-void fitptshape(std::string inputname, std::string type, std::string inputdir="HEPData-ins1495026-v1-csv")
+void fitptshape(std::string inputname, std::string type, std::string inputdir="HEPData-ins1495026-v1")
 {
   std::string outputname = xjjc::str_replaceall(xjjc::str_replaceall(inputname, ".root", ".pdf"), "rootfiles/", "plots/");
   gSystem->Exec(Form("mkdir -p %s", xjjc::str_replaceall(outputname, xjjc::str_divide(outputname, "/").back(), "").c_str()));

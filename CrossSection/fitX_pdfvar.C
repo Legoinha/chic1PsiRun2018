@@ -136,14 +136,27 @@ void fitX_pdfvar(std::string input, std::string output)
     }
   cyper->SaveAs(Form("plots/%s/pdfvar/cpdfvar2.pdf", output.c_str()));
 
-  // write
+  // print
+  float per_a = 0;
+  for(int i=0; i<hyields_a->GetNbinsX(); i++)
+    {
+      if(TMath::Abs(hyields_a->GetBinContent(i+1)-1) > per_a) per_a = TMath::Abs(hyields_a->GetBinContent(i+1)-1);
+    }
+  float per_b = 0;
+  for(int i=0; i<hyields_b->GetNbinsX(); i++)
+    {
+      if(TMath::Abs(hyields_b->GetBinContent(i+1)-1) > per_b) per_b = TMath::Abs(hyields_b->GetBinContent(i+1)-1);
+    }
+  float per_ab = TMath::Sqrt(per_a*per_a + per_b*per_b);
+  std::cout<<"Yield Extraction & "<<Form("%.1f", per_a*1.e+2)<<"\\% & "<<Form("%.1f", per_b*1.e+2)<<"\\% & "<<Form("%.1f", per_ab*1.e+2)<<"\\% \\\\"<<std::endl;
+
 }
 
-  int main(int argc, char* argv[])
-  {
-    if(argc==3) { fitX_pdfvar(argv[1], argv[2]); return 0; }
-    return 1;
-  }
+int main(int argc, char* argv[])
+{
+  if(argc==3) { fitX_pdfvar(argv[1], argv[2]); return 0; }
+  return 1;
+}
 
 void drawkinematic()
 {

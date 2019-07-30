@@ -342,6 +342,22 @@ void drawfitXvary(std::string output)
   hsigfitbdtg_b->Write();
   outf->Close();
 
+  // print
+  float nominal_a = hyieldPromptCorr_a->GetBinContent(ibinsig);
+  float per_a = 0;
+  float nominal_b = hyieldPromptCorr_b->GetBinContent(ibinsig);
+  float per_b = 0;
+  for(int i=0; i<hyieldPromptCorr_a->GetNbinsX(); i++)
+    {
+      float dev;
+      dev = TMath::Abs(hyieldPromptCorr_a->GetBinContent(i+1)-nominal_a)/nominal_a;
+      if(dev > per_a && hyieldPromptCorr_a->GetBinContent(i+1)>0) per_a = dev;
+      dev = TMath::Abs(hyieldPromptCorr_b->GetBinContent(i+1)-nominal_b)/nominal_b;
+      if(dev > per_b && hyieldPromptCorr_b->GetBinContent(i+1)>0) per_b = dev;
+    }
+  float per_ab = TMath::Sqrt(per_a*per_a + per_b*per_b);
+  std::cout<<"Acceptance and Efficiency & "<<Form("%.1f", per_a*1.e+2)<<"\\% & "<<Form("%.1f", per_b*1.e+2)<<"\\% & "<<Form("%.1f", per_ab*1.e+2)<<"\\% \\\\"<<std::endl;
+
 }
 
 int main(int argc, char* argv[])

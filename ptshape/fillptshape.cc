@@ -6,9 +6,9 @@
 #include "ntuple.h"
 #include "xjjcuti.h"
 
-#include "HEPData-ins1495026-v1-csv/ppATLAS.h"
+#include "HEPData-ins1495026-v1/ppATLAS.h"
 
-void fillptshape(std::string inputname, std::string type, std::string outputname, std::string inputdir="HEPData-ins1495026-v1-csv")
+void fillptshape(std::string inputname, std::string type, std::string outputname, std::string inputdir="HEPData-ins1495026-v1")
 {
   std::string outdir = xjjc::str_replaceall(outputname, xjjc::str_divide(outputname, "/").back(), "");
   gSystem->Exec(Form("mkdir -p %s", outdir.c_str()));

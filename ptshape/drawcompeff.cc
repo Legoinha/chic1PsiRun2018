@@ -26,10 +26,7 @@ void drawcompeff(std::string inputname_a, std::string inputname_b, std::string o
   float ymaxeff = 0.2, ymaxeff_incl = 0.07;
   TH2F* hemptyeff = new TH2F("hemptyeff", ";p_{T} (GeV/c);#alpha #times #epsilon_{reco} #times #epsilon_{sel}", 10, MCeff::ptBins[0], MCeff::ptBins[MCeff::nPtBins], 10, 0, ymaxeff);
   xjjroot::sethempty(hemptyeff, 0, 0.3);
-  // TH2F* hemptyeff_incl = new TH2F("hemptyeff_incl", ";;#alpha #times #epsilon_{reco} #times #epsilon_{sel}", 5, 0, 5, 10, 0, ymaxeff);
-  // hemptyeff_incl->GetXaxis()->SetBinLabel(2, "#psi(2S)");
-  // hemptyeff_incl->GetXaxis()->SetBinLabel(4, "X(3872)");
-  TH2F* hemptyeff_incl = new TH2F("hemptyeff_incl", ";;#alpha #times #epsilon_{reco} #times #epsilon_{sel}", 10, MCeff::ptBins_incl[0], MCeff::ptBins_incl[MCeff::nPtBins_incl], 10, 0, ymaxeff_incl);
+  TH2F* hemptyeff_incl = new TH2F("hemptyeff_incl", ";p_{T} (GeV/c);#alpha #times #epsilon_{reco} #times #epsilon_{sel}", 10, MCeff::ptBins_incl[0], MCeff::ptBins_incl[MCeff::nPtBins_incl], 10, 0, ymaxeff_incl);
   xjjroot::sethempty(hemptyeff_incl, 0, 0.3);
   // hemptyeff_incl->GetXaxis()->SetLabelSize(hemptyeff_incl->GetXaxis()->GetLabelSize()*1.5);
 
@@ -75,6 +72,11 @@ void drawcompeff(std::string inputname_a, std::string inputname_b, std::string o
   xjjroot::drawCMS("Simulation");
   ceff->SaveAs(Form("%s", outputname.c_str()));
 
+  // print
+  float per_a = TMath::Abs(mceffweight_a.greff_incl->GetEfficiency(1) - mceff_a.greff_incl->GetEfficiency(1)) / mceff_a.greff_incl->GetEfficiency(1);
+  float per_b = TMath::Abs(mceffweight_b.greff_incl->GetEfficiency(1) - mceff_b.greff_incl->GetEfficiency(1)) / mceff_b.greff_incl->GetEfficiency(1);
+  float per_ab = TMath::Sqrt(per_a*per_a + per_b*per_b);
+  std::cout<<"\\pt Shape & "<<Form("%.1f", per_a*1.e+2)<<"\\% & "<<Form("%.1f", per_b*1.e+2)<<"\\% & "<<Form("%.1f", per_ab*1.e+2)<<"\\% \\\\"<<std::endl;
 }
 
 void drawkinematic()
