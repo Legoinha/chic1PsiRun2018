@@ -1,7 +1,7 @@
 #include <TGraphAsymmErrors.h>
 #include <TH1F.h>
 #include <TColor.h>
-#include "../xjjrootuti.h"
+#include "xjjrootuti.h"
 
 namespace ppref
 {

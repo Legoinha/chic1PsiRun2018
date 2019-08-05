@@ -10,14 +10,16 @@
 #include <TMath.h>
 #include <TF1.h>
 
-namespace ppRef
+#include "xjjrootuti.h"
+
+namespace ppref
 {
   class ppATLAS
   {
   public:
     ppATLAS(std::string dirname) : fdir(dirname) { init(); }
     ~ppATLAS() { ; }
-    const std::vector<std::string> types = {"promptPsi", "nonpromptPsi", "promptX", "nonpromptX"};
+    const std::vector<std::string> types = {"promptPsi", "nonpromptPsi", "promptX", "nonpromptX", "promptRatio", "nonpromptRatio"};
     const std::vector<std::string> err = {"stat", "syst"};
     std::map<std::string, std::map<std::string, TGraphAsymmErrors*>> gg;
     std::map<std::string, std::map<std::string, TH1F*>> hh;
@@ -42,7 +44,7 @@ namespace ppRef
       std::pair<std::string, std::string>("promptX", "(0.000003+TMath::Exp(-2.326617-0.289528*x+4.143284/x))/(0.000000+TMath::Exp(-9.265172-0.131857*x+87.146198/x-184.762029/(x*x)))"),
       std::pair<std::string, std::string>("nonpromptX", "(0.000001+TMath::Exp(-3.713476-0.267920*x+8.699709/x))/(0.000000+TMath::Exp(-9.995278-0.098159*x+74.733928/x-176.118111/(x*x)))"),
     };
-
+    void Draw();
   private:
     const float ycut = 0.75;
     std::string fdir;
@@ -51,14 +53,14 @@ namespace ppRef
   };
 }
 
-void ppRef::ppATLAS::init()
+void ppref::ppATLAS::init()
 {
   for(auto& tt : types)
     {
       ff[tt] = new TF1(Form("ff_%s", tt.c_str()), formula[tt].c_str());
       std::ifstream inf(fdir+"/"+tt+".dat");
       std::string line;
-      std::vector<float> xx, yy, xxel, xxeh, yyel_stat, yyeh_stat, yyel_syst, yyeh_syst;
+      std::vector<float> xx, yy, xxel, xxeh, xxelsyst, xxehsyst, yyel_stat, yyeh_stat, yyel_syst, yyeh_syst;
       std::vector<float> xbin, yhist, yehist_stat, yehist_syst;
       while(std::getline(inf, line))
         {
@@ -68,7 +70,7 @@ void ppRef::ppATLAS::init()
           float x, y, xel, xeh, yel_stat, yeh_stat, yel_syst, yeh_syst;
           std::istringstream ss(line);
           ss >> x >> xeh >> xel >> y >> yeh_stat >> yel_stat >> yeh_syst >> yel_syst;
-          y *= 1.e-3; yel_stat*=1.e-3; yeh_stat*=1.e-3; yel_syst*=1.e-3; yeh_syst*=1.e-3;
+          if(tt.find("Ratio")==std::string::npos) y *= 1.e-3; yel_stat*=1.e-3; yeh_stat*=1.e-3; yel_syst*=1.e-3; yeh_syst*=1.e-3;
 
           if(xbin.empty()) xbin.push_back(xel);
           xbin.push_back(xeh);
@@ -80,6 +82,8 @@ void ppRef::ppATLAS::init()
           yy.push_back(y);
           xxel.push_back(x-xel);
           xxeh.push_back(xeh-x);
+          xxelsyst.push_back(0.5);
+          xxehsyst.push_back(0.5);
           yyel_stat.push_back(TMath::Abs(yel_stat));
           yyeh_stat.push_back(TMath::Abs(yeh_stat));
           yyel_syst.push_back(TMath::Abs(yel_syst));
@@ -87,7 +91,7 @@ void ppRef::ppATLAS::init()
         }
       gg[tt]["stat"] = new TGraphAsymmErrors(xx.size(), xx.data(), yy.data(), xxel.data(), xxeh.data(), yyel_stat.data(), yyeh_stat.data());
       gg[tt]["stat"]->SetName(Form("grATLAS_%s_%s", tt.c_str(), "stat"));
-      gg[tt]["syst"] = new TGraphAsymmErrors(xx.size(), xx.data(), yy.data(), xxel.data(), xxeh.data(), yyel_syst.data(), yyeh_syst.data());
+      gg[tt]["syst"] = new TGraphAsymmErrors(xx.size(), xx.data(), yy.data(), xxelsyst.data(), xxehsyst.data(), yyel_syst.data(), yyeh_syst.data());
       gg[tt]["syst"]->SetName(Form("grATLAS_%s_%s", tt.c_str(), "syst"));
       
       hh[tt]["stat"] = new TH1F(Form("hATLAS_%s_%s", tt.c_str(), "stat"), "", xbin.size()-1, xbin.data());
@@ -104,8 +108,21 @@ void ppRef::ppATLAS::init()
   hempty = new TH2F("hempty_ppATLAS", ";p_{T} (GeV/c);Br #times d#sigma/dp_{T}", 10, 10, 70, 10, 1.e-7, 1.);
 }
 
-float ppRef::ppATLAS::getweight(float pt, std::string type)
+float ppref::ppATLAS::getweight(float pt, std::string type)
 {
   if(pt < 15 || pt > 50) { return 0; }
   else { return ff[type]->Eval(pt); }
+}
+
+void ppref::ppATLAS::Draw()
+{
+  xjjroot::setthgrstyle(gg["promptRatio"]["syst"], xjjroot::mycolor_middle["azure"], 20, 1.2, 0, 1, 1, xjjroot::mycolor_middle["azure"], 0.3, 1001);
+  xjjroot::setthgrstyle(gg["promptRatio"]["stat"], xjjroot::mycolor_middle["azure"], 20, 1.2, xjjroot::mycolor_middle["azure"], 1, 1, xjjroot::mycolor_middle["azure"], 0.3, 1001);
+  xjjroot::setthgrstyle(gg["nonpromptRatio"]["syst"], xjjroot::mycolor_middle["azure"], 24, 1.2, 0, 1, 1, xjjroot::mycolor_middle["azure"], 0.3, 1001);
+  xjjroot::setthgrstyle(gg["nonpromptRatio"]["stat"], xjjroot::mycolor_middle["azure"], 24, 1.2, xjjroot::mycolor_middle["azure"], 1, 1, xjjroot::mycolor_middle["azure"], 0.3, 1001);
+
+  gg["promptRatio"]["syst"]->Draw("2same");
+  gg["promptRatio"]["stat"]->Draw("pesame");
+  gg["nonpromptRatio"]["syst"]->Draw("2same");
+  gg["nonpromptRatio"]["stat"]->Draw("pesame");
 }
