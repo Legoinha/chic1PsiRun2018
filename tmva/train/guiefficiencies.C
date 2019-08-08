@@ -60,7 +60,13 @@ void mytmva::efficiencies(std::string outfname)
 
 int main(int argc, char* argv[])
 {
-  if(argc==6)
-    { mytmva::guiefficiencies(argv[1], atof(argv[2]), atof(argv[3]), argv[4], argv[5]); return 0; }
+  if(argc==4)
+    { 
+      for(int i=0; i<mytmva::nptbins; i++)
+        {
+          mytmva::guiefficiencies(argv[1], mytmva::ptbins[i], mytmva::ptbins[i+1], argv[2], argv[3]); 
+        }
+      return 0; 
+    }
   return 1;
 }

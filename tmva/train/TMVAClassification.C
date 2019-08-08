@@ -21,7 +21,7 @@
 #include "TMVAClassification.h"
 
 int TMVAClassification(std::string inputSname, std::string inputBname, std::string mycuts, std::string mycutb, 
-                       std::string outputname, float ptmin, float ptmax, std::string mymethod = "", std::string stage = "0,1,2,3,4,5,6,7,8,9,10")
+                       std::string outputname, float ptmin, float ptmax, std::string mymethod, std::string stage)
 {
   std::vector<std::string> methods;
   std::vector<int> stages;
@@ -562,7 +562,7 @@ int TMVAClassification(std::string inputSname, std::string inputBname, std::stri
   if (Use["BDTG"]) // Gradient Boost
     factory->BookMethod( dataloader, TMVA::Types::kBDT, "BDTG",
                          "!H:!V:NTrees=1000:MinNodeSize=2.5%:BoostType=Grad:Shrinkage=0.10:UseBaggedBoost:BaggedSampleFraction=0.5:nCuts=20:MaxDepth=2" );
-                         // "!H:!V:NTrees=505:MinNodeSize=15.5:BoostType=Grad:Shrinkage=0.275:UseBaggedBoost:BaggedSampleFraction=0.5:nCuts=20:MaxDepth=3" );
+  // "!H:!V:NTrees=505:MinNodeSize=15.5:BoostType=Grad:Shrinkage=0.275:UseBaggedBoost:BaggedSampleFraction=0.5:nCuts=20:MaxDepth=3" );
 
   if (Use["BDT"])  // Adaptive Boost
     factory->BookMethod( dataloader, TMVA::Types::kBDT, "BDT",
@@ -635,11 +635,14 @@ int TMVAClassification(std::string inputSname, std::string inputBname, std::stri
 
 int main(int argc, char* argv[])
 {
-  if(argc==10)
-    { return TMVAClassification(argv[1], argv[2], argv[3], argv[4], argv[5], atof(argv[6]), atof(argv[7]), argv[8], argv[9]); }
-  if(argc==9)
-    { return TMVAClassification(argv[1], argv[2], argv[3], argv[4], argv[5], atof(argv[6]), atof(argv[7]), argv[8]); }
   if(argc==8)
-    { return TMVAClassification(argv[1], argv[2], argv[3], argv[4], argv[5], atof(argv[6]), atof(argv[7])); }
+    { 
+      for(int i=0; i<mytmva::nptbins; i++)
+        {
+          TMVAClassification(argv[1], argv[2], argv[3], argv[4], argv[5], mytmva::ptbins[i], mytmva::ptbins[i+1], argv[6], argv[7]); 
+        }
+      return 0;
+    }
+
   return 1;
 }

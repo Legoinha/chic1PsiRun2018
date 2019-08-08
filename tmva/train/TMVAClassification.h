@@ -11,6 +11,10 @@
 
 namespace mytmva
 {
+  // std::vector<float> ptbins({10., -1.});
+  // std::vector<float> ptbins({15., 50.});
+  std::vector<float> ptbins({15., 20., 50.});
+  int nptbins = ptbins.size()-1;
   struct tmvavar
   {
     std::string varname;

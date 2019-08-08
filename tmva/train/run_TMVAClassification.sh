@@ -1,34 +1,35 @@
 #!/bin/bash
 
 ##
-ptmin=10 ; ptmax=-1 ; output=
+output=
 outmvas=(0)
 
 ##
-PREFIX=/export/d00/scratch/jwang/
+PREFIX=
+[[ -d /export/d00/scratch/ ]] && { PREFIX=/export/d00/scratch/jwang/ ; }
 [[ -d /raid5/data/ ]] && { PREFIX=/raid5/data/wangj/ ; }
+[[ x$PREFIX == x ]] && { echo 'No correct prefix is assigned.' ; exit 1 ; }
 
 ##
-# trainlabel=_20190711
-trainlabel=
+trainlabel=_20190808_ptdep
+# trainlabel=_privatepreapp
 # -- signal sample
-inputs=$PREFIX/BntupleRun2018/ntuple_20190609_Bfinder_20190520_Hydjet_Pythia8_X3872ToJpsiRho_prompt_1033p1_pt6tkpt0p7dls0_v3_addSamplePthat_pthatweight.root ; output=rootfiles/TMVA_trainX ;
+inputs=$PREFIX/BntupleRun2018/official/crab_Bfinder_20190730_Hydjet_Pythia8_PromptXRho_1033p1_official_pt6tkpt0p9dls0_skimhltBsize_pthatweight.root ; output=rootfiles/TMVA_trainX ;
 # -- background sample
 inputb=$PREFIX/BntupleRun2018/ntmix_20190711_Bfinder_20190513_HIDoubleMuon__PsiPeri__HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_skimBpt10_skimhltBsize.root ; bkgstrategy=sideband ;
-# inputb=$PREFIX/BntupleRun2018/crab_Bfinder_samesign_20190513_HIDoubleMuonPsi_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_327123_327564_skimhltBsize_ntmix_Xpt10.root ; bkgstrategy=samesign ;
+# inputb=$PREFIX/BntupleRun2018/ntmix_20190730_Bfinder_samesign_20190513_HIDoubleMuonPsi_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_327123_327564_skimBpt10_skimhltBsize_ntmix.root ; bkgstrategy=samesign ;
 output=${output}${trainlabel}_${bkgstrategy}
 # -- mva application sample
 # (((( ioutmva ))))
 inputms=(
-    $PREFIX/BntupleRun2018/ntmix_20190711_Bfinder_20190513_HIDoubleMuon__PsiPeri__HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_skimBpt10_skimhltBsize.root         # 0: data
-    $PREFIX/BntupleRun2018/crab_Bfinder_samesign_20190513_HIDoubleMuonPsi_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_327123_327564_skimhltBsize_ntmix_Xpt10.root # 1: samesign
-    $PREFIX/BntupleRun2018/crab_Bfinder_20190520_Hydjet_Pythia8_Psi2SToJpsiPiPi_prompt_1033p1_pt6tkpt0p7dls0_v3_addSamplePthat_pthatweight.root                 # 2: prompt psi'
-    $PREFIX/BntupleRun2018/ntmix_20190609_Bfinder_20190520_Hydjet_Pythia8_X3872ToJpsiRho_prompt_1033p1_pt6tkpt0p7dls0_v3_addSamplePthat_pthatweight.root        # 3: prompt X
-    $PREFIX/BntupleRun2018/crab_Bfinder_20190520_Hydjet_Pythia8_Psi2SToJpsiPiPi_nonprompt_1033p1_pt6tkpt0p7dls0_v3_addSamplePthat_pthatweight.root              # 4: nonprompt psi'
-    $PREFIX/BntupleRun2018/crab_Bfinder_20190520_Hydjet_Pythia8_X3872ToJpsiRho_nonprompt_1033p1_pt6tkpt0p7dls0_v3_addSamplePthat_pthatweight.root               # 5: nonprompt X
-    $PREFIX/BntupleRun2018/crab_Bfinder_20190513_HIDoubleMuon__PsiPeri__HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_skimhltBsize_ntmix_Xpt10.root                 # 6: data previous heavy version
+    $PREFIX/BntupleRun2018/ntmix_20190711_Bfinder_20190513_HIDoubleMuon__PsiPeri__HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_skimBpt10_skimhltBsize.root                       # 0: data
+    $PREFIX/BntupleRun2018/ntmix_20190730_Bfinder_samesign_20190513_HIDoubleMuonPsi_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_327123_327564_skimBpt10_skimhltBsize_ntmix.root # 1: samesign
+    $PREFIX/BntupleRun2018/official/crab_Bfinder_20190712_Hydjet_Pythia8_PromptPsi2S_1033p1_official_pt6tkpt0p9dls0_skimhltBsize_pthatweight.root                             # 2: prompt psi'
+    $PREFIX/BntupleRun2018/official/crab_Bfinder_20190730_Hydjet_Pythia8_PromptXRho_1033p1_official_pt6tkpt0p9dls0_skimhltBsize_pthatweight.root                              # 3: prompt X
+    $PREFIX/BntupleRun2018/official/crab_Bfinder_20190712_Hydjet_Pythia8_NonPromptPsi2S_1033p1_official_pt6tkpt0p9dls0_skimhltBsize_pthatweight.root                          # 4: nonprompt psi'
+    $PREFIX/BntupleRun2018/official/crab_Bfinder_20190712_Hydjet_Pythia8_NonPromptXRho_1033p1_official_pt6tkpt0p9dls0_skimhltBsize_pthatweight.root                           # 5: nonprompt X
 )
-outputmvadir=$PREFIX/BntupleRun2018/mva_output/
+outputmvadir=$PREFIX/BntupleRun2018/mva_output${trainlabel}/
 
 ##
 # -- event filter
@@ -52,8 +53,8 @@ cut=$cut" && (Bmass-3.096916-Btktkmass) < 0.2" ; output=${output}_tktk0p2 ;
 
 ##
 # algo="BDT,BDTG,LD,DNN_GPU"
-algo="BDT,BDTG,CutsGA,CutsSA,LD"
-# algo="BDT,BDTG,LD"
+# algo="BDT,BDTG,CutsGA,CutsSA,LD"
+algo="BDT,BDTD,BDTG,BDTF,LD"
 
 # stages="0,10,1,2,9,8,4,5,6,7,15,16" ; sequence=1 ; # see definition below #
 # stages="0,10,17,18,20" ; sequence=0 ; # see definition below #
@@ -139,30 +140,29 @@ g++ mvaprod.C $(root-config --libs --cflags) -lTMVA -lXMLIO -lstdc++fs -g -o mva
     [[ $conf == 'n' ]] && { rm *_${tmp}.exe ; exit ; }
 }
 
+# train
 stage=$stages
 while [[ $stage == *,* ]]
 do
-# train
-    [[ ${1:-0} -eq 1 ]] && { ./TMVAClassification_${tmp}.exe $inputs $inputb "$cuts" "$cutb" $output $ptmin $ptmax "$algo" "$stage"; } &
+    [[ ${1:-0} -eq 1 ]] && { ./TMVAClassification_${tmp}.exe $inputs $inputb "$cuts" "$cutb" $output "$algo" "$stage"; } 
     [[ $sequence -eq 0 ]] && break;
     while [[ $stage != *, ]] ; do stage=${stage%%[0-9]} ; done ;
     stage=${stage%%,}
 done
-wait
 
 # draw curves
 [[ ${2:-0} -eq 1 ]] && { 
-    ./guivariables_${tmp}.exe $output $ptmin $ptmax "$algo" "$stages"
-    ./guiefficiencies_${tmp}.exe $output $ptmin $ptmax "$algo" "$stages"
+    ./guivariables_${tmp}.exe $output "$algo" "$stages"
+    ./guiefficiencies_${tmp}.exe $output "$algo" "$stages"
 }
 # draw curve vs. var
-[[ ${2:-0} -eq 1 && $sequence -eq 1 ]] && ./guieffvar_${tmp}.exe $output $ptmin $ptmax "$algo" "$stages"
+[[ ${2:-0} -eq 1 && $sequence -eq 1 ]] && ./guieffvar_${tmp}.exe $output "$algo" "$stages"
 
 # produce mva values
 for ioutmva in ${outmvas[@]}
 {
     inputm=${inputms[ioutmva]}
-    [[ ${3:-0} -eq 1 ]] && ./mvaprod_${tmp}.exe $inputm "Bfinder/ntmix" $output $outputmvadir $ptmin $ptmax "$algo" "${stages}"
+    [[ ${3:-0} -eq 1 ]] && ./mvaprod_${tmp}.exe $inputm "Bfinder/ntmix" $output $outputmvadir "$algo" "${stages}"
 }
 
 ##
