@@ -1,5 +1,5 @@
 #ifndef __OPTCUT__
-#define __OPTCUT__ ntp->BDTG[j]>0.7
+#define __OPTCUT__ __CUTINPUT__ //ntp->BDTG[j]>0.7
 
 #include <iostream>
 #include <map>
@@ -8,18 +8,17 @@
 #include <TH1D.h>
 #include <TSystem.h>
 
+#include "fitX.h"
 #include "tnp_weight_lowptPbPb.h"
 #include "packtree.h"
 #include "ntuple.h"
-#include "fitX.h"
 #include "xjjcuti.h"
 
 #include "tnpcc_tmp.h"
 
-void tnp_converter(std::string inputname, std::string dirname, int nevt=-1)
+void tnp_converter(std::string inputname, std::string dirname, std::string name)
 {
-  std::string outputname = "rootfiles/"+dirname+"/tnp_"+(xjjc::str_divide(inputname, "/").back());
-  gSystem->Exec(Form("mkdir -p rootfiles/%s", dirname.c_str()));
+  std::string outputname = "rootfiles/"+dirname+fitX::tagname()+"/tnp"+name+".root";
 
   std::cout<<"==> Opening files"<<std::endl;
   std::cout<<"input: "<<inputname<<std::endl;
@@ -45,7 +44,7 @@ void tnp_converter(std::string inputname, std::string dirname, int nevt=-1)
   mytmva::ntuple* ntp = pt->ntp;
 
   std::cout<<"==> Scaning file"<<std::endl;
-  int nentries = (nevt>0&&nevt<ntp->getnt()->GetEntries())?nevt:ntp->getnt()->GetEntries();
+  int nentries = ntp->getnt()->GetEntries();
   for(int i=0; i<nentries; i++)
     {
       pt->getentry(i); 
@@ -53,13 +52,14 @@ void tnp_converter(std::string inputname, std::string dirname, int nevt=-1)
 
       float weight = ntp->pthatweight * ntp->Ncoll;
 
+      if(!(ntp->hiBin >= fitX::centmincut && ntp->hiBin <= fitX::centmaxcut)) continue;
       if(!ntp->passedevtfil()) continue;
       for(int j=0; j<ntp->Bsize; j++)
         {
           if(!ntp->mvapref[j]) continue;
           if(!(ntp->Bgen[j]>=23333 && ntp->BgencollisionId[j]==0)) continue;
 
-          if(!(TMath::Abs(ntp->By[j]) < fitX::ycut)) continue;
+          if(!(TMath::Abs(ntp->By[j])>=fitX::ymincut && TMath::Abs(ntp->By[j])<fitX::ymaxcut)) continue;
           // ==>
           if(!(__OPTCUT__)) { continue; } 
           // <==
@@ -83,6 +83,7 @@ void tnp_converter(std::string inputname, std::string dirname, int nevt=-1)
   xjjc::progressbar_summary(nentries);
 
   std::cout<<"==> Writing into output file"<<std::endl;
+  xjjroot::mkdir(outputname);
   TFile* outf = new TFile(outputname.c_str(), "recreate");
   outf->cd();
   for(auto& ht : hh)
@@ -93,6 +94,7 @@ void tnp_converter(std::string inputname, std::string dirname, int nevt=-1)
           hk.second->Write();
         }
     }
+  fitX::write();
   outf->Close();
   std::cout<<"==> Output file"<<std::endl;
   std::cout<<outputname<<std::endl;
@@ -100,8 +102,9 @@ void tnp_converter(std::string inputname, std::string dirname, int nevt=-1)
 
 int main(int argc, char* argv[])
 {
-  if(argc==4) { tnp_converter(argv[1], argv[2], atoi(argv[3])); return 0; }
-  if(argc==3) { tnp_converter(argv[1], argv[2]); return 0; }
+  if(argc==10) { 
+    fitX::init(atof(argv[4]), atof(argv[5]), atof(argv[6]), atof(argv[7]), atof(argv[8]), atof(argv[9]));
+    tnp_converter(argv[1], argv[2], argv[3]); return 0; }
   return 1;
 }
 

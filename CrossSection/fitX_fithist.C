@@ -11,13 +11,12 @@
 #include "MCefficiency.h"
 #include "systematics.h"
 
-float weight_ss = 1./0.681;
-
 void drawkinematic();
 
-void fitX_fithist(std::string input, std::string output, std::string inputtnp_a="tnps/draw_tnp_PromptPsi2S.root", std::string inputtnp_b="tnps/draw_tnp_PromptXRho.root")
+void fitX_fithist(std::string input, std::string output, std::string inputtnp_a, std::string inputtnp_b)
 {
-  TFile* inf = new TFile(Form("%s.root", input.c_str()));
+  TFile* inf = new TFile(input.c_str());
+  fitX::init(inf);
   TH1F* h = (TH1F*)inf->Get("h");
   TH1F* hBenr = (TH1F*)inf->Get("hBenr");
   TH1F* hmcp_a = (TH1F*)inf->Get("hmcp_a");
@@ -47,8 +46,8 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a=
   for(int l=0; l<2; l++)
     {
       // ====>
-      // std::vector<TF1*> funsft = fitX::fit(vh[l], 0, hmcp_a, hmcp_b, "plots/fltm", false, false); // fix mean = false
-      std::vector<TF1*> funs   = fitX::fit(vh[l], 0, hmcp_a, hmcp_b, Form("plots/%s", output.c_str(), vname[l].c_str()), true, true, "_"+vname[l]); // fix mean = true
+      std::vector<TF1*> funs   = fitX::fit(vh[l], 0, hmcp_a, hmcp_b, Form("plots/%s", output.c_str(), vname[l].c_str()), false, true, "_"+vname[l]); // fix mean = false
+      // std::vector<TF1*> funs   = fitX::fit(vh[l], 0, hmcp_a, hmcp_b, Form("plots/%s", output.c_str(), vname[l].c_str()), true, true, "_"+vname[l]); // fix mean = true
       cy->cd(l+1);
       xjjroot::setgstyle();
       // <====
@@ -82,6 +81,7 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a=
       xjjroot::drawtex(0.22, 0.84, vtitle[l].c_str(), 0.042, 12, 62);
       xjjroot::drawCMS();
     }
+  xjjroot::mkdir(Form("plots/%s/cyield.pdf", output.c_str()));
   cy->SaveAs(Form("plots/%s/cyield.pdf", output.c_str()));
 
   // fprompt
@@ -119,6 +119,7 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a=
   xjjroot::drawtex(0.23, 0.78, "X(3872)", 0.042, 12, 62, fitX::color_b);
   xjjroot::drawtex(0.57, 0.85, "Nonprompt", 0.042, 22, 62);
   xjjroot::drawCMS("Simulation");
+  xjjroot::mkdir(Form("plots/%s/clxy.pdf", output.c_str()));
   clxy->SaveAs(Form("plots/%s/clxy.pdf", output.c_str()));
   
   std::vector<double> vlxyfrac = lxydis::nplxyfrac(hlxymcnp_a, hlxymcnp_b);
@@ -147,6 +148,7 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a=
   grfprompt_b->Draw("same");
   drawkinematic();
   xjjroot::drawCMS();
+  xjjroot::mkdir(Form("plots/%s/cfprompt.pdf", output.c_str()));
   cfprompt->SaveAs(Form("plots/%s/cfprompt.pdf", output.c_str()));
 
   // efficiency
@@ -196,14 +198,15 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a=
   drawkinematic();
   xjjroot::drawCMSleft("#scale[1.25]{#bf{CMS}} #it{Simulation}");
   xjjroot::drawCMSright();
-  xjjroot::drawtex(0.92, 0.84, Form("|y| < %s", xjjc::number_remove_zero(fitX::ycut).c_str()), 0.042, 32, 42);
+  xjjroot::drawtex(0.92, 0.84, fitX::ytag().c_str(), 0.042, 32, 42);
+  xjjroot::mkdir(Form("plots/%s/ceff.pdf", output.c_str()));
   ceff->SaveAs(Form("plots/%s/ceff.pdf", output.c_str()));
 
   // tnp
-  TFile* inftnp_a = TFile::Open("draw_tnp_crab_Bfinder_20190712_Hydjet_Pythia8_PromptPsi2S_1033p1_official_pt6tkpt0p9dls0_skimhltBsize_pthatweight_trainX_sideband_tktk0p2_BDT_BDTG_CutsGA_CutsSA_LD_10p0_inf_0-10-1-2-9.root");
+  TFile* inftnp_a = TFile::Open(inputtnp_a.c_str());
   TH1D* hscale_htnp_total_nominal_a = (TH1D*)inftnp_a->Get("scale_htnp_total_nominal");
   hyieldprompt_a->Scale(hscale_htnp_total_nominal_a->GetBinContent(1));
-  TFile* inftnp_b = TFile::Open("draw_tnp_crab_Bfinder_20190712_Hydjet_Pythia8_PromptXRho_1033p1_official_pt6tkpt0p9dls0_skimhltBsize_pthatweight_trainX_sideband_tktk0p2_BDT_BDTG_CutsGA_CutsSA_LD_10p0_inf_0-10-1-2-9.root");
+  TFile* inftnp_b = TFile::Open(inputtnp_b.c_str());
   TH1D* hscale_htnp_total_nominal_b = (TH1D*)inftnp_b->Get("scale_htnp_total_nominal");
   hyieldprompt_b->Scale(hscale_htnp_total_nominal_b->GetBinContent(1));
   // correct eff
@@ -260,6 +263,7 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a=
   xjjroot::drawtex(0.72, yyieldpromptCorr_b/ymaxyieldpromptCorr*(1-gStyle->GetPadBottomMargin()-gStyle->GetPadTopMargin()) + gStyle->GetPadBottomMargin() + 0.2, Form("%.0f #pm %.0f", yyieldpromptCorr_b, yerryieldpromptCorr_b), 0.042, 22, 62, fitX::color_b);
   xjjroot::drawCMS();
   drawkinematic();
+  xjjroot::mkdir(Form("plots/%s/cyieldpromptCorr.pdf", output.c_str()));
   cyieldpromptCorr->SaveAs(Form("plots/%s/cyieldpromptCorr.pdf", output.c_str()));
 
   // merge a + b
@@ -310,6 +314,7 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a=
   grfprompt_a->Write();
   grfprompt_b->Write();
   hratio->Write();
+  fitX::write();
   outf->Close();
 
   std::cout<<std::endl<<"output: "<<Form("rootfiles/%s/fitX_fithist.root", output.c_str())<<std::endl;
@@ -317,13 +322,16 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a=
 
 int main(int argc, char* argv[])
 {
-  if(argc==5) { fitX_fithist(argv[1], argv[2], argv[3], argv[4]); return 0; }
-  if(argc==3) { fitX_fithist(argv[1], argv[2]); return 0; }
+  std::string inputname = "rootfiles/"+std::string(argv[1])+fitX::tagname()+"/fitX_savehist.root";
+  std::string inputnametnp_a = "rootfiles/"+std::string(argv[1])+fitX::tagname()+"/drawtnp_a.root";
+  std::string inputnametnp_b = "rootfiles/"+std::string(argv[1])+fitX::tagname()+"/drawtnp_b.root";
+  std::string outputname = std::string(argv[1])+fitX::tagname();
+  if(argc==2) { fitX_fithist(inputname, outputname, inputnametnp_a, inputnametnp_b); return 0; }
   return 1;
 }
 
 void drawkinematic()
 {
-  xjjroot::drawtex(0.92, 0.84, Form("|y| < %s", xjjc::number_remove_zero(fitX::ycut).c_str()), 0.042, 32, 42);
-  xjjroot::drawtex(0.92, 0.77, Form("%s < p_{T} < %s GeV/c", xjjc::number_remove_zero(fitX::ptmincut).c_str(), xjjc::number_remove_zero(fitX::ptmaxcut).c_str()), 0.042, 32, 42);
+  xjjroot::drawtex(0.92, 0.84, fitX::ytag().c_str(), 0.042, 32, 42);
+  xjjroot::drawtex(0.92, 0.77, fitX::pttag().c_str(), 0.042, 32, 42);
 }

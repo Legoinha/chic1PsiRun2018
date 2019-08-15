@@ -8,13 +8,15 @@
 #include "xjjcuti.h"
 #include <string>
 #include "tnpcc_tmp.h"
+#include "fitX.h"
 
-void draw_tnp(std::string inputname, std::string dirname)
+void draw_tnp(std::string inputname, std::string dirname, std::string name)
 {
   std::string tparticle("untitled");
   if(xjjc::str_contains(inputname, "romptX")) tparticle = "X(3872)";
   if(xjjc::str_contains(inputname, "romptPsi")) tparticle = "#psi(2S)";
   TFile* inf = TFile::Open(inputname.c_str());
+  fitX::init(inf);
   std::map<std::string, std::map<std::string, TH1D*>> hh;
   std::map<std::string, std::map<std::string, TH1D*>> hhp;
   std::map<std::string, std::map<std::string, TGraphAsymmErrors*>> gg;
@@ -131,23 +133,26 @@ void draw_tnp(std::string inputname, std::string dirname)
   xjjroot::drawtex(0.22, ty-0.043, "TnP Correction", 0.04, 13, 62);
   leg->Draw();
   c->cd();
-  std::string outputname = xjjc::str_replaceall(xjjc::str_replaceall(inputname, "rootfiles/"+dirname+"/", "plots/"+dirname+"/c"), ".root", ".pdf");
-  gSystem->Exec(Form("mkdir -p plots/%s", dirname.c_str()));
-  c->SaveAs(outputname.c_str());
+  std::string outputname = dirname+fitX::tagname()+"/drawtnp"+name;
+  xjjroot::mkdir("plots/"+outputname+".pdf");
+  c->SaveAs(std::string("plots/"+outputname+".pdf").c_str());
 
-  TFile* outf = new TFile(xjjc::str_replaceall(inputname, "rootfiles/"+dirname+"/", "rootfiles/"+dirname+"/draw_").c_str(), "recreate");
+  xjjroot::mkdir("rootfiles/"+outputname+".root");
+  TFile* outf = new TFile(std::string("rootfiles/"+outputname+".root").c_str(), "recreate");
   for(auto& hp : hhp) (hp.second)["nominal"]->Write();
   for(auto& gp : ggp) 
     {
       for(auto& gr : gp.second)
         gr.second->Write();
     }
+  fitX::write();
   outf->Close();
   
 }
 
 int main(int argc, char* argv[])
 {
-  if(argc==3) { draw_tnp(argv[1], argv[2]); return 0; }
+  std::string inputname = "rootfiles/"+std::string(argv[1])+fitX::tagname()+"/tnp"+std::string(argv[2])+".root";
+  if(argc==3) { draw_tnp(inputname, argv[1], argv[2]); return 0; }
   return 1;
 }
