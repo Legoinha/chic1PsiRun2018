@@ -3,14 +3,16 @@
 #include <TH2F.h>
 #include <TGraphAsymmErrors.h>
 #include <TCanvas.h>
-#include "ppref/CMS_2013_R.h"
+#include "ppref/HEPData-ins1219950-v1/CMS_2013_R.h"
 
 #include "xjjrootuti.h"
 #include "systematics.h"
+#include "fitX.h"
 
 void fitX_drawhist(std::string inputname, std::string output)
 {
   TFile* inf = TFile::Open(Form("%s.root", inputname.c_str()));
+  fitX::init(inf);
   TH1F* hratio = (TH1F*)inf->Get("hratio");
   xjjroot::setthgrstyle(hratio, kBlack, 21, 1.2, kBlack, 1, 1);
 
@@ -45,16 +47,19 @@ void fitX_drawhist(std::string inputname, std::string output)
   leg->AddEntry((TObject*)0, "", NULL);
   leg->AddEntry(ppref::grae_syst, "|y| < 1.2", "pf");
   leg->AddEntry((TObject*)0, "", NULL);
-  leg->AddEntry(gsyst, "|y| < 1.6", "pf");
+  leg->AddEntry(gsyst, fitX::ytag().c_str(), "pf");
   leg->Draw();
   xjjroot::drawtex(0.60+0.01, 0.87-0.01, "pp (7 TeV)", 0.042, 13);
   xjjroot::drawtex(0.60+0.01, 0.87-0.01-0.05*2, "PbPb (5.02 TeV)", 0.042, 13);
+  xjjroot::mkdir(Form("plots/%s/cratio.pdf", output.c_str()));
   cratio->SaveAs(Form("plots/%s/cratio.pdf", output.c_str()));
 
 }
 
 int main(int argc, char* argv[])
 {
-  if(argc==3) { fitX_drawhist(argv[1], argv[2]); return 0; }
+  std::string inputname = "rootfiles/"+std::string(argv[1])+fitX::tagname()+"/fitX_fithist";
+  sstd::string dirname = std::string(argv[1])+fitX::tagname();
+  if(argc==2) { fitX_drawhist(inputname, dirname); return 0; }
   return 1;
 }

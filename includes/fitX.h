@@ -14,9 +14,22 @@
 
 namespace fitX
 {
-  const float ptmincut = 15.;
-  const float ptmaxcut = 50.;
-  const float ycut = 1.6;
+  const float FIT_MASS_X = 3.87169, FIT_MASS_X_ERR = 0.00017, FIT_MASS_X_WIN = 0.02;
+  const float FIT_MASS_PSI2S = 3.686097, FIT_MASS_PSI2S_ERR = 0.000010, FIT_MASS_PSI2S_WIN = 0.005;
+
+  float ptmincut = 20.;
+  float ptmaxcut = 50.;
+  float centmincut = 0.;
+  float centmaxcut = 90;
+  float ymincut = 0;
+  float ymaxcut = 1.6;
+
+  void init(float ptmin, float ptmax, float centmin, float centmax, float ymin, float ymax);
+  void init(TFile* inf);
+  void write();
+  std::string tagname() { return std::string(Form("_pt%.0f-%.0f",fitX::ptmincut,fitX::ptmaxcut)) + std::string(Form("_cent%.0f%.0f",fitX::centmincut,fitX::centmaxcut)) + std::string(Form("_y%s-%s",xjjc::number_to_string(fitX::ymincut).c_str(),xjjc::number_to_string(fitX::ymaxcut).c_str())); }
+  std::string ytag() { return std::string(Form("%s|y| < %s", (fitX::ymincut?Form("%s < ",xjjc::number_remove_zero(fitX::ymincut)):""), xjjc::number_remove_zero(fitX::ymaxcut).c_str())); }
+  std::string pttag() { return std::string(Form("%s < p_{T} < %s GeV/c", xjjc::number_remove_zero(fitX::ptmincut).c_str(), xjjc::number_remove_zero(fitX::ptmaxcut).c_str())); }
 }
 
 /* ----------------------------------------
@@ -172,6 +185,8 @@ std::vector<TF1*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* hhmc_a, TH1F* hhmc_b, s
     {
       f->ReleaseParameter(6);
       f->ReleaseParameter(11);
+      f->SetParLimits(6, fitX::FIT_MASS_PSI2S - fitX::FIT_MASS_PSI2S_WIN, fitX::FIT_MASS_PSI2S + fitX::FIT_MASS_PSI2S_WIN);
+      f->SetParLimits(11, fitX::FIT_MASS_X - fitX::FIT_MASS_X_WIN, fitX::FIT_MASS_X + fitX::FIT_MASS_X_WIN);
     }
   // if(fixmean)
   //   {
@@ -180,8 +195,8 @@ std::vector<TF1*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* hhmc_a, TH1F* hhmc_b, s
   //   }
   // else
   //   {
-  //     f->SetParLimits(6, MASS_PSI2S-mytmva::sigwindowL, MASS_PSI2S+mytmva::sigwindowL);
-  //     f->SetParLimits(11, MASS_X-mytmva::sigwindowH, MASS_X+mytmva::sigwindowH);
+  //     f->SetParLimits(6, fitX::FIT_MASS_PSI2S-mytmva::sigwindowL, fitX::FIT_MASS_PSI2S+mytmva::sigwindowL);
+  //     f->SetParLimits(11, fitX::FIT_MASS_X-mytmva::sigwindowH, fitX::FIT_MASS_X+mytmva::sigwindowH);
   //   }
 
   // <<<
@@ -192,6 +207,11 @@ std::vector<TF1*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* hhmc_a, TH1F* hhmc_b, s
   f->SetLineColor(color_data);
   h->SetMaximum(h->GetMaximum()*1.25);
   h->Draw("pe");
+  if(!fixmean)
+    {
+      xjjroot::drawbox(fitX::FIT_MASS_PSI2S - fitX::FIT_MASS_PSI2S_ERR, h->GetMinimum(), fitX::FIT_MASS_PSI2S + fitX::FIT_MASS_PSI2S_ERR, h->GetMaximum(), color_a, 0.8, 1001, 0, 0, 0);
+      xjjroot::drawbox(fitX::FIT_MASS_X - fitX::FIT_MASS_X_ERR, h->GetMinimum(), fitX::FIT_MASS_X + fitX::FIT_MASS_X_ERR, h->GetMaximum(), color_b, 0.8, 1001, 0, 0, 0);
+    }
   h->Fit("f","Nq");
   h->Fit("f","NLLq");
   // TFitResultPtr r = histo->Fit(func, "S");
@@ -238,7 +258,8 @@ std::vector<TF1*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* hhmc_a, TH1F* hhmc_b, s
   float ysig2 = fsig2->Integral(BIN_MIN, BIN_MAX)/BIN_WIDTH;
 
   xjjroot::drawtex(0.92, 0.84, Form("%.0f < p_{T} < %.0f GeV/c", fitX::ptmincut, fitX::ptmaxcut), 0.042, 32, 62);
-  xjjroot::drawtex(0.92, 0.79, Form("|y| < %.1f", fitX::ycut), 0.042, 32, 62);
+  xjjroot::drawtex(0.92, 0.79, Form("%s|y| < %.1f", (fitX::ymincut?Form("%.1f < ", fitX::ymincut):""), fitX::ymaxcut), 0.042, 32, 62);
+  xjjroot::drawtex(0.92, 0.74, Form("Cent. %.0f-%.0f%s", fitX::centmincut, fitX::centmaxcut, "%"), 0.042, 32, 62);
   xjjroot::drawtex(0.17, 0.84, Form("#chi^{2} Prob = %.1f%s", TMath::Prob(f->GetChisquare(), f->GetNDF())*100., "%"), 0.042, 12, 62);
 
   xjjroot::drawtex(0.32, 0.36, Form("#bar{m}_{#psi(2S)} = %.4f GeV", f->GetParameter(6)), 0.034, 12, 62, color_a);
@@ -285,4 +306,40 @@ void fitX::drawpull(TH1* hmc, TF1* f, Color_t color)
   xjjroot::drawtex(0.93, 0.55, "Pull", 0.04, 33, 62, color);
 }
 
+void fitX::init(float ptmin, float ptmax, float centmin, float centmax, float ymin, float ymax)
+{
+  if(ptmin >= 0) ptmincut = ptmin;
+  if(ptmax >= 0) ptmaxcut = ptmax;
+  if(centmin >= 0) centmincut = centmin;
+  if(centmax >= 0) centmaxcut = centmax;
+  if(ymin >= 0) ymincut = ymin;
+  if(ymax >= 0) ymaxcut = ymax;
+}
+
+void fitX::init(TFile* inf)
+{
+  TTree* kinfo = (TTree*)inf->Get("kinfo");
+  float ptmin, ptmax, centmin, centmax, ymin, ymax;
+  kinfo->SetBranchAddress("ptmincut", &ptmin);
+  kinfo->SetBranchAddress("ptmaxcut", &ptmax);
+  kinfo->SetBranchAddress("centmincut", &centmin);
+  kinfo->SetBranchAddress("centmaxcut", &centmax);
+  kinfo->SetBranchAddress("ymincut", &ymin);
+  kinfo->SetBranchAddress("ymaxcut", &ymax);
+  kinfo->GetEntry(0);
+  init(ptmin, ptmax, centmin, centmax, ymin, ymax);
+}
+
+void fitX::write()
+{
+  TTree* kinfo = new TTree("kinfo", "kinematics");
+  kinfo->Branch("ptmincut", &ptmincut);
+  kinfo->Branch("ptmaxcut", &ptmaxcut);
+  kinfo->Branch("centmincut", &centmincut);
+  kinfo->Branch("centmaxcut", &centmaxcut);
+  kinfo->Branch("ymincut", &ymincut);
+  kinfo->Branch("ymaxcut", &ymaxcut);
+  kinfo->Fill();
+  kinfo->Write();
+}
 #endif

@@ -2,7 +2,7 @@
 
 ##
 output=
-outmvas=(0)
+outmvas=(2 3 4 5)
 
 ##
 PREFIX=
@@ -11,7 +11,7 @@ PREFIX=
 [[ x$PREFIX == x ]] && { echo 'No correct prefix is assigned.' ; exit 1 ; }
 
 ##
-trainlabel=_20190808_ptdep
+trainlabel=_20190808ptdep
 # trainlabel=_privatepreapp
 # -- signal sample
 inputs=$PREFIX/BntupleRun2018/official/crab_Bfinder_20190730_Hydjet_Pythia8_PromptXRho_1033p1_official_pt6tkpt0p9dls0_skimhltBsize_pthatweight.root ; output=rootfiles/TMVA_trainX ;
@@ -22,12 +22,13 @@ output=${output}${trainlabel}_${bkgstrategy}
 # -- mva application sample
 # (((( ioutmva ))))
 inputms=(
-    $PREFIX/BntupleRun2018/ntmix_20190711_Bfinder_20190513_HIDoubleMuon__PsiPeri__HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_skimBpt10_skimhltBsize.root                       # 0: data
-    $PREFIX/BntupleRun2018/ntmix_20190730_Bfinder_samesign_20190513_HIDoubleMuonPsi_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_327123_327564_skimBpt10_skimhltBsize_ntmix.root # 1: samesign
-    $PREFIX/BntupleRun2018/official/crab_Bfinder_20190712_Hydjet_Pythia8_PromptPsi2S_1033p1_official_pt6tkpt0p9dls0_skimhltBsize_pthatweight.root                             # 2: prompt psi'
-    $PREFIX/BntupleRun2018/official/crab_Bfinder_20190730_Hydjet_Pythia8_PromptXRho_1033p1_official_pt6tkpt0p9dls0_skimhltBsize_pthatweight.root                              # 3: prompt X
-    $PREFIX/BntupleRun2018/official/crab_Bfinder_20190712_Hydjet_Pythia8_NonPromptPsi2S_1033p1_official_pt6tkpt0p9dls0_skimhltBsize_pthatweight.root                          # 4: nonprompt psi'
-    $PREFIX/BntupleRun2018/official/crab_Bfinder_20190712_Hydjet_Pythia8_NonPromptXRho_1033p1_official_pt6tkpt0p9dls0_skimhltBsize_pthatweight.root                           # 5: nonprompt X
+    $PREFIX/BntupleRun2018/ntmix_20190806_Bfinder_20190513_HIDoubleMuon__PsiPeri__HIRun2018A_04Apr2019_v1_HF_and_MuonJSON_skimBpt10.root          # 0: data
+    $PREFIX/BntupleRun2018/ntmix_20190808_Bfinder_samesign_20190513_HIDoubleMuon__PsiPeri__HIRun2018A_04Apr2019_v1_HF_and_MuonJSON_skimBpt10.root # 1: samesign
+    $PREFIX/BntupleRun2018/official/ntmix_20190808_Bfinder_20190712_Hydjet_Pythia8_PromptPsi2S_1033p1_official_pt6tkpt0p9dls0_pthatweight.root    # 2: prompt psi'
+    $PREFIX/BntupleRun2018/official/ntmix_20190808_Bfinder_20190730_Hydjet_Pythia8_PromptXRho_1033p1_official_pt6tkpt0p9dls0_pthatweight.root     # 3: prompt X rho
+    $PREFIX/BntupleRun2018/official/ntmix_20190808_Bfinder_20190712_Hydjet_Pythia8_NonPromptPsi2S_1033p1_official_pt6tkpt0p9dls0_pthatweight.root # 4: nonprompt psi'
+    $PREFIX/BntupleRun2018/official/ntmix_20190808_Bfinder_20190712_Hydjet_Pythia8_NonPromptXRho_1033p1_official_pt6tkpt0p9dls0_pthatweight.root  # 5: nonprompt X
+    $PREFIX/BntupleRun2018/official/ntmix_20190808_Bfinder_20190730_Hydjet_Pythia8_PromptXPiPi_1033p1_official_pt6tkpt0p9dls0_pthatweight.root    # 6 : prompt X pipi
 )
 outputmvadir=$PREFIX/BntupleRun2018/mva_output${trainlabel}/
 

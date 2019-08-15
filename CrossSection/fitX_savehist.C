@@ -12,8 +12,6 @@
 #include "MCefficiency.h"
 #include "xjjcuti.h"
 
-float weight_ss = 1./0.681;
-
 void fitX_savehist(std::string input, std::string inputmcp_a, std::string inputmcp_b, std::string inputmcnp_a, std::string inputmcnp_b,
                    std::string cut, std::string cutgen, std::string output)
 {
@@ -44,9 +42,9 @@ void fitX_savehist(std::string input, std::string inputmcp_a, std::string inputm
   MCeff::MCefficiency mceff_a("_a");
   MCeff::MCefficiency mceff_b("_b");
 
-  std::string cutreco = Form("(%s) && Bpt>%f && Bpt<%f && TMath::Abs(By)<%f", cut.c_str(), fitX::ptmincut, fitX::ptmaxcut, fitX::ycut);
+  std::string cutreco = Form("(%s) && Bpt>%f && Bpt<%f && TMath::Abs(By)>=%f && TMath::Abs(By)<%f && hiBin>=%f && hiBin<=%f", cut.c_str(), fitX::ptmincut, fitX::ptmaxcut, fitX::ymincut, fitX::ymaxcut, fitX::centmincut*2, fitX::centmaxcut*2);
   std::string cutmcreco = Form("%s && Bgen>=23333 && BgencollisionId==0", cutreco.c_str());
-  std::string cutmcgen = Form("(%s) && Gpt>%f && Gpt<%f && TMath::Abs(Gy)<%f && GisSignal==7 && GcollisionId==0", cutgen.c_str(), fitX::ptmincut, fitX::ptmaxcut, fitX::ycut);
+  std::string cutmcgen = Form("(%s) && Gpt>%f && Gpt<%f && TMath::Abs(Gy)>=%f && TMath::Abs(Gy)<%f && hiBin>=%f && hiBin<=%f && GisSignal==7 && GcollisionId==0", cutgen.c_str(), fitX::ptmincut, fitX::ptmaxcut, fitX::ymincut, fitX::ymaxcut, fitX::centmincut*2, fitX::centmaxcut*2);
 
   std::cout<<" == data ==>"<<std::endl;
   ntmix->Project("h", "Bmass", TCut(cutreco.c_str()));
@@ -86,7 +84,9 @@ void fitX_savehist(std::string input, std::string inputmcp_a, std::string inputm
   ntmixmcnp_b->Project("hlxymcnp_b", "Blxy", TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
   std::cout<<hlxymcnp_b->GetEntries()<<std::endl;
 
-  TFile* outf = new TFile(Form("%s.root", output.c_str()), "recreate");
+  std::string outputname = "rootfiles/" + output + fitX::tagname() + "/fitX_savehist.root";
+  xjjroot::mkdir(outputname.c_str());
+  TFile* outf = new TFile(outputname.c_str(), "recreate");
   outf->cd();
   h->Write();
   hBenr->Write();
@@ -116,11 +116,14 @@ void fitX_savehist(std::string input, std::string inputmcp_a, std::string inputm
   info->Branch("cutmcgen", &cutmcgen);
   info->Fill();
   info->Write();
+  fitX::write();
   outf->Close();
 }
 
 int main(int argc, char* argv[])
 {
-  if(argc==9) { fitX_savehist(argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7], argv[8]); return 0; }
+  if(argc==15) { 
+    fitX::init(atof(argv[9]), atof(argv[10]), atof(argv[11]), atof(argv[12]), atof(argv[13]), atof(argv[14]));
+    fitX_savehist(argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7], argv[8]); return 0; }
   return 1;
 }

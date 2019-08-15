@@ -22,7 +22,8 @@
 #define MASS_X      3.87169
 #define PDGID_PSI2S 100443
 #define MASS_PSI2S  3.686097
-
+#define MASS_X_ERR 0.00017
+#define MASS_PSI2S_ERR 0.000010
 #endif
 
 namespace mytmva
@@ -61,6 +62,8 @@ namespace mytmva
     int    pclusterCompatibilityFilter;
     float  BDT[MAX_XB];
     float  BDTG[MAX_XB];
+    float  BDTF[MAX_XB];
+    float  BDTD[MAX_XB];
     bool   mvapref[MAX_XB];
 
     int    Bsize;
@@ -224,6 +227,8 @@ void mytmva::ntuple::setbranchaddress()
       fnt->SetBranchAddress("mvapref", mvapref);
       fnt->SetBranchAddress("BDT", BDT);
       fnt->SetBranchAddress("BDTG", BDTG);
+      fnt->SetBranchAddress("BDTF", BDTF);
+      fnt->SetBranchAddress("BDTD", BDTD);
     }
   if(fhi)
     {
