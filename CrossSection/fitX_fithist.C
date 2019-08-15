@@ -278,10 +278,10 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   TH1F* hyieldpromptCorr = (TH1F*)hyieldpromptCorr_a->Clone("hyieldpromptCorr");
   hyieldpromptCorr->Add(hyieldpromptCorr_b);
 
-  TH1F* hratio_a = new TH1F("hratio_a", ";;", 1, 15, 50);
+  TH1F* hratio_a = new TH1F("hratio_a", ";;", 1, fitX::ptmincut, fitX::ptmaxcut);
   hratio_a->SetBinContent(1, hyieldpromptCorr_a->GetBinContent(fitX::ibin_a));
   hratio_a->SetBinError(1, hyieldpromptCorr_a->GetBinError(fitX::ibin_a));
-  TH1F* hratio_b = new TH1F("hratio_b", ";;", 1, 15, 50);
+  TH1F* hratio_b = new TH1F("hratio_b", ";;", 1, fitX::ptmincut, fitX::ptmaxcut);
   hratio_b->SetBinContent(1, hyieldpromptCorr_b->GetBinContent(fitX::ibin_b));
   hratio_b->SetBinError(1, hyieldpromptCorr_b->GetBinError(fitX::ibin_b));
   TH1F* hratio = (TH1F*)hratio_b->Clone("hratio");

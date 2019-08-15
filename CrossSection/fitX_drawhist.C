@@ -4,6 +4,7 @@
 #include <TGraphAsymmErrors.h>
 #include <TCanvas.h>
 #include "ppref/HEPData-ins1219950-v1/CMS_2013_R.h"
+#include "ppref/HEPData-ins1495026-v1/ppATLAS.h"
 
 #include "xjjrootuti.h"
 #include "systematics.h"
@@ -15,6 +16,7 @@ void fitX_drawhist(std::string inputname, std::string output)
   fitX::init(inf);
   TH1F* hratio = (TH1F*)inf->Get("hratio");
   xjjroot::setthgrstyle(hratio, kBlack, 21, 1.2, kBlack, 1, 1);
+  ppref::ppATLAS pprefATLAS("ppref/HEPData-ins1495026-v1");
 
   std::vector<float> xx, yy, xel, xeh, yel, yeh;
   for(int i=0; i<hratio->GetNbinsX(); i++)
@@ -34,23 +36,34 @@ void fitX_drawhist(std::string inputname, std::string output)
   xjjroot::setgstyle(2);
   TCanvas* cratio = new TCanvas("cratio", "", 600, 600);
   cratio->SetLogy();
-  TH2F* hempty = new TH2F("hempty", ";p_{T};R", 10, 10, 50, 10, 0.01, 100);
+  TH2F* hempty = new TH2F("hempty", ";p_{T};R", 10, 10, 70, 10, 0.01, 100);
   xjjroot::sethempty(hempty, 0, 0);
   hempty->Draw();
-  xjjroot::drawline(10, 1, 50, 1, kGray+2, 2, 2);
+  xjjroot::drawline(10, 1, 70, 1, kGray+2, 2, 2);
   ppref::CMS_2013_R();
+  pprefATLAS.Draw();
   gsyst->Draw("same 5");
   hratio->Draw("same ple");
+  TLegend* legpp = new TLegend(0.63, 0.87-5*0.045, 0.63+0.30, 0.87);
+  xjjroot::setleg(legpp, 0.035);
+  legpp->AddEntry((TObject*)0, "", NULL);
+  legpp->AddEntry(ppref::grae_syst, "Inclusive", "pf");
+  legpp->AddEntry((TObject*)0, "", NULL);
+  legpp->AddEntry(pprefATLAS.gg["promptRatio"]["syst"], "Prompt", "pf");
+  legpp->AddEntry(pprefATLAS.gg["nonpromptRatio"]["syst"], "Nonprompt", "pf");
+  legpp->Draw();
+  xjjroot::drawtex(0.63+0.01, 0.87-0.01, "pp (7 TeV) |y| < 1.2", 0.035, 13);
+  xjjroot::drawtex(0.63+0.01, 0.87-0.01-0.045*2, "pp (8 TeV) |y| < 0.75", 0.035, 13);
+  TLegend* legpbpb = new TLegend(0.22, 0.87-5*0.045, 0.22+0.30, 0.87-2*0.045);
+  xjjroot::setleg(legpbpb, 0.035);
+  legpbpb->AddEntry((TObject*)0, "", NULL);
+  legpbpb->AddEntry((TObject*)0, "", NULL);
+  legpbpb->AddEntry(gsyst, "Prompt", "pf");
+  legpbpb->Draw();
+  xjjroot::drawtex(0.22+0.01, 0.87-0.01-0.045*2, Form("PbPb (5.02 TeV) %s", fitX::ytag().c_str()), 0.035, 13);
+  xjjroot::drawtex(0.22+0.01, 0.87-0.01-0.045*3, Form("Centrality %.0f-%.0f%s", fitX::centmincut, fitX::centmaxcut, "%"), 0.035, 13);
   xjjroot::drawCMSleft("", 0.05, -0.08);
-  TLegend* leg = new TLegend(0.60, 0.87-4*0.05, 0.95, 0.87);
-  xjjroot::setleg(leg, 0.042);
-  leg->AddEntry((TObject*)0, "", NULL);
-  leg->AddEntry(ppref::grae_syst, "|y| < 1.2", "pf");
-  leg->AddEntry((TObject*)0, "", NULL);
-  leg->AddEntry(gsyst, fitX::ytag().c_str(), "pf");
-  leg->Draw();
-  xjjroot::drawtex(0.60+0.01, 0.87-0.01, "pp (7 TeV)", 0.042, 13);
-  xjjroot::drawtex(0.60+0.01, 0.87-0.01-0.05*2, "PbPb (5.02 TeV)", 0.042, 13);
+  xjjroot::drawCMSright("1.5 nb^{-1} (2018 PbPb 5.02 TeV)");
   xjjroot::mkdir(Form("plots/%s/cratio.pdf", output.c_str()));
   cratio->SaveAs(Form("plots/%s/cratio.pdf", output.c_str()));
 
@@ -59,7 +72,7 @@ void fitX_drawhist(std::string inputname, std::string output)
 int main(int argc, char* argv[])
 {
   std::string inputname = "rootfiles/"+std::string(argv[1])+fitX::tagname()+"/fitX_fithist";
-  sstd::string dirname = std::string(argv[1])+fitX::tagname();
+  std::string dirname = std::string(argv[1])+fitX::tagname();
   if(argc==2) { fitX_drawhist(inputname, dirname); return 0; }
   return 1;
 }

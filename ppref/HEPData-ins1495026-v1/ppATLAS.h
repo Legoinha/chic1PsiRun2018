@@ -17,7 +17,7 @@ namespace ppref
   class ppATLAS
   {
   public:
-    ppATLAS(std::string dirname) : fdir(dirname) { init(); }
+    ppATLAS(std::string dirname="ppref/HEPData-ins1495026-v1") : fdir(dirname) { init(); }
     ~ppATLAS() { ; }
     const std::vector<std::string> types = {"promptPsi", "nonpromptPsi", "promptX", "nonpromptX", "promptRatio", "nonpromptRatio"};
     const std::vector<std::string> err = {"stat", "syst"};
@@ -32,12 +32,6 @@ namespace ppref
       std::pair<std::string, std::string>("promptX", "Prompt X(3872)"),
       std::pair<std::string, std::string>("nonpromptX", "Nonprompt X(3872)"),
     };
-    // std::map<std::string, std::string> formulanum = {
-    //   std::pair<std::string, std::string>("promptPsi", ""),
-    //   std::pair<std::string, std::string>("nonpromptPsi", ""),
-    //   std::pair<std::string, std::string>("promptX", ""),
-    //   std::pair<std::string, std::string>("nonpromptX", ""),
-    // };
     std::map<std::string, std::string> formula = {
       std::pair<std::string, std::string>("promptPsi", "(0.000017+TMath::Exp(-3.426132-0.202144*x+34.850532/x))/(0.000001+TMath::Exp(-8.128359-0.088624*x+99.751422/x-322.373215/(x*x)))"),
       std::pair<std::string, std::string>("nonpromptPsi", "(0.000033+TMath::Exp(-3.275975-0.174123*x+25.609737/x))/(0.000002+TMath::Exp(-7.853838-0.086783*x+99.999999/x-369.451690/(x*x)))"),
