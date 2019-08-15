@@ -160,6 +160,6 @@ int main(int argc, char* argv[])
 
 void drawkinematic()
 {
-  xjjroot::drawtex(0.92, 0.84, Form("|y| < %s", xjjc::number_remove_zero(fitX::ycut).c_str()), 0.042, 32, 42);
-  xjjroot::drawtex(0.92, 0.77, Form("%s < p_{T} < %s GeV/c", xjjc::number_remove_zero(fitX::ptmincut).c_str(), xjjc::number_remove_zero(fitX::ptmaxcut).c_str()), 0.042, 32, 42);
+  xjjroot::drawtex(0.92, 0.84, fitX::ytag().c_str(), 0.042, 32, 42);
+  xjjroot::drawtex(0.92, 0.77, fitX::pttag().c_str(), 0.042, 32, 42);
 }
