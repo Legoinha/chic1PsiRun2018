@@ -18,6 +18,7 @@
 
 void tnp_converter(std::string inputname, std::string dirname, std::string name)
 {
+  std::cout<<"\e[32;1m ---- "<<__FUNCTION__<<"\e[0m"<<std::endl;
   std::string outputname = "rootfiles/"+dirname+fitX::tagname()+"/tnp"+name+".root";
 
   std::cout<<"==> Opening files"<<std::endl;
@@ -90,7 +91,7 @@ void tnp_converter(std::string inputname, std::string dirname, std::string name)
     {
       for(auto& hk : ht.second)
         {
-          std::cout<<"\e[2m"<<"writing \e[0m"<<hk.second->GetName()<<" \e[36;1m("<<(int)hk.second->GetEntries()<<")\e[0m"<<std::endl;
+          fitX::printhist(hk.second);
           hk.second->Write();
         }
     }
@@ -98,6 +99,7 @@ void tnp_converter(std::string inputname, std::string dirname, std::string name)
   outf->Close();
   std::cout<<"==> Output file"<<std::endl;
   std::cout<<outputname<<std::endl;
+  std::cout<<std::endl;
 }
 
 int main(int argc, char* argv[])

@@ -15,12 +15,15 @@ void drawkinematic();
 
 void fitX_fithist(std::string input, std::string output, std::string inputtnp_a, std::string inputtnp_b)
 {
+  std::cout<<"\e[32;1m ---- "<<__FUNCTION__<<"\e[0m"<<std::endl;
   TFile* inf = new TFile(input.c_str());
   fitX::init(inf);
   TH1F* h = (TH1F*)inf->Get("h");
   TH1F* hBenr = (TH1F*)inf->Get("hBenr");
   TH1F* hmcp_a = (TH1F*)inf->Get("hmcp_a");
+  hmcp_a->Scale(hmcp_a->GetEntries()/hmcp_a->Integral());
   TH1F* hmcp_b = (TH1F*)inf->Get("hmcp_b");
+  hmcp_b->Scale(hmcp_b->GetEntries()/hmcp_b->Integral());
   TH1F* hlxymcnp_a = (TH1F*)inf->Get("hlxymcnp_a");
   TH1F* hlxymcnp_b = (TH1F*)inf->Get("hlxymcnp_b");
   TH1F* hlxymcp_a = (TH1F*)inf->Get("hlxymcp_a");
@@ -137,7 +140,7 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   xjjroot::setthgrstyle(grfprompt_b, fitX::color_b, 25, 1.5, fitX::color_b, 2, 3);
   xjjroot::setgstyle(2);
   TCanvas* cfprompt = new TCanvas("cfprompt", "", 600, 600);
-  TH2F* hemptyfprompt = new TH2F("hemptyfprompt", ";;f_{prompt}", 5, 0, 5, 10, 0, 1.3);
+  TH2F* hemptyfprompt = new TH2F("hemptyfprompt", ";;f_{prompt}", 5, 0, 5, 10, 0, 1.4);
   xjjroot::sethempty(hemptyfprompt, 0, 0.3);
   hemptyfprompt->GetXaxis()->SetBinLabel(2, "#psi(2S)");
   hemptyfprompt->GetXaxis()->SetBinLabel(4, "X(3872)");
@@ -183,6 +186,8 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
 
   xjjroot::drawCMSleft("#scale[1.25]{#bf{CMS}} #it{Simulation}");
   xjjroot::drawCMSright();
+  xjjroot::drawtex(0.92, 0.84, fitX::ytag().c_str(), 0.04, 32, 42);
+  xjjroot::drawtex(0.92, 0.79, fitX::centtag().c_str(), 0.04, 32, 42);
   ceff->cd(2);
   hemptyeff_incl->Draw();
   mceff_a.greff_incl->Draw("same ple");
@@ -198,7 +203,6 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   drawkinematic();
   xjjroot::drawCMSleft("#scale[1.25]{#bf{CMS}} #it{Simulation}");
   xjjroot::drawCMSright();
-  xjjroot::drawtex(0.92, 0.84, fitX::ytag().c_str(), 0.042, 32, 42);
   xjjroot::mkdir(Form("plots/%s/ceff.pdf", output.c_str()));
   ceff->SaveAs(Form("plots/%s/ceff.pdf", output.c_str()));
 
@@ -316,22 +320,23 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   hratio->Write();
   fitX::write();
   outf->Close();
-
-  std::cout<<std::endl<<"output: "<<Form("rootfiles/%s/fitX_fithist.root", output.c_str())<<std::endl;
+  std::cout<<"output: "<<Form("rootfiles/%s/fitX_fithist.root", output.c_str())<<std::endl;
+  std::cout<<std::endl;
 }
 
 int main(int argc, char* argv[])
 {
-  std::string inputname = "rootfiles/"+std::string(argv[1])+fitX::tagname()+"/fitX_savehist.root";
-  std::string inputnametnp_a = "rootfiles/"+std::string(argv[1])+fitX::tagname()+"/drawtnp_a.root";
-  std::string inputnametnp_b = "rootfiles/"+std::string(argv[1])+fitX::tagname()+"/drawtnp_b.root";
-  std::string outputname = std::string(argv[1])+fitX::tagname();
-  if(argc==2) { fitX_fithist(inputname, outputname, inputnametnp_a, inputnametnp_b); return 0; }
+  fitX::init(TFile::Open(argv[1]));
+  std::string inputnametnp_a = "rootfiles/"+std::string(argv[2])+fitX::tagname()+"/drawtnp_a.root";
+  std::string inputnametnp_b = "rootfiles/"+std::string(argv[2])+fitX::tagname()+"/drawtnp_b.root";
+  std::string outputname = std::string(argv[2])+fitX::tagname();
+  if(argc==3) { fitX_fithist(argv[1], outputname, inputnametnp_a, inputnametnp_b); return 0; }
   return 1;
 }
 
 void drawkinematic()
 {
-  xjjroot::drawtex(0.92, 0.84, fitX::ytag().c_str(), 0.042, 32, 42);
-  xjjroot::drawtex(0.92, 0.77, fitX::pttag().c_str(), 0.042, 32, 42);
+  xjjroot::drawtex(0.92, 0.84, fitX::ytag().c_str(), 0.04, 32, 42);
+  xjjroot::drawtex(0.92, 0.79, fitX::pttag().c_str(), 0.04, 32, 42);
+  xjjroot::drawtex(0.92, 0.74, fitX::centtag().c_str(), 0.04, 32, 42);
 }

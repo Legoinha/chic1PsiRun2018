@@ -15,7 +15,7 @@
 void fitX_savehist(std::string input, std::string inputmcp_a, std::string inputmcp_b, std::string inputmcnp_a, std::string inputmcnp_b,
                    std::string cut, std::string cutgen, std::string output)
 {
-
+  std::cout<<"\e[32;1m ---- "<<__FUNCTION__<<"\e[0m"<<std::endl;
   std::cout<<cut<<std::endl;
   std::map<std::string, std::vector<float>> lxyxbins = lxydis::setupbins();
   
@@ -48,41 +48,49 @@ void fitX_savehist(std::string input, std::string inputmcp_a, std::string inputm
 
   std::cout<<" == data ==>"<<std::endl;
   ntmix->Project("h", "Bmass", TCut(cutreco.c_str()));
-  std::cout<<h->GetEntries()<<std::endl;
+  fitX::printhist(h);
   ntmix->Project("hBenr", "Bmass", TCut(Form("%s && Blxy > 0.1", cutreco.c_str())));
-  std::cout<<hBenr->GetEntries()<<std::endl;
+  fitX::printhist(hBenr);
 
   std::cout<<" == mcp_a ==>"<<std::endl;
   ntmixmcp_a->Project("hmcp_a", "Bmass", TCut("pthatweight")*TCut(cutmcreco.c_str())); // mass shape weight
-  std::cout<<hmcp_a->GetEntries()<<std::endl;
-  hmcp_a->Scale(hmcp_a->GetEntries()/hmcp_a->Integral());
+  fitX::printhist(hmcp_a);
   ntmixmcp_a->Project(mceff_a.heffmc->GetName(), "Bpt", TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
+  fitX::printhist(mceff_a.heffmc);
   ntmixmcp_a->Project(mceff_a.heffmc_incl->GetName(), Form("%d", fitX::ibin_a-1), TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
+  fitX::printhist(mceff_a.heffmc_incl);
   ntmixmcp_a->Project("hlxymcp_a", "Blxy", TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
+  fitX::printhist(hlxymcp_a);
 
   std::cout<<" == mcp_b ==>"<<std::endl;
   ntmixmcp_b->Project("hmcp_b", "Bmass", TCut("pthatweight")*TCut(cutmcreco.c_str())); // mass shape weight
-  std::cout<<hmcp_b->GetEntries()<<std::endl;
-  hmcp_b->Scale(hmcp_b->GetEntries()/hmcp_b->Integral());
+  fitX::printhist(hmcp_b);
   ntmixmcp_b->Project(mceff_b.heffmc->GetName(), "Bpt", TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
+  fitX::printhist(mceff_b.heffmc);
   ntmixmcp_b->Project(mceff_b.heffmc_incl->GetName(), Form("%d", fitX::ibin_b-1), TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
+  fitX::printhist(mceff_b.heffmc_incl);
   ntmixmcp_b->Project("hlxymcp_b", "Blxy", TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
+  fitX::printhist(hlxymcp_b);
 
   std::cout<<" == mcgenp_a ==>"<<std::endl;
   ntGenmcp_a->Project(mceff_a.heffgen->GetName(), "Gpt", TCut(mcweight.c_str())*TCut(cutmcgen.c_str()));
+  fitX::printhist(mceff_a.heffgen);
   ntGenmcp_a->Project(mceff_a.heffgen_incl->GetName(), Form("%d", fitX::ibin_a-1), TCut(mcweight.c_str())*TCut(cutmcgen.c_str()));
+  fitX::printhist(mceff_a.heffgen_incl);
 
   std::cout<<" == mcgenp_b ==>"<<std::endl;
   ntGenmcp_b->Project(mceff_b.heffgen->GetName(), "Gpt", TCut(mcweight.c_str())*TCut(cutmcgen.c_str()));
+  fitX::printhist(mceff_b.heffgen);
   ntGenmcp_b->Project(mceff_b.heffgen_incl->GetName(), Form("%d", fitX::ibin_b-1), TCut(mcweight.c_str())*TCut(cutmcgen.c_str()));
+  fitX::printhist(mceff_b.heffgen_incl);
 
   std::cout<<" == mcnp_a ==>"<<std::endl;
   ntmixmcnp_a->Project("hlxymcnp_a", "Blxy", TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
-  std::cout<<hlxymcnp_a->GetEntries()<<std::endl;
+  fitX::printhist(hlxymcnp_a);
 
   std::cout<<" == mcnp_b ==>"<<std::endl;
   ntmixmcnp_b->Project("hlxymcnp_b", "Blxy", TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
-  std::cout<<hlxymcnp_b->GetEntries()<<std::endl;
+  fitX::printhist(hlxymcnp_b);
 
   std::string outputname = "rootfiles/" + output + fitX::tagname() + "/fitX_savehist.root";
   xjjroot::mkdir(outputname.c_str());
@@ -118,6 +126,7 @@ void fitX_savehist(std::string input, std::string inputmcp_a, std::string inputm
   info->Write();
   fitX::write();
   outf->Close();
+  std::cout<<std::endl;
 }
 
 int main(int argc, char* argv[])

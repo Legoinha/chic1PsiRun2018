@@ -12,7 +12,8 @@
 
 void fitX_drawhist(std::string inputname, std::string output)
 {
-  TFile* inf = TFile::Open(Form("%s.root", inputname.c_str()));
+  std::cout<<"\e[32;1m ---- "<<__FUNCTION__<<"\e[0m"<<std::endl;
+  TFile* inf = TFile::Open(inputname.c_str());
   fitX::init(inf);
   TH1F* hratio = (TH1F*)inf->Get("hratio");
   xjjroot::setthgrstyle(hratio, kBlack, 21, 1.2, kBlack, 1, 1);
@@ -66,13 +67,13 @@ void fitX_drawhist(std::string inputname, std::string output)
   xjjroot::drawCMSright("1.5 nb^{-1} (2018 PbPb 5.02 TeV)");
   xjjroot::mkdir(Form("plots/%s/cratio.pdf", output.c_str()));
   cratio->SaveAs(Form("plots/%s/cratio.pdf", output.c_str()));
-
+  std::cout<<std::endl;
 }
 
 int main(int argc, char* argv[])
 {
-  std::string inputname = "rootfiles/"+std::string(argv[1])+fitX::tagname()+"/fitX_fithist";
-  std::string dirname = std::string(argv[1])+fitX::tagname();
-  if(argc==2) { fitX_drawhist(inputname, dirname); return 0; }
+  fitX::init(TFile::Open(argv[1]));
+  std::string dirname = std::string(argv[2])+fitX::tagname();
+  if(argc==3) { fitX_drawhist(argv[1], dirname); return 0; }
   return 1;
 }

@@ -12,9 +12,10 @@
 
 void draw_tnp(std::string inputname, std::string dirname, std::string name)
 {
+  std::cout<<"\e[32;1m ---- "<<__FUNCTION__<<"\e[0m"<<std::endl;
   std::string tparticle("untitled");
-  if(xjjc::str_contains(inputname, "romptX")) tparticle = "X(3872)";
-  if(xjjc::str_contains(inputname, "romptPsi")) tparticle = "#psi(2S)";
+  if(xjjc::str_contains(inputname, "_b.root")) tparticle = "X(3872)";
+  if(xjjc::str_contains(inputname, "_a.root")) tparticle = "#psi(2S)";
   TFile* inf = TFile::Open(inputname.c_str());
   fitX::init(inf);
   std::map<std::string, std::map<std::string, TH1D*>> hh;
@@ -126,11 +127,15 @@ void draw_tnp(std::string inputname, std::string dirname, std::string name)
   xjjroot::drawtex(0.89, ty, "PYTHIA + HYDJET", 0.04, 33, 62);
   xjjroot::drawtex(0.22, ty, tparticle.c_str(), 0.04, 13, 62);
   xjjroot::drawtex(0.22, ty-0.043, "TnP Correction", 0.04, 13, 62);
+  xjjroot::drawtex(0.22, ty-0.043*2, fitX::ytag().c_str(), 0.04, 13, 42);
+  xjjroot::drawtex(0.22, ty-0.043*3, fitX::centtag().c_str(), 0.04, 13, 42);
   leg->Draw();
   c->cd(2);
   xjjroot::drawtex(0.89, ty, "PYTHIA + HYDJET", 0.04, 33, 62);
   xjjroot::drawtex(0.22, ty, tparticle.c_str(), 0.04, 13, 62);
   xjjroot::drawtex(0.22, ty-0.043, "TnP Correction", 0.04, 13, 62);
+  xjjroot::drawtex(0.22, ty-0.043*2, fitX::ytag().c_str(), 0.04, 13, 42);
+  xjjroot::drawtex(0.22, ty-0.043*3, fitX::centtag().c_str(), 0.04, 13, 42);
   leg->Draw();
   c->cd();
   std::string outputname = dirname+fitX::tagname()+"/drawtnp"+name;
@@ -147,12 +152,12 @@ void draw_tnp(std::string inputname, std::string dirname, std::string name)
     }
   fitX::write();
   outf->Close();
-  
+  std::cout<<std::endl;
 }
 
 int main(int argc, char* argv[])
 {
-  std::string inputname = "rootfiles/"+std::string(argv[1])+fitX::tagname()+"/tnp"+std::string(argv[2])+".root";
-  if(argc==3) { draw_tnp(inputname, argv[1], argv[2]); return 0; }
+  fitX::init(TFile::Open(argv[1]));
+  if(argc==4) { draw_tnp(argv[1], argv[2], argv[3]); return 0; }
   return 1;
 }

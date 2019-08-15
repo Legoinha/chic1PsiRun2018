@@ -4,6 +4,7 @@
 #include "xjjrootuti.h"
 #include "xjjcuti.h"
 
+#include <TFile.h>
 #include <TF1.h>
 #include <TH1F.h>
 #include <TMath.h>
@@ -14,8 +15,8 @@
 
 namespace fitX
 {
-  const float FIT_MASS_X = 3.87169, FIT_MASS_X_ERR = 0.00017, FIT_MASS_X_WIN = 0.02;
-  const float FIT_MASS_PSI2S = 3.686097, FIT_MASS_PSI2S_ERR = 0.000010, FIT_MASS_PSI2S_WIN = 0.005;
+  const float PDG_MASS_X = 3.87169, PDG_MASS_X_ERR = 0.00017, FIT_MASS_X = 3.867, FIT_MASS_X_WIN = 0.02;
+  const float PDG_MASS_PSI2S = 3.686097, PDG_MASS_PSI2S_ERR = 0.000010, FIT_MASS_PSI2S = 3.686097, FIT_MASS_PSI2S_WIN = 0.0005;
 
   float ptmincut = 20.;
   float ptmaxcut = 50.;
@@ -30,6 +31,8 @@ namespace fitX
   std::string tagname() { return std::string(Form("_pt%.0f-%.0f",fitX::ptmincut,fitX::ptmaxcut)) + std::string(Form("_cent%.0f%.0f",fitX::centmincut,fitX::centmaxcut)) + std::string(Form("_y%s-%s",xjjc::number_to_string(fitX::ymincut).c_str(),xjjc::number_to_string(fitX::ymaxcut).c_str())); }
   std::string ytag() { return std::string(Form("%s|y| < %s", (fitX::ymincut?Form("%s < ",xjjc::number_remove_zero(fitX::ymincut)):""), xjjc::number_remove_zero(fitX::ymaxcut).c_str())); }
   std::string pttag() { return std::string(Form("%s < p_{T} < %s GeV/c", xjjc::number_remove_zero(fitX::ptmincut).c_str(), xjjc::number_remove_zero(fitX::ptmaxcut).c_str())); }
+  std::string centtag() { return std::string(Form("Cent. %.0f-%.0f%s", fitX::centmincut, fitX::centmaxcut, "%")); }
+  void printhist(TH1* hh) { std::cout<<"\e[2m"<<hh->GetName()<<"\e[0m\e[36;1m ("<<hh->GetEntries()<<")\e[0m"<<std::endl; }
 }
 
 /* ----------------------------------------
@@ -136,6 +139,9 @@ std::vector<TF1*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* hhmc_a, TH1F* hhmc_b, s
   xjjroot::copyobject(f, "fmc_a")->Draw("same");
   hmc_a->Draw("pesame");
   xjjroot::drawtex(0.18, 0.85, "Gen-matched #psi(2S)", 0.04, 12, 62);
+  xjjroot::drawtex(0.18, 0.85-0.05, pttag().c_str(), 0.04, 12, 42);
+  xjjroot::drawtex(0.18, 0.85-0.05*2, ytag().c_str(), 0.04, 12, 42);
+  xjjroot::drawtex(0.18, 0.85-0.05*3, centtag().c_str(), 0.04, 12, 42);
   xjjroot::drawtex(0.65, 0.86, Form("#bar{m} = %.4f GeV", f->GetParameter(6)), 0.038);
   xjjroot::drawtex(0.65, 0.86-0.05, Form("#sigma_{1} = %.4f GeV", std::min(f->GetParameter(7),f->GetParameter(8))), 0.038);
   xjjroot::drawtex(0.65, 0.86-0.05*2, Form("#sigma_{2} = %.4f GeV", std::max(f->GetParameter(7),f->GetParameter(8))), 0.038);
@@ -162,6 +168,9 @@ std::vector<TF1*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* hhmc_a, TH1F* hhmc_b, s
   xjjroot::copyobject(f, "fmc_b")->Draw("same");
   hmc_b->Draw("pesame");
   xjjroot::drawtex(0.18, 0.85, "Gen-matched X(3872)", 0.042, 12, 62);
+  xjjroot::drawtex(0.18, 0.85-0.05, pttag().c_str(), 0.04, 12, 42);
+  xjjroot::drawtex(0.18, 0.85-0.05*2, ytag().c_str(), 0.04, 12, 42);
+  xjjroot::drawtex(0.18, 0.85-0.05*3, centtag().c_str(), 0.04, 12, 42);
   xjjroot::drawtex(0.65, 0.86, Form("#bar{m} = %.4f GeV", f->GetParameter(11)), 0.038);
   xjjroot::drawtex(0.65, 0.86-0.05, Form("#sigma_{1} = %.4f GeV", std::min(f->GetParameter(12),f->GetParameter(13))), 0.038);
   xjjroot::drawtex(0.65, 0.86-0.05*2, Form("#sigma_{2} = %.4f GeV", std::max(f->GetParameter(12),f->GetParameter(13))), 0.038);
@@ -185,19 +194,11 @@ std::vector<TF1*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* hhmc_a, TH1F* hhmc_b, s
     {
       f->ReleaseParameter(6);
       f->ReleaseParameter(11);
+      f->SetParameter(6, fitX::FIT_MASS_PSI2S);
+      f->SetParameter(11, fitX::FIT_MASS_X);
       f->SetParLimits(6, fitX::FIT_MASS_PSI2S - fitX::FIT_MASS_PSI2S_WIN, fitX::FIT_MASS_PSI2S + fitX::FIT_MASS_PSI2S_WIN);
       f->SetParLimits(11, fitX::FIT_MASS_X - fitX::FIT_MASS_X_WIN, fitX::FIT_MASS_X + fitX::FIT_MASS_X_WIN);
     }
-  // if(fixmean)
-  //   {
-  //     f->SetParLimits(6, mean_a - meanerr_a, mean_a + meanerr_a);
-  //     f->SetParLimits(11, mean_b - meanerr_b, mean_b + meanerr_b);
-  //   }
-  // else
-  //   {
-  //     f->SetParLimits(6, fitX::FIT_MASS_PSI2S-mytmva::sigwindowL, fitX::FIT_MASS_PSI2S+mytmva::sigwindowL);
-  //     f->SetParLimits(11, fitX::FIT_MASS_X-mytmva::sigwindowH, fitX::FIT_MASS_X+mytmva::sigwindowH);
-  //   }
 
   // <<<
   f->SetParLimits(5, 0, 1.e+5);
@@ -209,8 +210,8 @@ std::vector<TF1*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* hhmc_a, TH1F* hhmc_b, s
   h->Draw("pe");
   if(!fixmean)
     {
-      xjjroot::drawbox(fitX::FIT_MASS_PSI2S - fitX::FIT_MASS_PSI2S_ERR, h->GetMinimum(), fitX::FIT_MASS_PSI2S + fitX::FIT_MASS_PSI2S_ERR, h->GetMaximum(), color_a, 0.8, 1001, 0, 0, 0);
-      xjjroot::drawbox(fitX::FIT_MASS_X - fitX::FIT_MASS_X_ERR, h->GetMinimum(), fitX::FIT_MASS_X + fitX::FIT_MASS_X_ERR, h->GetMaximum(), color_b, 0.8, 1001, 0, 0, 0);
+      xjjroot::drawbox(fitX::PDG_MASS_PSI2S - fitX::PDG_MASS_PSI2S_ERR, h->GetMinimum(), fitX::PDG_MASS_PSI2S + fitX::PDG_MASS_PSI2S_ERR, h->GetMaximum(), color_a, 0.8, 1001, 0, 0, 0);
+      xjjroot::drawbox(fitX::PDG_MASS_X - fitX::PDG_MASS_X_ERR, h->GetMinimum(), fitX::PDG_MASS_X + fitX::PDG_MASS_X_ERR, h->GetMaximum(), color_b, 0.8, 1001, 0, 0, 0);
     }
   h->Fit("f","Nq");
   h->Fit("f","NLLq");
@@ -342,4 +343,5 @@ void fitX::write()
   kinfo->Fill();
   kinfo->Write();
 }
+
 #endif
