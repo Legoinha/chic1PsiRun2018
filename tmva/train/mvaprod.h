@@ -105,15 +105,16 @@ int mytmva::mvaprob(std::string inputname, std::string treename, std::string out
       else { std::cout<<"\e[33m"<<"==> "<<__FUNCTION__<<": warning: file:"<<rootfname.c_str()<<" doesn't exist. skipped."<<mytmva::nocolor<<std::endl; }
     }
 
-  // input/output file  // !! todo
+  // input/output file // !! produce a better outputfile name !! todo
   std::cout<<mytmva::titlecolor<<"==> "<<__FUNCTION__<<": input file:"<<mytmva::nocolor<<std::endl<<inputname<<mytmva::nocolor<<std::endl;
   std::string outfname(outputname);
   for(int i=0; i<mytmva::nptbins; i++)
     {
-      std::string weightlabel = xjjc::str_replaceall(xjjc::str_replaceallspecial(weightdirs[i]), "dataset_weights_rootfiles_TMVA_", ""); // !! todo
+      std::string weightlabel = xjjc::str_replaceall(xjjc::str_replaceallspecial(weightdirs[i]), "dataset_weights_rootfiles_TMVA_", "");
       outfname += ("_"+xjjc::str_replaceall(weightlabel, "_root", ""));
+      break;
     }
-  outfname += ".root";
+  outfname += (std::string(Form("_%dbin", mytmva::nptbins))+".root");
   std::cout<<mytmva::titlecolor<<"==> "<<__FUNCTION__<<": output file:"<<mytmva::nocolor<<std::endl<<outfname<<mytmva::nocolor<<std::endl;
   if(std::experimental::filesystem::exists(outfname)) { std::cout<<mytmva::errorcolor<<"==> "<<__FUNCTION__<<": warning: output file already exists."<<mytmva::nocolor<<std::endl; }
   std::cout<<"==> "<<__FUNCTION__<<": warning: application of mva values will take long time. would you want to continue? [y/n]"<<std::endl; char ans='x';
@@ -234,7 +235,9 @@ int mytmva::createmva(TTree* nttree, TFile* outf, std::vector<std::vector<std::s
   
   std::vector<std::string> varnote(mytmva::nptbins, "");
   std::vector<std::vector<float>> __varval(mytmva::nptbins), __specval(mytmva::nptbins);
-  std::vector<TMVA::Reader*> readers(mytmva::nptbins, new TMVA::Reader( "!Color:!Silent" ));
+  std::vector<TMVA::Reader*> readers(mytmva::nptbins);
+  for(int i=0; i<mytmva::nptbins; i++)
+    { readers[i] = new TMVA::Reader( "!Color:!Silent" ); }
   std::cout<<mytmva::titlecolor<<"==> "<<__FUNCTION__<<": Add variable:"<<mytmva::nocolor<<std::endl;
   for(int i=0; i<mytmva::nptbins; i++)
     {

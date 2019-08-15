@@ -18,6 +18,7 @@
 #include "TMVA/Config.h"
 
 #include "xjjcuti.h"
+#include "xjjrootuti.h"
 #include "TMVAClassification.h"
 
 int TMVAClassification(std::string inputSname, std::string inputBname, std::string mycuts, std::string mycutb, 
@@ -181,6 +182,7 @@ int TMVAClassification(std::string inputSname, std::string inputBname, std::stri
   // Create a ROOT output file where TMVA will store ntuples, histograms, etc.
   //// TString outfileName( "TMVA.root" );
   //// TFile* outputFile = TFile::Open( outfileName, "RECREATE" );
+  xjjroot::mkdir(outfname.c_str());
   TFile* outf = TFile::Open(outfname.c_str(), "RECREATE");
 
   // Create the factory object. Later you can choose the methods
