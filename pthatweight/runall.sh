@@ -1,12 +1,14 @@
 #!/bin/bash
 
+ichan=(0)
 ###
-filelist="/export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190712_Hydjet_Pythia8_NonPromptPsi2S_Pthat-*_1033p1_official_pt6tkpt0p9dls0.root" ; chan=0 ; # 0: nonprompt psi'
-# filelist="/export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190712_Hydjet_Pythia8_NonPromptXRho_Pthat-*_1033p1_official_pt6tkpt0p9dls0.root"  ; chan=1 ; # 1: nonprompt X
-# filelist="/export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190712_Hydjet_Pythia8_PromptPsi2S_Pthat-*_1033p1_official_pt6tkpt0p9dls0.root"    ; chan=2 ; # 2: prompt psi'
-# filelist="/export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190712_Hydjet_Pythia8_PromptXPiPi_Pthat-*_1033p1_official_pt6tkpt0p9dls0.root"    ; chan=3 ; # 3: prompt X pipi
-# filelist="/export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190712_Hydjet_Pythia8_PromptXRho_Pthat-*_1033p1_official_pt6tkpt0p9dls0.root"     ; chan=4 ; # 4: prompt X rho
-
+filelists=(
+    "/export/d00/scratch/jwang/BntupleRun2018/ntmix_20190808_Bfinder_20190712_Hydjet_Pythia8_NonPromptPsi2S_Pthat-*_1033p1_official_pt6tkpt0p9dls0_skimhltBsize_ntmix.root" # 0: nonprompt psi'
+    "/export/d00/scratch/jwang/BntupleRun2018/ntmix_20190808_Bfinder_20190712_Hydjet_Pythia8_NonPromptXRho_Pthat-*_1033p1_official_pt6tkpt0p9dls0_skimhltBsize_ntmix.root"  # 1: nonprompt X
+    "/export/d00/scratch/jwang/BntupleRun2018/ntmix_20190808_Bfinder_20190712_Hydjet_Pythia8_PromptPsi2S_Pthat-*_1033p1_official_pt6tkpt0p9dls0_skimhltBsize_ntmix.root"    # 2: prompt psi'
+    "/export/d00/scratch/jwang/BntupleRun2018/ntmix_20190808_Bfinder_20190730_Hydjet_Pythia8_PromptXPiPi_Pthat-*_1033p1_official_pt6tkpt0p9dls0_skimhltBsize_ntmix.root"    # 3: prompt X pipi
+    "/export/d00/scratch/jwang/BntupleRun2018/ntmix_20190808_Bfinder_20190730_Hydjet_Pythia8_PromptXRho_Pthat-*_1033p1_official_pt6tkpt0p9dls0_skimhltBsize_ntmix.root"     # 4: prompt X rho
+)
 ##
 crosssec=(
     'const int nBins=5; float pthatBin[nBins]={5, 10, 15, 30, 50}; float crosssec[nBins+1]={1.230e+07, 2.868e+06, 8.902e+05, 7.930e+04, 9.631e+03, 0.}; int genSignal[1]={7};' # 0: nonprompt psi'
@@ -17,59 +19,64 @@ crosssec=(
 )
 
 ##
-tmp=$(date +%y%m%d%H%M%S)
-sed '1i'"${crosssec[$chan]}" weighPurePthat.C > weighPurePthat_${tmp}.C
+for ii in ${ichan[@]}
+do
+##
+    tmp=$(date +%y%m%d%H%M%S)
+    sed '1i'"${crosssec[$ii]}" weighPurePthat.C > weighPurePthat_${tmp}.C
 
-g++ addbranch.C $(root-config --cflags --libs) -g -o addbranch_${tmp}.exe || { rm weighPurePthat_${tmp}.C ; exit 1 ; }
-g++ weighPurePthat_${tmp}.C $(root-config --cflags --libs) -g -o weighPurePthat_${tmp}.exe || { rm weighPurePthat_${tmp}.C ; rm addbranch_${tmp}.exe ; exit 1 ; }
+    g++ addbranch.C $(root-config --cflags --libs) -g -o addbranch_${tmp}.exe || { rm weighPurePthat_${tmp}.C ; exit 1 ; }
+    g++ weighPurePthat_${tmp}.C $(root-config --cflags --libs) -g -o weighPurePthat_${tmp}.exe || { rm weighPurePthat_${tmp}.C ; rm addbranch_${tmp}.exe ; exit 1 ; }
+
+    filelist=${filelists[ii]}
+    echo "=========== add sample pthat cut value >>>>"
+    mergelist=
+    for ifile in `echo $filelist`
+    do
+        ifilecp=${ifile%%.root}
+        ifilecp=${ifilecp}_addSamplePthat.root
+        pthatcut=${ifile##*Pthat-} ; pthatcut=${pthatcut%%_*.root}
+        echo "----------"
+        echo "input:  $ifile"
+        echo "output: $ifilecp"
+        echo "pthatcut value: $pthatcut"
+        [[ $ifile == $ifilecp ]] && { echo "invalid input for ./addbranch.exe" ; continue ; }
+        [[ ${1:-0} -eq 1 ]] && {
+            rsync --progress $ifile $ifilecp
+            set -x
+            yes y | ./addbranch_${tmp}.exe $ifilecp hiEvtAnalyzer/HiTree sample $pthatcut float
+            set +x
+        }
+        mergelist="$mergelist "$ifilecp
+    done
+
+    echo
 
 ##
-echo "=========== add sample pthat cut value >>>>"
-mergelist=
-for ifile in `echo $filelist`
-do
-    ifilecp=${ifile%%.root}
-    ifilecp=${ifilecp}_addSamplePthat.root
-    pthatcut=${ifile##*Pthat} ; pthatcut=${pthatcut%%_*.root}
-    echo "----------"
-    echo "input:  $ifile"
-    echo "output: $ifilecp"
-    echo "pthatcut value: $pthatcut"
-    [[ $ifile == $ifilecp ]] && { echo "invalid input for ./addbranch.exe" ; continue ; }
-    [[ ${1:-0} -eq 1 ]] && {
-        rsync --progress $ifile $ifilecp
+    echo "=========== merge >>>>"
+    mergesuffix=${filelist##*'Pthat-*'} ; mergesuffix=${mergesuffix%%.root}
+    mergepreffix=${filelist%%_Pthat*}
+    mergeoutput=$mergepreffix${mergesuffix}_addSamplePthat_noweight.root
+    [[ ${2:-0} -eq 1 ]] && {
         set -x
-        yes y | ./addbranch_${tmp}.exe $ifilecp hiEvtAnalyzer/HiTree sample $pthatcut float
+        hadd $mergeoutput $mergelist
         set +x
     }
-    mergelist="$mergelist "$ifilecp
+
+    echo
+
+##
+    echo "=========== weight >>>>"
+    weightoutput=$mergepreffix${mergesuffix}_addSamplePthat_pthatweight.root
+    [[ ${3:-0} -eq 1 ]] && { 
+        rsync --progress "$mergeoutput" "$weightoutput"
+        set -x
+        ./weighPurePthat_${tmp}.exe "$mergeoutput" "$weightoutput" 
+        set +x
+    }
+
+    rm weighPurePthat_${tmp}.exe
+    rm weighPurePthat_${tmp}.C
+    rm addbranch_${tmp}.exe
 done
 
-echo
-
-##
-echo "=========== merge >>>>"
-mergesuffix=${filelist##*'Pthat*'} ; mergesuffix=${mergesuffix%%.root}
-mergepreffix=${filelist%%_Pthat*}
-mergeoutput=$mergepreffix${mergesuffix}_addSamplePthat_noweight.root
-[[ ${2:-0} -eq 1 ]] && {
-    set -x
-    hadd $mergeoutput $mergelist
-    set +x
-}
-
-echo
-
-##
-echo "=========== weight >>>>"
-weightoutput=$mergepreffix${mergesuffix}_addSamplePthat_pthatweight.root
-[[ ${3:-0} -eq 1 ]] && { 
-    rsync --progress "$mergeoutput" "$weightoutput"
-    set -x
-    ./weighPurePthat_${tmp}.exe "$mergeoutput" "$weightoutput" 
-    set +x
-}
-
-rm weighPurePthat_${tmp}.exe
-rm weighPurePthat_${tmp}.C
-rm addbranch_${tmp}.exe

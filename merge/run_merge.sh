@@ -1,43 +1,49 @@
 #!/bin/bash
 
-skim=0
-ifs=({7..31}) # input directory
+skim=1
+ifs=({8..12}) # input directory
 jns=(1) # tree
 
 ## ifs
 inputdirs=(
-    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190711_Bfinder_20190513_HIDoubleMuonPsiPeri_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_327123_327327_skimBpt10/      # 0
-    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190711_Bfinder_20190513_HIDoubleMuonPsiPeri_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_327400_327564_v2_skimBpt10/   # 1
-    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190711_Bfinder_20190513_HIDoubleMuon_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_326381_326577_skimBpt10/             # 2
-    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190711_Bfinder_20190513_HIDoubleMuon_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_326580_326855_skimBpt10/             # 3
-    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190711_Bfinder_20190513_HIDoubleMuon_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_326856_327078_skimBpt10/             # 4
-    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190711_Bfinder_samesign_20190513_HIDoubleMuonPsi_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_327123_327327_skimBpt10/ # 5
-    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190711_Bfinder_samesign_20190513_HIDoubleMuonPsi_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_327400_327564_skimBpt10/ # 6
-    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190712_Hydjet_Pythia8_NonPromptPsi2S_Pthat-10_1033p1_official_pt6tkpt0p9dls0/ # 7
-    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190712_Hydjet_Pythia8_NonPromptPsi2S_Pthat-15_1033p1_official_pt6tkpt0p9dls0/
-    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190712_Hydjet_Pythia8_NonPromptPsi2S_Pthat-30_1033p1_official_pt6tkpt0p9dls0/
-    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190712_Hydjet_Pythia8_NonPromptPsi2S_Pthat-50_1033p1_official_pt6tkpt0p9dls0/
-    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190712_Hydjet_Pythia8_NonPromptPsi2S_Pthat-5_1033p1_official_pt6tkpt0p9dls0/
-    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190712_Hydjet_Pythia8_NonPromptXRho_Pthat-10_1033p1_official_pt6tkpt0p9dls0/
-    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190712_Hydjet_Pythia8_NonPromptXRho_Pthat-15_1033p1_official_pt6tkpt0p9dls0/
-    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190712_Hydjet_Pythia8_NonPromptXRho_Pthat-30_1033p1_official_pt6tkpt0p9dls0/
-    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190712_Hydjet_Pythia8_NonPromptXRho_Pthat-50_1033p1_official_pt6tkpt0p9dls0/
-    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190712_Hydjet_Pythia8_NonPromptXRho_Pthat-5_1033p1_official_pt6tkpt0p9dls0/
-    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190712_Hydjet_Pythia8_PromptPsi2S_Pthat-10_1033p1_official_pt6tkpt0p9dls0/
-    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190712_Hydjet_Pythia8_PromptPsi2S_Pthat-15_1033p1_official_pt6tkpt0p9dls0/
-    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190712_Hydjet_Pythia8_PromptPsi2S_Pthat-30_1033p1_official_pt6tkpt0p9dls0/
-    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190712_Hydjet_Pythia8_PromptPsi2S_Pthat-50_1033p1_official_pt6tkpt0p9dls0/
-    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190712_Hydjet_Pythia8_PromptPsi2S_Pthat-5_1033p1_official_pt6tkpt0p9dls0/
-    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190712_Hydjet_Pythia8_PromptXPiPi_Pthat-10_1033p1_official_pt6tkpt0p9dls0/
-    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190712_Hydjet_Pythia8_PromptXPiPi_Pthat-15_1033p1_official_pt6tkpt0p9dls0/
-    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190712_Hydjet_Pythia8_PromptXPiPi_Pthat-30_1033p1_official_pt6tkpt0p9dls0/
-    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190712_Hydjet_Pythia8_PromptXPiPi_Pthat-50_1033p1_official_pt6tkpt0p9dls0/
-    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190712_Hydjet_Pythia8_PromptXPiPi_Pthat-5_1033p1_official_pt6tkpt0p9dls0/
-    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190712_Hydjet_Pythia8_PromptXRho_Pthat-10_1033p1_official_pt6tkpt0p9dls0/
-    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190712_Hydjet_Pythia8_PromptXRho_Pthat-15_1033p1_official_pt6tkpt0p9dls0/
-    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190712_Hydjet_Pythia8_PromptXRho_Pthat-30_1033p1_official_pt6tkpt0p9dls0/
-    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190712_Hydjet_Pythia8_PromptXRho_Pthat-50_1033p1_official_pt6tkpt0p9dls0/
-    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190712_Hydjet_Pythia8_PromptXRho_Pthat-5_1033p1_official_pt6tkpt0p9dls0/ # 31
+    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190806_Bfinder_20190513_HIDoubleMuonPsiPeri_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_327123_327327_skimBpt10/      # 0
+    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190806_Bfinder_20190513_HIDoubleMuonPsiPeri_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_327400_327564_v2_skimBpt10/   # 1
+    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190806_Bfinder_20190513_HIDoubleMuonPsiPeri_HIRun2018A_04Apr2019_v1_1033p1_HF_and_MuonJSON_Missinglumi_skimBpt10/   # 2
+    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190806_Bfinder_20190513_HIDoubleMuon_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_326381_326577_skimBpt10/             # 3
+    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190806_Bfinder_20190513_HIDoubleMuon_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_326580_326855_skimBpt10/             # 4
+    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190806_Bfinder_20190513_HIDoubleMuon_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_326856_327078_skimBpt10/             # 5
+    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190806_Bfinder_20190513_HIDoubleMuon_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_Missinglumi_skimBpt10/               # 6
+    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190806_Bfinder_20190513_HIDoubleMuon_HIRun2018A_04Apr2019_v1_1033p1_HF_and_MuonJSON_Missinglumi_skimBpt10/          # 7
+    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190808_Bfinder_20190712_Hydjet_Pythia8_NonPromptPsi2S_Pthat-10_1033p1_official_pt6tkpt0p9dls0/ # 8
+    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190808_Bfinder_20190712_Hydjet_Pythia8_NonPromptPsi2S_Pthat-15_1033p1_official_pt6tkpt0p9dls0/
+    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190808_Bfinder_20190712_Hydjet_Pythia8_NonPromptPsi2S_Pthat-30_1033p1_official_pt6tkpt0p9dls0/
+    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190808_Bfinder_20190712_Hydjet_Pythia8_NonPromptPsi2S_Pthat-50_1033p1_official_pt6tkpt0p9dls0/
+    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190808_Bfinder_20190712_Hydjet_Pythia8_NonPromptPsi2S_Pthat-5_1033p1_official_pt6tkpt0p9dls0/
+    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190808_Bfinder_20190712_Hydjet_Pythia8_NonPromptXRho_Pthat-10_1033p1_official_pt6tkpt0p9dls0/
+    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190808_Bfinder_20190712_Hydjet_Pythia8_NonPromptXRho_Pthat-15_1033p1_official_pt6tkpt0p9dls0/
+    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190808_Bfinder_20190712_Hydjet_Pythia8_NonPromptXRho_Pthat-30_1033p1_official_pt6tkpt0p9dls0/
+    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190808_Bfinder_20190712_Hydjet_Pythia8_NonPromptXRho_Pthat-50_1033p1_official_pt6tkpt0p9dls0/
+    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190808_Bfinder_20190712_Hydjet_Pythia8_NonPromptXRho_Pthat-5_1033p1_official_pt6tkpt0p9dls0/
+    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190808_Bfinder_20190712_Hydjet_Pythia8_PromptPsi2S_Pthat-10_1033p1_official_pt6tkpt0p9dls0/
+    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190808_Bfinder_20190712_Hydjet_Pythia8_PromptPsi2S_Pthat-15_1033p1_official_pt6tkpt0p9dls0/
+    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190808_Bfinder_20190712_Hydjet_Pythia8_PromptPsi2S_Pthat-30_1033p1_official_pt6tkpt0p9dls0/
+    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190808_Bfinder_20190712_Hydjet_Pythia8_PromptPsi2S_Pthat-50_1033p1_official_pt6tkpt0p9dls0/
+    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190808_Bfinder_20190712_Hydjet_Pythia8_PromptPsi2S_Pthat-5_1033p1_official_pt6tkpt0p9dls0/
+    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190808_Bfinder_20190730_Hydjet_Pythia8_PromptXPiPi_Pthat-10_1033p1_official_pt6tkpt0p9dls0/
+    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190808_Bfinder_20190730_Hydjet_Pythia8_PromptXPiPi_Pthat-15_1033p1_official_pt6tkpt0p9dls0/
+    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190808_Bfinder_20190730_Hydjet_Pythia8_PromptXPiPi_Pthat-30_1033p1_official_pt6tkpt0p9dls0/
+    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190808_Bfinder_20190730_Hydjet_Pythia8_PromptXPiPi_Pthat-50_1033p1_official_pt6tkpt0p9dls0/
+    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190808_Bfinder_20190730_Hydjet_Pythia8_PromptXPiPi_Pthat-5_1033p1_official_pt6tkpt0p9dls0/
+    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190808_Bfinder_20190730_Hydjet_Pythia8_PromptXRho_Pthat-10_1033p1_official_pt6tkpt0p9dls0/
+    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190808_Bfinder_20190730_Hydjet_Pythia8_PromptXRho_Pthat-15_1033p1_official_pt6tkpt0p9dls0/
+    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190808_Bfinder_20190730_Hydjet_Pythia8_PromptXRho_Pthat-30_1033p1_official_pt6tkpt0p9dls0/
+    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190808_Bfinder_20190730_Hydjet_Pythia8_PromptXRho_Pthat-50_1033p1_official_pt6tkpt0p9dls0/
+    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190808_Bfinder_20190730_Hydjet_Pythia8_PromptXRho_Pthat-5_1033p1_official_pt6tkpt0p9dls0/ # 32
+    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190808_Bfinder_samesign_20190513_HIDoubleMuon_HIRun2018A_04Apr2019_v1_1033p1_HF_and_MuonJSON_326381_326855_skimBpt10/      # 33
+    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190808_Bfinder_samesign_20190513_HIDoubleMuon_HIRun2018A_04Apr2019_v1_1033p1_HF_and_MuonJSON_326856_327078_skimBpt10/      # 34
+    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190808_Bfinder_samesign_20190513_HIDoubleMuonPsiPeri_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_327123_327327_skimBpt10/    # 35
+    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190808_Bfinder_samesign_20190513_HIDoubleMuonPsiPeri_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_327400_327564_skimBpt10/    # 36
+    /export/d00/scratch/jwang/BntupleRun2018/ntmix_20190808_Bfinder_samesign_20190513_HIDoubleMuonPsiPeri_HIRun2018A_04Apr2019_v1_1033p1_HF_and_MuonJSON_Missinglumi_skimBpt10/ # 37
 )
 
 ########################################
