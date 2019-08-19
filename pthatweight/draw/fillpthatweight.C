@@ -5,6 +5,7 @@
 #include <string>
 
 #include "xjjcuti.h"
+#include "xjjrootuti.h"
 
 void fillpthatweight(std::string inputname)
 {
@@ -12,7 +13,6 @@ void fillpthatweight(std::string inputname)
   outputname = xjjc::str_replaceall(outputname, ".root", "");
   outputname = xjjc::str_replaceallspecial(outputname);
   outputname = "rootfiles/pthatweight_"+outputname+".root";
-  gSystem->Exec("mkdir -p rootfiles");
 
   std::cout<<"==> "<<__FUNCTION__<<": "<<inputname<<std::endl;
   std::cout<<"<== "<<__FUNCTION__<<": "<<outputname<<std::endl;
@@ -26,6 +26,7 @@ void fillpthatweight(std::string inputname)
   hi->Project("hpthat", "pthat");
   hi->Project("hpthatweight", "pthat", "pthatweight");
 
+  xjjroot::mkdir(outputname);
   TFile* outf = new TFile(outputname.c_str(), "recreate");
   hpthat->Write();
   hpthatweight->Write();

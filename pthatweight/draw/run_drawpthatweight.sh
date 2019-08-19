@@ -1,11 +1,11 @@
 #!/bin/bash
 
 inputfiles=(
-    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190712_Hydjet_Pythia8_NonPromptPsi2S_1033p1_official_pt6tkpt0p9dls0_skimhltBsize_pthatweight.root
-    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190712_Hydjet_Pythia8_NonPromptXRho_1033p1_official_pt6tkpt0p9dls0_skimhltBsize_pthatweight.root
-    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190712_Hydjet_Pythia8_PromptPsi2S_1033p1_official_pt6tkpt0p9dls0_skimhltBsize_pthatweight.root
-    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190712_Hydjet_Pythia8_PromptXPiPi_1033p1_official_pt6tkpt0p9dls0_skimhltBsize_pthatweight.root
-    /export/d00/scratch/jwang/BntupleRun2018/crab_Bfinder_20190712_Hydjet_Pythia8_PromptXRho_1033p1_official_pt6tkpt0p9dls0_skimhltBsize_pthatweight.root
+    /export/d00/scratch/jwang/BntupleRun2018/official/ntmix_20190808_Bfinder_20190712_Hydjet_Pythia8_NonPromptPsi2S_1033p1_official_pt6tkpt0p9dls0.root
+    /export/d00/scratch/jwang/BntupleRun2018/official/ntmix_20190808_Bfinder_20190712_Hydjet_Pythia8_NonPromptXRho_1033p1_official_pt6tkpt0p9dls0.root
+    /export/d00/scratch/jwang/BntupleRun2018/official/ntmix_20190808_Bfinder_20190712_Hydjet_Pythia8_PromptPsi2S_1033p1_official_pt6tkpt0p9dls0.root
+    /export/d00/scratch/jwang/BntupleRun2018/official/ntmix_20190808_Bfinder_20190730_Hydjet_Pythia8_PromptXPiPi_1033p1_official_pt6tkpt0p9dls0.root
+    /export/d00/scratch/jwang/BntupleRun2018/official/ntmix_20190808_Bfinder_20190730_Hydjet_Pythia8_PromptXRho_1033p1_official_pt6tkpt0p9dls0.root
 )
 
 g++ fillpthatweight.C $(root-config --libs --cflags) -g -o fillpthatweight.exe || exit
@@ -23,8 +23,8 @@ g++ drawpthatweight.C $(root-config --libs --cflags) -g -o drawpthatweight.exe |
     for ii in `echo rootfiles/*.root`
     do
         echo -e "\e[33;1m${ii}\e[0m"
-        tag=${ii%%"_1033p1_official_pt6tkpt0p9dls0_skimhltBsize_pthatweight.root"}
-        tag=${tag##"rootfiles/pthatweight_crab_Bfinder_20190712_Hydjet_Pythia8_"}
+        tag=${ii%%_1033p1*.root}
+        tag=${tag##*_Pythia8_}
         echo $tag
         legend=
         if [[ $tag == NonPrompt* ]] ; then 
