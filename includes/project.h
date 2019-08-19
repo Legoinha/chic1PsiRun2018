@@ -4,16 +4,19 @@
 
 namespace fitX
 {
-  TTree* getnt(std::string inputfilename, std::string treename="ntmix")
+  TTree* getnt(std::string inputfilename, std::string treename = "ntmix", bool addfriend = true)
   {
     std::cout<<__FUNCTION__<<": opening "<<inputfilename<<std::endl;
     TFile* inf = TFile::Open(inputfilename.c_str());
     if(!inf->IsOpen()) return 0;
     TTree* nt = (TTree*)inf->Get(Form("Bfinder/%s", treename.c_str()));
-    nt->AddFriend("hiEvtAnalyzer/HiTree");
-    nt->AddFriend("hltanalysis/HltTree");
-    nt->AddFriend("skimanalysis/HltTree");
-    nt->AddFriend("dataset/mva");
+    if(addfriend)
+      {
+        nt->AddFriend("hiEvtAnalyzer/HiTree");
+        nt->AddFriend("hltanalysis/HltTree");
+        nt->AddFriend("skimanalysis/HltTree");
+        nt->AddFriend("dataset/mva");
+      }
     return nt;
   }
 }
