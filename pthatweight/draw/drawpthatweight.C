@@ -14,7 +14,6 @@ void drawpthatweight(std::string inputname, std::string tag)
   std::string outputname = xjjc::str_replaceall(inputname, "rootfiles/", "");
   outputname = xjjc::str_replaceall(outputname, ".root", "");
   outputname = "plots/c"+outputname+".pdf";
-  gSystem->Exec("mkdir -p plots");
 
   std::cout<<"==> "<<__FUNCTION__<<": "<<inputname<<std::endl;
   std::cout<<"<== "<<__FUNCTION__<<": "<<outputname<<std::endl;
@@ -35,6 +34,7 @@ void drawpthatweight(std::string inputname, std::string tag)
   leg->AddEntry(hpthatweight, "MC weighted", "l");
 
   xjjroot::setgstyle(1);
+  xjjroot::mkdir(outputname);
   TCanvas* c = new TCanvas("c", "", 600, 600);
   gPad->SetLogy();
   hpthatweight->Draw("histe");
