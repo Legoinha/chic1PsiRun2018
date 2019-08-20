@@ -12,7 +12,7 @@
 
 void fitX_drawhist(std::string inputname, std::string output)
 {
-  std::cout<<"\e[32;1m ---- "<<__FUNCTION__<<"\e[0m"<<std::endl;
+  std::cout<<"\e[32;1m -- "<<__FUNCTION__<<"\e[0m"<<std::endl;
   TFile* inf = TFile::Open(inputname.c_str());
   fitX::init(inf);
   TH1F* hratio = (TH1F*)inf->Get("hratio");

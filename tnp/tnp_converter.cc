@@ -18,7 +18,7 @@
 
 void tnp_converter(std::string inputname, std::string dirname, std::string name)
 {
-  std::cout<<"\e[32;1m ---- "<<__FUNCTION__<<"\e[0m"<<std::endl;
+  std::cout<<"\e[32;1m -- "<<__FUNCTION__<<"\e[0m"<<std::endl;
   std::string outputname = "rootfiles/"+dirname+fitX::tagname()+"/tnp"+name+".root";
 
   std::cout<<"==> Opening files"<<std::endl;

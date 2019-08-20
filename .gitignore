@@ -2,3 +2,6 @@
 *rootfiles*
 *class.C*
 *weights.xml*
+*.exe
+*.root
+*tmp*

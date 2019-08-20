@@ -9,7 +9,7 @@
 
 #include <string>
 
-#include "fitX.h"
+#include "fit.h"
 #include "project.h"
 #include "lxydis.h"
 #include "MCefficiency.h"
@@ -18,7 +18,7 @@
 void fitX_savehist(std::string input, std::string inputmcp_a, std::string inputmcp_b, std::string inputmcnp_a, std::string inputmcnp_b,
                    std::string cut, std::string cutgen, std::string output)
 {
-  std::cout<<"\e[32;1m ---- "<<__FUNCTION__<<"\e[0m"<<std::endl;
+  std::cout<<"\e[32;1m -- "<<__FUNCTION__<<"\e[0m"<<std::endl;
   std::cout<<cut<<std::endl;
   std::map<std::string, std::vector<float>> lxyxbins = lxydis::setupbins();
   std::string input_flatten = xjjc::str_replaceall(input, ".root", "_flatten.root");
@@ -45,13 +45,13 @@ void fitX_savehist(std::string input, std::string inputmcp_a, std::string inputm
   MCeff::MCefficiency mceff_b("_b");
 
   //
-  TTree* ntmix = fitX::getnt(input, "ntmix"); if(!ntmix) { return; }
-  TTree* ntmixmcp_a = fitX::getnt(inputmcp_a, "ntmix"); if(!ntmixmcp_a) { return; }
-  TTree* ntmixmcp_b = fitX::getnt(inputmcp_b, "ntmix"); if(!ntmixmcp_b) { return; }
-  TTree* ntGenmcp_a = fitX::getnt(inputmcp_a, "ntGen"); if(!ntGenmcp_a) { return; }
-  TTree* ntGenmcp_b = fitX::getnt(inputmcp_b, "ntGen"); if(!ntGenmcp_b) { return; }
-  TTree* ntmixmcnp_a = fitX::getnt(inputmcnp_a, "ntmix"); if(!ntmixmcnp_a) { return; }
-  TTree* ntmixmcnp_b = fitX::getnt(inputmcnp_b, "ntmix"); if(!ntmixmcnp_b) { return; }
+  TTree* ntmix = fitX::getnt(input, "Bfinder/ntmix"); if(!ntmix) { return; }
+  TTree* ntmixmcp_a = fitX::getnt(inputmcp_a, "Bfinder/ntmix"); if(!ntmixmcp_a) { return; }
+  TTree* ntmixmcp_b = fitX::getnt(inputmcp_b, "Bfinder/ntmix"); if(!ntmixmcp_b) { return; }
+  TTree* ntGenmcp_a = fitX::getnt(inputmcp_a, "Bfinder/ntGen"); if(!ntGenmcp_a) { return; }
+  TTree* ntGenmcp_b = fitX::getnt(inputmcp_b, "Bfinder/ntGen"); if(!ntGenmcp_b) { return; }
+  TTree* ntmixmcnp_a = fitX::getnt(inputmcnp_a, "Bfinder/ntmix"); if(!ntmixmcnp_a) { return; }
+  TTree* ntmixmcnp_b = fitX::getnt(inputmcnp_b, "Bfinder/ntmix"); if(!ntmixmcnp_b) { return; }
   TTree* ntmix_flatten = fitX::getnt(input_flatten, "ntmix_flatten", false); if(!ntmix_flatten) { return; }
   TTree* ntmixmcp_a_flatten = fitX::getnt(inputmcp_a_flatten, "ntmix_flatten", false); if(!ntmixmcp_a_flatten) { return; }
   TTree* ntmixmcp_b_flatten = fitX::getnt(inputmcp_b_flatten, "ntmix_flatten", false); if(!ntmixmcp_b_flatten) { return; }
@@ -59,32 +59,35 @@ void fitX_savehist(std::string input, std::string inputmcp_a, std::string inputm
   gDirectory->cd("root:/");
   RooWorkspace* ww = new RooWorkspace("ww");
 
-  std::string cutreco = Form("(%s) && Bpt>%f && Bpt<%f && TMath::Abs(By)>=%f && TMath::Abs(By)<%f && hiBin>=%f && hiBin<=%f", cut.c_str(), fitX::ptmincut, fitX::ptmaxcut, fitX::ymincut, fitX::ymaxcut, fitX::centmincut*2, fitX::centmaxcut*2);
+  std::string cutreco = Form("(%s) && Bmass >= %f && Bmass < %f && Bpt>%f && Bpt<%f && TMath::Abs(By)>=%f && TMath::Abs(By)<%f && hiBin>=%f && hiBin<=%f", cut.c_str(), 
+                             fitX::BIN_MIN, fitX::BIN_MAX, 
+                             fitX::ptmincut, fitX::ptmaxcut, 
+                             fitX::ymincut, fitX::ymaxcut, 
+                             fitX::centmincut*2, fitX::centmaxcut*2);
   std::string cutmcreco = Form("%s && Bgen>=23333 && BgencollisionId==0", cutreco.c_str());
   std::string cutmcgen = Form("(%s) && Gpt>%f && Gpt<%f && TMath::Abs(Gy)>=%f && TMath::Abs(Gy)<%f && hiBin>=%f && hiBin<=%f && GisSignal==7 && GcollisionId==0", cutgen.c_str(), fitX::ptmincut, fitX::ptmaxcut, fitX::ymincut, fitX::ymaxcut, fitX::centmincut*2, fitX::centmaxcut*2);
 
   //
   std::cout<<" == data ==>"<<std::endl;
+  fitX::printhist(ntmix_flatten);
   ntmix->Project("h", "Bmass", TCut(cutreco.c_str()));
   fitX::printhist(h);
-  TTree* ntmix_skimh = (TTree*)ntmix_flatten->CopyTree(cutreco.c_str(), "ntmix_skimh");
+  TTree* ntmix_skimh = (TTree*)ntmix_flatten->CopyTree(TCut(cutreco.c_str())); ntmix_skimh->SetName("ntmix_skimh");
   fitX::printhist(ntmix_skimh);
   dsh = new RooDataSet("dsh", "", ntmix_skimh, RooArgSet(*mass));
   ww->import(*dsh);
   ntmix->Project("hBenr", "Bmass", TCut(Form("%s && Blxy > 0.1", cutreco.c_str())));
   fitX::printhist(hBenr);
-  TTree* ntmix_skimhBenr = (TTree*)ntmix_flatten->CopyTree(Form("%s && Blxy > 0.1", cutreco.c_str()), "ntmix_skimhBenr");
+  TTree* ntmix_skimhBenr = (TTree*)ntmix_flatten->CopyTree(TCut(Form("%s && Blxy > 0.1", cutreco.c_str()))); ntmix_skimhBenr->SetName("ntmix_skimhBenr");
   fitX::printhist(ntmix_skimhBenr);
   dshBenr = new RooDataSet("dshBenr", "", ntmix_skimhBenr, RooArgSet(*mass));
   ww->import(*dshBenr);
-
-  return;
 
   //
   std::cout<<" == mcp_a ==>"<<std::endl;
   ntmixmcp_a->Project("hmcp_a", "Bmass", TCut("pthatweight")*TCut(cutmcreco.c_str()));
   fitX::printhist(hmcp_a);
-  TTree* ntmixmcp_a_skim = (TTree*)ntmixmcp_a_flatten->CopyTree(TCut("pthatweight")*TCut(cutmcreco.c_str()), "ntmixmcp_a_skim"); // !!! weight seems not work
+  TTree* ntmixmcp_a_skim = (TTree*)ntmixmcp_a_flatten->CopyTree(TCut("pthatweight")*TCut(cutmcreco.c_str())); ntmixmcp_a_skim->SetName("ntmixmcp_a_skim"); // !!! weight seems not work
   fitX::printhist(ntmixmcp_a_skim);
   dshmcp_a = new RooDataSet("dshmcp_a", "", ntmixmcp_a_skim, RooArgSet(*mass));
   ww->import(*dshmcp_a);
@@ -99,7 +102,7 @@ void fitX_savehist(std::string input, std::string inputmcp_a, std::string inputm
   std::cout<<" == mcp_b ==>"<<std::endl;
   ntmixmcp_b->Project("hmcp_b", "Bmass", TCut("pthatweight")*TCut(cutmcreco.c_str()));
   fitX::printhist(hmcp_b);
-  TTree* ntmixmcp_b_skim = (TTree*)ntmixmcp_b_flatten->CopyTree(TCut("pthatweight")*TCut(cutmcreco.c_str()), "ntmixmcp_b_skim"); // !!! weight seems not work
+  TTree* ntmixmcp_b_skim = (TTree*)ntmixmcp_b_flatten->CopyTree(TCut("pthatweight")*TCut(cutmcreco.c_str())); ntmixmcp_b_skim->SetName("ntmixmcp_b_skim"); // !!! weight seems not work
   fitX::printhist(ntmixmcp_b_skim); 
   dshmcp_b = new RooDataSet("dshmcp_b", "", ntmixmcp_b_skim, RooArgSet(*mass));
   ww->import(*dshmcp_b);

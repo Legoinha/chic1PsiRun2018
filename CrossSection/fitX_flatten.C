@@ -1,24 +1,30 @@
-#include "TFile.h"
+#include <TFile.h>
+#include <TCut.h>
 #include <string>
 #include "tree_flatten.h"
 
-void fitX_flatten(std::string inputname, std::string outputname="")
+void fitX_flatten(std::string inputname, std::string outputname="", std::string cut="1")
 {
   std::cout<<"\e[32;1m -- "<<__FUNCTION__<<"\e[0m"<<std::endl;
   if(outputname=="")
     outputname = xjjc::str_replaceall(inputname, ".root", "_flatten.root");
-  fitX::tree_flatten ntf(inputname);
-  ntf.flatten();
+  fitX::tree_flatten* ntf = new fitX::tree_flatten(inputname);
+  ntf->flatten();
+  TTree* ntskim = (TTree*)ntf->outnt->CopyTree(TCut(cut.c_str()));
+  ntskim->SetName("ntmix_skim");
+  std::cout<<"output: "<<outputname<<std::endl;
   TFile* outf = new TFile(outputname.c_str(), "recreate");
   outf->cd();
-  ntf.outnt->Write();
-  std::cout<<"output: "<<otuputname<<std::endl;
-  std::cout<<ntf.outnt->GetEntries()<<std::endl;;
+  ntf->outnt->Write();
+  std::cout<<ntf->outnt->GetEntries()<<std::endl;;
+  ntskim->Write();
+  std::cout<<ntskim->GetEntries()<<std::endl;;  
   outf->Close();
 }
 
 int main(int argc, char* argv[])
 {
+  if(argc==4) { fitX_flatten(argv[1], argv[2], argv[3]); return 0; }
   if(argc==3) { fitX_flatten(argv[1], argv[2]); return 0; }
   if(argc==2) { fitX_flatten(argv[1]); return 0; }
   return 1;

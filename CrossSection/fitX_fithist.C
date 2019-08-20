@@ -2,12 +2,16 @@
 #include <TH1F.h>
 #include <TH2F.h>
 
+#include <RooWorkspace.h>
+#include <RooRealVar.h>
+#include <RooDataSet.h>
+
 #include <string>
 
 #include "xjjcuti.h"
 #include "xjjrootuti.h"
 #include "lxydis.h"
-#include "fitX.h"
+#include "fit.h"
 #include "MCefficiency.h"
 #include "systematics.h"
 
@@ -15,9 +19,14 @@ void drawkinematic();
 
 void fitX_fithist(std::string input, std::string output, std::string inputtnp_a, std::string inputtnp_b)
 {
-  std::cout<<"\e[32;1m ---- "<<__FUNCTION__<<"\e[0m"<<std::endl;
+  std::cout<<"\e[32;1m -- "<<__FUNCTION__<<"\e[0m"<<std::endl;
   TFile* inf = new TFile(input.c_str());
   fitX::init(inf);
+  RooWorkspace* ww = (RooWorkspace*)inf->Get("ww");
+  RooDataSet* dsh = (RooDataSet*)ww->data("dsh");
+  RooDataSet* dshBenr = (RooDataSet*)ww->data("dshBenr");
+  RooDataSet* dshmcp_a = (RooDataSet*)ww->data("dshmcp_a");
+  RooDataSet* dshmcp_b = (RooDataSet*)ww->data("dshmcp_b");
   TH1F* h = (TH1F*)inf->Get("h");
   TH1F* hBenr = (TH1F*)inf->Get("hBenr");
   TH1F* hmcp_a = (TH1F*)inf->Get("hmcp_a");
@@ -37,6 +46,7 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   TH1F* hBenryield_a = new TH1F("hBenryield_a", "", 5, 0, 5); //hBenryield_a->Sumw2();
   TH1F* hBenryield_b = new TH1F("hBenryield_b", "", 5, 0, 5); //hBenryield_b->Sumw2();
   std::vector<TH1F*> vh = {h, hBenr};
+  std::vector<RooDataSet*> vdsh = {dsh, dshBenr};
   std::vector<TH1F*> vhyield_a = {hyield_a, hBenryield_a};
   std::vector<TH1F*> vhyield_b = {hyield_b, hBenryield_b};
   std::vector<std::string> vname = {"th", "thBenr"};
@@ -49,8 +59,12 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   for(int l=0; l<2; l++)
     {
       // ====>
-      std::vector<TF1*> funs   = fitX::fit(vh[l], 0, hmcp_a, hmcp_b, Form("plots/%s", output.c_str(), vname[l].c_str()), false, true, "_"+vname[l]); // fix mean = false
-      // std::vector<TF1*> funs   = fitX::fit(vh[l], 0, hmcp_a, hmcp_b, Form("plots/%s", output.c_str(), vname[l].c_str()), true, true, "_"+vname[l]); // fix mean = true
+      std::vector<TF1*> funs   = fitX::fit(vh[l], 0, hmcp_a, hmcp_b, 
+                                           vdsh[l], dshmcp_a, dshmcp_b,
+                                           Form("plots/%s", output.c_str(), vname[l].c_str()), false, true, "_"+vname[l]); // fix mean = false
+      // std::vector<TF1*> funs   = fitX::fit(vh[l], 0, hmcp_a, hmcp_b, 
+      //                                      vdsh[l], dshmcp_a, dshmcp_b,
+      //                                      Form("plots/%s", output.c_str(), vname[l].c_str()), true, true, "_"+vname[l]); // fix mean = true
       cy->cd(l+1);
       xjjroot::setgstyle();
       // <====
