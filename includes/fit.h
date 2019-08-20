@@ -19,6 +19,7 @@
 #include <RooPolynomial.h>
 #include <RooAddPdf.h>
 #include <RooFitResult.h>
+#include <RooPlot.h>
 
 #include <string>
 
@@ -45,6 +46,7 @@ namespace fitX
                         RooDataSet* dshh, RooDataSet* dshhmc_a, RooDataSet* dshhmc_b,
                         std::string outputdir, bool fixmean, bool saveplot, std::string name="", std::string option="default");
   void setmasshist(TH1* h, float xoffset=0, float yoffset=0, Color_t pcolor=kBlack);
+  void setmasshist(RooPlot* h, float xoffset=0, float yoffset=0, Color_t pcolor=kBlack);
 
   const int NBIN = 38, NBIN_L = 50, NBIN_H = 50;
   // const int NBIN = 57, NBIN_L = 50, NBIN_H = 50;
@@ -70,6 +72,14 @@ std::vector<TF1*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* hhmc_a, TH1F* hhmc_b,
   if(saveplot) gSystem->Exec(Form("mkdir -p %s", outputdir.c_str()));
 
   RooRealVar* mass = new RooRealVar("Bmass", "Bmass", fitX::BIN_MIN, fitX::BIN_MAX);
+  RooRealVar* massmc_a = new RooRealVar("Bmass", "massmc_a", fitX::BIN_MIN_L, fitX::BIN_MAX_L);
+  RooRealVar* massmc_b = new RooRealVar("Bmass", "massmc_a", fitX::BIN_MIN_H, fitX::BIN_MAX_H);
+  RooPlot* frempty = mass->frame(RooFit::Title(""));
+  frempty->SetYTitle(Form("Entries / %.0f MeV", fitX::BIN_WIDTH*1.e+3));
+  RooPlot* fremptymc_a = massmc_a->frame(RooFit::Title(""));
+  fremptymc_a->SetYTitle(Form("Entries / %.0f MeV", fitX::BIN_WIDTH_L*1.e+3));
+  RooPlot* fremptymc_b = massmc_b->frame(RooFit::Title(""));
+  fremptymc_b->SetYTitle(Form("Entries / %.0f MeV", fitX::BIN_WIDTH_H*1.e+3));
 
   TH1F* h = new TH1F(*hh); h->SetName(std::string("h_"+uniqstr).c_str());
   TH1F* h_ss = 0; if(hh_ss) { h_ss = new TH1F(*hh_ss); h_ss->SetName(std::string("h_ss_"+uniqstr).c_str()); }
@@ -79,12 +89,18 @@ std::vector<TF1*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* hhmc_a, TH1F* hhmc_b,
   RooDataSet* dshmc_a = new RooDataSet(*dshhmc_a, std::string("dshmc_a_"+uniqstr).c_str());
   RooDataSet* dshmc_b = new RooDataSet(*dshhmc_b, std::string("dshmc_b_"+uniqstr).c_str());
 
+  dsh->Print();
+  dshmc_a->Print();
+  dshmc_b->Print();
+
   std::vector<TF1*> funs;
   xjjroot::setgstyle(2);
   gStyle->SetPadLeftMargin(gStyle->GetPadLeftMargin()*0.7);
 
   fitX::setmasshist(h, 0, -0.2);
   h->SetMinimum(0);
+  fitX::setmasshist(frempty, 0, -0.2);
+  frempty->SetMinimum();
   if(h_ss) fitX::setmasshist(h_ss, 0, -0.2, color_ss);
   fitX::setmasshist(hmc_a, 0, 0.05);
   hmc_a->SetMaximum(hmc_a->GetMaximum()*1.2);
@@ -94,10 +110,21 @@ std::vector<TF1*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* hhmc_a, TH1F* hhmc_b,
   hmc_b->SetMaximum(hmc_b->GetMaximum()*1.2);
   hmc_b->SetMinimum(0 - hmc_b->GetMaximum()*0.1);
   hmc_b->SetNdivisions(-505);
+  fitX::setmasshist(fremptymc_a, 0, 0.05);
+  fremptymc_a->SetMaximum(hmc_a->GetMaximum());
+  fremptymc_a->SetMinimum(0 - hmc_a->GetMaximum()*0.1);
+  fremptymc_a->SetNdivisions(-505);  
+  fitX::setmasshist(fremptymc_b, 0, 0.05);
+  fremptymc_b->SetMaximum(hmc_b->GetMaximum());
+  fremptymc_b->SetMinimum(0 - hmc_b->GetMaximum()*0.1);
+  fremptymc_b->SetNdivisions(-505);
 
   TCanvas* c = new TCanvas("c", "", 700, 600);
   TCanvas* cmc = new TCanvas("cmc", "", 1200, 600);
   cmc->Divide(2, 1);
+  TCanvas* cr = new TCanvas("cr", "", 700, 600);
+  TCanvas* crmc = new TCanvas("crmc", "", 1200, 600);
+  crmc->Divide(2, 1);
   
   TString str_bkg = "[0]+[1]*x+[2]*x*x+[3]*x*x*x+[4]*x*x*x*x";
   if(xjjc::str_contains(option,"cheb")) { str_bkg = option; }
@@ -105,18 +132,18 @@ std::vector<TF1*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* hhmc_a, TH1F* hhmc_b,
   TString str_sig_b = "[10]*([14]*TMath::Gaus(x,[11],[12])/(TMath::Sqrt(2*3.14159)*[7]) + (1-[14])*TMath::Gaus(x,[11],[13])/(TMath::Sqrt(2*3.14159)*[13]))";
   TF1* f = new TF1("f", str_bkg+"+"+str_sig_a+"+"+str_sig_b, BIN_MIN, BIN_MAX);
   const double parinit[15] = {0., 0.     , 0.     , 0.  , 0. , // 0-4
-                              1., 3.686  , 0.00357, 0.03, 0.5, // 5-9
-                              1., 3.87169, 0.001  , 0.01, 0.5, // 10-14
+                              1., 3.686  , 0.00357, 0.005, 0.5, // 5-9
+                              1., 3.87169, 0.001  , 0.008, 0.5, // 10-14
   };
 
   f->SetNpx(1000);
   f->SetParameters(parinit);
   f->SetParLimits(9, 0, 1);
   f->SetParLimits(14, 0, 1);
-  f->SetParLimits(7, 0, 0.02);
-  f->SetParLimits(8, 0, 0.02);
-  f->SetParLimits(12, 0, 0.02);
-  f->SetParLimits(13, 0, 0.02);
+  f->SetParLimits(7, 1.e-6, 0.01);
+  f->SetParLimits(8, 1.e-6, 0.01);
+  f->SetParLimits(12, 1.e-6, 0.01);
+  f->SetParLimits(13, 1.e-6, 0.01);
   f->FixParameter(0, 0);
   f->FixParameter(1, 0);
   f->FixParameter(2, 0);
@@ -126,22 +153,41 @@ std::vector<TF1*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* hhmc_a, TH1F* hhmc_b,
   std::map<int, RooRealVar*> mcpars;
   mcpars[5] = new RooRealVar("mcpar5", "", parinit[5], 0, 1.e+5);
   mcpars[6] = new RooRealVar("mcpar6", "", parinit[6], fitX::FIT_MASS_PSI2S - fitX::FIT_MASS_PSI2S_WIN, fitX::FIT_MASS_PSI2S + fitX::FIT_MASS_PSI2S_WIN);
-  mcpars[7] = new RooRealVar("mcpar7", "", parinit[7], getparmin(f, 7), getparmax(f, 7));
-  mcpars[8] = new RooRealVar("mcpar8", "", parinit[8], getparmin(f, 8), getparmax(f, 8));
-  mcpars[9] = new RooRealVar("mcpar9", "", parinit[9], getparmin(f, 9), getparmax(f, 9));
-  RooAddPdf* sig_mc_a = new RooAddPdf("sig_mc_a", "", RooArgList(RooGaussian("sig_mc_a1", "", *mass, *(mcpars[6]), *(mcpars[7])), 
-                                                                 RooGaussian("sig_mc_a2", "", *mass, *(mcpars[6]), *(mcpars[8]))), *(mcpars[9]), true);
-  RooAddPdf* pdf_mc_a = new RooAddPdf("pdf_mc_a", "", RooArgList(*sig_mc_a), RooArgList(*(mcpars[5])));
-  RooFitResult* fitr_mc_a = pdf_mc_a->fitTo(*dshmc_a, RooFit::Save());
+  mcpars[7] = new RooRealVar("mcpar7", "", parinit[7], 1.e-6, 0.01);
+  mcpars[8] = new RooRealVar("mcpar8", "", parinit[8], 1.e-6, 0.01);
+  mcpars[9] = new RooRealVar("mcpar9", "", parinit[9], 0, 1);
+  RooGaussian sig_mc_a1("sig_mc_a1", "", *massmc_a, *(mcpars[6]), *(mcpars[7]));
+  RooGaussian sig_mc_a2("sig_mc_a2", "", *massmc_a, *(mcpars[6]), *(mcpars[8]));
+  RooAddPdf* sig_mc_a = new RooAddPdf("sig_mc_a", "", RooArgList(sig_mc_a1, sig_mc_a2), *(mcpars[9]), true);
+  // RooAddPdf* pdf_mc_a = new RooAddPdf("pdf_mc_a", "", RooArgList(*sig_mc_a), RooArgList(*(mcpars[5])));
+  std::cout<<"test0 "<<sig_mc_a<<std::endl;
+  RooFitResult* fitr_mc_a = sig_mc_a->fitTo(*dshmc_a, RooFit::Save());
+  std::cout<<"test"<<std::endl;
   mcpars[10] = new RooRealVar("mcpar10", "", parinit[10], 0, 1.e+5);
   mcpars[11] = new RooRealVar("mcpar11", "", parinit[11], fitX::FIT_MASS_X - fitX::FIT_MASS_X_WIN, fitX::FIT_MASS_X + fitX::FIT_MASS_X_WIN);
   mcpars[12] = new RooRealVar("mcpar12", "", parinit[12], getparmin(f, 12), getparmax(f, 12));
   mcpars[13] = new RooRealVar("mcpar13", "", parinit[13], getparmin(f, 13), getparmax(f, 13));
   mcpars[14] = new RooRealVar("mcpar14", "", parinit[14], getparmin(f, 14), getparmax(f, 14));
-  RooAddPdf* sig_mc_b = new RooAddPdf("sig_mc_b", "", RooArgList(RooGaussian("sig_mc_b1", "", *mass, *(mcpars[11]), *(mcpars[12])),
-                                                                 RooGaussian("sig_mc_b2", "", *mass, *(mcpars[11]), *(mcpars[13]))), *(mcpars[14]));
-  RooAddPdf* pdf_mc_b = new RooAddPdf("pdf_mc_b", "", RooArgList(*sig_mc_b), RooArgList(*(mcpars[10])));
-  RooFitResult* fitr_mc_b = pdf_mc_b->fitTo(*dshmc_b, RooFit::Save());
+  RooGaussian sig_mc_b1("sig_mc_b1", "", *massmc_b, *(mcpars[11]), *(mcpars[12]));
+  RooGaussian sig_mc_b2("sig_mc_b2", "", *massmc_b, *(mcpars[11]), *(mcpars[13]));
+  RooAddPdf* sig_mc_b = new RooAddPdf("sig_mc_b", "", RooArgList(sig_mc_b1, sig_mc_b2), *(mcpars[14]), true);
+  // RooAddPdf* pdf_mc_b = new RooAddPdf("pdf_mc_b", "", RooArgList(*sig_mc_b), RooArgList(*(mcpars[10])));
+  RooFitResult* fitr_mc_b = sig_mc_b->fitTo(*dshmc_b, RooFit::Save());
+
+  crmc->cd(1);
+  dshmc_a->plotOn(fremptymc_a, RooFit::Name("dshmc_a"), RooFit::Binning(fitX::NBIN_L), RooFit::MarkerSize(1.), RooFit::MarkerStyle(20), RooFit::LineColor(1), RooFit::LineWidth(2));
+  sig_mc_a->plotOn(fremptymc_a, RooFit::Name("sig_mc_a1"), RooFit::Components(sig_mc_a1), RooFit::Precision(1e-6), RooFit::DrawOption("L"), RooFit::LineStyle(7), RooFit::LineColor(color_a), RooFit::LineWidth(2));
+  sig_mc_a->plotOn(fremptymc_a, RooFit::Name("sig_mc_a2"), RooFit::Components(sig_mc_a2), RooFit::Precision(1e-6), RooFit::DrawOption("L"), RooFit::LineStyle(7), RooFit::LineColor(color_a), RooFit::LineWidth(2));
+  sig_mc_a->plotOn(fremptymc_a, RooFit::Name("sig_mc_a"), RooFit::Precision(1e-6), RooFit::DrawOption("L"), RooFit::LineStyle(1), RooFit::LineColor(color_a), RooFit::LineWidth(2));
+  dshmc_a->plotOn(fremptymc_a, RooFit::Name("dshmc_a"), RooFit::Binning(fitX::NBIN_L), RooFit::MarkerSize(1.), RooFit::MarkerStyle(20), RooFit::LineColor(1), RooFit::LineWidth(2));
+  fremptymc_a->Draw();
+  crmc->cd(2);
+  dshmc_b->plotOn(fremptymc_b, RooFit::Name("dshmc_b"), RooFit::Binning(fitX::NBIN_H), RooFit::MarkerSize(1.), RooFit::MarkerStyle(20), RooFit::LineColor(1), RooFit::LineWidth(2));
+  sig_mc_b->plotOn(fremptymc_b, RooFit::Name("sig_mc_b1"), RooFit::Components(sig_mc_b1), RooFit::Precision(1e-6), RooFit::DrawOption("L"), RooFit::LineStyle(7), RooFit::LineColor(color_b), RooFit::LineWidth(2));
+  sig_mc_b->plotOn(fremptymc_b, RooFit::Name("sig_mc_b2"), RooFit::Components(sig_mc_b2), RooFit::Precision(1e-6), RooFit::DrawOption("L"), RooFit::LineStyle(7), RooFit::LineColor(color_b), RooFit::LineWidth(2));
+  sig_mc_b->plotOn(fremptymc_b, RooFit::Name("sig_mc_b"), RooFit::Precision(1e-6), RooFit::DrawOption("L"), RooFit::LineStyle(1), RooFit::LineColor(color_b), RooFit::LineWidth(2));
+  dshmc_b->plotOn(fremptymc_b, RooFit::Name("dshmc_b"), RooFit::Binning(fitX::NBIN_H), RooFit::MarkerSize(1.), RooFit::MarkerStyle(20), RooFit::LineColor(1), RooFit::LineWidth(2));
+  fremptymc_b->Draw();
 
   //
   cmc->cd(1);
@@ -202,6 +248,7 @@ std::vector<TF1*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* hhmc_a, TH1F* hhmc_b,
   xjjroot::drawCMSright();
   cmc->RedrawAxis();
   if(saveplot) cmc->SaveAs(Form("%s/chmassmc%s.pdf", outputdir.c_str(), name.c_str()));
+  if(saveplot) crmc->SaveAs(Form("%s/chmassmcr%s.pdf", outputdir.c_str(), name.c_str()));
 
   //
   xjjroot::settfstyle(f, color_data, 1, 3);
@@ -234,33 +281,37 @@ std::vector<TF1*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* hhmc_a, TH1F* hhmc_b,
   pars[7] = new RooRealVar("par7", "", mcpars[7]->getVal(), mcpars[7]->getVal(), mcpars[7]->getVal()); pars[7]->setConstant();
   pars[8] = new RooRealVar("par8", "", mcpars[8]->getVal(), mcpars[8]->getVal(), mcpars[8]->getVal()); pars[8]->setConstant();
   pars[9] = new RooRealVar("par9", "", mcpars[9]->getVal(), mcpars[9]->getVal(), mcpars[9]->getVal()); pars[9]->setConstant();
-  RooAddPdf* sig_a = new RooAddPdf("sig_a", "", RooArgList(RooGaussian("sig_a1", "", *mass, *(mcpars[6]), *(mcpars[7])), 
-                                                           RooGaussian("sig_a2", "", *mass, *(mcpars[6]), *(mcpars[8]))), *(pars[9]), true);
+  RooGaussian sig_a1("sig_a1", "", *mass, *(pars[6]), *(pars[7]));
+  RooGaussian sig_a2("sig_a2", "", *mass, *(pars[6]), *(pars[8]));
+  RooAddPdf* sig_a = new RooAddPdf("sig_a", "", RooArgList(sig_a1, sig_a2), *(pars[9]), true);
   pars[10] = new RooRealVar("par10", "", mcpars[10]->getVal(), 0, 1.e+5);
   pars[11] = new RooRealVar("par11", "", mcpars[11]->getVal(), mcpars[11]->getVal(), mcpars[11]->getVal());
   pars[12] = new RooRealVar("par12", "", mcpars[12]->getVal(), mcpars[12]->getVal(), mcpars[12]->getVal()); pars[12]->setConstant();
   pars[13] = new RooRealVar("par13", "", mcpars[13]->getVal(), mcpars[13]->getVal(), mcpars[13]->getVal()); pars[13]->setConstant();
   pars[14] = new RooRealVar("par14", "", mcpars[14]->getVal(), mcpars[14]->getVal(), mcpars[14]->getVal()); pars[14]->setConstant();
-  RooAddPdf* sig_b = new RooAddPdf("sig_b", "", RooArgList(RooGaussian("sig_b1", "", *mass, *(mcpars[11]), *(mcpars[12])),
-                                                           RooGaussian("sig_b2", "", *mass, *(mcpars[11]), *(mcpars[13]))), *(pars[14]), true);
-  pars[0] = new RooRealVar("par0", "", 0, -1.e-5, 1.e+5); // parlimits !!! todo
-  pars[1] = new RooRealVar("par1", "", 0, -1.e-5, 1.e+5);
-  pars[2] = new RooRealVar("par2", "", 0, -1.e-5, 1.e+5);
-  pars[3] = new RooRealVar("par3", "", 0, -1.e-5, 1.e+5);
-  pars[4] = new RooRealVar("par4", "", 0, -1.e-5, 1.e+5);
+  RooGaussian sig_b1("sig_b1", "", *mass, *(pars[11]), *(pars[12]));
+  RooGaussian sig_b2("sig_b2", "", *mass, *(pars[11]), *(pars[13]));
+  RooAddPdf* sig_b = new RooAddPdf("sig_b", "", RooArgList(sig_b1, sig_b2), *(pars[14]), true);
+  pars[0] = new RooRealVar("par0", "", 0, -1.e+5, 1.e+5); // parlimits !!! todo
+  pars[1] = new RooRealVar("par1", "", 0, -1.e+5, 1.e+5);
+  pars[2] = new RooRealVar("par2", "", 0, -1.e+5, 1.e+5);
+  pars[3] = new RooRealVar("par3", "", 0, -1.e+5, 1.e+5);
+  pars[4] = new RooRealVar("par4", "", 0, -1.e+5, 1.e+5);
   RooPolynomial bkg_poly("bkg_poly", "", *mass, RooArgSet(*(pars[0]), *(pars[1]), *(pars[2]), *(pars[3]), *(pars[4])));
   RooChebychev bkg_cheb("bkg_cheb", "", *mass, RooArgSet(*(pars[0]), *(pars[1]), *(pars[2]), *(pars[3]), *(pars[4])));
   if(option.back()=='3') { pars[4]->setConstant(); }
   if(option.back()=='2') { pars[4]->setConstant(); pars[3]->setConstant(); }
-  RooRealVar* nbkg = new RooRealVar("nbkg", "", 1, 1, 1); nbkg->setConstant(); // dull
+  RooRealVar* nbkg = new RooRealVar("nbkg", "", 1, 0, 1.e+6);
   RooAddPdf* pdf;
   if(xjjc::str_contains(option,"cheb")) 
-    { pdf = new RooAddPdf("pdf_a", "", 
-                          RooArgList(*sig_a    , *sig_b     , bkg_cheb), 
+    { pdf = new RooAddPdf("pdf", "", 
+                          // RooArgList(*sig_a    , *sig_b     , bkg_cheb)); }
+                          RooArgList(*sig_a    , *sig_b     , bkg_cheb),
                           RooArgList(*(pars[5]), *(pars[10]), *nbkg)); }
   else 
-    { pdf = new RooAddPdf("pdf_a", "",
-                          RooArgList(*sig_a    , *sig_b     , bkg_poly),
+    { pdf = new RooAddPdf("pdf", "",
+                          // RooArgList(*sig_a    , *sig_b     , bkg_poly)); }
+                          RooArgList(*sig_a    , *sig_b     , bkg_poly), 
                           RooArgList(*(pars[5]), *(pars[10]), *nbkg)); }
   if(!fixmean)
     {
@@ -285,6 +336,7 @@ std::vector<TF1*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* hhmc_a, TH1F* hhmc_b,
   c->cd();
   f->SetLineColor(color_data);
   h->SetMaximum(h->GetMaximum()*1.25);
+  frempty->SetMaximum(h->GetMaximum());
   h->Draw("pe");
   if(!fixmean)
     {
@@ -309,7 +361,8 @@ std::vector<TF1*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* hhmc_a, TH1F* hhmc_b,
   fsig_a->FixParameter(3, 0);
   fsig_a->FixParameter(4, 0);
   fsig_a->SetParError(5, f->GetParError(5));
-  xjjroot::settfstyle(fsig_a, color_a, 2, 3, color_a, 0.3, 1001);
+  // xjjroot::settfstyle(fsig_a, color_a, 1, 3, color_a, 0.3, 1001);
+  xjjroot::settfstyle(fsig_a, color_a, 7, 3, 0, 0, 1001);
   fsig_a->Draw("same");
   
   TF1* fsig_b = xjjroot::copyobject(f, "fsig_b");
@@ -321,14 +374,15 @@ std::vector<TF1*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* hhmc_a, TH1F* hhmc_b,
   fsig_b->FixParameter(3, 0);
   fsig_b->FixParameter(4, 0);
   fsig_b->SetParError(10, f->GetParError(10));
-  xjjroot::settfstyle(fsig_b, color_b, 2, 3, color_b, 0.3, 1001);
+  // xjjroot::settfstyle(fsig_b, color_b, 1, 3, color_b, 0.3, 1001);
+  xjjroot::settfstyle(fsig_b, color_b, 7, 3, 0, 0, 1001);
   fsig_b->Draw("same");
 
   TF1* fbkg = xjjroot::copyobject(f, "fbkg");
   fbkg->SetRange(BIN_MIN, BIN_MAX);
   fbkg->FixParameter(5, 0);
   fbkg->FixParameter(10, 0);
-  xjjroot::settfstyle(fbkg, color_bkg, 2, 3);
+  xjjroot::settfstyle(fbkg, color_bkg, 7, 3);
   fbkg->Draw("same");
 
   f->Draw("same");
@@ -354,8 +408,25 @@ std::vector<TF1*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* hhmc_a, TH1F* hhmc_b,
 
   if(saveplot) c->SaveAs(Form("%s/chmass%s.pdf", outputdir.c_str(), name.c_str()));
 
+  cr->cd();
+  dsh->plotOn(frempty, RooFit::Name("dsh"), RooFit::Binning(fitX::NBIN), RooFit::MarkerSize(0.9), RooFit::MarkerStyle(20), RooFit::LineColor(1), RooFit::LineWidth(1));
+  pdf->plotOn(frempty, RooFit::Name("sig_a"), RooFit::Components(*sig_a), RooFit::Precision(1e-6), RooFit::DrawOption("L"), RooFit::LineStyle(1), RooFit::LineColor(color_a), RooFit::LineWidth(3));
+  pdf->plotOn(frempty, RooFit::Name("sig_b"), RooFit::Components(*sig_b), RooFit::Precision(1e-6), RooFit::DrawOption("L"), RooFit::LineStyle(1), RooFit::LineColor(color_b), RooFit::LineWidth(3));
+  pdf->plotOn(frempty, RooFit::Name("bkg_poly"), RooFit::Components(bkg_poly), RooFit::Precision(1e-6), RooFit::DrawOption("L"), RooFit::LineStyle(7), RooFit::LineColor(color_data), RooFit::LineWidth(3));
+  pdf->plotOn(frempty, RooFit::Name("pdf"), RooFit::Precision(1e-6), RooFit::DrawOption("L"), RooFit::LineStyle(1), RooFit::LineColor(color_data), RooFit::LineWidth(3));
+  dsh->plotOn(frempty, RooFit::Name("dsh"), RooFit::Binning(fitX::NBIN), RooFit::MarkerSize(0.9), RooFit::MarkerStyle(20), RooFit::LineColor(1), RooFit::LineWidth(1));
+  frempty->Draw();
+  if(!fixmean)
+    {
+      xjjroot::drawbox(fitX::PDG_MASS_PSI2S - fitX::PDG_MASS_PSI2S_ERR, h->GetMinimum(), fitX::PDG_MASS_PSI2S + fitX::PDG_MASS_PSI2S_ERR, h->GetMaximum(), color_a, 0.8, 1001, 0, 0, 0);
+      xjjroot::drawbox(fitX::PDG_MASS_X - fitX::PDG_MASS_X_ERR, h->GetMinimum(), fitX::PDG_MASS_X + fitX::PDG_MASS_X_ERR, h->GetMaximum(), color_b, 0.8, 1001, 0, 0, 0);
+    }
+  if(saveplot) cr->SaveAs(Form("%s/chmassr%s.pdf", outputdir.c_str(), name.c_str()));
+
   delete cmc;
   delete c;
+  delete crmc;
+  delete cr;
 
   funs.push_back(f);
   funs.push_back(fsig_a);
@@ -372,6 +443,14 @@ void fitX::setmasshist(TH1* h, float xoffset/*=0*/, float yoffset/*=0*/, Color_t
   h->SetMarkerColor(pcolor);
   h->SetMarkerStyle(20);
   h->SetMarkerSize(1.0);
+}
+
+void fitX::setmasshist(RooPlot* h, float xoffset/*=0*/, float yoffset/*=0*/, Color_t pcolor/*=kBlack*/)
+{
+  xjjroot::sethempty(h, xoffset, yoffset);
+  h->SetTitle("");
+  h->SetXTitle("m_{#mu#mu#pi#pi} (GeV/c^{2})");
+  // h->GetXaxis()->SetNdivisions(510);
 }
 
 void fitX::drawpull(TH1* hmc, TF1* f, Color_t color)
