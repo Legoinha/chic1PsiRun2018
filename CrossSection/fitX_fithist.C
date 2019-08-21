@@ -59,21 +59,19 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   for(int l=0; l<2; l++)
     {
       // ====>
-      std::vector<TF1*> funs = fitX::fit(vh[l], 0, hmcp_a, hmcp_b, 
-                                         vdsh[l], dshmcp_a, dshmcp_b,
-                                         Form("plots/%s", output.c_str(), vname[l].c_str()), false, true, "_"+vname[l], "default", true); // fix mean = false
+      std::map<std::string, fitX::fitXresult*> result = fitX::fit(vh[l], 0, hmcp_a, hmcp_b, 
+                                                                  vdsh[l], dshmcp_a, dshmcp_b,
+                                                                  Form("plots/%s", output.c_str(), vname[l].c_str()), false, true, "_"+vname[l], "default", true); // fix mean = false
       // std::vector<TF1*> funs = fitX::fit(vh[l], 0, hmcp_a, hmcp_b, 
       //                                      vdsh[l], dshmcp_a, dshmcp_b,
       //                                      Form("plots/%s", output.c_str(), vname[l].c_str()), true, true, "_"+vname[l]); // fix mean = true
       cy->cd(l+1);
       xjjroot::setgstyle();
       // <====
-      float ysig1 = funs[1]->Integral(fitX::BIN_MIN, fitX::BIN_MAX) / fitX::BIN_WIDTH;
-      float ysig1err = funs[0]->GetParError(5)*ysig1/funs[0]->GetParameter(5);
-      float ysig2 = funs[2]->Integral(fitX::BIN_MIN, fitX::BIN_MAX) / fitX::BIN_WIDTH;
-      float ysig2err = funs[0]->GetParError(10)*ysig2/funs[0]->GetParameter(10);
-      // float ybkg1 = funs[3]->Integral(MASS_PSI2S - mytmva::sigwindowL, MASS_PSI2S + mytmva::sigwindowL) / fitX::BIN_WIDTH;
-      // float ybkg2 = funs[3]->Integral(MASS_X     - mytmva::sigwindowH, MASS_X     + mytmva::sigwindowH) / fitX::BIN_WIDTH;
+      float ysig1 = result["unbinned"]->getysig_a();
+      float ysig1err = result["unbinned"]->getysigerr_a();
+      float ysig2 = result["unbinned"]->getysig_b();
+      float ysig2err = result["unbinned"]->getysigerr_b();
 
       // yield
       xjjroot::setthgrstyle(vhyield_a[l], fitX::color_a, mstyle[l], 1.2, fitX::color_a, 2, 3, fitX::color_a, 0.1, 1001);

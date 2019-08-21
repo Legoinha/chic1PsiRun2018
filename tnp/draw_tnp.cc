@@ -12,7 +12,7 @@
 
 void draw_tnp(std::string inputname, std::string dirname, std::string name)
 {
-  std::cout<<"\e[32;1m ---- "<<__FUNCTION__<<"\e[0m"<<std::endl;
+  std::cout<<"\e[32;1m -- "<<__FUNCTION__<<"\e[0m"<<std::endl;
   std::string tparticle("untitled");
   if(xjjc::str_contains(inputname, "_b.root")) tparticle = "X(3872)";
   if(xjjc::str_contains(inputname, "_a.root")) tparticle = "#psi(2S)";

@@ -15,9 +15,6 @@
 
 namespace fitX
 {
-  const float PDG_MASS_X = 3.87169, PDG_MASS_X_ERR = 0.00017, FIT_MASS_X = 3.867, FIT_MASS_X_WIN = 0.02;
-  const float PDG_MASS_PSI2S = 3.686097, PDG_MASS_PSI2S_ERR = 0.000010, FIT_MASS_PSI2S = 3.686097, FIT_MASS_PSI2S_WIN = 0.0005;
-
   float ptmincut = 20.;
   float ptmaxcut = 50.;
   float centmincut = 0.;

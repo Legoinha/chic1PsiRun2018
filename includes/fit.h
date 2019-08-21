@@ -44,9 +44,37 @@ float ysig2err = funs[0]->GetParError(10)*ysig2/funs[0]->GetParameter(10);
 
 namespace fitX
 {
-  std::vector<TF1*> fit(TH1F* hh, TH1F* hh_ss, TH1F* hhmc_a, TH1F* hhmc_b, 
-                        RooDataSet* dshh, RooDataSet* dshhmc_a, RooDataSet* dshhmc_b,
-                        std::string outputdir, bool fixmean, bool saveplot, std::string name="", std::string option="default", bool silence=false);
+  class fitXresult
+  {
+  public:
+    fitXresult(float ysig_a, float ysig_b, float ysigerr_a, float ysigerr_b, 
+               float msig_a, float msig_b, float msigerr_a, float msigerr_b) : 
+      fysig_a(ysig_a), fysig_b(ysig_b), fysigerr_a(ysigerr_a), fysigerr_b(ysigerr_b),
+      fmsig_a(msig_a), fmsig_b(msig_b), fmsigerr_a(msigerr_a), fmsigerr_b(msigerr_b) { ; }
+    float getysig_a() { return fysig_a; }
+    float getysig_b() { return fysig_b; }
+    float getysigerr_a() { return fysigerr_a; }
+    float getysigerr_b() { return fysigerr_b; }
+    float getmsig_a() { return fmsig_a; }
+    float getmsig_b() { return fmsig_b; }
+    float getmsigerr_a() { return fmsigerr_a; }
+    float getmsigerr_b() { return fmsigerr_b; }
+    TF1* getf() { return ff; }
+    TF1* getfsig_a() { return ffsig_a; }
+    TF1* getfsig_b() { return ffsig_b; }
+    TF1* getfbkg() { return ffbkg; }
+    void setf(TF1* f, TF1* fsig_a, TF1* fsig_b, TF1* fbkg) { ff = f; ffsig_a = fsig_a; ffsig_b = fsig_b; ffbkg = fbkg; }
+
+  private:
+    float fysig_a, fysig_b, fysigerr_a, fysigerr_b;
+    float fmsig_a, fmsig_b, fmsigerr_a, fmsigerr_b;
+    TF1 *ff, *ffsig_a, *ffsig_b, *ffbkg;
+  };
+  // ===>
+  std::map<std::string, fitX::fitXresult*> fit(TH1F* hh, TH1F* hh_ss, TH1F* hhmc_a, TH1F* hhmc_b, 
+                                               RooDataSet* dshh, RooDataSet* dshhmc_a, RooDataSet* dshhmc_b,
+                                               std::string outputdir, bool fixmean, bool saveplot, std::string name="", std::string option="default", bool silence=false);
+  // <===
   void setmasshist(TH1* h, float xoffset=0, float yoffset=0, Color_t pcolor=kBlack);
   void setmasshist(RooPlot* h, float xoffset=0, float yoffset=0, Color_t pcolor=kBlack);
 
@@ -54,9 +82,14 @@ namespace fitX
   // const int NBIN = 57, NBIN_L = 50, NBIN_H = 50;
   const float BIN_MIN = 3.62, BIN_MAX = 4.0, BIN_MIN_L = 3.64, BIN_MAX_L = 3.74, BIN_MIN_H = 3.82, BIN_MAX_H = 3.92;
   float BIN_WIDTH = (BIN_MAX-BIN_MIN)/NBIN*1.0, BIN_WIDTH_L = (BIN_MAX_L-BIN_MIN_L)/NBIN_L*1.0, BIN_WIDTH_H = (BIN_MAX_H-BIN_MIN_H)/NBIN_H*1.0;
+
+  const float PDG_MASS_X = 3.87169, PDG_MASS_X_ERR = 0.00017, FIT_MASS_X = 3.867, FIT_MASS_X_WIN = 0.02;
+  const float PDG_MASS_PSI2S = 3.686097, PDG_MASS_PSI2S_ERR = 0.000010, FIT_MASS_PSI2S = 3.686097, FIT_MASS_PSI2S_WIN = 0.01;
+
   void drawpull(TH1* hmc, TF1* f, Color_t color);
 
   Color_t color_data = kRed-3, color_a = kAzure+4, color_b = kGreen-1, color_ss = kGray+1, color_bkg = color_data;
+  // Color_t color_data = xjjroot::mycolor_middle["red"], color_a = xjjroot::mycolor_middle["azure"], color_b = xjjroot::mycolor_middle["green"], color_ss = kGray+1, color_bkg = color_data;
   int ibin_a = 2, ibin_b = 4, nbin = 5;
   std::string title_a = "#psi(2S)", title_b = "X(3872)";
 
@@ -65,20 +98,25 @@ namespace fitX
 
   void labelsmc(std::string label, double mean, double sigma1, double sigma2);
   void labelsdata(double mean_a, double mean_a_err, double yield_a, double yield_a_err,
-                  double mean_b, double mean_b_err, double yield_b, double yield_b_err);
+                  double mean_b, double mean_b_err, double yield_b, double yield_b_err,
+                  double chi2prob);
   void zeroparameters(TF1* f, std::vector<int> ipars);
   std::map<std::string, TF1*> resolvef(TF1* f);
+
 }
 
+
 // --->
-std::vector<TF1*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* hhmc_a, TH1F* hhmc_b, 
-                            RooDataSet* dshh, RooDataSet* dshhmc_a, RooDataSet* dshhmc_b, 
-                            std::string outputdir, bool fixmean, bool saveplot, std::string name, std::string option, bool silence)
+std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* hhmc_a, TH1F* hhmc_b, 
+                                                   RooDataSet* dshh, RooDataSet* dshhmc_a, RooDataSet* dshhmc_b, 
+                                                   std::string outputdir, bool fixmean, bool saveplot, std::string name, std::string option, bool silence)
 {
   std::string uniqstr(xjjc::currenttime());
   if(saveplot) gSystem->Exec(Form("mkdir -p %s", outputdir.c_str()));
   // if(silence) RooMsgService::instance().setGlobalKillBelow(RooFit::FATAL); 
   if(silence) RooMsgService::instance().setSilentMode(true);
+
+  std::map<std::string, fitX::fitXresult*> fitresult;
 
   /***************************************************
     Preparations
@@ -371,6 +409,7 @@ std::vector<TF1*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* hhmc_a, TH1F* hhmc_b,
     Plotting
   ***************************************************/
 
+  // ---> binned fit
   c->cd();
   std::map<std::string, TF1*> fs = fitX::resolvef(f);
   fs["fsig_a"]->Draw("same");
@@ -382,8 +421,8 @@ std::vector<TF1*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* hhmc_a, TH1F* hhmc_b,
   float ysig_a = fs["fsig_a"]->Integral(BIN_MIN, BIN_MAX)/BIN_WIDTH;
   float ysig_b = fs["fsig_b"]->Integral(BIN_MIN, BIN_MAX)/BIN_WIDTH;
   fitX::labelsdata(f->GetParameter(6), f->GetParError(6), ysig_a, f->GetParError(5)*ysig_a/f->GetParameter(5),
-                   f->GetParameter(11), f->GetParError(11), ysig_b, f->GetParError(10)*ysig_b/f->GetParameter(10));
-  xjjroot::drawtex(0.17, 0.84, Form("#chi^{2} Prob = %.1f%s", TMath::Prob(f->GetChisquare(), f->GetNDF())*100., "%"), 0.042, 12, 62);
+                   f->GetParameter(11), f->GetParError(11), ysig_b, f->GetParError(10)*ysig_b/f->GetParameter(10),
+                   TMath::Prob(f->GetChisquare(), f->GetNDF()));
   if(!fixmean)
     {
       xjjroot::drawbox(fitX::PDG_MASS_PSI2S - fitX::PDG_MASS_PSI2S_ERR, h->GetMinimum(), fitX::PDG_MASS_PSI2S + fitX::PDG_MASS_PSI2S_ERR, h->GetMaximum(), color_a, 0.8, 1001, 0, 0, 0);
@@ -391,24 +430,28 @@ std::vector<TF1*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* hhmc_a, TH1F* hhmc_b,
     }
   if(saveplot) c->SaveAs(Form("%s/chmass%s.pdf", outputdir.c_str(), name.c_str()));
 
+  // ---> unbinned fit
   cr->cd();
-  dsh->plotOn(frempty, RooFit::Name("dsh"), RooFit::Binning(fitX::NBIN), RooFit::MarkerSize(0.9), RooFit::MarkerStyle(20), RooFit::LineColor(1), RooFit::LineWidth(1));
+  // RooPlot* frempty_clone = (RooPlot*)frempty->Clone("frempty_clone");
+  dsh->plotOn(frempty, RooFit::Name("dshist"), RooFit::Binning(fitX::NBIN), RooFit::MarkerSize(0.9), RooFit::MarkerStyle(20), RooFit::LineColor(1), RooFit::LineWidth(1));
   pdf->plotOn(frempty, RooFit::Name("sig_a"), RooFit::Components(*sig_a), RooFit::Precision(1e-6), RooFit::DrawOption("L"), RooFit::LineStyle(1), RooFit::LineColor(color_a), RooFit::LineWidth(3));
   pdf->plotOn(frempty, RooFit::Name("sig_b"), RooFit::Components(*sig_b), RooFit::Precision(1e-6), RooFit::DrawOption("L"), RooFit::LineStyle(1), RooFit::LineColor(color_b), RooFit::LineWidth(3));
   pdf->plotOn(frempty, RooFit::Name("bkg_poly"), RooFit::Components(bkg_poly), RooFit::Precision(1e-6), RooFit::DrawOption("L"), RooFit::LineStyle(7), RooFit::LineColor(color_data), RooFit::LineWidth(3));
   pdf->plotOn(frempty, RooFit::Name("pdf"), RooFit::Precision(1e-6), RooFit::DrawOption("L"), RooFit::LineStyle(1), RooFit::LineColor(color_data), RooFit::LineWidth(3));
-  dsh->plotOn(frempty, RooFit::Name("dsh"), RooFit::Binning(fitX::NBIN), RooFit::MarkerSize(0.9), RooFit::MarkerStyle(20), RooFit::LineColor(1), RooFit::LineWidth(1));
+  dsh->plotOn(frempty, RooFit::Name("dshist"), RooFit::Binning(fitX::NBIN), RooFit::MarkerSize(0.9), RooFit::MarkerStyle(20), RooFit::LineColor(1), RooFit::LineWidth(1));
   frempty->Draw();
+  fs["fsig_a"]->Draw("same");
+  fs["fsig_b"]->Draw("same");
   mass->setRange("signal", fitX::BIN_MIN, fitX::BIN_MAX);
-  // RooAbsReal* bkg_integral = bkg_poly.createIntegral(*mass, RooFit::NormSet(*mass), RooFit::Range("signal"));
   // RooAbsReal* ysig_a_integral = sig_a->createIntegral(*mass, RooFit::NormSet(*mass), RooFit::Range("signal"));
   // float roofit_ysig_a = ysig_a_integral->getVal();
   // float roofit_ysig_a_err = ysig_a_integral->getPropagatedError(*fitr);
-  // RooAbsReal* ysig_b_integral = sig_b->createIntegral(*mass, RooFit::NormSet(*mass), RooFit::Range("signal"));
-  // float roofit_ysig_b = ysig_b_integral->getVal();
-  // float roofit_ysig_b_err = ysig_b_integral->getPropagatedError(*fitr);
+  int32_t ndof = fitr->floatParsFinal().getSize();
   fitX::labelsdata(pars[6]->getVal(), pars[6]->getError(), pars[5]->getVal(), pars[5]->getError(),
-                   pars[11]->getVal(), pars[11]->getError(), pars[10]->getVal(), pars[10]->getError());
+                   pars[11]->getVal(), pars[11]->getError(), pars[10]->getVal(), pars[10]->getError(),
+                   TMath::Prob(frempty->chiSquare("pdf", "dshist", ndof)*ndof, ndof));
+  // TF1* fr = pdf->
+
   if(!fixmean)
     {
       xjjroot::drawbox(fitX::PDG_MASS_PSI2S - fitX::PDG_MASS_PSI2S_ERR, h->GetMinimum(), fitX::PDG_MASS_PSI2S + fitX::PDG_MASS_PSI2S_ERR, h->GetMaximum(), color_a, 0.8, 1001, 0, 0, 0);
@@ -432,11 +475,12 @@ std::vector<TF1*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* hhmc_a, TH1F* hhmc_b,
   delete crmc;
   delete cr;
 
-  funs.push_back(f);
-  funs.push_back(fs["fsig_a"]);
-  funs.push_back(fs["fsig_b"]);
-  funs.push_back(fs["fbkg"]);
-  return funs;
+  fitresult["binned"] = new fitX::fitXresult(ysig_a, ysig_b, f->GetParError(5)*ysig_a/f->GetParameter(5), f->GetParError(10)*ysig_a/f->GetParameter(10), 
+                                             f->GetParameter(6), f->GetParError(6), f->GetParameter(11), f->GetParError(11));
+  fitresult["binned"]->setf(f, fs["sig_a"], fs["fsig_b"], fs["fbkg"]);
+  fitresult["unbinned"] = new fitX::fitXresult(pars[5]->getVal(), pars[10]->getVal(), pars[5]->getError(), pars[10]->getError(),
+                                               pars[6]->getVal(), pars[11]->getVal(), pars[6]->getError(), pars[11]->getError());
+  return fitresult;
 }
 
 void fitX::setmasshist(TH1* h, float xoffset/*=0*/, float yoffset/*=0*/, Color_t pcolor/*=kBlack*/)
@@ -486,16 +530,20 @@ void fitX::labelsmc(std::string label, double mean, double sigma1, double sigma2
 }
 
 void fitX::labelsdata(double mean_a, double mean_a_err, double yield_a, double yield_a_err,
-                      double mean_b, double mean_b_err, double yield_b, double yield_b_err)
+                      double mean_b, double mean_b_err, double yield_b, double yield_b_err,
+                      double chi2prob)
 {
   xjjroot::drawtex(0.92, 0.84, Form("%.0f < p_{T} < %.0f GeV/c", fitX::ptmincut, fitX::ptmaxcut), 0.038, 32, 62);
   xjjroot::drawtex(0.92, 0.79, Form("%s|y| < %.1f", (fitX::ymincut?Form("%.1f < ", fitX::ymincut):""), fitX::ymaxcut), 0.038, 32, 62);
   xjjroot::drawtex(0.92, 0.74, Form("Cent. %.0f-%.0f%s", fitX::centmincut, fitX::centmaxcut, "%"), 0.038, 32, 62);
 
-  xjjroot::drawtex(0.32, 0.36, Form("#bar{m}_{#psi(2S)} = %.4f #pm %.4f GeV", mean_a, mean_a_err), 0.034, 12, 62, color_a);
-  xjjroot::drawtex(0.32, 0.31, Form("N_{#psi(2S)} = %.0f #pm %.0f", yield_a, yield_a_err), 0.034, 12, 62, color_a);
-  xjjroot::drawtex(0.68, 0.36, Form("#bar{m}_{X(3872)} = %.4f #pm %.4f GeV", mean_b, mean_b_err), 0.034, 12, 62, color_b);
-  xjjroot::drawtex(0.68, 0.31, Form("N_{X(3872)} = %.0f #pm %.0f", yield_b, yield_b_err), 0.034, 12, 62, color_b);
+  xjjroot::drawtex(0.32, 0.36, Form("#bar{m}_{#psi(2S)} = %.4f #pm %.4f GeV", mean_a, mean_a_err), 0.03, 12, 62, color_a);
+  xjjroot::drawtex(0.32, 0.31, Form("N_{#psi(2S)} = %.0f #pm %.0f", yield_a, yield_a_err), 0.03, 12, 62, color_a);
+  xjjroot::drawtex(0.32, 0.26, Form("#bar{m}_{X(3872)} = %.4f #pm %.4f GeV", mean_b, mean_b_err), 0.03, 12, 62, color_b);
+  xjjroot::drawtex(0.32, 0.21, Form("N_{X(3872)} = %.0f #pm %.0f", yield_b, yield_b_err), 0.03, 12, 62, color_b);
+
+  xjjroot::drawtex(0.17, 0.84, Form("#chi^{2} Prob = %.1f%s", chi2prob*100., "%"), 0.042, 12);
+
   xjjroot::drawCMS();
 }
 

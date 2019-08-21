@@ -29,6 +29,7 @@ void fitX_savehist(std::string input, std::string inputmcp_a, std::string inputm
   RooRealVar* mass = new RooRealVar("Bmass", "Bmass", fitX::BIN_MIN, fitX::BIN_MAX);
   RooRealVar* massmc_a = new RooRealVar("Bmass", "massmc_a", fitX::BIN_MIN_L, fitX::BIN_MAX_L);
   RooRealVar* massmc_b = new RooRealVar("Bmass", "massmc_b", fitX::BIN_MIN_H, fitX::BIN_MAX_H);
+  RooRealVar* pthatweight = new RooRealVar("pthatweight", "pthatweight", 0, 10.); // pthatweight range!!
 
   // TH1 must be defined after TTree declaration (some tricky issue) if no `gDirectory->cd("root:/");`
   TH1F* h = new TH1F("h", Form(";m_{#mu#mu#pi#pi} (GeV/c^{2});Entries / %.0f MeV", fitX::BIN_WIDTH*1.e+3), fitX::NBIN, fitX::BIN_MIN, fitX::BIN_MAX); h->Sumw2();
@@ -87,11 +88,11 @@ void fitX_savehist(std::string input, std::string inputmcp_a, std::string inputm
 
   //
   std::cout<<" == mcp_a ==>"<<std::endl;
-  ntmixmcp_a->Project("hmcp_a", "Bmass", TCut("pthatweight")*TCut(cutmcreco.c_str()));
+  ntmixmcp_a->Project("hmcp_a", "Bmass", TCut("pthatweight")*TCut(cutmcreco.c_str())); // !! weight
   fitX::printhist(hmcp_a);
-  TTree* ntmixmcp_a_skim = (TTree*)ntmixmcp_a_flatten->CopyTree(TCut("pthatweight")*TCut(cutmcreco.c_str())); ntmixmcp_a_skim->SetName("ntmixmcp_a_skim"); // !!! weight seems not work
+  TTree* ntmixmcp_a_skim = (TTree*)ntmixmcp_a_flatten->CopyTree(TCut(cutmcreco.c_str())); ntmixmcp_a_skim->SetName("ntmixmcp_a_skim");
   fitX::printhist(ntmixmcp_a_skim);
-  dshmcp_a = new RooDataSet("dshmcp_a", "", ntmixmcp_a_skim, RooArgSet(*massmc_a));
+  dshmcp_a = new RooDataSet("dshmcp_a", "", ntmixmcp_a_skim, RooArgSet(*massmc_a, *pthatweight), "pthatweight");
   ww->import(*dshmcp_a);
   ntmixmcp_a->Project(mceff_a.heffmc->GetName(), "Bpt", TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
   fitX::printhist(mceff_a.heffmc);
@@ -102,11 +103,11 @@ void fitX_savehist(std::string input, std::string inputmcp_a, std::string inputm
 
   //
   std::cout<<" == mcp_b ==>"<<std::endl;
-  ntmixmcp_b->Project("hmcp_b", "Bmass", TCut("pthatweight")*TCut(cutmcreco.c_str()));
+  ntmixmcp_b->Project("hmcp_b", "Bmass", TCut("pthatweight")*TCut(cutmcreco.c_str())); // !! weight
   fitX::printhist(hmcp_b);
-  TTree* ntmixmcp_b_skim = (TTree*)ntmixmcp_b_flatten->CopyTree(TCut("pthatweight")*TCut(cutmcreco.c_str())); ntmixmcp_b_skim->SetName("ntmixmcp_b_skim"); // !!! weight seems not work
+  TTree* ntmixmcp_b_skim = (TTree*)ntmixmcp_b_flatten->CopyTree(TCut(cutmcreco.c_str())); ntmixmcp_b_skim->SetName("ntmixmcp_b_skim");
   fitX::printhist(ntmixmcp_b_skim); 
-  dshmcp_b = new RooDataSet("dshmcp_b", "", ntmixmcp_b_skim, RooArgSet(*massmc_b));
+  dshmcp_b = new RooDataSet("dshmcp_b", "", ntmixmcp_b_skim, RooArgSet(*massmc_b, *pthatweight), "pthatweight");
   ww->import(*dshmcp_b);
   ntmixmcp_b->Project(mceff_b.heffmc->GetName(), "Bpt", TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
   fitX::printhist(mceff_b.heffmc);
