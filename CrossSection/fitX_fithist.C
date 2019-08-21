@@ -60,8 +60,8 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
     {
       // ====>
       std::vector<TF1*> funs = fitX::fit(vh[l], 0, hmcp_a, hmcp_b, 
-                                           vdsh[l], dshmcp_a, dshmcp_b,
-                                           Form("plots/%s", output.c_str(), vname[l].c_str()), false, true, "_"+vname[l]); // fix mean = false
+                                         vdsh[l], dshmcp_a, dshmcp_b,
+                                         Form("plots/%s", output.c_str(), vname[l].c_str()), false, true, "_"+vname[l], "default", true); // fix mean = false
       // std::vector<TF1*> funs = fitX::fit(vh[l], 0, hmcp_a, hmcp_b, 
       //                                      vdsh[l], dshmcp_a, dshmcp_b,
       //                                      Form("plots/%s", output.c_str(), vname[l].c_str()), true, true, "_"+vname[l]); // fix mean = true
