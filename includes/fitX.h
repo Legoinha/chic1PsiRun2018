@@ -30,6 +30,7 @@ namespace fitX
   std::string pttag() { return std::string(Form("%s < p_{T} < %s GeV/c", xjjc::number_remove_zero(fitX::ptmincut).c_str(), xjjc::number_remove_zero(fitX::ptmaxcut).c_str())); }
   std::string centtag() { return std::string(Form("Cent. %.0f-%.0f%s", fitX::centmincut, fitX::centmaxcut, "%")); }
   template<class T> void printhist(T* hh) { std::cout<<"\e[2m"<<hh->GetName()<<"\e[0m\e[36;1m ("<<hh->GetEntries()<<")\e[0m"<<std::endl; }
+  void drawcomment(std::string comment) { xjjroot::drawtex(0, 0, comment.c_str(), 0.024, 11, 42, kGray+1); }
 }
 
 void fitX::init(float ptmin, float ptmax, float centmin, float centmax, float ymin, float ymax)
