@@ -2,7 +2,6 @@
 #include <TTree.h>
 #include <TCut.h>
 #include <TH1F.h>
-#include <TH2F.h>
 #include <RooWorkspace.h>
 #include <RooRealVar.h>
 #include <RooDataSet.h>
