@@ -13,3 +13,9 @@ namespace Qvalue
   std::vector<Style_t> line = {7, 7, 7};
     
 }
+
+namespace ptimb
+{
+  int NBIN = 40;
+  float BIN_MIN = 0, BIN_MAX = 1.;
+}
