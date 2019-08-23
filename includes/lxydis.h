@@ -8,6 +8,8 @@
 #include <map>
 #include <string>
 
+#include "xjjrootuti.h"
+
 namespace lxydis
 {
   const int nbin = 60;
@@ -16,9 +18,17 @@ namespace lxydis
 
   std::vector<float> mvalist = {-1., 0, 0.4, 0.6, 0.7, 0.76, 0.80}; int thismva = 5;
 
+  std::map<std::string, std::string> formulas = 
+    {
+      std::pair<std::string, std::string>("lxy", "10*Blxy*Bmass/Bpt"),
+      std::pair<std::string, std::string>("lxyz", "10*BsvpvDistance*TMath::Cos(Balpha)*Bmass/(Bpt*TMath::CosH(Beta))"),
+      std::pair<std::string, std::string>("dls", "BsvpvDistance/BsvpvDisErr"),
+      std::pair<std::string, std::string>("dca", "BsvpvDistance*TMath::Sin(Balpha)")
+    };
   std::map<std::string, std::string> vars = 
     {
       std::pair<std::string, std::string>("lxy", "l_{xy} (mm)"),
+      std::pair<std::string, std::string>("lxyz", "l_{xyz} (mm)"),
       std::pair<std::string, std::string>("dls", "Decay length significance"),
       std::pair<std::string, std::string>("dca", "DCA (cm)")
     };
@@ -64,6 +74,17 @@ std::map<std::string, std::vector<float>> lxydis::setupbins()
       else { pos += 0.05; }
     }
 
+  // lxyz
+  pos = -1.;
+  while(pos < 3.1)
+    {
+      xbins["lxyz"].push_back(pos);
+      pos += 0.05;
+      // if(pos < -0.11) { pos += 0.1; }
+      // else if(pos >= 1.2) { pos += 0.2; }
+      // else { pos += 0.05; }
+    }
+
   // dls
   pos = 0;
   while(pos < 30)
@@ -96,6 +117,24 @@ std::map<std::string, std::vector<float>> lxydis::setupbins()
   while(pos < 2.6)
     {
       xbins["lxynonprompt"].push_back(pos);
+      if(pos < 0.5) { pos += 0.05; }
+      else if(pos >= 1.2) { pos += 0.2; }
+      else { pos += 0.1; }
+    }
+
+  // lxyz prompt
+  pos = -0.2;
+  while(pos < 0.21)
+    {
+      xbins["lxyzprompt"].push_back(pos);
+      pos += 0.01;
+    }
+
+  // lxyz nonprompt
+  pos = -0.5;
+  while(pos < 2.6)
+    {
+      xbins["lxyznonprompt"].push_back(pos);
       if(pos < 0.5) { pos += 0.05; }
       else if(pos >= 1.2) { pos += 0.2; }
       else { pos += 0.1; }
