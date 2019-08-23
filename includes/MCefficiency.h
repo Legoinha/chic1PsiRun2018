@@ -19,8 +19,8 @@ namespace MCeff
   class MCefficiency
   {
   public:
-    MCefficiency(std::string name, int whichincl=0);
-    MCefficiency(TFile* inf, std::string name, int whichincl=0);
+    MCefficiency(std::string name, int whichincl=0, std::vector<float> _ptbins = MCeff::ptBins);
+    MCefficiency(TFile* inf, std::string name, int whichincl=0, std::vector<float> _ptbins = MCeff::ptBins);
     TH1F* heffmc;
     TH1F* heffmc_incl;
     TH1F* heffgen;
@@ -32,33 +32,42 @@ namespace MCeff
 
     void calceff();
     void setstyle(Color_t color, Style_t mstyle=20, Style_t lstyle=2);
+    std::vector<float> getptbins() { return ptbins; }
+    std::vector<float> getptbins_incl() { return ptbins_incl; }
   private:
     int fincl;
     std::string fname;
     void createhist();
     void readhist(TFile* inf);
-    
+    std::vector<float> ptbins;
+    int nptbins;
+    std::vector<float> ptbins_incl;
+    int nptbins_incl;
   };
 }
 
-MCeff::MCefficiency::MCefficiency(std::string name, int whichincl) : fname(name), fincl(whichincl)
+MCeff::MCefficiency::MCefficiency(std::string name, int whichincl, std::vector<float> _ptbins) : fname(name), fincl(whichincl), ptbins(_ptbins), nptbins(_ptbins.size()-1)
 {
   createhist();
+  ptbins_incl = MCeff::ptBins_incl;
+  nptbins_incl = MCeff::nPtBins_incl;
 }
 
-MCeff::MCefficiency::MCefficiency(TFile* inf, std::string name, int whichincl) : fname(name), fincl(whichincl)
+MCeff::MCefficiency::MCefficiency(TFile* inf, std::string name, int whichincl, std::vector<float> _ptbins) : fname(name), fincl(whichincl), ptbins(_ptbins), nptbins(_ptbins.size()-1)
 {
   readhist(inf);
+  ptbins_incl = MCeff::ptBins_incl;
+  nptbins_incl = MCeff::nPtBins_incl;
 }
 
 void MCeff::MCefficiency::createhist()
 {
-  heffmc = new TH1F(Form("heffmc%s", fname.c_str()), ";p_{T} (GeV/c);", MCeff::nPtBins, MCeff::ptBins.data()); heffmc->Sumw2();
+  heffmc = new TH1F(Form("heffmc%s", fname.c_str()), ";p_{T} (GeV/c);", nptbins, ptbins.data()); heffmc->Sumw2();
   if(fincl==0) { heffmc_incl = new TH1F(Form("heffmc_incl%s", fname.c_str()), "", 5, 0, 5); heffmc_incl->Sumw2(); }
-  if(fincl==1) { heffmc_incl = new TH1F(Form("heffmc_incl%s", fname.c_str()), "", MCeff::nPtBins_incl, MCeff::ptBins_incl.data()); heffmc_incl->Sumw2(); }
-  heffgen = new TH1F(Form("heffgen%s", fname.c_str()), ";p_{T} (GeV/c);", MCeff::nPtBins, MCeff::ptBins.data());
+  if(fincl==1) { heffmc_incl = new TH1F(Form("heffmc_incl%s", fname.c_str()), "", nptbins_incl, ptbins_incl.data()); heffmc_incl->Sumw2(); }
+  heffgen = new TH1F(Form("heffgen%s", fname.c_str()), ";p_{T} (GeV/c);", nptbins, ptbins.data());
   if(fincl==0) { heffgen_incl = new TH1F(Form("heffgen_incl%s", fname.c_str()), "", 5, 0, 5); heffgen_incl->Sumw2(); }
-  if(fincl==1) { heffgen_incl = new TH1F(Form("heffgen_incl%s", fname.c_str()), "", MCeff::nPtBins_incl, MCeff::ptBins_incl.data()); heffgen_incl->Sumw2(); }
+  if(fincl==1) { heffgen_incl = new TH1F(Form("heffgen_incl%s", fname.c_str()), "", nptbins_incl, ptbins_incl.data()); heffgen_incl->Sumw2(); }
 }
 
 void MCeff::MCefficiency::readhist(TFile* inf)
