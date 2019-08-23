@@ -51,18 +51,18 @@ namespace fitX
                float msig_a, float msig_b, float msigerr_a, float msigerr_b) : 
       fysig_a(ysig_a), fysig_b(ysig_b), fysigerr_a(ysigerr_a), fysigerr_b(ysigerr_b),
       fmsig_a(msig_a), fmsig_b(msig_b), fmsigerr_a(msigerr_a), fmsigerr_b(msigerr_b) { ; }
-    float getysig_a() { return fysig_a; }
-    float getysig_b() { return fysig_b; }
-    float getysigerr_a() { return fysigerr_a; }
-    float getysigerr_b() { return fysigerr_b; }
-    float getmsig_a() { return fmsig_a; }
-    float getmsig_b() { return fmsig_b; }
-    float getmsigerr_a() { return fmsigerr_a; }
-    float getmsigerr_b() { return fmsigerr_b; }
-    TF1* getf() { return ff; }
-    TF1* getfsig_a() { return ffsig_a; }
-    TF1* getfsig_b() { return ffsig_b; }
-    TF1* getfbkg() { return ffbkg; }
+    float ysig_a() { return fysig_a; }
+    float ysig_b() { return fysig_b; }
+    float ysigerr_a() { return fysigerr_a; }
+    float ysigerr_b() { return fysigerr_b; }
+    float msig_a() { return fmsig_a; }
+    float msig_b() { return fmsig_b; }
+    float msigerr_a() { return fmsigerr_a; }
+    float msigerr_b() { return fmsigerr_b; }
+    TF1* f() { return ff; }
+    TF1* fsig_a() { return ffsig_a; }
+    TF1* fsig_b() { return ffsig_b; }
+    TF1* fbkg() { return ffbkg; }
     void setf(TF1* f, TF1* fsig_a, TF1* fsig_b, TF1* fbkg) { ff = f; ffsig_a = fsig_a; ffsig_b = fsig_b; ffbkg = fbkg; }
 
   private:
@@ -87,11 +87,6 @@ namespace fitX
   const float PDG_MASS_PSI2S = 3.686097, PDG_MASS_PSI2S_ERR = 0.000010, FIT_MASS_PSI2S = 3.686097, FIT_MASS_PSI2S_WIN = 0.01;
 
   void drawpull(TH1* hmc, TF1* f, Color_t color);
-
-  Color_t color_data = kRed-3, color_a = kAzure+4, color_b = kGreen-1, color_ss = kGray+1, color_bkg = color_data;
-  // Color_t color_data = xjjroot::mycolor_middle["red"], color_a = xjjroot::mycolor_middle["azure"], color_b = xjjroot::mycolor_middle["green"], color_ss = kGray+1, color_bkg = color_data;
-  int ibin_a = 2, ibin_b = 4, nbin = 5;
-  std::string title_a = "#psi(2S)", title_b = "X(3872)";
 
   double getparmin(TF1* f, int ipar) { double parmin, parmax; f->GetParLimits(ipar, parmin, parmax); return parmin; } 
   double getparmax(TF1* f, int ipar) { double parmin, parmax; f->GetParLimits(ipar, parmin, parmax); return parmax; } 
@@ -331,18 +326,14 @@ std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* 
   RooGaussian sig_a2("sig_a2", "", *mass, *(pars[6]), *(pars[8]));
   RooAddPdf* sig_a = new RooAddPdf("sig_a", "", RooArgList(sig_a1, sig_a2), *(pars[9]), true);
   pars[10] = new RooRealVar("par10", "", 100., 0, 1.e+4);
-  pars[11] = new RooRealVar("par11", "", mcpars[11]->getVal(), mcpars[11]->getVal(), mcpars[11]->getVal());
+  // pars[11] = new RooRealVar("par11", "", mcpars[11]->getVal(), mcpars[11]->getVal(), mcpars[11]->getVal());
+  pars[11] = new RooRealVar("par11", "", fitX::FIT_MASS_X, fitX::FIT_MASS_X, fitX::FIT_MASS_X);
   pars[12] = new RooRealVar("par12", "", mcpars[12]->getVal(), mcpars[12]->getVal(), mcpars[12]->getVal()); pars[12]->setConstant();
   pars[13] = new RooRealVar("par13", "", mcpars[13]->getVal(), mcpars[13]->getVal(), mcpars[13]->getVal()); pars[13]->setConstant();
   pars[14] = new RooRealVar("par14", "", mcpars[14]->getVal(), mcpars[14]->getVal(), mcpars[14]->getVal()); pars[14]->setConstant();
   RooGaussian sig_b1("sig_b1", "", *mass, *(pars[11]), *(pars[12]));
   RooGaussian sig_b2("sig_b2", "", *mass, *(pars[11]), *(pars[13]));
   RooAddPdf* sig_b = new RooAddPdf("sig_b", "", RooArgList(sig_b1, sig_b2), *(pars[14]), true);
-  // pars[0] = new RooRealVar("par0", "", 3.19108e+05, -1.e+6, 1.e+6);
-  // pars[1] = new RooRealVar("par1", "", -1.69064e+05, -1.e+6, 1.e+6);
-  // pars[2] = new RooRealVar("par2", "", 7.73525e+01, -1.e+6, 1.e+6);
-  // pars[3] = new RooRealVar("par3", "", 1.18030e+04, -1.e+6, 1.e+6);
-  // pars[4] = new RooRealVar("par4", "", -1.55981e+03, -1.e+6, 1.e+6);
   pars[0] = new RooRealVar("par0", "", f->GetParameter(0), -1.e+6, 1.e+6);
   pars[1] = new RooRealVar("par1", "", f->GetParameter(1), -1.e+6, 1.e+6);
   pars[2] = new RooRealVar("par2", "", f->GetParameter(2), -1.e+6, 1.e+6);
@@ -363,7 +354,7 @@ std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* 
                           RooArgList(*sig_a    , *sig_b     , bkg_poly), 
                           // RooArgList(*(pars[5]), *(pars[10]))); }
                           RooArgList(*(pars[5]), *(pars[10]), *nbkg)); }
-  // >>>
+  // >>> fix mean
   if(!fixmean)
     {
       f->ReleaseParameter(6);
@@ -378,8 +369,16 @@ std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* 
       pars[11]->setRange(fitX::FIT_MASS_X - fitX::FIT_MASS_X_WIN, fitX::FIT_MASS_X + fitX::FIT_MASS_X_WIN);
     }
   else
-    {
-      pars[6]->setConstant();
+    { // !! tricky fixmean !!
+      f->ReleaseParameter(6);
+      f->SetParameter(6, fitX::FIT_MASS_PSI2S);
+      f->SetParLimits(6, fitX::FIT_MASS_PSI2S - fitX::FIT_MASS_PSI2S_WIN, fitX::FIT_MASS_PSI2S + fitX::FIT_MASS_PSI2S_WIN);
+      pars[6]->setVal(fitX::FIT_MASS_PSI2S);
+      pars[6]->setRange(fitX::FIT_MASS_PSI2S - fitX::FIT_MASS_PSI2S_WIN, fitX::FIT_MASS_PSI2S + fitX::FIT_MASS_PSI2S_WIN);
+      // pars[6]->setConstant();
+      f->FixParameter(11, fitX::FIT_MASS_X);
+      pars[11]->setVal(fitX::FIT_MASS_X);
+      pars[11]->setRange(fitX::FIT_MASS_X, fitX::FIT_MASS_X);
       pars[11]->setConstant();
     }
   // <<<
@@ -450,7 +449,6 @@ std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* 
   fitX::labelsdata(pars[6]->getVal(), pars[6]->getError(), pars[5]->getVal(), pars[5]->getError(),
                    pars[11]->getVal(), pars[11]->getError(), pars[10]->getVal(), pars[10]->getError(),
                    TMath::Prob(frempty->chiSquare("pdf", "dshist", ndof)*ndof, ndof));
-  // TF1* fr = pdf->
 
   if(!fixmean)
     {
@@ -463,7 +461,9 @@ std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* 
   std::cout << std::left         << "\e[32;1m" << std::endl << std::string(stdwid*3, '-') << std::endl
             << std::setw(stdwid) << "Val"        << std::setw(stdwid) << "Binned Fit"                                  << std::setw(stdwid) << "Unbinned Fit"       << std::endl << std::string(stdwid*3, '-') << std::endl
             << std::setw(stdwid) << "m(psi')"    << std::setw(stdwid) << f->GetParameter(6)                            << std::setw(stdwid) << pars[6]->getVal()    << std::endl << std::string(stdwid*3, '-') << std::endl
+            << std::setw(stdwid) << "errm(psi')" << std::setw(stdwid) << f->GetParError(6)                            << std::setw(stdwid) << pars[6]->getError()    << std::endl << std::string(stdwid*3, '-') << std::endl
             << std::setw(stdwid) << "m(X)"       << std::setw(stdwid) << f->GetParameter(11)                           << std::setw(stdwid) << pars[11]->getVal()   << std::endl << std::string(stdwid*3, '-') << std::endl
+            << std::setw(stdwid) << "errm(X)" << std::setw(stdwid) << f->GetParError(11)                            << std::setw(stdwid) << pars[11]->getError()    << std::endl << std::string(stdwid*3, '-') << std::endl
             << std::setw(stdwid) << "N(psi')"    << std::setw(stdwid) << ysig_a                                        << std::setw(stdwid) << pars[5]->getVal()    << std::endl << std::string(stdwid*3, '-') << std::endl
             << std::setw(stdwid) << "errN(psi')" << std::setw(stdwid) << f->GetParError(5)*ysig_a/f->GetParameter(5)   << std::setw(stdwid) << pars[5]->getError()  << std::endl << std::string(stdwid*3, '-') << std::endl
             << std::setw(stdwid) << "N(X)"       << std::setw(stdwid) << ysig_b                                        << std::setw(stdwid) << pars[10]->getVal()   << std::endl << std::string(stdwid*3, '-') << std::endl
@@ -476,10 +476,16 @@ std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* 
   delete cr;
 
   fitresult["binned"] = new fitX::fitXresult(ysig_a, ysig_b, f->GetParError(5)*ysig_a/f->GetParameter(5), f->GetParError(10)*ysig_a/f->GetParameter(10), 
-                                             f->GetParameter(6), f->GetParError(6), f->GetParameter(11), f->GetParError(11));
+                                             f->GetParameter(6), f->GetParameter(11), f->GetParError(6), f->GetParError(11));
   fitresult["binned"]->setf(f, fs["sig_a"], fs["fsig_b"], fs["fbkg"]);
   fitresult["unbinned"] = new fitX::fitXresult(pars[5]->getVal(), pars[10]->getVal(), pars[5]->getError(), pars[10]->getError(),
                                                pars[6]->getVal(), pars[11]->getVal(), pars[6]->getError(), pars[11]->getError());
+  TF1* frf = (TF1*)pdf->asTF(RooArgList(*mass))->Clone("frf");
+  TF1* frfsig_a = (TF1*)sig_a->asTF(RooArgList(*mass))->Clone("frfsig_a");
+  TF1* frfsig_b = (TF1*)sig_b->asTF(RooArgList(*mass))->Clone("frfsig_b");
+  TF1* frfbkg = (TF1*)bkg_poly.asTF(RooArgList(*mass))->Clone("frfbkg");
+  fitresult["unbinned"]->setf(frf, frfsig_a, frfsig_b, frfbkg);
+
   return fitresult;
 }
 

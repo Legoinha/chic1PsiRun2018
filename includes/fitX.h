@@ -15,7 +15,7 @@
 
 namespace fitX
 {
-  float ptmincut = 20.;
+  float ptmincut = 15.;
   float ptmaxcut = 50.;
   float centmincut = 0.;
   float centmaxcut = 90;
@@ -31,6 +31,10 @@ namespace fitX
   std::string centtag() { return std::string(Form("Cent. %.0f-%.0f%s", fitX::centmincut, fitX::centmaxcut, "%")); }
   template<class T> void printhist(T* hh) { std::cout<<"\e[2m"<<hh->GetName()<<"\e[0m\e[36;1m ("<<hh->GetEntries()<<")\e[0m"<<std::endl; }
   void drawcomment(std::string comment) { xjjroot::drawtex(0, 0, comment.c_str(), 0.024, 11, 42, kGray+1); }
+
+  Color_t color_data = kRed-3, color_a = kAzure+4, color_b = kGreen-1, color_ss = kGray+1, color_bkg = color_data;
+  int ibin_a = 2, ibin_b = 4, nbin = 5;
+  std::string title_a = "#psi(2S)", title_b = "X(3872)";
 }
 
 void fitX::init(float ptmin, float ptmax, float centmin, float centmax, float ymin, float ymax)

@@ -61,17 +61,17 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
       // ====>
       std::map<std::string, fitX::fitXresult*> result = fitX::fit(vh[l], 0, hmcp_a, hmcp_b, 
                                                                   vdsh[l], dshmcp_a, dshmcp_b,
-                                                                  Form("plots/%s", output.c_str(), vname[l].c_str()), false, true, "_"+vname[l], "default", true); // fix mean = false
+                                                                  Form("plots/%s", output.c_str(), vname[l].c_str()), l==1, true, "_"+vname[l], "default", true); // fix mean = false
       // std::vector<TF1*> funs = fitX::fit(vh[l], 0, hmcp_a, hmcp_b, 
       //                                      vdsh[l], dshmcp_a, dshmcp_b,
       //                                      Form("plots/%s", output.c_str(), vname[l].c_str()), true, true, "_"+vname[l]); // fix mean = true
       cy->cd(l+1);
       xjjroot::setgstyle();
       // <====
-      float ysig1 = result["unbinned"]->getysig_a();
-      float ysig1err = result["unbinned"]->getysigerr_a();
-      float ysig2 = result["unbinned"]->getysig_b();
-      float ysig2err = result["unbinned"]->getysigerr_b();
+      float ysig1 = result["unbinned"]->ysig_a();
+      float ysig1err = result["unbinned"]->ysigerr_a();
+      float ysig2 = result["unbinned"]->ysig_b();
+      float ysig2err = result["unbinned"]->ysigerr_b();
 
       // yield
       xjjroot::setthgrstyle(vhyield_a[l], fitX::color_a, mstyle[l], 1.2, fitX::color_a, 2, 3, fitX::color_a, 0.1, 1001);
@@ -162,6 +162,7 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   grfprompt_a->Draw("same");
   grfprompt_b->Draw("same");
   drawkinematic();
+  fitX::drawcomment(output.c_str());
   xjjroot::drawCMS();
   xjjroot::mkdir(Form("plots/%s/cfprompt.pdf", output.c_str()));
   cfprompt->SaveAs(Form("plots/%s/cfprompt.pdf", output.c_str()));
@@ -200,6 +201,7 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   xjjroot::drawCMSright();
   xjjroot::drawtex(0.92, 0.84, fitX::ytag().c_str(), 0.04, 32, 42);
   xjjroot::drawtex(0.92, 0.79, fitX::centtag().c_str(), 0.04, 32, 42);
+  fitX::drawcomment(output.c_str());
   ceff->cd(2);
   hemptyeff_incl->Draw();
   mceff_a.greff_incl->Draw("same ple");
@@ -258,7 +260,7 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   leg->AddEntry(hyieldpromptCorr_b, "Stat.", "pe");
   leg->AddEntry(gsyst_a, " ", "pf");
   leg->AddEntry(gsyst_b, "Syst.", "pf");
-  float ymaxyieldpromptCorr = hyieldpromptCorr_b->GetMaximum()*2.5; // !
+  float ymaxyieldpromptCorr = std::max(hyieldpromptCorr_a->GetMaximum(), hyieldpromptCorr_b->GetMaximum())*2.5; // !
   TH2F* hemptyyieldpromptCorr = new TH2F("hemptyyieldpromptCorr", ";;N_{signal} #times f_{prompt} / (#alpha #times #epsilon )_{prompt}", 5, 0, 5, 10, 0, ymaxyieldpromptCorr);
   xjjroot::sethempty(hemptyyieldpromptCorr, 0, 0.3);
   hemptyyieldpromptCorr->GetXaxis()->SetBinLabel(2, "#psi(2S)");
@@ -279,6 +281,7 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   xjjroot::drawtex(0.72, yyieldpromptCorr_b/ymaxyieldpromptCorr*(1-gStyle->GetPadBottomMargin()-gStyle->GetPadTopMargin()) + gStyle->GetPadBottomMargin() + 0.2, Form("%.0f #pm %.0f", yyieldpromptCorr_b, yerryieldpromptCorr_b), 0.042, 22, 62, fitX::color_b);
   xjjroot::drawCMS();
   drawkinematic();
+  fitX::drawcomment(output.c_str());
   xjjroot::mkdir(Form("plots/%s/cyieldpromptCorr.pdf", output.c_str()));
   cyieldpromptCorr->SaveAs(Form("plots/%s/cyieldpromptCorr.pdf", output.c_str()));
 
