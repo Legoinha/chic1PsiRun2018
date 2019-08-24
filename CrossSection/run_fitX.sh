@@ -7,24 +7,36 @@ centmax=90
 ymin=0
 ymax=1.6
 
-counts=(0 1 2 3)
+counts=(1)
 optcuts=(
     "&& BDTF > 0.3 && (Bmass-3.096916-Btktkmass) < 0.12"
     "&& BDT > 0.07 && (Bmass-3.096916-Btktkmass) < 0.12"
     "&& BDTD > 0.12 && (Bmass-3.096916-Btktkmass) < 0.12"
     "&& BDTG > 0.70 && (Bmass-3.096916-Btktkmass) < 0.12"
+    "&& BDTF > 0.3"
+    "&& BDT > 0.07"
+    "&& BDTD > 0.12"
+    "&& BDTG > 0.70"
 )
 optcutntuples=(
     "ntp->BDTF[j] > 0.3 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.12"
     "ntp->BDT[j] > 0.07 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.12"
     "ntp->BDTD[j] > 0.12 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.12"
     "ntp->BDTG[j] > 0.70 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.12"
+    "ntp->BDTF[j] > 0.3"
+    "ntp->BDT[j] > 0.07"
+    "ntp->BDTD[j] > 0.12"
+    "ntp->BDTG[j] > 0.70"
 )
 tags=(
     "BDTFQvalue"
     "BDTQvalue"
     "BDTDQvalue"
     "BDTGQvalue"
+    "BDTFnoQ"
+    "BDTnoQ"
+    "BDTDnoQ"
+    "BDTGnoQ"
 )
 input=/raid5/data/wangj/BntupleRun2018/mva_output_20190808ptdep/ntmix_20190806_Bfinder_20190513_HIDoubleMuon__PsiPeri__HIRun2018A_04Apr2019_v1_HF_and_MuonJSON_skim_trainX_20190808ptdep_sideband_tktk0p2_BDT_BDTD_BDTG_BDTF_LD_15p0_50p0_0-10-1-2-9_1bin.root
 input_ss=/export/d00/scratch/jwang/BntupleRun2018/mva_output/crab_Bfinder_samesign_20190513_HIDoubleMuonPsi_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_327123_327564_skimhltBsize_ntmix_Xpt10_trainX_sideband_tktk0p2_BDT_BDTG_CutsGA_CutsSA_LD_10p0_inf_0-10-1-2-9_oldLH.root
@@ -43,7 +55,7 @@ RUN_DRAWHIST=${4:-0}
 tmp=$(date +%y%m%d%H%M%S)
 
 ##
-g++ getfname.cc $(root-config --libs --cflags) -g -o getfname_${tmp}.exe || exit 1
+g++ getfname.cc $(root-config --libs --cflags) -g -o getfname_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; }
 kinematic=$(./getfname_${tmp}.exe $ptmin $ptmax $centmin $centmax $ymin $ymax)
 rm getfname_${tmp}.exe
 echo -e "\e[32;1mcompiling...\e[0m"
@@ -52,19 +64,19 @@ ptbins='float ptbins[] = {'$ptmin', '$ptmax'};'
 sed -i "s/__PTBIN_INPUT__/$ptbins/g" tnpcc_tmp.h
 [[ $RUN_SAVEHIST -eq 1 || $# -eq 0 ]] && {
     echo " -- "fitX_flatten.C
-    g++ fitX_flatten.C $(root-config --libs --cflags) -g -o fitX_flatten_${tmp}.exe || exit 1 
+    g++ fitX_flatten.C $(root-config --libs --cflags) -g -o fitX_flatten_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; } 
     echo " -- "fitX_savehist.C
-    g++ fitX_savehist.C $(root-config --libs --cflags) -lRooFit -lRooFitCore -g -o fitX_savehist_${tmp}.exe || exit 1 
+    g++ fitX_savehist.C $(root-config --libs --cflags) -lRooFit -lRooFitCore -g -o fitX_savehist_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; } 
 }
 [[ $RUN_FITHIST -eq 1 || $# -eq 0 ]] && {
     echo " -- "draw_tnp.cc
-    g++ draw_tnp.cc $(root-config --libs --cflags) -g -o draw_tnp_${tmp}.exe || exit 1 
+    g++ draw_tnp.cc $(root-config --libs --cflags) -g -o draw_tnp_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; } 
     echo " -- "fitX_fithist.C
-    g++ fitX_fithist.C $(root-config --libs --cflags) -lRooFit -lRooFitCore -g -o fitX_fithist_${tmp}.exe || exit 1
+    g++ fitX_fithist.C $(root-config --libs --cflags) -lRooFit -lRooFitCore -g -o fitX_fithist_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; }
 }
 [[ $RUN_DRAWHIST -eq 1 || $# -eq 0 ]] && {
     echo " -- "fitX_drawhist.C
-    g++ fitX_drawhist.C $(root-config --libs --cflags) -g -o fitX_drawhist_${tmp}.exe || exit 1
+    g++ fitX_drawhist.C $(root-config --libs --cflags) -g -o fitX_drawhist_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; }
 }
 
 ##
@@ -115,7 +127,7 @@ do
 
     # syst
     # echo fitX_pdfvar.C
-    # g++ fitX_pdfvar.C $(root-config --libs --cflags) -lRooFit -lRooFitCore -g -o fitX_pdfvar_${tmp}.exe || exit 1
+    # g++ fitX_pdfvar.C $(root-config --libs --cflags) -lRooFit -lRooFitCore -g -o fitX_pdfvar_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; }
     # [[ ${5:-0} -eq 1 ]] && ./fitX_pdfvar_${tmp}.exe "$outputdir/fitX_savehist" $name
 
 done
