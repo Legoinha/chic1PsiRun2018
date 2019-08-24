@@ -97,7 +97,7 @@ namespace fitX
                   double chi2prob);
   void zeroparameters(TF1* f, std::vector<int> ipars);
   std::map<std::string, TF1*> resolvef(TF1* f);
-
+  TF1* astf(RooAbsPdf* pdf, TF1* f, std::string name, float width=fitX::BIN_WIDTH);
 }
 
 
@@ -108,7 +108,6 @@ std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* 
 {
   std::string uniqstr(xjjc::currenttime());
   if(saveplot) gSystem->Exec(Form("mkdir -p %s", outputdir.c_str()));
-  // if(silence) RooMsgService::instance().setGlobalKillBelow(RooFit::FATAL); 
   if(silence) RooMsgService::instance().setSilentMode(true);
 
   std::map<std::string, fitX::fitXresult*> fitresult;
@@ -175,7 +174,7 @@ std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* 
   TString str_bkg = "[0]+[1]*x+[2]*x*x+[3]*x*x*x+[4]*x*x*x*x";
   if(xjjc::str_contains(option,"cheb")) { str_bkg = option; }
   TString str_sig_a = "[5]*([9]*TMath::Gaus(x,[6],[7])/(TMath::Sqrt(2*3.14159)*[7]) + (1-[9])*TMath::Gaus(x,[6],[8])/(TMath::Sqrt(2*3.14159)*[8]))";
-  TString str_sig_b = "[10]*([14]*TMath::Gaus(x,[11],[12])/(TMath::Sqrt(2*3.14159)*[7]) + (1-[14])*TMath::Gaus(x,[11],[13])/(TMath::Sqrt(2*3.14159)*[13]))";
+  TString str_sig_b = "[10]*([14]*TMath::Gaus(x,[11],[12])/(TMath::Sqrt(2*3.14159)*[12]) + (1-[14])*TMath::Gaus(x,[11],[13])/(TMath::Sqrt(2*3.14159)*[13]))";
   TF1* f = new TF1("f", str_bkg+"+"+str_sig_a+"+"+str_sig_b, BIN_MIN, BIN_MAX);
   const double parinit[15] = {0., 0.     , 0.     , 0.  , 0. , // 0-4
                               1., 3.686  , 0.00357, 0.005, 0.5, // 5-9
@@ -218,7 +217,7 @@ std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* 
   ***************************************************/
 
   crmc->cd(1);
-  std::cout<<"\e[34m";
+  std::cout<<std::endl<<"\e[34;2m";
   RooFitResult* fitr_mc_a;
   if(silence) fitr_mc_a = sig_mc_a->fitTo(*dshmc_a, RooFit::Save(), RooFit::PrintEvalErrors(-1));
   else        fitr_mc_a = sig_mc_a->fitTo(*dshmc_a, RooFit::Save());  
@@ -290,7 +289,7 @@ std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* 
   fitX::labelsmc("Gen-matched X(3872)", f->GetParameter(11), f->GetParameter(12), f->GetParameter(13));
   cmc->RedrawAxis();
   if(saveplot) cmc->SaveAs(Form("%s/chmassmc%s.pdf", outputdir.c_str(), name.c_str()));
- 
+
   /***************************************************
     Start Fitting -- Data
   ***************************************************/
@@ -318,6 +317,7 @@ std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* 
   // ---> unbinned fit
   std::map<int, RooRealVar*> pars;
   pars[5] = new RooRealVar("par5", "", 100., 0, 1.e+4);
+  // pars[5] = new RooRealVar("par5", "", 0.2, 0, 1);
   pars[6] = new RooRealVar("par6", "", mcpars[6]->getVal(), mcpars[6]->getVal(), mcpars[6]->getVal());
   pars[7] = new RooRealVar("par7", "", mcpars[7]->getVal(), mcpars[7]->getVal(), mcpars[7]->getVal()); pars[7]->setConstant();
   pars[8] = new RooRealVar("par8", "", mcpars[8]->getVal(), mcpars[8]->getVal(), mcpars[8]->getVal()); pars[8]->setConstant();
@@ -326,7 +326,7 @@ std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* 
   RooGaussian sig_a2("sig_a2", "", *mass, *(pars[6]), *(pars[8]));
   RooAddPdf* sig_a = new RooAddPdf("sig_a", "", RooArgList(sig_a1, sig_a2), *(pars[9]), true);
   pars[10] = new RooRealVar("par10", "", 100., 0, 1.e+4);
-  // pars[11] = new RooRealVar("par11", "", mcpars[11]->getVal(), mcpars[11]->getVal(), mcpars[11]->getVal());
+  // pars[10] = new RooRealVar("par10", "", 0.1, 0, 1);
   pars[11] = new RooRealVar("par11", "", fitX::FIT_MASS_X, fitX::FIT_MASS_X, fitX::FIT_MASS_X);
   pars[12] = new RooRealVar("par12", "", mcpars[12]->getVal(), mcpars[12]->getVal(), mcpars[12]->getVal()); pars[12]->setConstant();
   pars[13] = new RooRealVar("par13", "", mcpars[13]->getVal(), mcpars[13]->getVal(), mcpars[13]->getVal()); pars[13]->setConstant();
@@ -345,9 +345,10 @@ std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* 
   if(option.back()=='2') { pars[4]->setConstant(); pars[3]->setConstant(); }
   RooRealVar* nbkg = new RooRealVar("nbkg", "", 0, -1.e+6, 1.e+6);
   RooAddPdf* pdf;
-  if(xjjc::str_contains(option,"cheb")) 
+  if(xjjc::str_contains(option,"cheb"))
     { pdf = new RooAddPdf("pdf", "", 
                           RooArgList(*sig_a    , *sig_b     , bkg_cheb),
+                          // RooArgList(*(pars[5]), *(pars[10]))); }
                           RooArgList(*(pars[5]), *(pars[10]), *nbkg)); }
   else 
     { pdf = new RooAddPdf("pdf", "",
@@ -385,32 +386,35 @@ std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* 
 
   c->cd();
   // TFitResultPtr r = histo->Fit(func, "S");
-  std::cout<<"\e[33;1m";
+  std::cout<<std::endl<<"\e[35;1m";
   h->Fit("f","NLL");
   std::cout<<"\e[0m";
   fitX::drawpull(h, f, color_data);
   if(h_ss) h_ss->Draw("pe same");
 
   cr->cd();
-  std::cout<<"\e[33m";
+  std::cout<<std::endl<<"\e[35;2m";
   RooFitResult* fitr;
   if(silence) fitr = pdf->fitTo(*dsh, RooFit::Save(), RooFit::PrintEvalErrors(-1));
   else        fitr = pdf->fitTo(*dsh, RooFit::Save(), RooFit::PrintEvalErrors(-1));
   std::cout<<"\e[0m";
-  std::cout<<"\e[33;1m";
+  std::cout<<"\e[35;1m";
   fitr->Print("v");
   std::cout<<"\e[0m";
+  TF1* frf = fitX::astf(pdf, f, "frf");
+  // TF1* frf = (TF1*)(pdf->asTF(RooArgList(*mass))->Clone("frf"));
 
   std::cout<<std::endl<<"\e[7m"<<"==> Finished fitting"<<"\e[0m"<<std::endl<<std::endl;
 
-  
   /***************************************************
     Plotting
   ***************************************************/
 
+  std::map<std::string, TF1*> fs = fitX::resolvef(f);
+  std::map<std::string, TF1*> fr = fitX::resolvef(frf);
+
   // ---> binned fit
   c->cd();
-  std::map<std::string, TF1*> fs = fitX::resolvef(f);
   fs["fsig_a"]->Draw("same");
   fs["fsig_b"]->Draw("same");
   fs["fbkg"]->Draw("same");
@@ -431,20 +435,18 @@ std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* 
 
   // ---> unbinned fit
   cr->cd();
-  // RooPlot* frempty_clone = (RooPlot*)frempty->Clone("frempty_clone");
   dsh->plotOn(frempty, RooFit::Name("dshist"), RooFit::Binning(fitX::NBIN), RooFit::MarkerSize(0.9), RooFit::MarkerStyle(20), RooFit::LineColor(1), RooFit::LineWidth(1));
   pdf->plotOn(frempty, RooFit::Name("sig_a"), RooFit::Components(*sig_a), RooFit::Precision(1e-6), RooFit::DrawOption("L"), RooFit::LineStyle(1), RooFit::LineColor(color_a), RooFit::LineWidth(3));
   pdf->plotOn(frempty, RooFit::Name("sig_b"), RooFit::Components(*sig_b), RooFit::Precision(1e-6), RooFit::DrawOption("L"), RooFit::LineStyle(1), RooFit::LineColor(color_b), RooFit::LineWidth(3));
   pdf->plotOn(frempty, RooFit::Name("bkg_poly"), RooFit::Components(bkg_poly), RooFit::Precision(1e-6), RooFit::DrawOption("L"), RooFit::LineStyle(7), RooFit::LineColor(color_data), RooFit::LineWidth(3));
-  pdf->plotOn(frempty, RooFit::Name("pdf"), RooFit::Precision(1e-6), RooFit::DrawOption("L"), RooFit::LineStyle(1), RooFit::LineColor(color_data), RooFit::LineWidth(3));
+  pdf->plotOn(frempty, RooFit::Name("pdf"), RooFit::Precision(1e-6), RooFit::DrawOption("L"), RooFit::LineStyle(1), RooFit::LineColor(xjjroot::mycolor_middle["pink"]), RooFit::LineWidth(3));
   dsh->plotOn(frempty, RooFit::Name("dshist"), RooFit::Binning(fitX::NBIN), RooFit::MarkerSize(0.9), RooFit::MarkerStyle(20), RooFit::LineColor(1), RooFit::LineWidth(1));
   frempty->Draw();
+  frf->SetLineColor(xjjroot::mycolor_middle["greenblue"]);
+  frf->Draw("same");
   fs["fsig_a"]->Draw("same");
   fs["fsig_b"]->Draw("same");
   mass->setRange("signal", fitX::BIN_MIN, fitX::BIN_MAX);
-  // RooAbsReal* ysig_a_integral = sig_a->createIntegral(*mass, RooFit::NormSet(*mass), RooFit::Range("signal"));
-  // float roofit_ysig_a = ysig_a_integral->getVal();
-  // float roofit_ysig_a_err = ysig_a_integral->getPropagatedError(*fitr);
   int32_t ndof = fitr->floatParsFinal().getSize();
   fitX::labelsdata(pars[6]->getVal(), pars[6]->getError(), pars[5]->getVal(), pars[5]->getError(),
                    pars[11]->getVal(), pars[11]->getError(), pars[10]->getVal(), pars[10]->getError(),
@@ -458,7 +460,7 @@ std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* 
   if(saveplot) cr->SaveAs(Form("%s/chmassr%s.pdf", outputdir.c_str(), name.c_str()));
 
   int stdwid = 15;
-  std::cout << std::left         << "\e[32;1m" << std::endl << std::string(stdwid*3, '-') << std::endl
+  std::cout << std::left         << "\e[36;1m" << std::endl << std::string(stdwid*3, '-') << std::endl
             << std::setw(stdwid) << "Val"        << std::setw(stdwid) << "Binned Fit"                                  << std::setw(stdwid) << "Unbinned Fit"       << std::endl << std::string(stdwid*3, '-') << std::endl
             << std::setw(stdwid) << "m(psi')"    << std::setw(stdwid) << f->GetParameter(6)                            << std::setw(stdwid) << pars[6]->getVal()    << std::endl << std::string(stdwid*3, '-') << std::endl
             << std::setw(stdwid) << "errm(psi')" << std::setw(stdwid) << f->GetParError(6)                            << std::setw(stdwid) << pars[6]->getError()    << std::endl << std::string(stdwid*3, '-') << std::endl
@@ -477,14 +479,10 @@ std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* 
 
   fitresult["binned"] = new fitX::fitXresult(ysig_a, ysig_b, f->GetParError(5)*ysig_a/f->GetParameter(5), f->GetParError(10)*ysig_a/f->GetParameter(10), 
                                              f->GetParameter(6), f->GetParameter(11), f->GetParError(6), f->GetParError(11));
-  fitresult["binned"]->setf(f, fs["sig_a"], fs["fsig_b"], fs["fbkg"]);
+  fitresult["binned"]->setf(f, fs["fsig_a"], fs["fsig_b"], fs["fbkg"]);
   fitresult["unbinned"] = new fitX::fitXresult(pars[5]->getVal(), pars[10]->getVal(), pars[5]->getError(), pars[10]->getError(),
                                                pars[6]->getVal(), pars[11]->getVal(), pars[6]->getError(), pars[11]->getError());
-  TF1* frf = (TF1*)pdf->asTF(RooArgList(*mass))->Clone("frf");
-  TF1* frfsig_a = (TF1*)sig_a->asTF(RooArgList(*mass))->Clone("frfsig_a");
-  TF1* frfsig_b = (TF1*)sig_b->asTF(RooArgList(*mass))->Clone("frfsig_b");
-  TF1* frfbkg = (TF1*)bkg_poly.asTF(RooArgList(*mass))->Clone("frfbkg");
-  fitresult["unbinned"]->setf(frf, frfsig_a, frfsig_b, frfbkg);
+  fitresult["unbinned"]->setf(frf, fr["fsig_a"], fr["fsig_b"], fr["fbkg"]);
 
   return fitresult;
 }
@@ -556,10 +554,7 @@ void fitX::labelsdata(double mean_a, double mean_a_err, double yield_a, double y
 void fitX::zeroparameters(TF1* f, std::vector<int> ipars)
 {
   for(auto& i : ipars)
-    {
-      // std::cout<<__FUNCTION__<<": "<<i<<std::endl;
-      f->SetParameter(i, 0);
-    }
+    f->SetParameter(i, 0);
 }
 
 std::map<std::string, TF1*> fitX::resolvef(TF1* f)
@@ -589,6 +584,26 @@ std::map<std::string, TF1*> fitX::resolvef(TF1* f)
   fs["fbkg"]->Draw("same");
 
   return fs;
+}
+
+TF1* fitX::astf(RooAbsPdf* pdf, TF1* f, std::string name, float width)
+{
+  TF1* frf = (TF1*)f->Clone(name.c_str());
+  RooArgSet* variables = pdf->getVariables();
+  RooArgSet* components = pdf->getComponents();
+  components->Print();
+  RooArgSet* params = pdf->getParameters((*variables)["Bmass"]);
+  std::cout<<std::endl;
+  params->Print("v");
+  double polynorm = ((RooAbsPdf*)(components->find("bkg_poly")))->getNormIntegral((*variables)["Bmass"])->getVal();
+  for(int i=0;i<f->GetNpar();i++)
+    {
+      float ipar = params->getRealValue(Form("par%d",i));
+      if(i<=4) ipar *= (params->getRealValue("nbkg")/polynorm);
+      if(i<=4 || i==5 || i==10) ipar *= width;
+      frf->SetParameter(i, ipar);
+    }
+  return frf;
 }
 
 #endif
