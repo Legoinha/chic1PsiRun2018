@@ -6,50 +6,66 @@
 #include <TEfficiency.h>
 #include <TGraphErrors.h>
 #include <TGraphAsymmErrors.h>
+#include <RooWorkspace.h>
+#include <RooRealVar.h>
+#include <RooDataSet.h>
+
 #include <string>
 
 #include "xjjcuti.h"
 #include "xjjrootuti.h"
 
+#include "fitXvaryfit.h"
 #include "fitXvary.h"
 #include "lxydis.h"
 
 bool saveornot = true; // save separate fit or not
-void drawfitXvary(std::string output)
+void drawfitXvary(std::string input, std::string output, std::string cutvar)
 {
+  std::cout<<"\e[32;1m -- "<<__FUNCTION__<<"\e[0m"<<std::endl;
+
   xjjroot::setgstyle(3);
+  fitX::varymva* mvas = fitX::initvarycut(cutvar);
+  if(!mvas) { std::cout<<__FUNCTION__<<"error: "<<cutvar<<std::endl; return; }
+  fitX::varycut vc(mvas->mva(), cutvar.c_str());
+  xjjroot::mkdir(Form("plots/%s/%s/", output.c_str(), cutvar.c_str()));
 
-  fitX::varycut vc(bdtg, "BDTG");
-
-  TFile* inf = new TFile(Form("rootfiles/root_fitXvary_%s.root", output.c_str()));
+  TFile* inf = new TFile(input.c_str());
+  fitX::init(inf);
+  RooWorkspace* ww = (RooWorkspace*)inf->Get("ww");
   // read
-  for(int l=0, lp=0; l<nbdtg; l++)
+  for(int l=0, lp=0; l<mvas->n(); l++)
     {
       vc.hdata[l] = (TH1F*)inf->Get(Form("hdata_%d", l));
       fitX::setmasshist(vc.hdata[l], 0, -0.1);
       vc.hdata[l]->SetMinimum(0);
-      xjjroot::setthgrstyle(vc.hdata[l], xjjroot::colorlist_dark[lp], 20, 0.9, xjjroot::colorlist_dark[lp], 1, 1);
+      xjjroot::setthgrstyle(vc.hdata[l], xjjroot::mycolor_middle[xjjroot::cc[lp]], 20, 0.9, xjjroot::mycolor_middle[xjjroot::cc[lp]], 1, 1);
       vc.hdataBenr[l] = (TH1F*)inf->Get(Form("hdataBenr_%d", l));
       fitX::setmasshist(vc.hdataBenr[l], 0, -0.1);
       vc.hdataBenr[l]->SetMinimum(0);
-      xjjroot::setthgrstyle(vc.hdataBenr[l], xjjroot::colorlist_dark[lp], 20, 0.9, xjjroot::colorlist_dark[lp], 1, 1);
+      xjjroot::setthgrstyle(vc.hdataBenr[l], xjjroot::mycolor_middle[xjjroot::cc[lp]], 20, 0.9, xjjroot::mycolor_middle[xjjroot::cc[lp]], 1, 1);
       vc.hmc_a[l] = (TH1F*)inf->Get(Form("hmc_a_%d", l));
       vc.hmc_b[l] = (TH1F*)inf->Get(Form("hmc_b_%d", l));
 
+      vc.dshdata[l] = (RooDataSet*)ww->data(Form("dshdata_%d", l));
+      vc.dshdataBenr[l] = (RooDataSet*)ww->data(Form("dshdataBenr_%d", l));
+      vc.dshmc_a[l] = (RooDataSet*)ww->data(Form("dshmc_a_%d", l));
+      vc.dshmc_b[l] = (RooDataSet*)ww->data(Form("dshmc_b_%d", l));
+
       vc.hlxymcnp_a[l] = (TH1F*)inf->Get(Form("hlxymcnp_a_%d", l));
       xjjroot::sethempty(vc.hlxymcnp_a[l], 0, -0.1);
-      xjjroot::setthgrstyle(vc.hlxymcnp_a[l], xjjroot::colorlist_dark[lp], 20, 0.2, xjjroot::colorlist_dark[lp], 1, 1);
+      xjjroot::setthgrstyle(vc.hlxymcnp_a[l], xjjroot::mycolor_middle[xjjroot::cc[lp]], 20, 0.2, xjjroot::mycolor_middle[xjjroot::cc[lp]], 1, 1);
       vc.hlxymcnp_b[l] = (TH1F*)inf->Get(Form("hlxymcnp_b_%d", l));
       xjjroot::sethempty(vc.hlxymcnp_b[l], 0, -0.1);
-      xjjroot::setthgrstyle(vc.hlxymcnp_b[l], xjjroot::colorlist_dark[lp], 20, 0.2, xjjroot::colorlist_dark[lp], 1, 1);
+      xjjroot::setthgrstyle(vc.hlxymcnp_b[l], xjjroot::mycolor_middle[xjjroot::cc[lp]], 20, 0.2, xjjroot::mycolor_middle[xjjroot::cc[lp]], 1, 1);
       vc.hlxymcp_a[l] = (TH1F*)inf->Get(Form("hlxymcp_a_%d", l));
       xjjroot::sethempty(vc.hlxymcp_a[l], 0, -0.1);
-      xjjroot::setthgrstyle(vc.hlxymcp_a[l], xjjroot::colorlist_dark[lp], 20, 0.2, xjjroot::colorlist_dark[lp], 1, 1);
+      xjjroot::setthgrstyle(vc.hlxymcp_a[l], xjjroot::mycolor_middle[xjjroot::cc[lp]], 20, 0.2, xjjroot::mycolor_middle[xjjroot::cc[lp]], 1, 1);
       vc.hlxymcp_b[l] = (TH1F*)inf->Get(Form("hlxymcp_b_%d", l));
       xjjroot::sethempty(vc.hlxymcp_b[l], 0, -0.1);
-      xjjroot::setthgrstyle(vc.hlxymcp_b[l], xjjroot::colorlist_dark[lp], 20, 0.2, xjjroot::colorlist_dark[lp], 1, 1);
+      xjjroot::setthgrstyle(vc.hlxymcp_b[l], xjjroot::mycolor_middle[xjjroot::cc[lp]], 20, 0.2, xjjroot::mycolor_middle[xjjroot::cc[lp]], 1, 1);
 
-      if(pbdtg[l]) lp++;
+      if(mvas->ifdraw()[l]) lp++;
     }
   vc.heff_a = (TH1F*)inf->Get("heff_a");
   vc.heff_b = (TH1F*)inf->Get("heff_b");
@@ -59,123 +75,84 @@ void drawfitXvary(std::string output)
   vc.hsideband_b = (TH1F*)inf->Get("hsideband_b");
 
   // ==> yield
-  TH1F* hyieldbdtg_a = new TH1F("hyieldbdtg_a"        , ";BDTG;N_{Signal}"                 , bdtg.size()-1, bdtg.data());
-  TH1F* hyieldbdtg_b = new TH1F("hyieldbdtg_b"        , ";BDTG;N_{Signal}"                 , bdtg.size()-1, bdtg.data());
-  TH1F* hbkgbdtg_a = new TH1F("hbkgbdtg_a"            , ";BDTG;N_{Background}"             , bdtg.size()-1, bdtg.data());
-  TH1F* hbkgbdtg_b = new TH1F("hbkgbdtg_b"            , ";BDTG;N_{Background}"             , bdtg.size()-1, bdtg.data());
-  TH1F* hsigfitbdtg_a = new TH1F("hsigfitbdtg_a"      , ";BDTG;S / #sqrt{S+B}"             , bdtg.size()-1, bdtg.data());
-  TH1F* hsigfitbdtg_b = new TH1F("hsigfitbdtg_b"      , ";BDTG;S / #sqrt{S+B}"             , bdtg.size()-1, bdtg.data());
-  TH1F* hyieldbdtgBenr_a = new TH1F("hyieldbdtgBenr_a", ";BDTG;N_{Signal} (l_{xy} > 0.1mm)", bdtg.size()-1, bdtg.data());
-  TH1F* hyieldbdtgBenr_b = new TH1F("hyieldbdtgBenr_b", ";BDTG;N_{Signal} (l_{xy} > 0.1mm)", bdtg.size()-1, bdtg.data());
-  TH1F* hlxyfracbdtg_a = new TH1F("hlxyfracbdtg_a"    , ";BDTG;"                           , bdtg.size()-1, bdtg.data());
-  TH1F* hlxyfracbdtg_b = new TH1F("hlxyfracbdtg_b"    , ";BDTG;"                           , bdtg.size()-1, bdtg.data());
+  TH1F* hyieldmva_a = new TH1F("hyieldmva_a"        , Form(";%s;N_{Signal}", mvas->type().c_str())                 , mvas->n()-1, mvas->mva().data());
+  TH1F* hyieldmva_b = new TH1F("hyieldmva_b"        , Form(";%s;N_{Signal}", mvas->type().c_str())                 , mvas->n()-1, mvas->mva().data());
+  TH1F* hyieldmvaBenr_a = new TH1F("hyieldmvaBenr_a", Form(";%s;N_{Signal} (l_{xy} > 0.1mm)", mvas->type().c_str()), mvas->n()-1, mvas->mva().data());
+  TH1F* hyieldmvaBenr_b = new TH1F("hyieldmvaBenr_b", Form(";%s;N_{Signal} (l_{xy} > 0.1mm)", mvas->type().c_str()), mvas->n()-1, mvas->mva().data());
 
-  TCanvas* c = new TCanvas("cvary", "", 1400, 600);
-  c->Divide(2, 1);
-  std::vector<std::vector<TH1F*>*> vhdata        = {&vc.hdata,       &vc.hdataBenr};
-  std::vector<TH1F*>               vhyieldbdtg_a = {hyieldbdtg_a, hyieldbdtgBenr_a};
-  std::vector<TH1F*>               vhyieldbdtg_b = {hyieldbdtg_b, hyieldbdtgBenr_b};
-  std::vector<std::string>         vtitle        = {"Inclusive",  "B-enriched: l_{xy} > 100 #mum"};
-  for(int cc=0; cc<vhdata.size(); cc++)
-    {
-      c->cd(cc+1);
-      for(int l=0; l<nbdtg; l++) { if(pbdtg[l]) { vhdata[cc]->at(l)->Draw("pe"); break; } }
-      for(int l=0, lp=0; l<nbdtg; l++)
-        {
-          c->cd(cc+1);
-          if(pbdtg[l]) vhdata[cc]->at(l)->Draw("pe same");
-          std::vector<TF1*> funs = fitX::fit(xjjroot::copyobject(vhdata[cc]->at(l), Form("%s_%d", vhdata[cc]->at(l)->GetName(), l)), 0, vc.hmc_a[0], vc.hmc_b[0], 
-                                             Form("plots/%s/idx", output.c_str()), true, saveornot, vhdata[cc]->at(l)->GetName()); // fix mean
-          c->cd(cc+1);
-          xjjroot::settfstyle(funs[0], xjjroot::colorlist_dark[lp], 2, 2);
-          if(pbdtg[l])
-            {
-              xjjroot::copyobject(funs[0], Form("ff_%s_%d", vhdata[cc]->at(l)->GetName(), l))->Draw("l same");
-              xjjroot::drawtex(0.70+0.08*(lp%3), 0.78-0.04*(lp/3), Form("> %.2f%s", bdtg[l], (lp%3==2?"":", ")), 0.03, 12, 62, xjjroot::colorlist_dark[lp]);
-              lp++;
-            }
-          if(l==nbdtg-1) continue;
-          float ysig_a = funs[1]->Integral(fitX::BIN_MIN, fitX::BIN_MAX) / fitX::BIN_WIDTH; if(ysig_a < 0) ysig_a = 0;
-          float ysig_aerr = funs[0]->GetParError(5)*ysig_a/funs[0]->GetParameter(5);
-          float ysig_b = funs[2]->Integral(fitX::BIN_MIN, fitX::BIN_MAX) / fitX::BIN_WIDTH; if(ysig_b < 0) ysig_b = 0;
-          float ysig_berr = funs[0]->GetParError(10)*ysig_b/funs[0]->GetParameter(10);
-          float ybkg_a = funs[3]->Integral(MASS_PSI2S - mytmva::sigwindowL, MASS_PSI2S + mytmva::sigwindowL) / fitX::BIN_WIDTH; if(ybkg_a < 0) ybkg_a = 0;
-          float ybkg_b = funs[3]->Integral(MASS_X     - mytmva::sigwindowH, MASS_X     + mytmva::sigwindowH) / fitX::BIN_WIDTH; if(ybkg_b < 0) ybkg_b = 0;
-          float ysigf_a = (ysig_a+ybkg_a>0)?(ysig_a/TMath::Sqrt(ysig_a+ybkg_a)):0;
-          float ysigf_b = (ysig_b+ybkg_b>0)?(ysig_b/TMath::Sqrt(ysig_b+ybkg_b)):0;
-          vhyieldbdtg_a[cc]->SetBinContent(l+1, ysig_a);
-          vhyieldbdtg_a[cc]->SetBinError(l+1, ysig_aerr);
-          vhyieldbdtg_b[cc]->SetBinContent(l+1, ysig_b);
-          vhyieldbdtg_b[cc]->SetBinError(l+1, ysig_berr);
+  xjjroot::setgstyle(1);
+  TCanvas* c = new TCanvas("cvary", "", 700, 600);
+  c->cd();
+  fitXvary::fitXvaryfit(mvas, "Inclusive", 
+                        vc.hdata, vc.hmc_a[0], vc.hmc_b[0],
+                        vc.dshdata, vc.dshmc_a[0], vc.dshmc_b[0],
+                        hyieldmva_a, hyieldmva_b, Form("%s/%s/%s", output.c_str(), cutvar.c_str(), "inclusive"), c, false); // fixmean = false
+  c->SaveAs(Form("plots/%s/%s/cmass_varymva.pdf", output.c_str(), cutvar.c_str()));
 
-          // only for inclusive
-          if(cc) continue; 
-          hbkgbdtg_a->SetBinContent(l+1, ybkg_a);
-          hbkgbdtg_b->SetBinContent(l+1, ybkg_b);
-          hsigfitbdtg_a->SetBinContent(l+1, ysigf_a);
-          hsigfitbdtg_b->SetBinContent(l+1, ysigf_b);
-        }
-      xjjroot::drawtex(0.90, 0.85, vtitle[cc].c_str(), 0.04, 33, 62, kBlack);
-      xjjroot::setgstyle(1);
-      xjjroot::drawtex(0.70-0.08, 0.78, "BDTG", 0.03, 12, 62, kBlack);
-      xjjroot::drawCMSleft();
-      xjjroot::drawCMSright();
-    }
-  c->SaveAs(Form("plots/%s/cmass_varybdtg.pdf", output.c_str()));
+  TCanvas* cBenr = new TCanvas("cvaryBenr", "", 700, 600);
+  cBenr->cd();
+  fitXvary::fitXvaryfit(mvas, "B-enr: l_{xy} > 0.1mm",
+                        vc.hdataBenr, vc.hmc_a[0], vc.hmc_b[0],
+                        vc.dshdataBenr, vc.dshmc_a[0], vc.dshmc_b[0],
+                        hyieldmvaBenr_a, hyieldmvaBenr_b, Form("%s/%s/%s", output.c_str(), cutvar.c_str(), "Benr"), cBenr, true); // fixmean = true
+  cBenr->SaveAs(Form("plots/%s/%s/cmass_varymva_Benr.pdf", output.c_str(), cutvar.c_str()));
 
   // ==> significance
-  const int iref = xjjc::findibin(bdtg, (float)0.70);
-  float yieldnocut_a = hyieldbdtg_a->GetBinContent(iref+1) / vc.heff_a->GetBinContent(iref+1);
-  float yieldnocut_b = hyieldbdtg_b->GetBinContent(iref+1) / vc.heff_b->GetBinContent(iref+1);
-  TH1F* hsigbdtg_a = new TH1F("hsigbdtg_a", ";BDTG;S / #sqrt{S+B}", bdtg.size()-1, bdtg.data());  
-  TH1F* hsigbdtg_b = new TH1F("hsigbdtg_b", ";BDTG;S / #sqrt{S+B}", bdtg.size()-1, bdtg.data());
+  const int iref = xjjc::findibin(mvas->mva(), mvas->thatval()); // !!
+  float yieldnocut_a = hyieldmva_a->GetBinContent(iref+1) / vc.heff_a->GetBinContent(iref+1);
+  float yieldnocut_b = hyieldmva_b->GetBinContent(iref+1) / vc.heff_b->GetBinContent(iref+1);
+  TH1F* hsigmva_a = new TH1F("hsigmva_a", Form(";%s;S / #sqrt{S+B}", mvas->type().c_str()), mvas->n()-1, mvas->mva().data());  
+  TH1F* hsigmva_b = new TH1F("hsigmva_b", Form(";%s;S / #sqrt{S+B}", mvas->type().c_str()), mvas->n()-1, mvas->mva().data());
   float maxsig = 0, xmaxsig = 0; int ibinsig = 0;
-  for(int l=0; l<nbdtg-1; l++)
+  for(int l=0; l<mvas->n()-1; l++)
     {
       float nsig_a = yieldnocut_a * vc.heff_a->GetBinContent(l+1);
       float nsig_b = yieldnocut_b * vc.heff_b->GetBinContent(l+1);
-      float nbkg_a = vc.hsideband_a->GetBinContent(l+1) / (vc.masswinH-vc.masswinL) * 0.0070*3;
-      float nbkg_b = vc.hsideband_b->GetBinContent(l+1) / (vc.masswinH-vc.masswinL) * 0.0093*3;
+      float nbkg_a = vc.hsideband_a->GetBinContent(l+1) / (vc.masswinH-vc.masswinL) * 0.0036*2;
+      float nbkg_b = vc.hsideband_b->GetBinContent(l+1) / (vc.masswinH-vc.masswinL) * 0.0047*2;
       float significance_a = nsig_a / TMath::Sqrt(nsig_a + nbkg_a);
       float significance_b = nsig_b / TMath::Sqrt(nsig_b + nbkg_b);
-      hsigbdtg_a->SetBinContent(l+1, significance_a);
-      hsigbdtg_b->SetBinContent(l+1, significance_b);
+      hsigmva_a->SetBinContent(l+1, significance_a);
+      hsigmva_b->SetBinContent(l+1, significance_b);
+      // std::cout<<l<<" "<<nsig_a<<" "<<nbkg_a<<" "<<nsig_b<<" "<<nbkg_b<<std::endl;
       // !!!!!
-      // if(significance_b > maxsig) { maxsig = significance_b; ibinsig = l+1; xmaxsig = hsigbdtg_b->GetBinCenter(l+1)-hsigbdtg_b->GetBinWidth(l+1)/2.; }
-      if(TMath::Abs((hsigbdtg_b->GetBinCenter(l+1)-hsigbdtg_b->GetBinWidth(l+1)/2.)-0.7)<0.01) 
-        { maxsig = significance_b; ibinsig = l+1; xmaxsig = hsigbdtg_b->GetBinCenter(l+1)-hsigbdtg_b->GetBinWidth(l+1)/2.; }
+      if(significance_b > maxsig) { maxsig = significance_b; ibinsig = l+1; xmaxsig = hsigmva_b->GetBinCenter(l+1)-hsigmva_b->GetBinWidth(l+1)/2.; }
+      // if(TMath::Abs((hsigmva_b->GetBinCenter(l+1)-hsigmva_b->GetBinWidth(l+1)/2.)-mvas->thatval())<0.01) 
+      //   { maxsig = significance_b; ibinsig = l+1; xmaxsig = hsigmva_b->GetBinCenter(l+1)-hsigmva_b->GetBinWidth(l+1)/2.; }
       // !!!!!
     }
   std::cout<<"\e[33;1m"<<xmaxsig<<"\e[0m"<<std::endl;
 
   // ==> treatment for low-stat X
-  TH1F* hyieldbdtgerase_b = new TH1F("hyieldbdtgerase_b", ";BDTG;N_{Signal}", nbdtg-1, bdtg.data());
-  TH1F* hyieldbdtgeraseBenr_b = new TH1F("hyieldbdtgeraseBenr_b", ";BDTG;N_{Signal}", nbdtg-1, bdtg.data());
-  for(int l=0; l<hyieldbdtg_b->GetNbinsX(); l++)
+  TH1F* hyieldmvaerase_b = new TH1F("hyieldmvaerase_b", Form(";%s;N_{Signal}", mvas->type().c_str()), mvas->n()-1, mvas->mva().data());
+  TH1F* hyieldmvaeraseBenr_b = new TH1F("hyieldmvaeraseBenr_b", Form(";%s;N_{Signal}", mvas->type().c_str()), mvas->n()-1, mvas->mva().data());
+  for(int l=0; l<hyieldmva_b->GetNbinsX(); l++)
     {
-      if(bdtg[l] < 0.5) continue;
-      hyieldbdtgerase_b->SetBinContent(l+1, hyieldbdtg_b->GetBinContent(l+1));
-      hyieldbdtgerase_b->SetBinError(l+1, hyieldbdtg_b->GetBinError(l+1));
-      hyieldbdtgeraseBenr_b->SetBinContent(l+1, hyieldbdtgBenr_b->GetBinContent(l+1));
-      hyieldbdtgeraseBenr_b->SetBinError(l+1, hyieldbdtgBenr_b->GetBinError(l+1));
+      if(mvas->mva()[l] < mvas->minval()) continue;
+      hyieldmvaerase_b->SetBinContent(l+1, hyieldmva_b->GetBinContent(l+1));
+      hyieldmvaerase_b->SetBinError(l+1, hyieldmva_b->GetBinError(l+1));
+      hyieldmvaeraseBenr_b->SetBinContent(l+1, hyieldmvaBenr_b->GetBinContent(l+1));
+      hyieldmvaeraseBenr_b->SetBinError(l+1, hyieldmvaBenr_b->GetBinError(l+1));
     }
 
   // ==> fprompt
+  TH1F* hlxyfracmva_a = new TH1F("hlxyfracmva_a" , Form(";%s;", mvas->type().c_str()) , mvas->n()-1, mvas->mva().data());
+  TH1F* hlxyfracmva_b = new TH1F("hlxyfracmva_b" , Form(";%s;", mvas->type().c_str()) , mvas->n()-1, mvas->mva().data());
   TCanvas* cp = new TCanvas("cp", "", 1700, 1200);
   cp->Divide(2, 2);
-  for(int l=0; l<nbdtg-1; l++)
+  for(int l=0; l<mvas->n()-1; l++)
     {
       vc.hlxymcp_a[l]->Scale(1./vc.hlxymcp_a[l]->Integral(), "width");
       vc.hlxymcp_b[l]->Scale(1./vc.hlxymcp_b[l]->Integral(), "width");
       vc.hlxymcnp_a[l]->Scale(1./vc.hlxymcnp_a[l]->Integral(), "width");
       vc.hlxymcnp_b[l]->Scale(1./vc.hlxymcnp_b[l]->Integral(), "width");
       std::vector<double> vlxyfrac = lxydis::nplxyfrac(vc.hlxymcnp_a[l], vc.hlxymcnp_b[l]);
-      hlxyfracbdtg_a->SetBinContent(l+1, vlxyfrac[0]);
-      hlxyfracbdtg_a->SetBinError(l+1, vlxyfrac[1]);
-      hlxyfracbdtg_b->SetBinContent(l+1, vlxyfrac[2]);
-      hlxyfracbdtg_b->SetBinError(l+1, vlxyfrac[3]);
+      hlxyfracmva_a->SetBinContent(l+1, vlxyfrac[0]);
+      hlxyfracmva_a->SetBinError(l+1, vlxyfrac[1]);
+      hlxyfracmva_b->SetBinContent(l+1, vlxyfrac[2]);
+      hlxyfracmva_b->SetBinError(l+1, vlxyfrac[3]);
 
-      if(pbdtg[l])
+      if(mvas->ifdraw()[l])
         {
           cp->cd(1);
           vc.hlxymcp_a[l]->Draw((l?"histe same":"histe"));
@@ -187,15 +164,15 @@ void drawfitXvary(std::string output)
           vc.hlxymcnp_b[l]->Draw((l?"histe same":"histe"));
         }
     }
-  cp->SaveAs(Form("plots/%s/clxy_varybdtg.pdf", output.c_str()));
+  cp->SaveAs(Form("plots/%s/%s/clxy_varymva.pdf", output.c_str(), cutvar.c_str()));
   TH1F *hyieldprompt_a, *hyieldprompt_b;
-  TEfficiency* grfprompt_a = lxydis::calclxyfprompt(hyieldbdtg_a, hyieldbdtgBenr_a, hlxyfracbdtg_a, "grfprompt_a", &hyieldprompt_a);
-  TEfficiency* grfprompt_b = lxydis::calclxyfprompt(hyieldbdtgerase_b, hyieldbdtgeraseBenr_b, hlxyfracbdtg_b, "grfprompt_b", &hyieldprompt_b);
+  TEfficiency* grfprompt_a = lxydis::calclxyfprompt(hyieldmva_a, hyieldmvaBenr_a, hlxyfracmva_a, "grfprompt_a", &hyieldprompt_a);
+  TEfficiency* grfprompt_b = lxydis::calclxyfprompt(hyieldmvaerase_b, hyieldmvaeraseBenr_b, hlxyfracmva_b, "grfprompt_b", &hyieldprompt_b);
 
   // ==> corrected yield
-  TH1F* hyieldCorr_a = (TH1F*)hyieldbdtg_a->Clone("hyieldCorr_a");
+  TH1F* hyieldCorr_a = (TH1F*)hyieldmva_a->Clone("hyieldCorr_a");
   hyieldCorr_a->Divide(vc.heff_a);
-  TH1F* hyieldCorr_b = (TH1F*)hyieldbdtgerase_b->Clone("hyieldCorr_b");
+  TH1F* hyieldCorr_b = (TH1F*)hyieldmvaerase_b->Clone("hyieldCorr_b");
   hyieldCorr_b->Divide(vc.heff_b);
   TH1F* hyieldPromptCorr_a = (TH1F*)hyieldprompt_a->Clone("hyieldCorr_a");
   hyieldPromptCorr_a->Divide(vc.heff_a);
@@ -205,53 +182,53 @@ void drawfitXvary(std::string output)
   /*================== Draw ====================*/
 
   // draw
-  TH2F* hemptyyd = new TH2F("hemptyyd", ";BDTG >;Raw N_{Signal} by Fit", 10, -1.1, 1, 10, 0, hyieldbdtg_a->GetMaximum()*1.4);
+  TH2F* hemptyyd = new TH2F("hemptyyd", Form(";%s >;Raw N_{Signal} by Fit", mvas->type().c_str()), 10, mvas->binmin(), mvas->binmax(), 10, 0, std::max(hyieldmva_a->GetMaximum(), hyieldmva_b->GetMaximum())*1.4);
   xjjroot::sethempty(hemptyyd, 0, 0.4);
-  TGraphErrors* gr_hyieldbdtg_a = xjjroot::shifthistcenter(hyieldbdtg_a, "gr_hyieldbdtg_a");
-  TGraphErrors* gr_hyieldbdtg_b = xjjroot::shifthistcenter(hyieldbdtg_b, "gr_hyieldbdtg_b");
-  xjjroot::setthgrstyle(gr_hyieldbdtg_a, fitX::color_a, 20, 1.2, fitX::color_a, 1, 1);
-  xjjroot::setthgrstyle(gr_hyieldbdtg_b, fitX::color_b, 20, 1.2, fitX::color_b, 1, 1);
-  TH2F* hemptyeff = new TH2F("hemptyeff", ";BDTG >;(#alpha #times #epsilon )_{prompt}", 10, -1.1, 1, 10, 0, 0.1);
+  TGraphErrors* gr_hyieldmva_a = xjjroot::shifthistcenter(hyieldmva_a, "gr_hyieldmva_a");
+  TGraphErrors* gr_hyieldmva_b = xjjroot::shifthistcenter(hyieldmva_b, "gr_hyieldmva_b");
+  xjjroot::setthgrstyle(gr_hyieldmva_a, fitX::color_a, 20, 1.2, fitX::color_a, 1, 1);
+  xjjroot::setthgrstyle(gr_hyieldmva_b, fitX::color_b, 20, 1.2, fitX::color_b, 1, 1);
+  TH2F* hemptyeff = new TH2F("hemptyeff", Form(";%s >;(#alpha #times #epsilon )_{prompt}", mvas->type().c_str()), 10, mvas->binmin(), mvas->binmax(), 10, 0, 0.1);
   xjjroot::sethempty(hemptyeff, 0, 0.4);
   TGraphAsymmErrors* gr_greff_a = xjjroot::shifthistcenter(vc.greff_a, "gr_greff_a");
   TGraphAsymmErrors* gr_greff_b = xjjroot::shifthistcenter(vc.greff_b, "gr_greff_b");
   xjjroot::setthgrstyle(gr_greff_a, fitX::color_a, 34, 1.2, fitX::color_a, 1, 1, fitX::color_a, 0.2, 1001);
   xjjroot::setthgrstyle(gr_greff_b, fitX::color_b, 34, 1.2, fitX::color_b, 1, 1, fitX::color_b, 0.2, 1001);
-  TH2F* hemptysigf = new TH2F("hemptysigf", ";BDTG >;S / #sqrt{S+B}", 10, -1.1, 1, 10, 0, hsigbdtg_a->GetMaximum()*1.3);
+  TH2F* hemptysigf = new TH2F("hemptysigf", Form(";%s >;S / #sqrt{S+B}", mvas->type().c_str()), 10, mvas->binmin(), mvas->binmax(), 10, 0, std::max(hsigmva_a->GetMaximum(), hsigmva_b->GetMaximum())*1.3);
   xjjroot::sethempty(hemptysigf, 0, 0.4);
-  TGraphErrors* gr_hsigfitbdtg_a = xjjroot::shifthistcenter(hsigfitbdtg_a, "gr_hsigfitbdtg_a");
-  TGraphErrors* gr_hsigfitbdtg_b = xjjroot::shifthistcenter(hsigfitbdtg_b, "gr_hsigfitbdtg_b");
-  TGraphErrors* gr_hsigbdtg_a = xjjroot::shifthistcenter(hsigbdtg_a, "gr_hsigbdtg_a");
-  TGraphErrors* gr_hsigbdtg_b = xjjroot::shifthistcenter(hsigbdtg_b, "gr_hsigbdtg_b");
-  xjjroot::setthgrstyle(gr_hsigfitbdtg_a, fitX::color_a, 46, 1.2, fitX::color_a, 1, 1);
-  xjjroot::setthgrstyle(gr_hsigfitbdtg_b, fitX::color_b, 46, 1.2, fitX::color_b, 1, 1);
-  xjjroot::setthgrstyle(gr_hsigbdtg_a, fitX::color_a, 46, 1.2, fitX::color_a, 1, 1);
-  xjjroot::setthgrstyle(gr_hsigbdtg_b, fitX::color_b, 46, 1.2, fitX::color_b, 1, 1);
-  TH2F* hemptyBenr = new TH2F("hemptyBenr", ";BDTG >;N_{Signal} (l_{xy} > 100#mum) by Fit", 10, -1.1, 1, 10, 0, hyieldbdtgBenr_a->GetMaximum()*1.4);
+  // TGraphErrors* gr_hsigfitmva_a = xjjroot::shifthistcenter(hsigfitmva_a, "gr_hsigfitmva_a");
+  // TGraphErrors* gr_hsigfitmva_b = xjjroot::shifthistcenter(hsigfitmva_b, "gr_hsigfitmva_b");
+  TGraphErrors* gr_hsigmva_a = xjjroot::shifthistcenter(hsigmva_a, "gr_hsigmva_a");
+  TGraphErrors* gr_hsigmva_b = xjjroot::shifthistcenter(hsigmva_b, "gr_hsigmva_b");
+  // xjjroot::setthgrstyle(gr_hsigfitmva_a, fitX::color_a, 46, 1.2, fitX::color_a, 1, 1);
+  // xjjroot::setthgrstyle(gr_hsigfitmva_b, fitX::color_b, 46, 1.2, fitX::color_b, 1, 1);
+  xjjroot::setthgrstyle(gr_hsigmva_a, fitX::color_a, 46, 1.2, fitX::color_a, 1, 1);
+  xjjroot::setthgrstyle(gr_hsigmva_b, fitX::color_b, 46, 1.2, fitX::color_b, 1, 1);
+  TH2F* hemptyBenr = new TH2F("hemptyBenr", Form(";%s >;N_{Signal} (l_{xy} > 100#mum) by Fit", mvas->type().c_str()), 10, mvas->binmin(), mvas->binmax(), 10, 0, std::max(hyieldmvaBenr_a->GetMaximum(), hyieldmvaBenr_b->GetMaximum())*1.4);
   xjjroot::sethempty(hemptyBenr, 0, 0.4);
-  TGraphErrors* gr_hyieldbdtgBenr_a = xjjroot::shifthistcenter(hyieldbdtgBenr_a, "gr_hyieldbdtgBenr_a");
-  TGraphErrors* gr_hyieldbdtgBenr_b = xjjroot::shifthistcenter(hyieldbdtgBenr_b, "gr_hyieldbdtgBenr_b");
-  xjjroot::setthgrstyle(gr_hyieldbdtgBenr_a, fitX::color_a, 24, 1.2, fitX::color_a, 1, 1);
-  xjjroot::setthgrstyle(gr_hyieldbdtgBenr_b, fitX::color_b, 24, 1.2, fitX::color_b, 1, 1);
-  TH2F* hemptyydprompt = new TH2F("hemptyydprompt", ";BDTG >;N_{Signal} #times f_{prompt}", 10, -1.1, 1, 10, 0, hyieldprompt_a->GetMaximum()*1.4);
+  TGraphErrors* gr_hyieldmvaBenr_a = xjjroot::shifthistcenter(hyieldmvaBenr_a, "gr_hyieldmvaBenr_a");
+  TGraphErrors* gr_hyieldmvaBenr_b = xjjroot::shifthistcenter(hyieldmvaBenr_b, "gr_hyieldmvaBenr_b");
+  xjjroot::setthgrstyle(gr_hyieldmvaBenr_a, fitX::color_a, 24, 1.2, fitX::color_a, 1, 1);
+  xjjroot::setthgrstyle(gr_hyieldmvaBenr_b, fitX::color_b, 24, 1.2, fitX::color_b, 1, 1);
+  TH2F* hemptyydprompt = new TH2F("hemptyydprompt", Form(";%s >;N_{Signal} #times f_{prompt}", mvas->type().c_str()), 10, mvas->binmin(), mvas->binmax(), 10, 0, std::max(hyieldprompt_a->GetMaximum(), hyieldprompt_b->GetMaximum())*1.4);
   xjjroot::sethempty(hemptyydprompt, 0, 0.4);
   TGraphErrors* gr_hyieldprompt_a = xjjroot::shifthistcenter(hyieldprompt_a, "gr_hyieldprompt_a");
   TGraphErrors* gr_hyieldprompt_b = xjjroot::shifthistcenter(hyieldprompt_b, "gr_hyieldprompt_b");
   xjjroot::setthgrstyle(gr_hyieldprompt_a, fitX::color_a, 21, 1.2, fitX::color_a, 1, 1);
   xjjroot::setthgrstyle(gr_hyieldprompt_b, fitX::color_b, 21, 1.2, fitX::color_b, 1, 1);
-  TH2F* hemptyfprompt = new TH2F("hemptyfprompt", ";BDTG >;f_{prompt} After Cuts", 10, -1.1, 1, 10, 0, 1.2);
+  TH2F* hemptyfprompt = new TH2F("hemptyfprompt", Form(";%s >;f_{prompt} After Cuts", mvas->type().c_str()), 10, mvas->binmin(), mvas->binmax(), 10, 0, 1.2);
   xjjroot::sethempty(hemptyfprompt, 0, 0.4);
   TGraphAsymmErrors* gr_grfprompt_a = xjjroot::shifthistcenter(grfprompt_a, "gr_grfprompt_a");
   TGraphAsymmErrors* gr_grfprompt_b = xjjroot::shifthistcenter(grfprompt_b, "gr_grfprompt_b");
   xjjroot::setthgrstyle(gr_grfprompt_a, fitX::color_a, 45, 1.2, fitX::color_a, 1, 1, fitX::color_a, 0.2, 1001);
   xjjroot::setthgrstyle(gr_grfprompt_b, fitX::color_b, 45, 1.2, fitX::color_b, 1, 1, fitX::color_b, 0.2, 1001);
-  TH2F* hemptyCorr = new TH2F("hemptyCorr", ";BDTG >;N_{Signal} / (#alpha #times #epsilon )_{prompt}", 10, -1.1, 1, 10, 0, hyieldCorr_b->GetMaximum()*1.5);
+  TH2F* hemptyCorr = new TH2F("hemptyCorr", Form(";%s >;N_{Signal} / (#alpha #times #epsilon )_{prompt}", mvas->type().c_str()), 10, mvas->binmin(), mvas->binmax(), 10, 0, std::max(hyieldCorr_a->GetMaximum(), hyieldCorr_b->GetMaximum())*1.5);
   xjjroot::sethempty(hemptyCorr, 0, 0.4);
   TGraphErrors* gr_hyieldCorr_a = xjjroot::shifthistcenter(hyieldCorr_a, "gr_hyieldCorr_a");
   TGraphErrors* gr_hyieldCorr_b = xjjroot::shifthistcenter(hyieldCorr_b, "gr_hyieldCorr_b");
   xjjroot::setthgrstyle(gr_hyieldCorr_a, fitX::color_a, 3, 1.2, fitX::color_a, 1, 1);
   xjjroot::setthgrstyle(gr_hyieldCorr_b, fitX::color_b, 3, 1.2, fitX::color_b, 1, 1);
-  TH2F* hemptyPromptCorr = new TH2F("hemptyPromptCorr", ";BDTG >;N_{Signal} #times f_{prompt} / (#alpha #times #epsilon )_{prompt}", 10, -1.1, 1, 10, 0, hyieldPromptCorr_b->GetMaximum()*1.5);
+  TH2F* hemptyPromptCorr = new TH2F("hemptyPromptCorr", Form(";%s >;N_{Signal} #times f_{prompt} / (#alpha #times #epsilon )_{prompt}", mvas->type().c_str()), 10, mvas->binmin(), mvas->binmax(), 10, 0, std::max(hyieldPromptCorr_a->GetMaximum(), hyieldPromptCorr_b->GetMaximum())*1.5);
   xjjroot::sethempty(hemptyPromptCorr, 0, 0.4);
   TGraphErrors* gr_hyieldPromptCorr_a = xjjroot::shifthistcenter(hyieldPromptCorr_a, "gr_hyieldPromptCorr_a");
   TGraphErrors* gr_hyieldPromptCorr_b = xjjroot::shifthistcenter(hyieldPromptCorr_b, "gr_hyieldPromptCorr_b");
@@ -264,8 +241,8 @@ void drawfitXvary(std::string output)
   c8->Divide(4, 2);
   c8->cd(1);
   hemptyyd->Draw();
-  gr_hyieldbdtg_a->Draw("pe same");
-  gr_hyieldbdtg_b->Draw("pe same");
+  gr_hyieldmva_a->Draw("pe same");
+  gr_hyieldmva_b->Draw("pe same");
   drawalltext();
   c8->cd(2);
   hemptyeff->Draw();
@@ -274,11 +251,11 @@ void drawfitXvary(std::string output)
   drawalltext();
   c8->cd(3);
   hemptysigf->Draw();
-  // gr_hsigfitbdtg_b->Draw("plX0 same");
-  // gr_hsigfitbdtg_a->Draw("plX0 same");
-  gr_hsigbdtg_b->Draw("plX0 same");
-  gr_hsigbdtg_a->Draw("plX0 same");
-  xjjroot::drawline(xmaxsig, 0, xmaxsig, hsigbdtg_a->GetMaximum()*1.3, kGray+1, 2, 1);
+  // gr_hsigfitmva_b->Draw("plX0 same");
+  // gr_hsigfitmva_a->Draw("plX0 same");
+  gr_hsigmva_b->Draw("plX0 same");
+  gr_hsigmva_a->Draw("plX0 same");
+  xjjroot::drawline(xmaxsig, 0, xmaxsig, std::max(hsigmva_a->GetMaximum(), hsigmva_b->GetMaximum())*1.3, kGray+1, 2, 1);
   drawalltext();
   c8->cd(4);
   hemptyCorr->Draw();
@@ -287,8 +264,8 @@ void drawfitXvary(std::string output)
   drawalltext();
   c8->cd(5);
   hemptyBenr->Draw();
-  gr_hyieldbdtgBenr_a->Draw("pe same");
-  gr_hyieldbdtgBenr_b->Draw("pe same");
+  gr_hyieldmvaBenr_a->Draw("pe same");
+  gr_hyieldmvaBenr_b->Draw("pe same");
   drawalltext();
   c8->cd(6);
   hemptyydprompt->Draw();
@@ -304,23 +281,23 @@ void drawfitXvary(std::string output)
   hemptyPromptCorr->Draw();
   gr_hyieldPromptCorr_a->Draw("pe same");
   gr_hyieldPromptCorr_b->Draw("pe same");
-  xjjroot::drawline(-1.1, hyieldPromptCorr_a->GetBinContent(ibinsig), 1.0, hyieldPromptCorr_a->GetBinContent(ibinsig), fitX::color_a, 2, 1, 0.3);
-  xjjroot::drawline(-1.1, hyieldPromptCorr_b->GetBinContent(ibinsig), 1.0, hyieldPromptCorr_b->GetBinContent(ibinsig), fitX::color_b, 2, 1, 0.3);
+  xjjroot::drawline(mvas->binmin(), hyieldPromptCorr_a->GetBinContent(ibinsig), mvas->binmax(), hyieldPromptCorr_a->GetBinContent(ibinsig), fitX::color_a, 2, 1, 0.3);
+  xjjroot::drawline(mvas->binmin(), hyieldPromptCorr_b->GetBinContent(ibinsig), mvas->binmax(), hyieldPromptCorr_b->GetBinContent(ibinsig), fitX::color_b, 2, 1, 0.3);
   drawalltext();
-  c8->SaveAs(Form("plots/%s/c8detail_varybdtg.pdf", output.c_str()));
+  c8->SaveAs(Form("plots/%s/%s/c8detail_varymva.pdf", output.c_str(), cutvar.c_str()));
 
   xjjroot::setgstyle(3);
   TCanvas* c83 = new TCanvas("c83", "", 600, 600);
   hemptysigf->Draw();
-  // gr_hsigfitbdtg_b->Draw("plX0 same");
-  // gr_hsigfitbdtg_a->Draw("plX0 same");
-  gr_hsigbdtg_b->SetLineWidth(2);
-  gr_hsigbdtg_a->SetLineWidth(2);
-  gr_hsigbdtg_b->Draw("plX0 same");
-  gr_hsigbdtg_a->Draw("plX0 same");
-  xjjroot::drawline(xmaxsig, 0, xmaxsig, hsigbdtg_a->GetMaximum()*1.3, kGray+1, 2, 2);
+  // gr_hsigfitmva_b->Draw("plX0 same");
+  // gr_hsigfitmva_a->Draw("plX0 same");
+  gr_hsigmva_b->SetLineWidth(2);
+  gr_hsigmva_a->SetLineWidth(2);
+  gr_hsigmva_b->Draw("plX0 same");
+  gr_hsigmva_a->Draw("plX0 same");
+  xjjroot::drawline(xmaxsig, 0, xmaxsig, std::max(hsigmva_a->GetMaximum(), hsigmva_b->GetMaximum())*1.3, kGray+1, 2, 2);
   drawalltext();
-  c83->SaveAs(Form("plots/%s/c83_varybdtg.pdf", output.c_str()));
+  c83->SaveAs(Form("plots/%s/%s/c83_varymva.pdf", output.c_str(), cutvar.c_str()));
   TCanvas* c88 = new TCanvas("c88", "", 600, 600);
   hemptyPromptCorr->Draw();
   gr_hyieldPromptCorr_a->SetLineWidth(2);
@@ -330,16 +307,14 @@ void drawfitXvary(std::string output)
   xjjroot::drawline(-1.1, hyieldPromptCorr_a->GetBinContent(ibinsig), 1.0, hyieldPromptCorr_a->GetBinContent(ibinsig), fitX::color_a, 2, 2, 0.3);
   xjjroot::drawline(-1.1, hyieldPromptCorr_b->GetBinContent(ibinsig), 1.0, hyieldPromptCorr_b->GetBinContent(ibinsig), fitX::color_b, 2, 2, 0.3);
   drawalltext();
-  c88->SaveAs(Form("plots/%s/c88_varybdtg.pdf", output.c_str()));
+  c88->SaveAs(Form("plots/%s/%s/c88_varymva.pdf", output.c_str(), cutvar.c_str()));
 
-  TFile* outf = new TFile(Form("rootfiles/root_fitXvary_yield_%s.root", output.c_str()), "recreate");
+  std::string outputname = Form("rootfiles/%s%s/%s/root_fitXvary_yields.root", output.c_str(), fitX::tagname().c_str(), cutvar.c_str());
+  xjjroot::mkdir(outputname);
+  TFile* outf = new TFile(outputname.c_str(), "recreate");
   outf->cd();
-  hyieldbdtg_a->Write();
-  hyieldbdtg_b->Write();
-  hbkgbdtg_a->Write();
-  hbkgbdtg_b->Write();
-  hsigfitbdtg_a->Write();
-  hsigfitbdtg_b->Write();
+  hyieldmva_a->Write();
+  hyieldmva_b->Write();
   outf->Close();
 
   // print
@@ -362,6 +337,7 @@ void drawfitXvary(std::string output)
 
 int main(int argc, char* argv[])
 {
-  if(argc==2) { drawfitXvary(argv[1]); return 0; }
+  if(argc==4) { drawfitXvary(argv[1], argv[2], argv[3]); return 0; }
   return 1;
 }
+

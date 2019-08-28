@@ -4,6 +4,10 @@
 #include <TTree.h>
 #include <TH1F.h>
 #include <TEfficiency.h>
+#include <RooWorkspace.h>
+#include <RooRealVar.h>
+#include <RooDataSet.h>
+
 #include <string>
 
 #include "packtree.h"
@@ -15,14 +19,17 @@
 void fitXvary(std::string inputdata,                            // ==> data
               std::string inputmc_a, std::string inputmc_b,     // ==> prompt MC
               std::string inputmcnp_a, std::string inputmcnp_b, // ==> nonprompt MC
-              std::string output)
+              std::string output, std::string cutvar)
 {
+  std::cout<<"\e[32;1m -- "<<__FUNCTION__<<"\e[0m"<<std::endl;
   // init
   std::map<std::string, std::vector<float>> xbins = lxydis::setupbins();
+  fitX::varymva* mvas = fitX::initvarycut(cutvar);
+  if(!mvas) { std::cout<<__FUNCTION__<<"error: "<<cutvar<<std::endl; return; }
 
-  fitX::varycut vc(bdtg, "BDTG");
+  fitX::varycut vc(mvas->mva(), cutvar.c_str());
   vc.producehist();
-  for(int l=0; l<nbdtg; l++)
+  for(int l=0; l<mvas->n(); l++)
     {
       vc.hlxymcnp_a[l] = new TH1F(Form("hlxymcnp_a_%d", l), ";l_{xy} (mm);Probability", xbins["lxynonprompt"].size()-1, xbins["lxynonprompt"].data());
       vc.hlxymcnp_a[l]->Sumw2();
@@ -47,7 +54,6 @@ void fitXvary(std::string inputdata,                            // ==> data
   if(!infmcnp_b->IsOpen()) return;
 
   xjjroot::packtree* pt;
-  // mytmva::ntuple* ntp;
   int nentries;
   
   // ------------------------------
@@ -87,7 +93,11 @@ void fitXvary(std::string inputdata,                            // ==> data
   vc.produceeff();
 
   //
-  TFile* outf = new TFile(Form("rootfiles/root_fitXvary_%s.root", output.c_str()), "recreate");
+  std::string outputname = Form("rootfiles/%s/%s/root_fitXvary.root", output.c_str(), mvas->type().c_str());
+  xjjroot::mkdir(outputname);
+  TFile* outf = new TFile(outputname.c_str(), "recreate");
+  outf->cd();
+  fitX::write();
   outf->cd();
   for(auto& hh : vc.hdata) { hh->Write(); }
   for(auto& hh : vc.hdataBenr) { hh->Write(); }
@@ -103,12 +113,27 @@ void fitXvary(std::string inputdata,                            // ==> data
   for(auto& hh : vc.hlxymcp_b) { hh->Write(); }
   vc.hsideband_a->Write();
   vc.hsideband_b->Write();
+  outf->cd();
+  RooWorkspace* ww = new RooWorkspace("ww");
+  for(auto& hh : vc.dshdata) { ww->import(*hh); hh->Print("v"); }
+  for(auto& hh : vc.dshdataBenr) { ww->import(*hh); hh->Print("v"); }
+  for(auto& hh : vc.dshmc_a) { ww->import(*hh); }
+  for(auto& hh : vc.dshmc_b) { ww->import(*hh); }
+  gDirectory->Add(ww);
+  ww->Write();
+  ww->Print();  
   outf->Close();
   
 }
 
 int main(int argc, char* argv[])
 {
-  if(argc==7) { fitXvary(argv[1], argv[2], argv[3], argv[4], argv[5], argv[6]); return 0; }
+  if(argc==14) 
+    { 
+      fitX::init(atof(argv[8]), atof(argv[9]), atof(argv[10]), atof(argv[11]), atof(argv[12]), atof(argv[13]));
+      fitXvary(argv[1], argv[2], argv[3], argv[4], argv[5], Form("%s%s", argv[6], fitX::tagname().c_str()), argv[7]); 
+      return 0; 
+    }
   return 1;
 }
+
