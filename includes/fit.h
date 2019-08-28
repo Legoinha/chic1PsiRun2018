@@ -76,7 +76,7 @@ namespace fitX
   // ===>
   std::map<std::string, fitX::fitXresult*> fit(TH1F* hh, TH1F* hh_ss, TH1F* hhmc_a, TH1F* hhmc_b, 
                                                RooDataSet* dshh, RooDataSet* dshhmc_a, RooDataSet* dshhmc_b,
-                                               std::string outputdir, bool fixmean, bool saveplot, std::string name="", std::string option="default", bool silence=true);
+                                               std::string outputdir, bool fixmean, bool saveplot, std::string name="", std::string title="", std::string option="default", bool silence=true);
   // <===
   void setmasshist(TH1* h, float xoffset=0, float yoffset=0, Color_t pcolor=kBlack);
   void setmasshist(RooPlot* h, float xoffset=0, float yoffset=0, Color_t pcolor=kBlack);
@@ -97,7 +97,7 @@ namespace fitX
   void labelsmc(std::string label, double mean, double sigma1, double sigma2);
   void labelsdata(double mean_a, double mean_a_err, double yield_a, double yield_a_err,
                   double mean_b, double mean_b_err, double yield_b, double yield_b_err,
-                  double chi2prob);
+                  double chi2prob, std::string label);
   void zeroparameters(TF1* f, std::vector<int> ipars);
   std::map<std::string, TF1*> resolvef(TF1* f, std::string name);
   void plotonmc(RooPlot* fremptymc, RooDataSet* dshmc, RooAbsPdf* sig_mc, RooAbsPdf* sig_mc1, RooAbsPdf* sig_mc2, Color_t color, std::string name);
@@ -110,7 +110,7 @@ namespace fitX
 // --->
 std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* hhmc_a, TH1F* hhmc_b, 
                                                    RooDataSet* dshh, RooDataSet* dshhmc_a, RooDataSet* dshhmc_b, 
-                                                   std::string outputdir, bool fixmean, bool saveplot, std::string name, std::string option, bool silence)
+                                                   std::string outputdir, bool fixmean, bool saveplot, std::string name, std::string title, std::string option, bool silence)
 {
   std::string uniqstr(xjjc::currenttime());
   if(saveplot) gSystem->Exec(Form("mkdir -p %s", outputdir.c_str()));
@@ -417,7 +417,7 @@ std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* 
   float ysig_b = fs["fsig_b"]->Integral(BIN_MIN, BIN_MAX)/BIN_WIDTH;
   fitX::labelsdata(f->GetParameter(6), f->GetParError(6), ysig_a, f->GetParError(5)*ysig_a/f->GetParameter(5),
                    f->GetParameter(11), f->GetParError(11), ysig_b, f->GetParError(10)*ysig_b/f->GetParameter(10),
-                   TMath::Prob(f->GetChisquare(), f->GetNDF()));
+                   TMath::Prob(f->GetChisquare(), f->GetNDF()), title);
   if(!fixmean)
     {
       xjjroot::drawbox(fitX::PDG_MASS_PSI2S - fitX::PDG_MASS_PSI2S_ERR, h->GetMinimum(), fitX::PDG_MASS_PSI2S + fitX::PDG_MASS_PSI2S_ERR, h->GetMaximum(), color_a, 0.8, 1001, 0, 0, 0);
@@ -444,7 +444,7 @@ std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* 
   int32_t ndof = fitr->floatParsFinal().getSize();
   fitX::labelsdata(pars[6]->getVal(), pars[6]->getError(), pars[5]->getVal(), pars[5]->getError(),
                    pars[11]->getVal(), pars[11]->getError(), pars[10]->getVal(), pars[10]->getError(),
-                   TMath::Prob(frempty->chiSquare("pdf", "dshist", ndof)*ndof, ndof));
+                   TMath::Prob(frempty->chiSquare("pdf", "dshist", ndof)*ndof, ndof), title);
 
   if(!fixmean)
     {
@@ -519,7 +519,7 @@ void fitX::labelsmc(std::string label, double mean, double sigma1, double sigma2
 
 void fitX::labelsdata(double mean_a, double mean_a_err, double yield_a, double yield_a_err,
                       double mean_b, double mean_b_err, double yield_b, double yield_b_err,
-                      double chi2prob)
+                      double chi2prob, std::string title)
 {
   xjjroot::drawtex(0.92, 0.84, Form("%.0f < p_{T} < %.0f GeV/c", fitX::ptmincut, fitX::ptmaxcut), 0.038, 32, 62);
   xjjroot::drawtex(0.92, 0.79, Form("%s|y| < %.1f", (fitX::ymincut?Form("%.1f < ", fitX::ymincut):""), fitX::ymaxcut), 0.038, 32, 62);
@@ -531,6 +531,7 @@ void fitX::labelsdata(double mean_a, double mean_a_err, double yield_a, double y
   xjjroot::drawtex(0.32, 0.21, Form("N_{X(3872)} = %.0f #pm %.0f", yield_b, yield_b_err), 0.03, 12, 62, color_b);
 
   xjjroot::drawtex(0.17, 0.84, Form("#chi^{2} Prob = %.1f%s", chi2prob*100., "%"), 0.042, 12);
+  xjjroot::drawtex(0.17, 0.84-0.06, title.c_str(), 0.038, 12, 62);
 
   xjjroot::drawCMS();
 }

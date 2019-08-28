@@ -61,25 +61,22 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
       // ====>
       std::map<std::string, fitX::fitXresult*> result = fitX::fit(vh[l], 0, hmcp_a, hmcp_b, 
                                                                   vdsh[l], dshmcp_a, dshmcp_b,
-                                                                  Form("plots/%s", output.c_str(), vname[l].c_str()), l==1, true, "_"+vname[l], "default", true); // fix mean = false
-      // std::vector<TF1*> funs = fitX::fit(vh[l], 0, hmcp_a, hmcp_b, 
-      //                                      vdsh[l], dshmcp_a, dshmcp_b,
-      //                                      Form("plots/%s", output.c_str(), vname[l].c_str()), true, true, "_"+vname[l]); // fix mean = true
+                                                                  Form("plots/%s", output.c_str(), vname[l].c_str()), l==1, true, "_"+vname[l], vtitle[l]);
       cy->cd(l+1);
       xjjroot::setgstyle();
       // <====
-      float ysig1 = result["unbinned"]->ysig_a();
-      float ysig1err = result["unbinned"]->ysigerr_a();
-      float ysig2 = result["unbinned"]->ysig_b();
-      float ysig2err = result["unbinned"]->ysigerr_b();
+      float ysig_a = result["unbinned"]->ysig_a();
+      float ysigerr_a = result["unbinned"]->ysigerr_a();
+      float ysig_b = result["unbinned"]->ysig_b();
+      float ysigerr_b = result["unbinned"]->ysigerr_b();
 
       // yield
       xjjroot::setthgrstyle(vhyield_a[l], fitX::color_a, mstyle[l], 1.2, fitX::color_a, 2, 3, fitX::color_a, 0.1, 1001);
-      vhyield_a[l]->SetBinContent(2, ysig1);
-      vhyield_a[l]->SetBinError(2, ysig1err);
+      vhyield_a[l]->SetBinContent(2, ysig_a);
+      vhyield_a[l]->SetBinError(2, ysigerr_a);
       xjjroot::setthgrstyle(vhyield_b[l], fitX::color_b, mstyle[l], 1.2, fitX::color_b, 2, 3, fitX::color_b, 0.1, 1001);
-      vhyield_b[l]->SetBinContent(4, ysig2);
-      vhyield_b[l]->SetBinError(4, ysig2err);
+      vhyield_b[l]->SetBinContent(4, ysig_b);
+      vhyield_b[l]->SetBinError(4, ysigerr_b);
       // float ymax = 300.; // !
       float ymax = vhyield_a[l]->GetMaximum()*2.5; // !
       TH2F* hempty = new TH2F(Form("hempty%d",l), ";;Raw Yield", 5, 0, 5, 10, 0, ymax);
@@ -90,8 +87,8 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
       hempty->Draw();
       vhyield_a[l]->Draw("ple same");
       vhyield_b[l]->Draw("ple same");
-      xjjroot::drawtex(0.42, ysig1/ymax*(1-gStyle->GetPadBottomMargin()-gStyle->GetPadTopMargin()) + gStyle->GetPadBottomMargin() + 0.1, Form("%.0f #pm %.0f", ysig1, ysig1err), 0.042, 22, 62, fitX::color_a);
-      xjjroot::drawtex(0.72, ysig2/ymax*(1-gStyle->GetPadBottomMargin()-gStyle->GetPadTopMargin()) + gStyle->GetPadBottomMargin() + 0.1, Form("%.0f #pm %.0f", ysig2, ysig2err), 0.042, 22, 62, fitX::color_b);
+      xjjroot::drawtex(0.42, ysig_a/ymax*(1-gStyle->GetPadBottomMargin()-gStyle->GetPadTopMargin()) + gStyle->GetPadBottomMargin() + 0.1, Form("%.0f #pm %.0f", ysig_a, ysigerr_a), 0.042, 22, 62, fitX::color_a);
+      xjjroot::drawtex(0.72, ysig_b/ymax*(1-gStyle->GetPadBottomMargin()-gStyle->GetPadTopMargin()) + gStyle->GetPadBottomMargin() + 0.1, Form("%.0f #pm %.0f", ysig_b, ysigerr_b), 0.042, 22, 62, fitX::color_b);
       drawkinematic();
       xjjroot::drawtex(0.22, 0.84, vtitle[l].c_str(), 0.042, 12, 62);
       xjjroot::drawCMS();
