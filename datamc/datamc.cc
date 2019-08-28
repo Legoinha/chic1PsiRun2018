@@ -44,8 +44,8 @@ void datamcmain(std::string input, std::string inputmcp_a, std::string inputmcp_
   TH1F* hmcp_a = new TH1F("hmcp_a", Form(";m_{#mu#mu#pi#pi} (GeV/c^{2});Entries / %.0f MeV", fitX::BIN_WIDTH_L*1.e+3), fitX::NBIN_L, fitX::BIN_MIN_L, fitX::BIN_MAX_L); hmcp_a->Sumw2();
   TH1F* hmcp_b = new TH1F("hmcp_b", Form(";m_{#mu#mu#pi#pi} (GeV/c^{2});Entries / %.0f MeV", fitX::BIN_WIDTH_H*1.e+3), fitX::NBIN_H, fitX::BIN_MIN_H, fitX::BIN_MAX_H); hmcp_b->Sumw2();
 
-  TH1F* hmcdis_a = new TH1F("hmcdis_a", Form(";%s;Probability", vv->title().c_str()), vv->n()-1, vv->vars().data());
-  TH1F* hmcdis_b = new TH1F("hmcdis_b", Form(";%s;Probability", vv->title().c_str()), vv->n()-1, vv->vars().data());
+  TH1F* hmcdis_a = new TH1F("hmcdis_a", Form(";%s %s;Probability", vv->title().c_str(), vv->unit().c_str()), vv->n()-1, vv->vars().data());
+  TH1F* hmcdis_b = new TH1F("hmcdis_b", Form(";%s %s;Probability", vv->title().c_str(), vv->unit().c_str()), vv->n()-1, vv->vars().data());
 
   //
   TTree* ntmix = fitX::getnt(input, "Bfinder/ntmix"); if(!ntmix) { return; }
@@ -144,3 +144,4 @@ int main(int argc, char* argv[])
     }
   return 1;
 }
+

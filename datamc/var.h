@@ -18,6 +18,7 @@ namespace datamc
     std::string type() { return ftype; }
     std::string formula() { return fformula; }
     std::string title() { return ftitle; }
+    std::string unit() { return funit; }
     bool gt() { return fgt; }
     bool valid() { return fvalid; }
     int n() { return fvars.size(); }
@@ -29,6 +30,7 @@ namespace datamc
     std::string ftype;
     std::string fformula;
     std::string ftitle;
+    std::string funit;
   };
 }
 
@@ -40,20 +42,23 @@ bool datamc::var::init()
       fvars = std::vector<float>({0.06, 0.08, 0.10, 0.12, 0.14});
       fgt = true;
       ftitle = "BDT";
+      funit = "";
     }
   else if(ftype=="Qvalue")
     {
       fformula = "(Bmass-3.096916-Btktkmass)";
       fvars = std::vector<float>({0., 0.07, 0.10, 0.2});
       fgt = false;
-      ftitle = "m_{#mu#mu#pi#pi}-m_{#mu#mu}-m_{#pi#pi} (GeV/c^{2})";
+      ftitle = "Q = m_{#mu#mu#pi#pi}-m_{#mu#mu}-m_{#pi#pi}";
+      funit = "(GeV/c^{2})";
     }
   else if(ftype=="pt")
     {
       fformula = "Bpt";
       fvars = std::vector<float>({15., 20., 50.});
       fgt = true;
-      ftitle = "p_{T} (GeV/c)";
+      ftitle = "p_{T}";
+      funit = "(GeV/c)";
     }
 
   else if(ftype=="absy")
@@ -62,6 +67,7 @@ bool datamc::var::init()
       fvars = std::vector<float>({0, 0.4, 0.8, 1.6});
       fgt = false;
       ftitle = "|y|";
+      funit = "";
     }
   else { return false; }
   return true;
