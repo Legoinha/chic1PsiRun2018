@@ -47,7 +47,7 @@ bool datamc::var::init()
   else if(ftype=="Qvalue")
     {
       fformula = "(Bmass-3.096916-Btktkmass)";
-      fvars = std::vector<float>({0., 0.07, 0.10, 0.2});
+      fvars = std::vector<float>({0., 0.04, 0.08, 0.2});
       fgt = false;
       ftitle = "Q = m_{#mu#mu#pi#pi}-m_{#mu#mu}-m_{#pi#pi}";
       funit = "(GeV/c^{2})";

@@ -19,7 +19,9 @@
 #include <RooPolynomial.h>
 #include <RooAddPdf.h>
 #include <RooFitResult.h>
+#include <RooWorkspace.h>
 #include <RooPlot.h>
+#include <RooStats/SPlot.h>
 #include <RooMsgService.h>
 #include <string>
 #include <iostream>
@@ -66,12 +68,15 @@ namespace fitX
     TF1* fsig_a() { return ffsig_a; }
     TF1* fsig_b() { return ffsig_b; }
     TF1* fbkg() { return ffbkg; }
+    RooWorkspace* ww() { return fww; }
     void setf(TF1* f, TF1* fsig_a, TF1* fsig_b, TF1* fbkg) { ff = f; ffsig_a = fsig_a; ffsig_b = fsig_b; ffbkg = fbkg; }
+    void setw(RooWorkspace* w) { fww = w; }
 
   private:
     float fysig_a, fysig_b, fysigerr_a, fysigerr_b;
     float fmsig_a, fmsig_b, fmsigerr_a, fmsigerr_b;
     TF1 *ff, *ffsig_a, *ffsig_b, *ffbkg;
+    RooWorkspace* fww;
   };
   // ===>
   std::map<std::string, fitX::fitXresult*> fit(TH1F* hh, TH1F* hh_ss, TH1F* hhmc_a, TH1F* hhmc_b, 
@@ -117,6 +122,7 @@ std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* 
   if(silence) RooMsgService::instance().setSilentMode(true);
 
   std::map<std::string, fitX::fitXresult*> fitresult;
+  RooWorkspace* ww = new RooWorkspace(Form("ww%s", name.c_str()));
 
   /***************************************************
     Preparations
@@ -125,6 +131,7 @@ std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* 
   RooRealVar* mass = new RooRealVar("Bmass", "Bmass", fitX::BIN_MIN, fitX::BIN_MAX);
   RooRealVar* massmc_a = new RooRealVar("Bmass", "massmc_a", fitX::BIN_MIN_L, fitX::BIN_MAX_L);
   RooRealVar* massmc_b = new RooRealVar("Bmass", "massmc_a", fitX::BIN_MIN_H, fitX::BIN_MAX_H);
+
   RooPlot* frempty = mass->frame(RooFit::Title(""));
   frempty->SetYTitle(Form("Entries / %.0f MeV", fitX::BIN_WIDTH*1.e+3));
   RooPlot* fremptymc_a = massmc_a->frame(RooFit::Title(""));
@@ -456,6 +463,45 @@ std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* 
 
   printfit(f, pdf);
 
+  // ---> for sPlot
+  pars[6]->setConstant();
+  pars[11]->setConstant();
+  pars[0]->setConstant();
+  pars[1]->setConstant();
+  pars[2]->setConstant();
+  pars[3]->setConstant();
+  pars[4]->setConstant();
+
+  RooStats::SPlot* sData = new RooStats::SPlot("sData", "An SPlot", *dsh, pdf, RooArgList(*(pars[5]), *(pars[10]), *nbkg));
+  ww->import(*dsh, RooFit::Rename(Form("%s_ws", dshh->GetName())));
+  // std::cout << "Check SWeights:" << std::endl;
+  // std::cout << std::endl <<  "Yield of psi' is "
+  //           << pars[5]->getVal() << ".  From sWeights it is "
+  //           << sData->GetYieldFromSWeight("par5") << std::endl;
+  // std::cout << "Yield of X3872 is "
+  //           << pars[10]->getVal() << ".  From sWeights it is "
+  //           << sData->GetYieldFromSWeight("par10") << std::endl
+  //           << std::endl;
+  // std::cout << "Yield of bkg is "
+  //           << nbkg->getVal() << ".  From sWeights it is "
+  //           << sData->GetYieldFromSWeight("nbkg") << std::endl
+  //           << std::endl;
+  // int wpar5 = 0, wpar10 = 0, wnbkg = 0;
+  // for(int i=0; i<dsh->numEntries(); i++)
+  //   {
+  //     if(i%100==0) {
+  //     std::cout << "par5 Weight   " << sData->GetSWeight(i, "par5")
+  //               << "   par10 Weight   " << sData->GetSWeight(i, "par10")
+  //               << "   nbkg Weight   " << sData->GetSWeight(i, "nbkg")
+  //               << "  Total Weight   " << sData->GetSumOfEventSWeight(i)
+  //               << std::endl;
+  //     }
+  //     wpar5 += sData->GetSWeight(i, "par5");
+  //     wpar10 += sData->GetSWeight(i, "par10");
+  //     wnbkg += sData->GetSWeight(i, "nbkg");
+  //   }
+  // std::cout<<"count events: wpar5 = "<<wpar5<<", wpar10 = "<<wpar10<<", wnbkg = "<<wnbkg<<"."<<std::endl;
+
   delete cmc;
   delete c;
   delete crmc;
@@ -464,9 +510,11 @@ std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* 
   fitresult["binned"] = new fitX::fitXresult(ysig_a, ysig_b, f->GetParError(5)*ysig_a/f->GetParameter(5), f->GetParError(10)*ysig_a/f->GetParameter(10), 
                                              f->GetParameter(6), f->GetParameter(11), f->GetParError(6), f->GetParError(11));
   fitresult["binned"]->setf(fs["f"], fs["fsig_a"], fs["fsig_b"], fs["fbkg"]);
+  fitresult["binned"]->setw(0);
   fitresult["unbinned"] = new fitX::fitXresult(pars[5]->getVal(), pars[10]->getVal(), pars[5]->getError(), pars[10]->getError(),
                                                pars[6]->getVal(), pars[11]->getVal(), pars[6]->getError(), pars[11]->getError());
   fitresult["unbinned"]->setf(fr["f"], fr["fsig_a"], fr["fsig_b"], fr["fbkg"]);
+  fitresult["unbinned"]->setw(ww);
 
   return fitresult;
 }

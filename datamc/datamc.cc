@@ -35,6 +35,7 @@ void datamcmain(std::string input, std::string inputmcp_a, std::string inputmcp_
   RooRealVar* massmc_a = new RooRealVar("Bmass", "massmc_a", fitX::BIN_MIN_L, fitX::BIN_MAX_L);
   RooRealVar* massmc_b = new RooRealVar("Bmass", "massmc_b", fitX::BIN_MIN_H, fitX::BIN_MAX_H);
   RooRealVar* pthatweight = new RooRealVar("pthatweight", "pthatweight", 0, 10.); // pthatweight range!!
+  RooRealVar* varr = new RooRealVar(vv->formula().c_str(), "varr", vv->vars().front(), vv->vars().back());
 
   std::vector<RooDataSet*> dsh(vv->n()-1);
   RooDataSet* dshmcp_a;
@@ -82,7 +83,7 @@ void datamcmain(std::string input, std::string inputmcp_a, std::string inputmcp_
       fitX::printhist(h[i]);
       TTree* ntmix_skimh = (TTree*)ntmix_flatten->CopyTree(TCut(cutrecoi[i].c_str())); ntmix_skimh->SetName(Form("ntmix_skimh%d", i));
       fitX::printhist(ntmix_skimh);
-      dsh[i] = new RooDataSet(Form("dsh%d", i), "", ntmix_skimh, RooArgSet(*mass));
+      dsh[i] = new RooDataSet(Form("dsh%d", i), "", ntmix_skimh, RooArgSet(*mass, *varr));
       ww->import(*(dsh[i]));
     }
 

@@ -1,4 +1,5 @@
 #include <TH1F.h>
+#include <TH2F.h>
 #include <TTree.h>
 #include <TFile.h>
 #include <TLegend.h>
@@ -49,16 +50,21 @@ void fitdatamc(std::string input, std::string output, std::string type)
   hdis_a->GetXaxis()->SetNdivisions(505);
   TH1F* hdis_b = new TH1F("hdis_b", Form(";%s %s;Probability", vv->title().c_str(), vv->unit().c_str()), vv->n()-1, vv->vars().data());
   hdis_b->GetXaxis()->SetNdivisions(505);
+  RooRealVar* varr = new RooRealVar(vv->formula().c_str(), "varr", vv->vars().front(), vv->vars().back());
 
   // fit
+  std::vector<TF1*> ff(vv->n()-1, 0);
+  std::vector<std::string> tt(vv->n()-1);
+  std::vector<Color_t> cc(vv->n()-1);
   std::vector<float> ysig_a(vv->n()-1), ysigerr_a(vv->n()-1), ysig_b(vv->n()-1), ysigerr_b(vv->n()-1);
+  RooDataSet* dsh_ws;
   for(int i=0;i<vv->n()-1;i++)
     {
       int icut = vv->gt()?i:i+1;
-      std::string label(Form("%s %s %s %s %s %s", 
-                             xjjc::number_remove_zero(vv->vars()[icut]).c_str(), (vv->gt()?"<":">"), 
+      std::string label(Form("%s < %s < %s %s", 
+                             xjjc::number_remove_zero(vv->gt()?vv->vars()[icut]:vv->vars().front()).c_str(), 
                              vv->title().c_str(),
-                             (vv->gt()?"<":">"), xjjc::number_remove_zero(vv->gt()?vv->vars().back():vv->vars().front()).c_str(),
+                             xjjc::number_remove_zero(vv->gt()?vv->vars().back():vv->vars()[icut]).c_str(),
                              vv->unit().c_str()));
       std::map<std::string, fitX::fitXresult*> result = fitX::fit(h[i], 0, hmcp_a, hmcp_b,
                                                                   dsh[i], dshmcp_a, dshmcp_b,
@@ -67,7 +73,26 @@ void fitdatamc(std::string input, std::string output, std::string type)
       ysigerr_a[i] = result["unbinned"]->ysigerr_a();
       ysig_b[i] = result["unbinned"]->ysig_b();
       ysigerr_b[i] = result["unbinned"]->ysigerr_b();
+      ff[i] = result["unbinned"]->f();
+      xjjroot::setthgrstyle(h[i], xjjroot::mycolor_middle[xjjroot::cc[i]], 20, 0.9, xjjroot::mycolor_middle[xjjroot::cc[i]], 1, 1);
+      xjjroot::settfstyle(ff[i], xjjroot::mycolor_middle[xjjroot::cc[i]], 7, 2);
+      tt[i] = label;
+      cc[i] = xjjroot::mycolor_middle[xjjroot::cc[i]];
+      RooWorkspace* w = result["unbinned"]->ww();
+      if((vv->gt() && i==0) || (!vv->gt() && i==(vv->n()-2)))
+        {
+          dsh_ws = (RooDataSet*)w->data(Form("%s_ws", dsh[i]->GetName()));
+        }
     }
+  // RooArgSet* variables = roopdf->getVariables();
+  // RooArgSet* params = roopdf->getParameters((*variables)["Bmass"]);
+  // std::cout<<((RooRealVar*)(params->find("par5")))->getVal()<<" "<<((RooRealVar*)(params->find("par10")))->getVal()<<" "<<((RooRealVar*)(params->find("nbkg")))->getVal()<<std::endl;
+  // RooStats::SPlot* sData = new RooStats::SPlot("sData", "An SPlot", *roodsh, roopdf, RooArgList(*(params->find("par5")), *(params->find("par10")), *(params->find("nbkg"))));
+  // RooStats::SPlot* sData = new RooStats::SPlot("sData", "An SPlot", *roodsh, roopdf, RooArgList(*(params->find("par5")), *(params->find("nbkg"))));
+  dsh_ws->Print("v");
+  RooDataSet* dsh_ws_par5 = new RooDataSet(dsh_ws->GetName(), dsh_ws->GetTitle(), dsh_ws, *dsh_ws->get(), 0, "par5_sw");
+  RooDataSet* dsh_ws_par10 = new RooDataSet(dsh_ws->GetName(), dsh_ws->GetTitle(), dsh_ws, *dsh_ws->get(), 0, "par10_sw");
+
   for(int i=0; i<vv->n()-1; i++)
     {
       float yysig_a, yysig_b, yysigerr_a, yysigerr_b;
@@ -100,26 +125,26 @@ void fitdatamc(std::string input, std::string output, std::string type)
   hmcdis_a->SetMinimum(0);
   hmcdis_a->SetMaximum(std::max(hmcdis_a->GetMaximum(), hdis_a->GetMaximum())*2);
   xjjroot::sethempty(hmcdis_a, 0, 0);
-  xjjroot::setthgrstyle(hmcdis_a, fitX::color_a, 21, 1., fitX::color_a, 1, 2);
+  xjjroot::setthgrstyle(hmcdis_a, fitX::color_a, 20, 1., fitX::color_a, 1, 1);
   xjjroot::sethempty(hdis_a, 0, 0);
-  xjjroot::setthgrstyle(hdis_a, kBlack, 20, 1., kBlack, 1, 2);
+  xjjroot::setthgrstyle(hdis_a, kBlack, 47, 1.9, kBlack, 1, 1);
   hmcdis_b->SetMinimum(0);
   hmcdis_b->SetMaximum(std::max(hmcdis_b->GetMaximum(), hdis_b->GetMaximum())*2);
   xjjroot::sethempty(hmcdis_b, 0, 0);
-  xjjroot::setthgrstyle(hmcdis_b, fitX::color_b, 21, 1., fitX::color_b, 1, 2);
+  xjjroot::setthgrstyle(hmcdis_b, fitX::color_b, 20, 1., fitX::color_b, 1, 1);
   xjjroot::sethempty(hdis_b, 0, 0);
-  xjjroot::setthgrstyle(hdis_b, kBlack, 20, 1., kBlack, 1, 2);
+  xjjroot::setthgrstyle(hdis_b, kBlack, 47, 1.9, kBlack, 1, 1);
 
   TH1F* hratiodis_a = (TH1F*)hdis_a->Clone("hratiodis_a");
   hratiodis_a->GetYaxis()->SetTitle("Data / MC");
   hratiodis_a->Divide(hmcdis_a);
   hratiodis_a->SetMinimum(0);
-  hratiodis_a->SetMinimum(3);
+  hratiodis_a->SetMaximum(3);
   TH1F* hratiodis_b = (TH1F*)hdis_b->Clone("hratiodis_b");
   hratiodis_b->GetYaxis()->SetTitle("Data / MC");
   hratiodis_b->Divide(hmcdis_b);
   hratiodis_b->SetMinimum(0);
-  hratiodis_b->SetMinimum(3);
+  hratiodis_b->SetMaximum(3);
 
   TLegend* leg_a = new TLegend(0.23, 0.81-0.047*2, 0.65, 0.81);
   xjjroot::setleg(leg_a, 0.042);
@@ -130,44 +155,77 @@ void fitdatamc(std::string input, std::string output, std::string type)
   leg_b->AddEntry(hdis_b, "Data", "pl");
   leg_b->AddEntry(hmcdis_b, "MC", "pl");
 
+  float ymax = std::max(h.front()->GetMaximum(), h.back()->GetMaximum())*1.2;
+  TH2F* hempty_a = new TH2F("hempty_a", Form(";m_{#mu#mu#pi#pi} (GeV/c^{2});%s", Form("Entries / %.0f MeV", fitX::BIN_WIDTH*1.e+3)), 
+                            fitX::NBIN/2, fitX::BIN_MIN, fitX::BIN_MIN+fitX::BIN_WIDTH*fitX::NBIN/2, 10, 0, ymax);
+  hempty_a->GetXaxis()->SetNdivisions(505);
+  xjjroot::sethempty(hempty_a, 0, 0);
+  TH2F* hempty_b = new TH2F("hempty_b", Form(";m_{#mu#mu#pi#pi} (GeV/c^{2});%s", Form("Entries / %.0f MeV", fitX::BIN_WIDTH*1.e+3)), 
+                            fitX::NBIN/2, fitX::BIN_MAX-fitX::BIN_WIDTH*fitX::NBIN/2, fitX::BIN_MAX, 10, 0, ymax);
+  hempty_b->GetXaxis()->SetNdivisions(505);
+  xjjroot::sethempty(hempty_b, 0, 0);
+  
   xjjroot::setgstyle(1);
-  TCanvas* c_a = new TCanvas("c_a", "", 1200, 600);
-  c_a->Divide(2, 1);
+
+  TCanvas* c_ws = new TCanvas("c_ws", "", 1200, 600);
+  c_ws->Divide(2, 1);
+  c_ws->cd(1);
+  RooPlot* frame_a = varr->frame();
+  dsh_ws_par5->plotOn(frame_a, RooFit::Binning(vv->n()-1), RooFit::MarkerSize(0.9), RooFit::MarkerStyle(21), RooFit::LineColor(1), RooFit::LineWidth(1));
+  frame_a->Draw();
+  c_ws->cd(2);
+  RooPlot* frame_b = varr->frame();
+  dsh_ws_par10->plotOn(frame_b, RooFit::Binning(vv->n()-1), RooFit::MarkerSize(0.9), RooFit::MarkerStyle(21), RooFit::LineColor(1), RooFit::LineWidth(1));
+  frame_b->Draw();
+  c_ws->SaveAs(Form("plots/%s/cdis_ws.pdf", output.c_str()));
+
+  TCanvas* c_a = new TCanvas("c_a", "", 1800, 600);
+  c_a->Divide(3, 1);
   c_a->cd(1);
+  hempty_a->Draw();
+  for(int i=0;i<vv->n()-1;i++) { h[i]->Draw("pe same"); ff[i]->Draw("same"); }
+  xjjroot::drawtexgroup(0.89, 0.86, tt, 1, 0.5, 0.038, 33, 62, cc);
+  xjjroot::drawCMS();
+  c_a->cd(2);
   hmcdis_a->Draw("hist e");
   hdis_a->Draw("pe same");
   drawkinematics();
   xjjroot::drawtex(0.24, 0.84, fitX::title_a.c_str(), 0.038, 12, 62, fitX::color_a);
   leg_a->Draw();
   xjjroot::drawCMS();
-  c_a->cd(2);
+  c_a->cd(3);
   hratiodis_a->Draw("pe");
-  xjjroot::drawline(vv->vars().front(), 1., vv->vars().back(), 1., fitX::color_a, 7, 2);
+  xjjroot::drawline(vv->vars().front(), 1., vv->vars().back(), 1., fitX::color_a, 7, 2, 0.3);
   hratiodis_a->Draw("pe same");
   drawkinematics();
   xjjroot::drawtex(0.24, 0.84, fitX::title_a.c_str(), 0.038, 12, 62, fitX::color_a);
   xjjroot::drawCMS();
-  std::string outputname_a(Form("plots/%s/cdis_a.pdf", output.c_str(), vv->type().c_str()));
+  std::string outputname_a(Form("plots/%s/cdis_a.pdf", output.c_str()));
   xjjroot::mkdir(outputname_a);
   c_a->SaveAs(outputname_a.c_str());
 
-  TCanvas* c_b = new TCanvas("c_b", "", 1200, 600);
-  c_b->Divide(2, 1);
+  TCanvas* c_b = new TCanvas("c_b", "", 1800, 600);
+  c_b->Divide(3, 1);
   c_b->cd(1);
+  hempty_b->Draw();
+  for(int i=0;i<vv->n()-1;i++) { h[i]->Draw("pe same"); ff[i]->Draw("same"); }
+  xjjroot::drawtexgroup(0.89, 0.86, tt, 1, 0.5, 0.038, 33, 62, cc);
+  xjjroot::drawCMS();
+  c_b->cd(2);
   hmcdis_b->Draw("hist e");
   hdis_b->Draw("pe same");
   drawkinematics();
   xjjroot::drawtex(0.24, 0.84, fitX::title_b.c_str(), 0.038, 12, 62, fitX::color_b);
   leg_b->Draw();
   xjjroot::drawCMS();
-  c_b->cd(2);
+  c_b->cd(3);
   hratiodis_b->Draw("pe");
-  xjjroot::drawline(vv->vars().front(), 1., vv->vars().back(), 1., fitX::color_b, 7, 2);
+  xjjroot::drawline(vv->vars().front(), 1., vv->vars().back(), 1., fitX::color_b, 7, 2, 0.3);
   hratiodis_b->Draw("pe same");
   drawkinematics();
   xjjroot::drawtex(0.24, 0.84, fitX::title_b.c_str(), 0.038, 12, 62, fitX::color_b);
   xjjroot::drawCMS();
-  std::string outputname_b(Form("plots/%s/cdis_b.pdf", output.c_str(), vv->type().c_str()));
+  std::string outputname_b(Form("plots/%s/cdis_b.pdf", output.c_str()));
   xjjroot::mkdir(outputname_b);
   c_b->SaveAs(outputname_b.c_str());
 }

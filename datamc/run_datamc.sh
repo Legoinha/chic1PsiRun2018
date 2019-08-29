@@ -7,7 +7,7 @@ centmax=90
 ymin=0
 ymax=1.6
 
-counts=(0 1 2 3)
+counts=(2)
 
 types=(
     "BDT"    # 0
@@ -16,7 +16,7 @@ types=(
     "absy"   # 3
 )
 precuts=(
-    "&& (Bmass-3.096916-Btktkmass)<0.12"
+    "&& (Bmass-3.096916-Btktkmass)<0.14"
     "&& BDT>0.07"
     "&& (Bmass-3.096916-Btktkmass)<0.12 && BDT>0.07"
     "&& (Bmass-3.096916-Btktkmass)<0.12 && BDT>0.07"
@@ -41,12 +41,12 @@ echo -e "\e[32;1mcompiling...\e[0m"
 
 [[ $RUN_SAVEHIST -eq 1 || $# -eq 0 ]] && {
     echo " -- "datamc.cc
-    g++ datamc.cc $(root-config --libs --cflags) -lRooFit -lRooFitCore -g -o datamc_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; }
+    g++ datamc.cc $(root-config --libs --cflags) -lRooFit -lRooFitCore -lRooStats -g -o datamc_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; }
 }
 
 [[ $RUN_FITHIST -eq 1 || $# -eq 0 ]] && {
     echo " -- "fitdatamc.cc
-    g++ fitdatamc.cc $(root-config --libs --cflags) -lRooFit -lRooFitCore -g -o fitdatamc_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; }
+    g++ fitdatamc.cc $(root-config --libs --cflags) -lRooFit -lRooFitCore -lRooStats -g -o fitdatamc_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; }
 }
 
 echo
