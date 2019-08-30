@@ -7,6 +7,7 @@
 #include <RooDataSet.h>
 #include <RooRealVar.h>
 #include <RooWorkspace.h>
+#include <RooBinning.h>
 
 #include <string>
 #include <vector>
@@ -58,6 +59,7 @@ void fitdatamc(std::string input, std::string output, std::string type)
   std::vector<Color_t> cc(vv->n()-1);
   std::vector<float> ysig_a(vv->n()-1), ysigerr_a(vv->n()-1), ysig_b(vv->n()-1), ysigerr_b(vv->n()-1);
   RooDataSet* dsh_ws;
+  RooWorkspace* wws = new RooWorkspace("wws");
   for(int i=0;i<vv->n()-1;i++)
     {
       int icut = vv->gt()?i:i+1;
@@ -78,9 +80,9 @@ void fitdatamc(std::string input, std::string output, std::string type)
       xjjroot::settfstyle(ff[i], xjjroot::mycolor_middle[xjjroot::cc[i]], 7, 2);
       tt[i] = label;
       cc[i] = xjjroot::mycolor_middle[xjjroot::cc[i]];
-      RooWorkspace* w = result["unbinned"]->ww();
       if((vv->gt() && i==0) || (!vv->gt() && i==(vv->n()-2)))
         {
+          RooWorkspace* w = result["unbinned"]->ww();
           dsh_ws = (RooDataSet*)w->data(Form("%s_ws", dsh[i]->GetName()));
         }
     }
@@ -89,6 +91,7 @@ void fitdatamc(std::string input, std::string output, std::string type)
   // std::cout<<((RooRealVar*)(params->find("par5")))->getVal()<<" "<<((RooRealVar*)(params->find("par10")))->getVal()<<" "<<((RooRealVar*)(params->find("nbkg")))->getVal()<<std::endl;
   // RooStats::SPlot* sData = new RooStats::SPlot("sData", "An SPlot", *roodsh, roopdf, RooArgList(*(params->find("par5")), *(params->find("par10")), *(params->find("nbkg"))));
   // RooStats::SPlot* sData = new RooStats::SPlot("sData", "An SPlot", *roodsh, roopdf, RooArgList(*(params->find("par5")), *(params->find("nbkg"))));
+  wws->import(*dsh_ws);
   dsh_ws->Print("v");
   RooDataSet* dsh_ws_par5 = new RooDataSet(dsh_ws->GetName(), dsh_ws->GetTitle(), dsh_ws, *dsh_ws->get(), 0, "par5_sw");
   RooDataSet* dsh_ws_par10 = new RooDataSet(dsh_ws->GetName(), dsh_ws->GetTitle(), dsh_ws, *dsh_ws->get(), 0, "par10_sw");
@@ -171,11 +174,11 @@ void fitdatamc(std::string input, std::string output, std::string type)
   c_ws->Divide(2, 1);
   c_ws->cd(1);
   RooPlot* frame_a = varr->frame();
-  dsh_ws_par5->plotOn(frame_a, RooFit::Binning(vv->n()-1), RooFit::MarkerSize(0.9), RooFit::MarkerStyle(21), RooFit::LineColor(1), RooFit::LineWidth(1));
+  dsh_ws_par5->plotOn(frame_a, RooFit::Binning(RooBinning(vv->n()-1, vv->vars().data())), RooFit::MarkerSize(0.9), RooFit::MarkerStyle(21), RooFit::LineColor(1), RooFit::LineWidth(1));
   frame_a->Draw();
   c_ws->cd(2);
   RooPlot* frame_b = varr->frame();
-  dsh_ws_par10->plotOn(frame_b, RooFit::Binning(vv->n()-1), RooFit::MarkerSize(0.9), RooFit::MarkerStyle(21), RooFit::LineColor(1), RooFit::LineWidth(1));
+  dsh_ws_par10->plotOn(frame_b, RooFit::Binning(RooBinning(vv->n()-1, vv->vars().data())), RooFit::MarkerSize(0.9), RooFit::MarkerStyle(21), RooFit::LineColor(1), RooFit::LineWidth(1));
   frame_b->Draw();
   c_ws->SaveAs(Form("plots/%s/cdis_ws.pdf", output.c_str()));
 
@@ -228,6 +231,24 @@ void fitdatamc(std::string input, std::string output, std::string type)
   std::string outputname_b(Form("plots/%s/cdis_b.pdf", output.c_str()));
   xjjroot::mkdir(outputname_b);
   c_b->SaveAs(outputname_b.c_str());
+
+  std::string outputname = std::string("rootfiles/"+output+"/datamc_fithist.root");
+  xjjroot::mkdir(outputname);
+  TFile* outf = new TFile(outputname.c_str(), "recreate");
+  outf->cd();
+  hmcdis_a->Write();
+  hmcdis_b->Write();
+  hdis_a->Write();
+  hdis_b->Write();
+  hratiodis_a->Write();
+  hratiodis_b->Write();
+  outf->cd();
+  gDirectory->Add(wws);
+  wws->Write();
+  wws->Print();
+  outf->cd();
+  fitX::write();
+  outf->Close();
 }
 
 int main(int argc, char* argv[])

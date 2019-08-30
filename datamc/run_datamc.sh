@@ -7,7 +7,7 @@ centmax=90
 ymin=0
 ymax=1.6
 
-counts=(2)
+counts=(0 1 2 3)
 
 types=(
     "BDT"    # 0
@@ -16,7 +16,7 @@ types=(
     "absy"   # 3
 )
 precuts=(
-    "&& (Bmass-3.096916-Btktkmass)<0.14"
+    "&& (Bmass-3.096916-Btktkmass)<0.15"
     "&& BDT>0.07"
     "&& (Bmass-3.096916-Btktkmass)<0.12 && BDT>0.07"
     "&& (Bmass-3.096916-Btktkmass)<0.12 && BDT>0.07"

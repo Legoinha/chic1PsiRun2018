@@ -35,7 +35,7 @@ void datamcmain(std::string input, std::string inputmcp_a, std::string inputmcp_
   RooRealVar* massmc_a = new RooRealVar("Bmass", "massmc_a", fitX::BIN_MIN_L, fitX::BIN_MAX_L);
   RooRealVar* massmc_b = new RooRealVar("Bmass", "massmc_b", fitX::BIN_MIN_H, fitX::BIN_MAX_H);
   RooRealVar* pthatweight = new RooRealVar("pthatweight", "pthatweight", 0, 10.); // pthatweight range!!
-  RooRealVar* varr = new RooRealVar(vv->formula().c_str(), "varr", vv->vars().front(), vv->vars().back());
+  RooRealVar* varr = new RooRealVar(vv->formula().c_str(), vv->title().c_str(), vv->vars().front(), vv->vars().back());
 
   std::vector<RooDataSet*> dsh(vv->n()-1);
   RooDataSet* dshmcp_a;
