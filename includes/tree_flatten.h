@@ -15,14 +15,14 @@
 
 namespace fitX
 {
-  template <typename T>
+  template <typename T, size_t N>
   class br_element
   {
   public:
     br_element(std::string brname, bool isarray=true) : exist(false), name(brname), fisarray(isarray) { ; }
     std::string name;
     T value;
-    T array[MAX_XB];
+    T array[N];
     bool exist;
     bool isarray() { return fisarray; }
   private:
@@ -41,29 +41,31 @@ namespace fitX
     TTree* fnt;
     int Bsize;
   
-    std::vector<br_element<float>*> branchesf = {
-      new br_element<float>("Bmass"),
-      new br_element<float>("Btktkmass"),
-      new br_element<float>("Bpt"), 
-      new br_element<float>("Bgen"), 
-      new br_element<float>("By"),
-      new br_element<float>("Blxy"),
-      new br_element<float>("BDT"),
-      new br_element<float>("BDTG"),
-      new br_element<float>("BDTD"),
-      new br_element<float>("BDTF"),
-      new br_element<float>("pthatweight", false)
+    std::vector<br_element<float, MAX_XB>*> branchesf = {
+      new br_element<float, MAX_XB>("Bmass"),
+      new br_element<float, MAX_XB>("Btktkmass"),
+      new br_element<float, MAX_XB>("Bmumumass"),
+      new br_element<float, MAX_XB>("Bujmass"),
+      new br_element<float, MAX_XB>("Bpt"), 
+      new br_element<float, MAX_XB>("Bgen"), 
+      new br_element<float, MAX_XB>("By"),
+      new br_element<float, MAX_XB>("Blxy"),
+      new br_element<float, MAX_XB>("BDT"),
+      new br_element<float, MAX_XB>("BDTG"),
+      new br_element<float, MAX_XB>("BDTD"),
+      new br_element<float, MAX_XB>("BDTF"),
+      new br_element<float, MAX_XB>("pthatweight", false)
     };
-    std::vector<br_element<int>*> branchesi = {
-      new br_element<int>("BgencollisionId"),
-      new br_element<int>("hiBin", false),
-      new br_element<int>("HLT_HIL3Mu0NHitQ10_L2Mu0_MAXdR3p5_M1to5_v1", false),
-      new br_element<int>("pprimaryVertexFilter", false),
-      new br_element<int>("phfCoincFilter2Th4", false),
-      new br_element<int>("pclusterCompatibilityFilter", false),
+    std::vector<br_element<int, MAX_XB>*> branchesi = {
+      new br_element<int, MAX_XB>("BgencollisionId"),
+      new br_element<int, MAX_XB>("hiBin", false),
+      new br_element<int, MAX_XB>("HLT_HIL3Mu0NHitQ10_L2Mu0_MAXdR3p5_M1to5_v1", false),
+      new br_element<int, MAX_XB>("pprimaryVertexFilter", false),
+      new br_element<int, MAX_XB>("phfCoincFilter2Th4", false),
+      new br_element<int, MAX_XB>("pclusterCompatibilityFilter", false),
     };
-    std::vector<br_element<bool>*> brancheso = {
-      new br_element<bool>("mvapref"),
+    std::vector<br_element<bool, MAX_XB>*> brancheso = {
+      new br_element<bool, MAX_XB>("mvapref"),
     };
   };
 

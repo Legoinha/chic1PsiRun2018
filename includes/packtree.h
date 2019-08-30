@@ -14,7 +14,7 @@ namespace xjjroot
   {
   public:
     packtree(TFile* inf, std::string treename, std::string type, std::string gentreename = "");
-    mytmva::ntuple* ntp;
+    mytmva::ntuple* ntp() { return fntp; }
     int getentries() { return fentries; }
     std::string getname() { return name; }
     void getentry(int i);
@@ -23,6 +23,7 @@ namespace xjjroot
     // TTree* getskim() { return skim; }
     // TTree* gethi() { return hi; }
   private:
+    mytmva::ntuple* fntp;
     std::string name;
     TTree* nt;
     TTree* hlt;
@@ -76,7 +77,7 @@ xjjroot::packtree::packtree(TFile* inf, std::string treename, std::string type, 
       ntgen->AddFriend(hi);
     }
 
-  ntp = new mytmva::ntuple(nt, ntgen);
+  fntp = new mytmva::ntuple(nt, ntgen);
 }
 
 #endif

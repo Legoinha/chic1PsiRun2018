@@ -1,3 +1,6 @@
+#ifndef __FITX_PROJECT_H_
+#define __FITX_PROJECT_H_
+
 #include <TFile.h>
 #include <iostream>
 #include <TTree.h>
@@ -20,3 +23,5 @@ namespace fitX
     return nt;
   }
 }
+
+#endif
