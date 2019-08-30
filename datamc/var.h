@@ -56,7 +56,7 @@ bool datamc::var::init()
   else if(ftype=="pt")
     {
       fformula = "Bpt";
-      fvars = std::vector<double>({15., 20., 50.});
+      fvars = std::vector<double>({15., 25., 50.});
       fgt = true;
       ftitle = "p_{T}";
       funit = "(GeV/c)";
