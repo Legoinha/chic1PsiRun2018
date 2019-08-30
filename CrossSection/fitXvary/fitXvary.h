@@ -158,7 +158,7 @@ float fitX::varycut::MVA(mytmva::ntuple* ntp, int j)
 
 int fitX::varycut::loop_vary_data(xjjroot::packtree* pt, int nentries)
 {
-  mytmva::ntuple* ntp = pt->ntp;
+  mytmva::ntuple* ntp = pt->ntp();
   for(int i=0; i<nentries; i++)
     {
       pt->getentry(i);
@@ -199,7 +199,7 @@ int fitX::varycut::loop_vary_mcprompt(xjjroot::packtree* pt, int nentries, std::
 {
   int isam = setaorb(name);
   if(isam < 0) return 1;
-  mytmva::ntuple* ntp = pt->ntp;
+  mytmva::ntuple* ntp = pt->ntp();
 
   //
   for(int i=0; i<nentries; i++)
@@ -251,7 +251,7 @@ int fitX::varycut::loop_vary_mcnonprompt(xjjroot::packtree* pt, int nentries, st
 {
   int isam = setaorb(name);
   if(isam < 0) return 1;
-  mytmva::ntuple* ntp = pt->ntp;
+  mytmva::ntuple* ntp = pt->ntp();
 
   for(int i=0; i<nentries; i++)
     {
