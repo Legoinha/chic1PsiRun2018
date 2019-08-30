@@ -40,7 +40,7 @@ void acc_tree(std::string input, std::string output="")
   for(auto& br : brancheso) { outnt->Branch(br.second->name.c_str(), &(br.second->value)); }
 
   int nentries = nt->gnt()->GetEntries();
-  for(int i=0; i<nentries; i++)
+  for(int i=0; i<nentries; i++) // 
     {
       if(i%1000==0) { xjjc::progressbar(i, nentries); }
       ptr->getentry(i);
@@ -88,3 +88,4 @@ int main(int argc, char* argv[])
   if(argc==2) { acc_tree(argv[1]); return 0; }
   return 1;
 }
+

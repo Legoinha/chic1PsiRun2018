@@ -39,13 +39,15 @@ void acc_fit(std::string input, std::string output, std::string type)
     }
   float xmin_a = h_a->GetBinCenter(1) - h_a->GetBinWidth(1)/2.;
   float xmax_a = h_a->GetBinCenter(nbin) + h_a->GetBinWidth(nbin)/2.;
-  TF1* f_a = new TF1("f_a", "[0]+[1]*x", xmin_a, xmax_a);
-  f_a->SetParameters(1, 0);
+  TF1* f_a = new TF1("f_a", "exp([0]+[1]*x)", xmin_a, xmax_a);
+  // f_a->SetParameters(1, 0);
+  f_a->SetParameters(0, 0);
   xjjroot::settfstyle(f_a, xjjroot::mycolor_middle["red"], 3, 4);
   float xmin_b = h_b->GetBinCenter(1) - h_b->GetBinWidth(1)/2.;
   float xmax_b = h_b->GetBinCenter(nbin) + h_b->GetBinWidth(nbin)/2.;
-  TF1* f_b = new TF1("f_b", "[0]+[1]*x", xmin_b, xmax_b);
-  f_b->SetParameters(1, 0);
+  TF1* f_b = new TF1("f_b", "exp([0]+[1]*x)", xmin_b, xmax_b);
+  // f_b->SetParameters(1, 0);
+  f_b->SetParameters(0, 0);
   xjjroot::settfstyle(f_b, xjjroot::mycolor_middle["red"], 3, 4);
 
   TRandom3* rmd = new TRandom3();
@@ -63,17 +65,19 @@ void acc_fit(std::string input, std::string output, std::string type)
   xjjroot::mkdir(outputnamec);
   for(int i=0, ic=0; i<n; i++)
     {
+      f_a->SetParameters(0, 0);
+      f_b->SetParameters(0, 0);
       for(int k=0; k<nbin; k++)
         {
           h_a->SetBinContent(k+1, rmd->Gaus(means_a[k], errs_a[k]));
           h_b->SetBinContent(k+1, rmd->Gaus(means_b[k], errs_b[k]));
         }
       h_a->Fit("f_a", "Nq", "", xmin_a, xmax_a);
-      h_a->Fit("f_a", "NLLq", "", xmin_a, xmax_a);
+      h_a->Fit("f_a", "Nq", "", xmin_a, xmax_a);
       a0 = f_a->GetParameter(0);
       a1 = f_a->GetParameter(1);
       h_b->Fit("f_b", "Nq", "", xmin_b, xmax_b);
-      h_b->Fit("f_b", "NLLq", "", xmin_b, xmax_b);
+      h_b->Fit("f_b", Form("N%s", i%(n/5)!=0?"q":""), "", xmin_b, xmax_b);
       b0 = f_b->GetParameter(0);
       b1 = f_b->GetParameter(1);
       if(i%(n/5)==0) 
@@ -102,6 +106,7 @@ void acc_fit(std::string input, std::string output, std::string type)
       par->Fill();
     }
   par->Write();
+  fitX::write();
   outf->Close();
 
 }
