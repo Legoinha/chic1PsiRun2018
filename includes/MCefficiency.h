@@ -20,78 +20,93 @@ namespace MCeff
   {
   public:
     MCefficiency(std::string name, int whichincl=0, std::vector<float> _ptbins = MCeff::ptBins);
-    MCefficiency(TFile* inf, std::string name, int whichincl=0, std::vector<float> _ptbins = MCeff::ptBins);
-    TH1F* heffmc;
-    TH1F* heffmc_incl;
-    TH1F* heffgen;
-    TH1F* heffgen_incl;
-    TEfficiency* greff;
-    TEfficiency* greff_incl;
-    TH1F* heff;
-    TH1F* heff_incl;
+    MCefficiency(TFile* inf, std::string name, int whichincl=0);
+
+    TH1F* heffmc() { return fheffmc; }
+    TH1F* heffmc_incl() { return fheffmc_incl; }
+    TH1F* heffgen() { return fheffgen; }
+    TH1F* heffgen_incl() { return fheffgen_incl; }
+    TEfficiency* greff() { return fgreff; }
+    TEfficiency* greff_incl() { return fgreff_incl; }
+    TH1F* heff() { return fheff; }
+    TH1F* heff_incl() { return fheff_incl; }
 
     void calceff();
     void setstyle(Color_t color, Style_t mstyle=20, Style_t lstyle=2);
-    std::vector<float> getptbins() { return ptbins; }
-    std::vector<float> getptbins_incl() { return ptbins_incl; }
+    std::vector<float> ptbins() { return fptbins; }
+    int nbins() { return fnptbins; }
   private:
     int fincl;
     std::string fname;
     void createhist();
     void readhist(TFile* inf);
-    std::vector<float> ptbins;
-    int nptbins;
-    std::vector<float> ptbins_incl;
-    int nptbins_incl;
+    std::vector<float> fptbins;
+    int fnptbins;
+    TH1F* fheffmc;
+    TH1F* fheffmc_incl;
+    TH1F* fheffgen;
+    TH1F* fheffgen_incl;
+    TEfficiency* fgreff;
+    TEfficiency* fgreff_incl;
+    TH1F* fheff;
+    TH1F* fheff_incl;
+    std::vector<float> fptbins_incl;
+    int fnptbins_incl;
   };
 }
 
-MCeff::MCefficiency::MCefficiency(std::string name, int whichincl, std::vector<float> _ptbins) : fname(name), fincl(whichincl), ptbins(_ptbins), nptbins(_ptbins.size()-1)
+MCeff::MCefficiency::MCefficiency(std::string name, int whichincl, std::vector<float> _ptbins) : fname(name), fincl(whichincl), fptbins(_ptbins), fnptbins(_ptbins.size()-1)
 {
   createhist();
-  ptbins_incl = MCeff::ptBins_incl;
-  nptbins_incl = MCeff::nPtBins_incl;
+  fptbins_incl = MCeff::ptBins_incl;
+  fnptbins_incl = MCeff::nPtBins_incl;
 }
 
-MCeff::MCefficiency::MCefficiency(TFile* inf, std::string name, int whichincl, std::vector<float> _ptbins) : fname(name), fincl(whichincl), ptbins(_ptbins), nptbins(_ptbins.size()-1)
+MCeff::MCefficiency::MCefficiency(TFile* inf, std::string name, int whichincl) : fname(name), fincl(whichincl)
 {
   readhist(inf);
-  ptbins_incl = MCeff::ptBins_incl;
-  nptbins_incl = MCeff::nPtBins_incl;
+  fptbins_incl = MCeff::ptBins_incl;
+  fnptbins_incl = MCeff::nPtBins_incl;
 }
 
 void MCeff::MCefficiency::createhist()
 {
-  heffmc = new TH1F(Form("heffmc%s", fname.c_str()), ";p_{T} (GeV/c);", nptbins, ptbins.data()); heffmc->Sumw2();
-  if(fincl==0) { heffmc_incl = new TH1F(Form("heffmc_incl%s", fname.c_str()), "", 5, 0, 5); heffmc_incl->Sumw2(); }
-  if(fincl==1) { heffmc_incl = new TH1F(Form("heffmc_incl%s", fname.c_str()), "", nptbins_incl, ptbins_incl.data()); heffmc_incl->Sumw2(); }
-  heffgen = new TH1F(Form("heffgen%s", fname.c_str()), ";p_{T} (GeV/c);", nptbins, ptbins.data());
-  if(fincl==0) { heffgen_incl = new TH1F(Form("heffgen_incl%s", fname.c_str()), "", 5, 0, 5); heffgen_incl->Sumw2(); }
-  if(fincl==1) { heffgen_incl = new TH1F(Form("heffgen_incl%s", fname.c_str()), "", nptbins_incl, ptbins_incl.data()); heffgen_incl->Sumw2(); }
+  fheffmc = new TH1F(Form("heffmc%s", fname.c_str()), ";p_{T} (GeV/c);", fnptbins, fptbins.data()); fheffmc->Sumw2();
+  if(fincl==0) { fheffmc_incl = new TH1F(Form("heffmc_incl%s", fname.c_str()), "", 5, 0, 5); fheffmc_incl->Sumw2(); }
+  if(fincl==1) { fheffmc_incl = new TH1F(Form("heffmc_incl%s", fname.c_str()), "", fnptbins_incl, fptbins_incl.data()); fheffmc_incl->Sumw2(); }
+  fheffgen = new TH1F(Form("heffgen%s", fname.c_str()), ";p_{T} (GeV/c);", fnptbins, fptbins.data());
+  if(fincl==0) { fheffgen_incl = new TH1F(Form("heffgen_incl%s", fname.c_str()), "", 5, 0, 5); fheffgen_incl->Sumw2(); }
+  if(fincl==1) { fheffgen_incl = new TH1F(Form("heffgen_incl%s", fname.c_str()), "", fnptbins_incl, fptbins_incl.data()); fheffgen_incl->Sumw2(); }
 }
 
 void MCeff::MCefficiency::readhist(TFile* inf)
 {
-  heffmc = (TH1F*)inf->Get(Form("heffmc%s", fname.c_str()));
-  heffmc_incl = (TH1F*)inf->Get(Form("heffmc_incl%s", fname.c_str()));
-  heffgen = (TH1F*)inf->Get(Form("heffgen%s", fname.c_str()));
-  heffgen_incl = (TH1F*)inf->Get(Form("heffgen_incl%s", fname.c_str()));
+  fheffmc = (TH1F*)inf->Get(Form("heffmc%s", fname.c_str()));
+  fheffmc_incl = (TH1F*)inf->Get(Form("heffmc_incl%s", fname.c_str()));
+  fheffgen = (TH1F*)inf->Get(Form("heffgen%s", fname.c_str()));
+  fheffgen_incl = (TH1F*)inf->Get(Form("heffgen_incl%s", fname.c_str()));
+  fnptbins = fheffmc->GetXaxis()->GetNbins();
+  fptbins.clear();
+  for(int i=0; i<fnptbins+1; i++)
+    {
+      fptbins.push_back((*(fheffmc->GetXaxis()->GetXbins()))[i]);
+    }
 }
 
 void MCeff::MCefficiency::calceff()
 {
-  greff = new TEfficiency(*heffmc, *heffgen); greff->SetName(Form("greff%s", fname.c_str()));
-  greff_incl = new TEfficiency(*heffmc_incl, *heffgen_incl); greff_incl->SetName(Form("greff_incl%s", fname.c_str()));
-  heff = (TH1F*)heffmc->Clone(Form("heff%s", fname.c_str()));
-  heff->Divide(heffgen);
-  heff_incl = (TH1F*)heffmc_incl->Clone(Form("heff_incl%s", fname.c_str()));
-  heff_incl->Divide(heffgen_incl);
+  fgreff = new TEfficiency(*fheffmc, *fheffgen); fgreff->SetName(Form("greff%s", fname.c_str()));
+  fgreff_incl = new TEfficiency(*fheffmc_incl, *fheffgen_incl); fgreff_incl->SetName(Form("greff_incl%s", fname.c_str()));
+  fheff = (TH1F*)fheffmc->Clone(Form("heff%s", fname.c_str()));
+  fheff->Divide(fheffgen);
+  fheff_incl = (TH1F*)fheffmc_incl->Clone(Form("heff_incl%s", fname.c_str()));
+  fheff_incl->Divide(fheffgen_incl);
 }
 
 void MCeff::MCefficiency::setstyle(Color_t color, Style_t mstyle/*=20*/, Style_t lstyle/*=2*/)
 {
-  xjjroot::setthgrstyle(heff, 0, 0, 0, color, lstyle, 3, color, 0.1, 1001);
-  xjjroot::setthgrstyle(heff_incl, color, mstyle, 1.2, color, lstyle, 3, color, 0.1, 1001);
-  xjjroot::setthgrstyle(greff, 0, 0, 0, color, lstyle, 3, color, 0.1, 1001);
-  xjjroot::setthgrstyle(greff_incl, color, mstyle, 1.2, color, lstyle, 3, color, 0.1, 1001);
+  xjjroot::setthgrstyle(fheff, 0, 0, 0, color, lstyle, 3, color, 0.1, 1001);
+  xjjroot::setthgrstyle(fheff_incl, color, mstyle, 1.2, color, lstyle, 3, color, 0.1, 1001);
+  xjjroot::setthgrstyle(fgreff, 0, 0, 0, color, lstyle, 3, color, 0.1, 1001);
+  xjjroot::setthgrstyle(fgreff_incl, color, mstyle, 1.2, color, lstyle, 3, color, 0.1, 1001);
 }
