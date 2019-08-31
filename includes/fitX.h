@@ -29,6 +29,7 @@ namespace fitX
   std::string ytag() { return std::string(Form("%s|y| < %s", (fitX::ymincut?Form("%s < ",xjjc::number_remove_zero(fitX::ymincut)):""), xjjc::number_remove_zero(fitX::ymaxcut).c_str())); }
   std::string pttag() { return std::string(Form("%s < p_{T} < %s GeV/c", xjjc::number_remove_zero(fitX::ptmincut).c_str(), xjjc::number_remove_zero(fitX::ptmaxcut).c_str())); }
   std::string centtag() { return std::string(Form("Cent. %.0f-%.0f%s", fitX::centmincut, fitX::centmaxcut, "%")); }
+  void drawkinematics();
   template<class T> void printhist(T* hh) { std::cout<<"\e[2m"<<hh->GetName()<<"\e[0m\e[36;1m ("<<hh->GetEntries()<<")\e[0m"<<std::endl; }
 
   Color_t color_data = kRed-3, color_a = kAzure+4, color_b = kGreen-1, color_ss = kGray+1, color_bkg = color_data;
@@ -72,5 +73,13 @@ void fitX::write()
   kinfo->Fill();
   kinfo->Write();
 }
+
+void fitX::drawkinematics()
+{
+  xjjroot::drawtex(0.90, 0.84, fitX::pttag().c_str(), 0.038, 32, 62);
+  xjjroot::drawtex(0.90, 0.84-0.04, fitX::ytag().c_str(), 0.038, 32, 62);
+  xjjroot::drawtex(0.90, 0.84-0.04*2, fitX::centtag().c_str(), 0.038, 32, 62);
+}
+
 
 #endif

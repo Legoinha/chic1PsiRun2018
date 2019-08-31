@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ##
-tcounts=(0)
+tcounts=(0 1)
 types=(
     "pt"     # 0
     "absy"   # 1
@@ -18,40 +18,51 @@ inputtags=("a" "b")
 RUN_TREE=${1:-0}
 RUN_FIT=${2:-0}
 RUN_ACC=${3:-0}
+RUN_DRAW=${4:-0}
 
 outputdir=rootfiles/trainX_20190808ptdep_sideband_tktk0p2_15p0_50p0_0-10-1-2-9_pt15-50_cent090_y0p0-1p6
+output=${outputdir##*/}
 
 set -x
 [[ $RUN_TREE -eq 1 || $# == 0 ]] && { g++ acc_tree.cc $(root-config --libs --cflags) -g -o acc_tree.exe || { rm *.exe 2>/dev/null ; exit 1; } } 
 [[ $RUN_FIT -eq 1 || $# == 0 ]] && { g++ acc_fit.cc $(root-config --libs --cflags) -g -o acc_fit.exe || { rm *.exe 2>/dev/null ; exit 1; } } 
 [[ $RUN_ACC -eq 1 || $# == 0 ]] && { g++ acc_acc.cc $(root-config --libs --cflags) -g -o acc_acc.exe || { rm *.exe 2>/dev/null ; exit 1; } } 
+[[ $RUN_DRAW -eq 1 || $# == 0 ]] && { g++ acc_draw.cc $(root-config --libs --cflags) -g -o acc_draw.exe || { rm *.exe 2>/dev/null ; exit 1; } } 
 set +x
 
 [[ $RUN_TREE -eq 1 ]] && {
     for i in ${counts[@]}
     do
-        output=${inputmc[i]%%.root}_skimacc.root
-        [[ -f $output ]] && continue
+        thisoutput=${inputmc[i]%%.root}_skimacc.root
+        [[ -f $thisoutput ]] && continue
 
-        ./acc_tree.exe ${inputmc[i]} $output
+        ./acc_tree.exe ${inputmc[i]} $thisoutput
     done
 }
 
 for i in ${tcounts[@]}
 do
-    output=${outputdir##*/}/${types[i]}
+    thisoutput=$output/${types[i]}
     [[ $RUN_FIT -eq 1 ]] && {
-        ./acc_fit.exe $outputdir/${types[i]}/datamc_fithist.root $output ${types[i]}
+        ./acc_fit.exe $outputdir/${types[i]}/datamc_fithist.root $thisoutput ${types[i]}
     }
     [[ $RUN_ACC -eq 1 ]] && {
         for j in ${counts[@]}
         do
             inputskim=${inputmc[j]%%.root}_skimacc.root
-            ./acc_acc.exe $inputskim $outputdir/${types[i]}/acc_fit.root $output ${types[i]} ${inputtags[j]}
+            ./acc_acc.exe $inputskim $outputdir/${types[i]}/acc_fit.root $thisoutput ${types[i]} ${inputtags[j]}
         done
     }
 done
 
+[[ $RUN_DRAW -eq 1 ]] && {
+    for i in ${counts[@]}
+    do
+        ./acc_draw.exe $outputdir/${types[0]}/acc_acc_${inputtags[i]}.root $outputdir/${types[1]}/acc_acc_${inputtags[i]}.root  $output
+    done
+}
+
+rm acc_draw.exe 2>/dev/null
 rm acc_acc.exe 2>/dev/null
 rm acc_fit.exe 2>/dev/null
 rm acc_tree.exe 2>/dev/null

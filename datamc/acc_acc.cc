@@ -48,8 +48,8 @@ void acc_acc(std::string inputskim, std::string inputpars, std::string output, s
     }
 
   float nominal = acc::getacc(1, 0, vGvar, vweight, visAcc);
-  float err = 0.07; //
-  TH1F* hacc = new TH1F("hacc", ";#alpha;", 200, nominal-err, nominal+err);
+  float err = 0.09; //
+  TH1F* hacc = new TH1F("hacc", ";#alpha;", 300, nominal-err, nominal+err);
   TH1F* hnominal = new TH1F("hnominal", ";;", 1, 0, 1);
   hnominal->Fill(0., nominal);
   for(int i=0; i<np; i++)
