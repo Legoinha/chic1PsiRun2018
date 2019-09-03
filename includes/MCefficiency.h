@@ -105,8 +105,8 @@ void MCeff::MCefficiency::calceff()
 
 void MCeff::MCefficiency::setstyle(Color_t color, Style_t mstyle/*=20*/, Style_t lstyle/*=2*/)
 {
-  xjjroot::setthgrstyle(fheff, 0, 0, 0, color, lstyle, 3, color, 0.1, 1001);
-  xjjroot::setthgrstyle(fheff_incl, color, mstyle, 1.2, color, lstyle, 3, color, 0.1, 1001);
-  xjjroot::setthgrstyle(fgreff, 0, 0, 0, color, lstyle, 3, color, 0.1, 1001);
-  xjjroot::setthgrstyle(fgreff_incl, color, mstyle, 1.2, color, lstyle, 3, color, 0.1, 1001);
+  xjjroot::setthgrstyle(fheff, 0, 0, 0, color, lstyle, 3, color, 0.2, 1001);
+  xjjroot::setthgrstyle(fheff_incl, color, mstyle, 1.2, color, lstyle, 3, color, 0.2, 1001);
+  xjjroot::setthgrstyle(fgreff, 0, 0, 0, color, lstyle, 3, color, 0.2, 1001);
+  xjjroot::setthgrstyle(fgreff_incl, color, mstyle, 1.2, color, lstyle, 3, color, 0.2, 1001);
 }

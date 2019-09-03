@@ -9,16 +9,10 @@ ymax=1.6
 
 counts=(1)
 optcuts=(
-    "&& BDTF > 0.3 && (Bmass-3.096916-Btktkmass) < 0.12"
-    "&& BDT > 0.07 && (Bmass-3.096916-Btktkmass) < 0.12"
-    "&& BDTD > 0.12 && (Bmass-3.096916-Btktkmass) < 0.12"
-    "&& BDTG > 0.70 && (Bmass-3.096916-Btktkmass) < 0.12"
+    "&& BDT > 0.07 && (Bmass-3.096916-Btktkmass) < 0.13"
 )
 tags=(
-    "BDTFQvalue"
     "BDTQvalue"
-    "BDTDQvalue"
-    "BDTGQvalue"
 )
 
 inputmc_a_prompt=/raid5/data/wangj/BntupleRun2018/mva_output_20190808ptdep/ntmix_20190808_Bfinder_20190712_Hydjet_Pythia8_PromptPsi2S_1033p1_pt6tkpt0p9dls0_pthatweight_trainX_20190808ptdep_sideband_tktk0p2_BDT_BDTD_BDTG_BDTF_LD_15p0_50p0_0-10-1-2-9_1bin.root
@@ -26,6 +20,7 @@ inputmc_b_prompt=/raid5/data/wangj/BntupleRun2018/mva_output_20190808ptdep/ntmix
 
 RUN_SAVEHIST=${1:-0}
 RUN_FITHIST=${2:-0}
+RUN_DRAWHIST=${3:-0}
 
 tmp=$(date +%y%m%d%H%M%S)
 
@@ -45,6 +40,11 @@ echo -e "\e[32;1mcompiling...\e[0m"
 [[ $RUN_FITHIST -eq 1 || $# -eq 0 ]] && {
     echo " -- "closure_fithist.cc
     g++ closure_fithist.cc $(root-config --libs --cflags) -lRooFit -lRooFitCore -lRooStats -g -o closure_fithist_${tmp}.exe || { rm *_${tmp}.exe 2>/dev/null ; exit 1 ; }
+}
+
+[[ $RUN_DRAWHIST -eq 1 || $# -eq 0 ]] && {
+    echo " -- "closure_drawhist.cc
+    g++ closure_drawhist.cc $(root-config --libs --cflags) -lRooFit -lRooFitCore -lRooStats -g -o closure_drawhist_${tmp}.exe || { rm *_${tmp}.exe 2>/dev/null ; exit 1 ; }
 }
 
 [[ $RUN_SAVEHIST -eq 1 ]] && {
@@ -73,6 +73,9 @@ do
     }
     [[ $RUN_FITHIST -eq 1 ]] && {
         ./closure_fithist_${tmp}.exe $rootdir/closure_savehist.root $name$kinematic
+    }
+    [[ $RUN_DRAWHIST -eq 1 ]] && {
+        ./closure_drawhist_${tmp}.exe $rootdir/closure_fithist.root $name$kinematic
     }
 
 done

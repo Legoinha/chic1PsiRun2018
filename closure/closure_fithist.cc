@@ -66,15 +66,6 @@ void closure_fithist(std::string input, std::string output)
       hyield_binned_b->SetBinError(i+1, result_b["binned"]->ysigerr_b());
     }
 
-  // raw yields
-  xjjroot::setthgrstyle(hyield_unbinned_a, xjjroot::mycolor_dark["red"], 20, 1.1, xjjroot::mycolor_dark["red"], 1, 1);
-  xjjroot::setthgrstyle(hyield_binned_a, xjjroot::mycolor_light["red"], 24, 1.1, xjjroot::mycolor_light["red"], 1, 1);
-  xjjroot::setthgrstyle(hyield_unbinned_b, xjjroot::mycolor_dark["red"], 20, 1.1, xjjroot::mycolor_dark["red"], 1, 1);
-  xjjroot::setthgrstyle(hyield_binned_b, xjjroot::mycolor_light["red"], 24, 1.1, xjjroot::mycolor_light["red"], 1, 1);
-  xjjroot::sethempty(hyield_unbinned_a);
-  xjjroot::sethempty(hyield_binned_a);
-  xjjroot::sethempty(hyield_unbinned_b);
-  xjjroot::sethempty(hyield_binned_b);
   // efficiency
   mceff_a.calceff();
   mceff_a.setstyle(xjjroot::mycolor_middle["azure"]);
@@ -85,66 +76,15 @@ void closure_fithist(std::string input, std::string output)
   hcorr_unbinned_a->Divide(mceff_a.heff());
   TH1F* hcorr_binned_a = (TH1F*)hyield_binned_a->Clone("hcorr_binned_a");
   hcorr_binned_a->Divide(mceff_a.heff());
-  xjjroot::setthgrstyle(mceff_a.heffgen(), xjjroot::mycolor_middle["azure"], 21, 1, xjjroot::mycolor_middle["azure"], 1, 2, xjjroot::mycolor_middle["azure"], 0.2, 1001);
-  xjjroot::sethempty(mceff_a.heffgen());
   TH1F* hcorr_unbinned_b = (TH1F*)hyield_unbinned_b->Clone("hcorr_unbinned_b");
   hcorr_unbinned_b->Divide(mceff_b.heff());
   TH1F* hcorr_binned_b = (TH1F*)hyield_binned_b->Clone("hcorr_binned_b");
   hcorr_binned_b->Divide(mceff_b.heff());
-  xjjroot::setthgrstyle(mceff_b.heffgen(), xjjroot::mycolor_middle["azure"], 21, 1, xjjroot::mycolor_middle["azure"], 1, 2, xjjroot::mycolor_middle["azure"], 0.2, 1001);
-  xjjroot::sethempty(mceff_b.heffgen());
-
-  // draw
-  float ymaxeff = 0.2;
-  TH2F* hemptyeff = new TH2F("hemptyeff", ";p_{T} (GeV/c);#alpha #times #epsilon_{reco} #times #epsilon_{sel}", 10, ptbins.front(), ptbins.back(), 10, 0, ymaxeff);
-  xjjroot::sethempty(hemptyeff, 0, 0.3);
-  xjjroot::setgstyle(1);
-  TCanvas* c_a = new TCanvas("c_a", "", 1800, 600);
-  c_a->SetLogy();
-  c_a->Divide(3, 1);
-  c_a->cd(1);
-  hyield_binned_a->Draw("pe");
-  hyield_unbinned_a->Draw("pe same");
-  xjjroot::drawCMS("Simulation");
-  c_a->cd(2);
-  hemptyeff->Draw();
-  mceff_a.greff()->Draw("same3");
-  mceff_a.greff()->Draw("samelX");
-  xjjroot::drawCMS("Simulation");
-  c_a->cd(3);
-  mceff_a.heffgen()->Draw("hist");
-  hcorr_binned_a->Draw("pe same");
-  hcorr_unbinned_a->Draw("pe same");
-  xjjroot::drawCMS("Simulation");
-  std::string outputname_a = "plots/"+output+"/cclosure_a.pdf";
-  xjjroot::mkdir(outputname_a);
-  c_a->SaveAs(outputname_a.c_str());
-  TCanvas* c_b = new TCanvas("c_b", "", 1800, 600);
-  c_b->SetLogy();
-  c_b->Divide(3, 1);
-  c_b->cd(1);
-  hyield_binned_b->Draw("pe");
-  hyield_unbinned_b->Draw("pe same");
-  xjjroot::drawCMS("Simulation");
-  c_b->cd(2);
-  hemptyeff->Draw();
-  mceff_b.greff()->Draw("same3");
-  mceff_b.greff()->Draw("samelX");
-  xjjroot::drawCMS("Simulation");
-  c_b->cd(3);
-  mceff_b.heffgen()->Draw("hist");
-  hcorr_binned_b->Draw("pe same");
-  hcorr_unbinned_b->Draw("pe same");
-  xjjroot::drawCMS("Simulation");
-  std::string outputname_b = "plots/"+output+"/cclosure_b.pdf";
-  xjjroot::mkdir(outputname_b);
-  c_b->SaveAs(outputname_b.c_str());
 
   // save
-  std::string outputname = "rootfiles/"+output+"/closure_fit.root";
+  std::string outputname = "rootfiles/"+output+"/closure_fithist.root";
   xjjroot::mkdir(outputname);
   TFile* outf = new TFile(outputname.c_str(), "recreate");
-  hemptyeff->Write();
   hyield_binned_a->Write();
   hyield_unbinned_a->Write();
   mceff_a.greff()->Write();
@@ -157,6 +97,7 @@ void closure_fithist(std::string input, std::string output)
   mceff_b.heffgen()->Write();
   hcorr_binned_b->Write();
   hcorr_unbinned_b->Write();
+  fitX::write();
   outf->Close();
 }
 
@@ -165,3 +106,4 @@ int main(int argc, char* argv[])
   if(argc==3) { closure_fithist(argv[1], argv[2]); return 0; }
   return 1;
 }
+
