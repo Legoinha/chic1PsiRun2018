@@ -31,7 +31,7 @@ namespace fitXvary
                                                                     Form("plots/%s/idx", output.c_str()), fixmean, true, Form("_%d", l), Form("%s > %.2f", mvas->type().c_str(), mvas->mva()[l])); // fix mean = false
         pp->cd();
         xjjroot::setgstyle(1);
-        xjjroot::settfstyle(result["unbinned"]->f(), xjjroot::mycolor_middle[xjjroot::cc[lp]], 2, 2); //
+        xjjroot::settfstyle(result["unbinned"]->f(), xjjroot::mycolor_middle[xjjroot::cc[lp]], 2, 4); //
         if(mvas->ifdraw()[l])
           {
             // xjjroot::copyobject(result["unbinned"]->f(), Form("ff_%s", hdata[l]->GetName()))->Draw("l same");

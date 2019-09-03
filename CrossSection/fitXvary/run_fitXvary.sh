@@ -21,8 +21,8 @@ g++ getfname.cc $(root-config --libs --cflags) -g -o getfname_${tmp}.exe || { rm
 kinematic=$(./getfname_${tmp}.exe $ptmin $ptmax $centmin $centmax $ymin $ymax)
 rm getfname_${tmp}.exe
 
-g++ fitXvary.C $(root-config --libs --cflags) -lRooFit -lRooFitCore -g -o fitXvary.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; }
-g++ drawfitXvary.C $(root-config --libs --cflags) -lRooFit -lRooFitCore -g -o drawfitXvary.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; }
+g++ fitXvary.C $(root-config --libs --cflags) -lRooFit -lRooFitCore -lRooStats -g -o fitXvary.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; }
+g++ drawfitXvary.C $(root-config --libs --cflags) -lRooFit -lRooFitCore -lRooStats -g -o drawfitXvary.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; }
 
 echo -e "----------------------------------------"
 echo -e "==> File directory: \e[4m$name\e[0m"
