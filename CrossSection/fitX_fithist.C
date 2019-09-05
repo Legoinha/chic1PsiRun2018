@@ -17,9 +17,10 @@
 
 void drawkinematic();
 
-void fitX_fithist(std::string input, std::string output, std::string inputtnp_a, std::string inputtnp_b)
+void fitX_fithist(std::string input, std::string output, std::string inputtnp_a, std::string inputtnp_b, std::string fitopt="default")
 {
   std::cout<<"\e[32;1m -- "<<__FUNCTION__<<"\e[0m"<<std::endl;
+  if(fitopt!="default") { output += ("/"+fitopt); }
   TFile* inf = new TFile(input.c_str());
   fitX::init(inf);
   RooWorkspace* ww = (RooWorkspace*)inf->Get("ww");
@@ -30,15 +31,15 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   TH1F* h = (TH1F*)inf->Get("h");
   TH1F* hBenr = (TH1F*)inf->Get("hBenr");
   TH1F* hmcp_a = (TH1F*)inf->Get("hmcp_a");
-  hmcp_a->Scale(hmcp_a->GetEntries()/hmcp_a->Integral());
+  // hmcp_a->Scale(hmcp_a->GetEntries()/hmcp_a->Integral());
   TH1F* hmcp_b = (TH1F*)inf->Get("hmcp_b");
-  hmcp_b->Scale(hmcp_b->GetEntries()/hmcp_b->Integral());
+  // hmcp_b->Scale(hmcp_b->GetEntries()/hmcp_b->Integral());
   TH1F* hlxymcnp_a = (TH1F*)inf->Get("hlxymcnp_a");
   TH1F* hlxymcnp_b = (TH1F*)inf->Get("hlxymcnp_b");
   TH1F* hlxymcp_a = (TH1F*)inf->Get("hlxymcp_a");
   TH1F* hlxymcp_b = (TH1F*)inf->Get("hlxymcp_b");
-  MCeff::MCefficiency mceff_a(inf, "_a");
-  MCeff::MCefficiency mceff_b(inf, "_b");
+  MCeff::MCefficiency* mceff_a = new MCeff::MCefficiency(inf, "_a");
+  MCeff::MCefficiency* mceff_b = new MCeff::MCefficiency(inf, "_b");
 
   // fit + yield
   TH1F* hyield_a = new TH1F("hyield_a", "", 5, 0, 5); //hyield_a->Sumw2();
@@ -61,7 +62,7 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
       // ====>
       std::map<std::string, fitX::fitXresult*> result = fitX::fit(vh[l], 0, hmcp_a, hmcp_b, 
                                                                   vdsh[l], dshmcp_a, dshmcp_b,
-                                                                  Form("plots/%s", output.c_str(), vname[l].c_str()), l==1, true, "_"+vname[l], vtitle[l]);
+                                                                  Form("plots/%s", output.c_str()), l==1, true, "_"+vname[l], vtitle[l], fitopt);
       cy->cd(l+1);
       xjjroot::setgstyle();
       // <====
@@ -159,16 +160,16 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   grfprompt_a->Draw("same");
   grfprompt_b->Draw("same");
   drawkinematic();
-  fitX::drawcomment(output.c_str());
+  xjjroot::drawcomment(output.c_str(), "r");
   xjjroot::drawCMS();
   xjjroot::mkdir(Form("plots/%s/cfprompt.pdf", output.c_str()));
   cfprompt->SaveAs(Form("plots/%s/cfprompt.pdf", output.c_str()));
 
   // efficiency
-  mceff_a.calceff();
-  mceff_a.setstyle(fitX::color_a);
-  mceff_b.calceff();
-  mceff_b.setstyle(fitX::color_b);
+  mceff_a->calceff();
+  mceff_a->setstyle(fitX::color_a);
+  mceff_b->calceff();
+  mceff_b->setstyle(fitX::color_b);
   float ymaxeff = 0.2;
   TH2F* hemptyeff = new TH2F("hemptyeff", ";p_{T} (GeV/c);#alpha #times #epsilon_{reco} #times #epsilon_{sel}", 10, MCeff::ptBins[0], MCeff::ptBins[MCeff::nPtBins], 10, 0, ymaxeff);
   xjjroot::sethempty(hemptyeff, 0, 0.3);
@@ -179,17 +180,17 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   hemptyeff_incl->GetXaxis()->SetLabelSize(hemptyeff_incl->GetXaxis()->GetLabelSize()*1.5);
   TLegend* legeff = new TLegend(0.70, 0.20, 1.10, 0.32);
   xjjroot::setleg(legeff, 0.042);
-  legeff->AddEntry(mceff_a.greff, "#psi(2S)", "fl");
-  legeff->AddEntry(mceff_b.greff, "X(3872)", "fl");
+  legeff->AddEntry(mceff_a->greff(), "#psi(2S)", "fl");
+  legeff->AddEntry(mceff_b->greff(), "X(3872)", "fl");
   xjjroot::setgstyle();
   TCanvas* ceff = new TCanvas("ceff", "", 1200, 600);
   ceff->Divide(2, 1);
   ceff->cd(1);
   hemptyeff->Draw();
-  mceff_a.greff->Draw("same3");
-  mceff_a.greff->Draw("samelX");
-  mceff_b.greff->Draw("same3");
-  mceff_b.greff->Draw("samelX");
+  mceff_a->greff()->Draw("same3");
+  mceff_a->greff()->Draw("samelX");
+  mceff_b->greff()->Draw("same3");
+  mceff_b->greff()->Draw("samelX");
   legeff->Draw();
   xjjroot::drawtex(0.23, 0.84, "PYTHIA8 + HYDJET", 0.042, 12, 62);
   xjjroot::drawtex(0.23, 0.77, "Prompt", 0.042, 12, 62);
@@ -198,17 +199,17 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   xjjroot::drawCMSright();
   xjjroot::drawtex(0.92, 0.84, fitX::ytag().c_str(), 0.04, 32, 42);
   xjjroot::drawtex(0.92, 0.79, fitX::centtag().c_str(), 0.04, 32, 42);
-  fitX::drawcomment(output.c_str());
+  xjjroot::drawcomment(output.c_str(), "r");
   ceff->cd(2);
   hemptyeff_incl->Draw();
-  mceff_a.greff_incl->Draw("same ple");
-  mceff_b.greff_incl->Draw("same ple");
-  float effval_a = mceff_a.greff_incl->GetEfficiency(fitX::ibin_a);
+  mceff_a->greff_incl()->Draw("same ple");
+  mceff_b->greff_incl()->Draw("same ple");
+  float effval_a = mceff_a->greff_incl()->GetEfficiency(fitX::ibin_a);
   xjjroot::drawtex(0.42, effval_a/ymaxeff*(1-gStyle->GetPadBottomMargin()-gStyle->GetPadTopMargin()) + gStyle->GetPadBottomMargin() + 0.1, 
-                   Form("%.1f {}^{+ %.1f}_{-  %.1f} #times 10^{-3}", mceff_a.greff_incl->GetEfficiency(fitX::ibin_a)*1000, mceff_a.greff_incl->GetEfficiencyErrorUp(fitX::ibin_a)*1000, mceff_a.greff_incl->GetEfficiencyErrorLow(fitX::ibin_a)*1000), 0.042, 22, 62, fitX::color_a);
-  float effval_b = mceff_b.greff_incl->GetEfficiency(fitX::ibin_b);
+                   Form("%.1f {}^{+ %.1f}_{-  %.1f} #times 10^{-3}", mceff_a->greff_incl()->GetEfficiency(fitX::ibin_a)*1000, mceff_a->greff_incl()->GetEfficiencyErrorUp(fitX::ibin_a)*1000, mceff_a->greff_incl()->GetEfficiencyErrorLow(fitX::ibin_a)*1000), 0.042, 22, 62, fitX::color_a);
+  float effval_b = mceff_b->greff_incl()->GetEfficiency(fitX::ibin_b);
   xjjroot::drawtex(0.72, effval_b/ymaxeff*(1-gStyle->GetPadBottomMargin()-gStyle->GetPadTopMargin()) + gStyle->GetPadBottomMargin() + 0.1,
-                   Form("%.1f {}^{+ %.1f}_{-  %.1f} #times 10^{-3}", mceff_b.greff_incl->GetEfficiency(fitX::ibin_b)*1000, mceff_b.greff_incl->GetEfficiencyErrorUp(fitX::ibin_b)*1000, mceff_b.greff_incl->GetEfficiencyErrorLow(fitX::ibin_b)*1000), 0.042, 22, 62, fitX::color_b);
+                   Form("%.1f {}^{+ %.1f}_{-  %.1f} #times 10^{-3}", mceff_b->greff_incl()->GetEfficiency(fitX::ibin_b)*1000, mceff_b->greff_incl()->GetEfficiencyErrorUp(fitX::ibin_b)*1000, mceff_b->greff_incl()->GetEfficiencyErrorLow(fitX::ibin_b)*1000), 0.042, 22, 62, fitX::color_b);
   xjjroot::drawtex(0.23, 0.84, "PYTHIA8 + HYDJET", 0.042, 12, 62);
   xjjroot::drawtex(0.23, 0.77, "Prompt", 0.042, 12, 62);
   drawkinematic();
@@ -227,9 +228,9 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   // correct eff
   xjjroot::setgstyle(2);
   TH1F* hyieldpromptCorr_a = (TH1F*)hyieldprompt_a->Clone("hyieldpromptCorr_a");
-  hyieldpromptCorr_a->Divide(mceff_a.heff_incl);
+  hyieldpromptCorr_a->Divide(mceff_a->heff_incl());
   TH1F* hyieldpromptCorr_b = (TH1F*)hyieldprompt_b->Clone("hyieldpromptCorr_b");
-  hyieldpromptCorr_b->Divide(mceff_b.heff_incl);
+  hyieldpromptCorr_b->Divide(mceff_b->heff_incl());
   std::vector<float> xx_a, yy_a, xel_a, xeh_a, yel_a, yeh_a;
   xx_a.push_back(hyieldpromptCorr_a->GetBinCenter(fitX::ibin_a));
   xel_a.push_back(0.1);
@@ -278,7 +279,7 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   xjjroot::drawtex(0.72, yyieldpromptCorr_b/ymaxyieldpromptCorr*(1-gStyle->GetPadBottomMargin()-gStyle->GetPadTopMargin()) + gStyle->GetPadBottomMargin() + 0.2, Form("%.0f #pm %.0f", yyieldpromptCorr_b, yerryieldpromptCorr_b), 0.042, 22, 62, fitX::color_b);
   xjjroot::drawCMS();
   drawkinematic();
-  fitX::drawcomment(output.c_str());
+  xjjroot::drawcomment(output.c_str(), "r");
   xjjroot::mkdir(Form("plots/%s/cyieldpromptCorr.pdf", output.c_str()));
   cyieldpromptCorr->SaveAs(Form("plots/%s/cyieldpromptCorr.pdf", output.c_str()));
 
@@ -287,8 +288,8 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   hyield->Add(hyield_b);
   TH1F* hBenryield = (TH1F*)hBenryield_a->Clone("hBenryield");
   hBenryield->Add(hBenryield_b);
-  TH1F* heff_incl = (TH1F*)mceff_a.heff_incl->Clone("heff_incl");
-  heff_incl->Add(mceff_b.heff_incl);
+  TH1F* heff_incl = (TH1F*)mceff_a->heff_incl()->Clone("heff_incl");
+  heff_incl->Add(mceff_b->heff_incl());
   TH1F* hyieldprompt = (TH1F*)hyieldprompt_a->Clone("hyieldprompt");
   hyieldprompt->Add(hyieldprompt_b);
   TH1F* hyieldpromptCorr = (TH1F*)hyieldpromptCorr_a->Clone("hyieldpromptCorr");
@@ -304,7 +305,9 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   hratio->Divide(hratio_a);
 
   // write
-  TFile* outf = new TFile(Form("rootfiles/%s/fitX_fithist.root", output.c_str()), "recreate");
+  std::string outputname(Form("rootfiles/%s/fitX_fithist.root", output.c_str()));
+  xjjroot::mkdir(outputname);
+  TFile* outf = new TFile(outputname.c_str(), "recreate");
   outf->cd();
   h->Write();
   hBenr->Write();
@@ -322,17 +325,17 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   hyieldpromptCorr_a->Write();
   hyieldpromptCorr_b->Write();
   hyieldpromptCorr->Write();
-  mceff_a.heff_incl->Write();
-  mceff_b.heff_incl->Write();
+  mceff_a->heff_incl()->Write();
+  mceff_b->heff_incl()->Write();
   heff_incl->Write();
-  mceff_a.greff_incl->Write();
-  mceff_b.greff_incl->Write();
+  mceff_a->greff_incl()->Write();
+  mceff_b->greff_incl()->Write();
   grfprompt_a->Write();
   grfprompt_b->Write();
   hratio->Write();
   fitX::write();
   outf->Close();
-  std::cout<<"output: "<<Form("rootfiles/%s/fitX_fithist.root", output.c_str())<<std::endl;
+  std::cout<<"output: "<<outputname<<std::endl;
   std::cout<<std::endl;
 }
 
@@ -342,6 +345,7 @@ int main(int argc, char* argv[])
   std::string inputnametnp_a = "rootfiles/"+std::string(argv[2])+fitX::tagname()+"/drawtnp_a.root";
   std::string inputnametnp_b = "rootfiles/"+std::string(argv[2])+fitX::tagname()+"/drawtnp_b.root";
   std::string outputname = std::string(argv[2])+fitX::tagname();
+  if(argc==4) { fitX_fithist(argv[1], outputname, inputnametnp_a, inputnametnp_b, argv[3]); return 0; }
   if(argc==3) { fitX_fithist(argv[1], outputname, inputnametnp_a, inputnametnp_b); return 0; }
   return 1;
 }
@@ -352,3 +356,4 @@ void drawkinematic()
   xjjroot::drawtex(0.92, 0.79, fitX::pttag().c_str(), 0.04, 32, 42);
   xjjroot::drawtex(0.92, 0.74, fitX::centtag().c_str(), 0.04, 32, 42);
 }
+

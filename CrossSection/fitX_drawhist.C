@@ -65,7 +65,7 @@ void fitX_drawhist(std::string inputname, std::string output)
   xjjroot::drawtex(0.22+0.01, 0.87-0.01-0.045*3, Form("Centrality %.0f-%.0f%s", fitX::centmincut, fitX::centmaxcut, "%"), 0.035, 13);
   xjjroot::drawCMSleft("", 0.05, -0.08);
   xjjroot::drawCMSright("1.5 nb^{-1} (2018 PbPb 5.02 TeV)");
-  fitX::drawcomment(output.c_str());
+  xjjroot::drawcomment(output.c_str(), "r");
   xjjroot::mkdir(Form("plots/%s/cratio.pdf", output.c_str()));
   cratio->SaveAs(Form("plots/%s/cratio.pdf", output.c_str()));
   std::cout<<std::endl;
@@ -73,8 +73,9 @@ void fitX_drawhist(std::string inputname, std::string output)
 
 int main(int argc, char* argv[])
 {
-  fitX::init(TFile::Open(argv[1]));
-  std::string dirname = std::string(argv[2])+fitX::tagname();
-  if(argc==3) { fitX_drawhist(argv[1], dirname); return 0; }
+  // fitX::init(TFile::Open(argv[1]));
+  // std::string dirname = std::string(argv[2])+fitX::tagname();
+  // if(argc==3) { fitX_drawhist(argv[1], dirname); return 0; }
+  if(argc==3) { fitX_drawhist(argv[1], argv[2]); return 0; }
   return 1;
 }

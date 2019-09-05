@@ -43,8 +43,8 @@ void fitX_savehist(std::string input, std::string inputmcp_a, std::string inputm
   TH1F* hlxymcnp_b = new TH1F("hlxymcnp_b", Form(";%s;Probability", lxydis::vars["lxy"].c_str()), lxyxbins["lxynonprompt"].size()-1, lxyxbins["lxynonprompt"].data()); hlxymcnp_b->Sumw2();
   TH1F* hlxymcp_a = new TH1F("hlxymcp_a", Form(";%s;Probability", lxydis::vars["lxy"].c_str()), lxyxbins["lxyprompt"].size()-1, lxyxbins["lxyprompt"].data()); hlxymcp_a->Sumw2();
   TH1F* hlxymcp_b = new TH1F("hlxymcp_b", Form(";%s;Probability", lxydis::vars["lxy"].c_str()), lxyxbins["lxyprompt"].size()-1, lxyxbins["lxyprompt"].data()); hlxymcp_b->Sumw2();
-  MCeff::MCefficiency mceff_a("_a");
-  MCeff::MCefficiency mceff_b("_b");
+  MCeff::MCefficiency* mceff_a = new MCeff::MCefficiency("_a");
+  MCeff::MCefficiency* mceff_b = new MCeff::MCefficiency("_b");
 
   //
   TTree* ntmix = fitX::getnt(input, "Bfinder/ntmix"); if(!ntmix) { return; }
@@ -91,12 +91,12 @@ void fitX_savehist(std::string input, std::string inputmcp_a, std::string inputm
   fitX::printhist(hmcp_a);
   TTree* ntmixmcp_a_skim = (TTree*)ntmixmcp_a_flatten->CopyTree(TCut(cutmcreco.c_str())); ntmixmcp_a_skim->SetName("ntmixmcp_a_skim");
   fitX::printhist(ntmixmcp_a_skim);
-  dshmcp_a = new RooDataSet("dshmcp_a", "", ntmixmcp_a_skim, RooArgSet(*massmc_a, *pthatweight), "pthatweight");
+  dshmcp_a = new RooDataSet("dshmcp_a", "", ntmixmcp_a_skim, RooArgSet(*massmc_a, *pthatweight), 0, "pthatweight");
   ww->import(*dshmcp_a);
-  ntmixmcp_a->Project(mceff_a.heffmc->GetName(), "Bpt", TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
-  fitX::printhist(mceff_a.heffmc);
-  ntmixmcp_a->Project(mceff_a.heffmc_incl->GetName(), Form("%d", fitX::ibin_a-1), TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
-  fitX::printhist(mceff_a.heffmc_incl);
+  ntmixmcp_a->Project(mceff_a->heffmc()->GetName(), "Bpt", TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
+  fitX::printhist(mceff_a->heffmc());
+  ntmixmcp_a->Project(mceff_a->heffmc_incl()->GetName(), Form("%d", fitX::ibin_a-1), TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
+  fitX::printhist(mceff_a->heffmc_incl());
   ntmixmcp_a->Project("hlxymcp_a", lxydis::formulas["lxy"].c_str(), TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
   fitX::printhist(hlxymcp_a);
 
@@ -106,27 +106,27 @@ void fitX_savehist(std::string input, std::string inputmcp_a, std::string inputm
   fitX::printhist(hmcp_b);
   TTree* ntmixmcp_b_skim = (TTree*)ntmixmcp_b_flatten->CopyTree(TCut(cutmcreco.c_str())); ntmixmcp_b_skim->SetName("ntmixmcp_b_skim");
   fitX::printhist(ntmixmcp_b_skim); 
-  dshmcp_b = new RooDataSet("dshmcp_b", "", ntmixmcp_b_skim, RooArgSet(*massmc_b, *pthatweight), "pthatweight");
+  dshmcp_b = new RooDataSet("dshmcp_b", "", ntmixmcp_b_skim, RooArgSet(*massmc_b, *pthatweight), 0, "pthatweight");
   ww->import(*dshmcp_b);
-  ntmixmcp_b->Project(mceff_b.heffmc->GetName(), "Bpt", TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
-  fitX::printhist(mceff_b.heffmc);
-  ntmixmcp_b->Project(mceff_b.heffmc_incl->GetName(), Form("%d", fitX::ibin_b-1), TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
-  fitX::printhist(mceff_b.heffmc_incl);
+  ntmixmcp_b->Project(mceff_b->heffmc()->GetName(), "Bpt", TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
+  fitX::printhist(mceff_b->heffmc());
+  ntmixmcp_b->Project(mceff_b->heffmc_incl()->GetName(), Form("%d", fitX::ibin_b-1), TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
+  fitX::printhist(mceff_b->heffmc_incl());
   ntmixmcp_b->Project("hlxymcp_b", lxydis::formulas["lxy"].c_str(), TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
   fitX::printhist(hlxymcp_b);
 
   //
   std::cout<<" == mcgenp_a ==>"<<std::endl;
-  ntGenmcp_a->Project(mceff_a.heffgen->GetName(), "Gpt", TCut(mcweight.c_str())*TCut(cutmcgen.c_str()));
-  fitX::printhist(mceff_a.heffgen);
-  ntGenmcp_a->Project(mceff_a.heffgen_incl->GetName(), Form("%d", fitX::ibin_a-1), TCut(mcweight.c_str())*TCut(cutmcgen.c_str()));
-  fitX::printhist(mceff_a.heffgen_incl);
+  ntGenmcp_a->Project(mceff_a->heffgen()->GetName(), "Gpt", TCut(mcweight.c_str())*TCut(cutmcgen.c_str()));
+  fitX::printhist(mceff_a->heffgen());
+  ntGenmcp_a->Project(mceff_a->heffgen_incl()->GetName(), Form("%d", fitX::ibin_a-1), TCut(mcweight.c_str())*TCut(cutmcgen.c_str()));
+  fitX::printhist(mceff_a->heffgen_incl());
 
   std::cout<<" == mcgenp_b ==>"<<std::endl;
-  ntGenmcp_b->Project(mceff_b.heffgen->GetName(), "Gpt", TCut(mcweight.c_str())*TCut(cutmcgen.c_str()));
-  fitX::printhist(mceff_b.heffgen);
-  ntGenmcp_b->Project(mceff_b.heffgen_incl->GetName(), Form("%d", fitX::ibin_b-1), TCut(mcweight.c_str())*TCut(cutmcgen.c_str()));
-  fitX::printhist(mceff_b.heffgen_incl);
+  ntGenmcp_b->Project(mceff_b->heffgen()->GetName(), "Gpt", TCut(mcweight.c_str())*TCut(cutmcgen.c_str()));
+  fitX::printhist(mceff_b->heffgen());
+  ntGenmcp_b->Project(mceff_b->heffgen_incl()->GetName(), Form("%d", fitX::ibin_b-1), TCut(mcweight.c_str())*TCut(cutmcgen.c_str()));
+  fitX::printhist(mceff_b->heffgen_incl());
 
   std::cout<<" == mcnp_a ==>"<<std::endl;
   ntmixmcnp_a->Project("hlxymcnp_a", lxydis::formulas["lxy"].c_str(), TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
@@ -148,14 +148,14 @@ void fitX_savehist(std::string input, std::string inputmcp_a, std::string inputm
   hlxymcnp_b->Write();
   hlxymcp_a->Write();
   hlxymcp_b->Write();
-  mceff_a.heffmc->Write();
-  mceff_a.heffmc_incl->Write();
-  mceff_a.heffgen->Write();
-  mceff_a.heffgen_incl->Write();
-  mceff_b.heffmc->Write();
-  mceff_b.heffmc_incl->Write();
-  mceff_b.heffgen->Write();
-  mceff_b.heffgen_incl->Write();
+  mceff_a->heffmc()->Write();
+  mceff_a->heffmc_incl()->Write();
+  mceff_a->heffgen()->Write();
+  mceff_a->heffgen_incl()->Write();
+  mceff_b->heffmc()->Write();
+  mceff_b->heffmc_incl()->Write();
+  mceff_b->heffgen()->Write();
+  mceff_b->heffgen_incl()->Write();
   outf->cd();
   gDirectory->Add(ww);
   ww->Write();
