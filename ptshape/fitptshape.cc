@@ -21,7 +21,7 @@ void fitptshape(std::string inputname, std::string type, std::string inputdir="H
   TFile* inf = TFile::Open(inputname.c_str());
   TH1F* hmc = (TH1F*)inf->Get("hmc");
   TH1F* hmcweight = (TH1F*)inf->Get("hmcweight");
-  ppRef::ppATLAS getpp(inputdir);
+  ppref::ppATLAS getpp(inputdir);
 
   TGraphAsymmErrors* gg_stat = getpp.gg[type]["stat"];
   TGraphAsymmErrors* gg_syst = getpp.gg[type]["syst"];
@@ -30,9 +30,9 @@ void fitptshape(std::string inputname, std::string type, std::string inputdir="H
   TH2F* hempty = getpp.hempty;
 
   xjjroot::sethempty(hempty, 0, 0);
-  xjjroot::setthgrstyle(gg_stat, xjjroot::mycolor_middle["green"], 21, 0.9, xjjroot::mycolor_middle["green"], 1, 1);
-  xjjroot::setthgrstyle(hh_stat, xjjroot::mycolor_middle["green"], 25, 0.2, xjjroot::mycolor_middle["green"], 1, 1);
-  xjjroot::setthgrstyle(gg_syst, xjjroot::mycolor_middle["green"], 21, 1, xjjroot::mycolor_middle["green"], 1, 1, xjjroot::mycolor_middle["green"], 0.4, 1001);
+  xjjroot::setthgrstyle(gg_stat, xjjroot::mycolor_middle["greenblue"], 21, 0.9, xjjroot::mycolor_middle["greenblue"], 1, 1);
+  xjjroot::setthgrstyle(hh_stat, xjjroot::mycolor_middle["greenblue"], 25, 0.2, xjjroot::mycolor_middle["greenblue"], 1, 1);
+  xjjroot::setthgrstyle(gg_syst, xjjroot::mycolor_middle["greenblue"], 21, 1, xjjroot::mycolor_middle["greenblue"], 1, 1, xjjroot::mycolor_middle["greenblue"], 0.4, 1001);
   xjjroot::setthgrstyle(hmc, xjjroot::mycolor_middle["azure"], 20, 0.8, xjjroot::mycolor_middle["azure"], 1, 2);
   xjjroot::setthgrstyle(hmcweight, xjjroot::mycolor_middle["red"], 47, 1.1, xjjroot::mycolor_middle["red"], 1, 2);
 
@@ -45,7 +45,7 @@ void fitptshape(std::string inputname, std::string type, std::string inputdir="H
   // hh_stat->Draw("p same");
 
   TF1* ff = new TF1("ff", "[0]+TMath::Exp([1]+[2]*x+[3]/x)", 10, 70);
-  xjjroot::settfstyle(ff, xjjroot::mycolor_middle["green"], 2, 3);
+  xjjroot::settfstyle(ff, xjjroot::mycolor_middle["greenblue"], 2, 3);
   ff->SetParLimits(0, 0, 1.);
   ff->SetParLimits(1, -1.e+3, 0);
   ff->SetParLimits(2, -1., 0);
@@ -55,7 +55,7 @@ void fitptshape(std::string inputname, std::string type, std::string inputdir="H
   gg_stat->Fit(ff, "Q", "", 10, 50);
   gg_stat->Fit(ff, "Q", "", 10, 50);
   // TF1* fffix = new TF1("fffix", getpp.formulanum[type].c_str(), 15, 70);
-  // xjjroot::settfstyle(fffix, xjjroot::mycolor_middle["green"], 2, 3);
+  // xjjroot::settfstyle(fffix, xjjroot::mycolor_middle["greenblue"], 2, 3);
   // fffix->Draw("same");
 
   //
@@ -89,7 +89,7 @@ void fitptshape(std::string inputname, std::string type, std::string inputdir="H
   leg->AddEntry(hmcweight, "MC weight p_{T}", "pl");
   leg->Draw();
   xjjroot::drawCMS("Simulation");
-  xjjroot::drawtex(0.23, 0.85, getpp.tpar[type].c_str(), 0.04, 12, 62);
+  xjjroot::drawtex(0.23, 0.86, getpp.tpar[type].c_str(), 0.04, 13, 62);
   std::cout<<Form("(%f+TMath::Exp(%f+%f*x+%f/x))/(%f+TMath::Exp(%f+%f*x+%f/x+%f/(x*x)))", ff->GetParameter(0), ff->GetParameter(1), ff->GetParameter(2), ff->GetParameter(3),
                   ffmc->GetParameter(0), ffmc->GetParameter(1), ffmc->GetParameter(2), ffmc->GetParameter(3), ffmc->GetParameter(4))<<std::endl;
   c->SaveAs(outputname.c_str());

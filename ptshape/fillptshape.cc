@@ -13,7 +13,7 @@ void fillptshape(std::string inputname, std::string type, std::string outputname
   std::string outdir = xjjc::str_replaceall(outputname, xjjc::str_divide(outputname, "/").back(), "");
   gSystem->Exec(Form("mkdir -p %s", outdir.c_str()));
 
-  ppRef::ppATLAS getpp(inputdir);
+  ppref::ppATLAS getpp(inputdir);
 
   std::cout<<"==> Opening files"<<std::endl;
   std::cout<<"input: "<<inputname<<std::endl;
@@ -27,10 +27,10 @@ void fillptshape(std::string inputname, std::string type, std::string outputname
 
   TFile* inf = TFile::Open(inputname.c_str());
   xjjroot::packtree* pt = new xjjroot::packtree(inf, "Bfinder/ntmix", "mcp_ptshape", "Bfinder/ntGen");
-  mytmva::ntuple* ntp = pt->ntp;
+  mytmva::ntuple* ntp = pt->ntp();
 
   std::cout<<"==> Scaning file"<<std::endl;
-  int nentries = ntp->getgnt()->GetEntries();
+  int nentries = ntp->gnt()->GetEntries();
   for(int i=0; i<nentries; i++)
     {
       pt->getentry(i);
