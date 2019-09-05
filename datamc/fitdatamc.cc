@@ -47,6 +47,10 @@ void fitdatamc(std::string input, std::string output, std::string type)
   hmcdis_a->GetXaxis()->SetNdivisions(505);
   TH1F* hmcdis_b = (TH1F*)inf->Get("hmcdis_b");
   hmcdis_b->GetXaxis()->SetNdivisions(505);
+  TH1F* hbkgdis_a = (TH1F*)inf->Get("hbkgdis_a");
+  hbkgdis_a->GetXaxis()->SetNdivisions(505);
+  TH1F* hbkgdis_b = (TH1F*)inf->Get("hbkgdis_b");
+  hbkgdis_b->GetXaxis()->SetNdivisions(505);
   TH1F* hdis_a = new TH1F("hdis_a", Form(";%s %s;Probability", vv->title().c_str(), vv->unit().c_str()), vv->n()-1, vv->vars().data());
   hdis_a->GetXaxis()->SetNdivisions(505);
   TH1F* hdis_b = new TH1F("hdis_b", Form(";%s %s;Probability", vv->title().c_str(), vv->unit().c_str()), vv->n()-1, vv->vars().data());
@@ -122,6 +126,8 @@ void fitdatamc(std::string input, std::string output, std::string type)
     }
   hmcdis_a->Scale(1./hmcdis_a->Integral(), "width");
   hmcdis_b->Scale(1./hmcdis_b->Integral(), "width");
+  hbkgdis_a->Scale(1./hbkgdis_a->Integral(), "width");
+  hbkgdis_b->Scale(1./hbkgdis_b->Integral(), "width");
   hdis_a->Scale(1./hdis_a->Integral(), "width");
   hdis_b->Scale(1./hdis_b->Integral(), "width");
 
@@ -129,12 +135,16 @@ void fitdatamc(std::string input, std::string output, std::string type)
   hmcdis_a->SetMaximum(std::max(hmcdis_a->GetMaximum(), hdis_a->GetMaximum())*2);
   xjjroot::sethempty(hmcdis_a, 0, 0);
   xjjroot::setthgrstyle(hmcdis_a, fitX::color_a, 20, 1., fitX::color_a, 1, 1);
+  xjjroot::sethempty(hbkgdis_a, 0, 0);
+  xjjroot::setthgrstyle(hbkgdis_a, kGray+1, 21, 1., kGray+1, 2, 1);
   xjjroot::sethempty(hdis_a, 0, 0);
   xjjroot::setthgrstyle(hdis_a, kBlack, 47, 1.9, kBlack, 1, 1);
   hmcdis_b->SetMinimum(0);
   hmcdis_b->SetMaximum(std::max(hmcdis_b->GetMaximum(), hdis_b->GetMaximum())*2);
   xjjroot::sethempty(hmcdis_b, 0, 0);
   xjjroot::setthgrstyle(hmcdis_b, fitX::color_b, 20, 1., fitX::color_b, 1, 1);
+  xjjroot::sethempty(hbkgdis_b, 0, 0);
+  xjjroot::setthgrstyle(hbkgdis_b, kGray+1, 21, 1., kGray+1, 2, 1);
   xjjroot::sethempty(hdis_b, 0, 0);
   xjjroot::setthgrstyle(hdis_b, kBlack, 47, 1.9, kBlack, 1, 1);
 
@@ -149,14 +159,16 @@ void fitdatamc(std::string input, std::string output, std::string type)
   hratiodis_b->SetMinimum(0);
   hratiodis_b->SetMaximum(3);
 
-  TLegend* leg_a = new TLegend(0.23, 0.81-0.047*2, 0.65, 0.81);
+  TLegend* leg_a = new TLegend(0.22, 0.81-0.047*3, 0.64, 0.81);
   xjjroot::setleg(leg_a, 0.042);
-  leg_a->AddEntry(hdis_a, "Data", "pl");
+  leg_a->AddEntry(hdis_a, "Data signal", "pl");
   leg_a->AddEntry(hmcdis_a, "MC", "pl");
-  TLegend* leg_b = new TLegend(0.23, 0.81-0.047*2, 0.65, 0.81);
+  leg_a->AddEntry(hbkgdis_a, "Sideband", "pl");
+  TLegend* leg_b = new TLegend(0.22, 0.81-0.047*3, 0.64, 0.81);
   xjjroot::setleg(leg_b, 0.042);
-  leg_b->AddEntry(hdis_b, "Data", "pl");
+  leg_b->AddEntry(hdis_b, "Data signal", "pl");
   leg_b->AddEntry(hmcdis_b, "MC", "pl");
+  leg_b->AddEntry(hbkgdis_b, "Sideband", "pl");
 
   float ymax = std::max(h.front()->GetMaximum(), h.back()->GetMaximum())*1.2;
   TH2F* hempty_a = new TH2F("hempty_a", Form(";m_{#mu#mu#pi#pi} (GeV/c^{2});%s", Form("Entries / %.0f MeV", fitX::BIN_WIDTH*1.e+3)), 
@@ -188,9 +200,11 @@ void fitdatamc(std::string input, std::string output, std::string type)
   hempty_a->Draw();
   for(int i=0;i<vv->n()-1;i++) { h[i]->Draw("pe same"); ff[i]->Draw("same"); }
   xjjroot::drawtexgroup(0.89, 0.86, tt, 1, 0.5, 0.038, 33, 62, cc);
+  xjjroot::drawtex(0.24, 0.84, fitX::title_a.c_str(), 0.038, 12, 62, kBlack);
   xjjroot::drawCMS();
   c_a->cd(2);
   hmcdis_a->Draw("hist e");
+  hbkgdis_a->Draw("hist e same");
   hdis_a->Draw("pe same");
   drawkinematics();
   xjjroot::drawtex(0.24, 0.84, fitX::title_a.c_str(), 0.038, 12, 62, fitX::color_a);
@@ -198,7 +212,7 @@ void fitdatamc(std::string input, std::string output, std::string type)
   xjjroot::drawCMS();
   c_a->cd(3);
   hratiodis_a->Draw("pe");
-  xjjroot::drawline(vv->vars().front(), 1., vv->vars().back(), 1., fitX::color_a, 7, 2, 0.3);
+  xjjroot::drawline(vv->vars().front(), 1., vv->vars().back(), 1., fitX::color_a, 1, 2, 0.6);
   hratiodis_a->Draw("pe same");
   drawkinematics();
   xjjroot::drawtex(0.24, 0.84, fitX::title_a.c_str(), 0.038, 12, 62, fitX::color_a);
@@ -213,9 +227,11 @@ void fitdatamc(std::string input, std::string output, std::string type)
   hempty_b->Draw();
   for(int i=0;i<vv->n()-1;i++) { h[i]->Draw("pe same"); ff[i]->Draw("same"); }
   xjjroot::drawtexgroup(0.89, 0.86, tt, 1, 0.5, 0.038, 33, 62, cc);
+  xjjroot::drawtex(0.24, 0.84, fitX::title_b.c_str(), 0.038, 12, 62, kBlack);
   xjjroot::drawCMS();
   c_b->cd(2);
   hmcdis_b->Draw("hist e");
+  hbkgdis_b->Draw("hist e same");
   hdis_b->Draw("pe same");
   drawkinematics();
   xjjroot::drawtex(0.24, 0.84, fitX::title_b.c_str(), 0.038, 12, 62, fitX::color_b);
@@ -223,7 +239,7 @@ void fitdatamc(std::string input, std::string output, std::string type)
   xjjroot::drawCMS();
   c_b->cd(3);
   hratiodis_b->Draw("pe");
-  xjjroot::drawline(vv->vars().front(), 1., vv->vars().back(), 1., fitX::color_b, 7, 2, 0.3);
+  xjjroot::drawline(vv->vars().front(), 1., vv->vars().back(), 1., fitX::color_b, 1, 2, 0.6);
   hratiodis_b->Draw("pe same");
   drawkinematics();
   xjjroot::drawtex(0.24, 0.84, fitX::title_b.c_str(), 0.038, 12, 62, fitX::color_b);

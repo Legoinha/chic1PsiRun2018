@@ -47,6 +47,8 @@ void datamcmain(std::string input, std::string inputmcp_a, std::string inputmcp_
 
   TH1F* hmcdis_a = new TH1F("hmcdis_a", Form(";%s %s;Probability", vv->title().c_str(), vv->unit().c_str()), vv->n()-1, vv->vars().data());
   TH1F* hmcdis_b = new TH1F("hmcdis_b", Form(";%s %s;Probability", vv->title().c_str(), vv->unit().c_str()), vv->n()-1, vv->vars().data());
+  TH1F* hbkgdis_a = new TH1F("hbkgdis_a", Form(";%s %s;Probability", vv->title().c_str(), vv->unit().c_str()), vv->n()-1, vv->vars().data());
+  TH1F* hbkgdis_b = new TH1F("hbkgdis_b", Form(";%s %s;Probability", vv->title().c_str(), vv->unit().c_str()), vv->n()-1, vv->vars().data());
 
   //
   TTree* ntmix = fitX::getnt(input, "Bfinder/ntmix"); if(!ntmix) { return; }
@@ -73,39 +75,45 @@ void datamcmain(std::string input, std::string inputmcp_a, std::string inputmcp_
                                                vv->formula().c_str(), (vv->gt()?">":"<"), vv->vars()[icut], 
                                                vv->formula().c_str(), (vv->gt()?"<":">"), (vv->gt()?vv->vars().back():vv->vars().front())));
     }
+  std::string cutbkgreco_a = cutreco + std::string(Form("&& fabs(Bmass-%f)>0.02 && fabs(Bmass-%f)<0.05", fitX::FIT_MASS_PSI2S, fitX::FIT_MASS_PSI2S));
+  std::string cutbkgreco_b = cutreco + std::string(Form("&& fabs(Bmass-%f)>0.02 && fabs(Bmass-%f)<0.05", fitX::FIT_MASS_X, fitX::FIT_MASS_X));
 
   std::cout<<" == data ==>"<<std::endl;
-  fitX::printhist(ntmix_flatten);
+  xjjroot::printhist(ntmix_flatten);
   for(int i=0; i<vv->n()-1; i++)
     {
       // std::cout<<cutrecoi[i]<<std::endl;
       ntmix->Project(Form("h%d", i), "Bmass", TCut(cutrecoi[i].c_str()));
-      fitX::printhist(h[i]);
+      xjjroot::printhist(h[i]);
       TTree* ntmix_skimh = (TTree*)ntmix_flatten->CopyTree(TCut(cutrecoi[i].c_str())); ntmix_skimh->SetName(Form("ntmix_skimh%d", i));
-      fitX::printhist(ntmix_skimh);
+      xjjroot::printhist(ntmix_skimh);
       dsh[i] = new RooDataSet(Form("dsh%d", i), "", ntmix_skimh, RooArgSet(*mass, *varr));
       ww->import(*(dsh[i]));
     }
+  ntmix->Project(hbkgdis_a->GetName(), vv->formula().c_str(), TCut(cutbkgreco_a.c_str()));
+  xjjroot::printhist(hbkgdis_a);
+  ntmix->Project(hbkgdis_b->GetName(), vv->formula().c_str(), TCut(cutbkgreco_b.c_str()));
+  xjjroot::printhist(hbkgdis_b);
 
   std::cout<<" == mcp_a ==>"<<std::endl;
   ntmixmcp_a->Project("hmcp_a", "Bmass", TCut("pthatweight")*TCut(cutmcreco.c_str())); // !! weight
-  fitX::printhist(hmcp_a);
+  xjjroot::printhist(hmcp_a);
   TTree* ntmixmcp_a_skim = (TTree*)ntmixmcp_a_flatten->CopyTree(TCut(cutmcreco.c_str())); ntmixmcp_a_skim->SetName("ntmixmcp_a_skim");
-  fitX::printhist(ntmixmcp_a_skim);
+  xjjroot::printhist(ntmixmcp_a_skim);
   dshmcp_a = new RooDataSet("dshmcp_a", "", ntmixmcp_a_skim, RooArgSet(*massmc_a, *pthatweight), "pthatweight");
   ww->import(*dshmcp_a);
   ntmixmcp_a->Project(hmcdis_a->GetName(), vv->formula().c_str(), TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
-  fitX::printhist(hmcdis_a);
+  xjjroot::printhist(hmcdis_a);
 
   std::cout<<" == mcp_b ==>"<<std::endl;
   ntmixmcp_b->Project("hmcp_b", "Bmass", TCut("pthatweight")*TCut(cutmcreco.c_str())); // !! weight
-  fitX::printhist(hmcp_b);
+  xjjroot::printhist(hmcp_b);
   TTree* ntmixmcp_b_skim = (TTree*)ntmixmcp_b_flatten->CopyTree(TCut(cutmcreco.c_str())); ntmixmcp_b_skim->SetName("ntmixmcp_b_skim");
-  fitX::printhist(ntmixmcp_b_skim);
+  xjjroot::printhist(ntmixmcp_b_skim);
   dshmcp_b = new RooDataSet("dshmcp_b", "", ntmixmcp_b_skim, RooArgSet(*massmc_b, *pthatweight), "pthatweight");
   ww->import(*dshmcp_b);
   ntmixmcp_b->Project(hmcdis_b->GetName(), vv->formula().c_str(), TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
-  fitX::printhist(hmcdis_b);
+  xjjroot::printhist(hmcdis_b);
 
   std::string outputname = "rootfiles/" + output + "/datamc_savehist.root";
   xjjroot::mkdir(outputname.c_str());
@@ -121,6 +129,8 @@ void datamcmain(std::string input, std::string inputmcp_a, std::string inputmcp_
   outf->cd();
   hmcdis_a->Write();
   hmcdis_b->Write();
+  hbkgdis_a->Write();
+  hbkgdis_b->Write();
   TTree* info = new TTree("info", "cut info");
   info->Branch("input", &input);
   info->Branch("inputmcp_a", &inputmcp_a);
