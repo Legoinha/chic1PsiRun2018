@@ -40,12 +40,12 @@ void drawfitXvary(std::string input, std::string output, std::string cutvar)
       vc.hdata[l] = (TH1F*)inf->Get(Form("hdata_%d", l));
       fitX::setmasshist(vc.hdata[l], 0, -0.1);
       vc.hdata[l]->SetMinimum(0);
-      vc.hdata[l]->SetMinimum(vc.hdata[l]->GetMaximum()*1.3);
+      vc.hdata[l]->SetMaximum(vc.hdata[l]->GetMaximum()*1.2);
       xjjroot::setthgrstyle(vc.hdata[l], xjjroot::mycolor_middle[xjjroot::cc[lp]], 20, 0.9, xjjroot::mycolor_middle[xjjroot::cc[lp]], 1, 2);
       vc.hdataBenr[l] = (TH1F*)inf->Get(Form("hdataBenr_%d", l));
       fitX::setmasshist(vc.hdataBenr[l], 0, -0.1);
       vc.hdataBenr[l]->SetMinimum(0);
-      vc.hdataBenr[l]->SetMinimum(vc.hdataBenr[l]->GetMaximum()*1.3);
+      vc.hdataBenr[l]->SetMaximum(vc.hdataBenr[l]->GetMaximum()*1.2);
       xjjroot::setthgrstyle(vc.hdataBenr[l], xjjroot::mycolor_middle[xjjroot::cc[lp]], 20, 0.9, xjjroot::mycolor_middle[xjjroot::cc[lp]], 1, 2);
       vc.hmc_a[l] = (TH1F*)inf->Get(Form("hmc_a_%d", l));
       vc.hmc_b[l] = (TH1F*)inf->Get(Form("hmc_b_%d", l));
@@ -246,8 +246,8 @@ void drawfitXvary(std::string input, std::string output, std::string cutvar)
   xjjroot::sethempty(hemptyCorr, 0, 0.4); hemptyCorr->GetXaxis()->SetNdivisions(505);
   TGraphErrors* gr_hyieldCorr_a = xjjroot::shifthistcenter(hyieldCorr_a, "gr_hyieldCorr_a");
   TGraphErrors* gr_hyieldCorr_b = xjjroot::shifthistcenter(hyieldCorr_b, "gr_hyieldCorr_b");
-  xjjroot::setthgrstyle(gr_hyieldCorr_a, fitX::color_a, 3, 1.3, fitX::color_a, 1, 1);
-  xjjroot::setthgrstyle(gr_hyieldCorr_b, fitX::color_b, 3, 1.3, fitX::color_b, 1, 1);
+  xjjroot::setthgrstyle(gr_hyieldCorr_a, fitX::color_a, 47, 1.3, fitX::color_a, 1, 1);
+  xjjroot::setthgrstyle(gr_hyieldCorr_b, fitX::color_b, 47, 1.3, fitX::color_b, 1, 1);
   // --> 8
   TH2F* hemptyPromptCorr = new TH2F("hemptyPromptCorr", Form(";%s >;N_{Signal} #times f_{prompt} / (#alpha #times #epsilon )_{prompt}", mvas->type().c_str()), 10, mvas->binmin(), mvas->binmax(), 10, 0, std::max(hyieldPromptCorr_a->GetMaximum(), hyieldPromptCorr_b->GetMaximum())*1.5);
   xjjroot::sethempty(hemptyPromptCorr, 0, 0.4); hemptyPromptCorr->GetXaxis()->SetNdivisions(505);
@@ -327,8 +327,8 @@ void drawfitXvary(std::string input, std::string output, std::string cutvar)
   c84->SaveAs(Form("plots/%s/%s/c84_varymva.pdf", output.c_str(), cutvar.c_str()));
   TCanvas* c88 = new TCanvas("c88", "", 600, 600);
   hemptyPromptCorr->Draw();
-  gr_hyieldPromptCorr_a->SetLineWidth(2);
-  gr_hyieldPromptCorr_b->SetLineWidth(2);
+  bPromptCorr_a->Draw(); lPromptCorr_a->Draw(); bPromptCorr_b->Draw(); lPromptCorr_b->Draw();
+  xjjroot::drawline(xmaxsig, 0, xmaxsig, std::max(hyieldPromptCorr_a->GetMaximum(), hyieldPromptCorr_b->GetMaximum())*1.5, kGray+1, 2, 1);
   gr_hyieldPromptCorr_a->Draw("pe same");
   gr_hyieldPromptCorr_b->Draw("pe same");
   drawalltext();
