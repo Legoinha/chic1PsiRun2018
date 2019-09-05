@@ -7,7 +7,7 @@ centmax=90
 ymin=0
 ymax=1.6
 
-counts=(1)
+counts=(0)
 optcuts=(
     "&& BDT > 0.07 && (Bmass-3.096916-Btktkmass) < 0.13"
 )

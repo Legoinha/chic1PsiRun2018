@@ -87,12 +87,14 @@ void closure_fithist(std::string input, std::string output)
   TFile* outf = new TFile(outputname.c_str(), "recreate");
   hyield_binned_a->Write();
   hyield_unbinned_a->Write();
+  mceff_a.heff()->Write();
   mceff_a.greff()->Write();
   mceff_a.heffgen()->Write();
   hcorr_binned_a->Write();
   hcorr_unbinned_a->Write();
   hyield_binned_b->Write();
   hyield_unbinned_b->Write();
+  mceff_b.heff()->Write();
   mceff_b.greff()->Write();
   mceff_b.heffgen()->Write();
   hcorr_binned_b->Write();
