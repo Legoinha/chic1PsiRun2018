@@ -12,7 +12,7 @@
 #include "fit.h"
 #include "smear.h"
 
-const int nn = 400; //
+const int nn = 600; //
 
 void toymc(std::string input, std::string output)
 {
@@ -32,15 +32,15 @@ void toymc(std::string input, std::string output)
 
   std::map<std::string, fitX::fitXresult*> result = fitX::fit(h, 0, hmcp_a, hmcp_b,
                                                               dsh, dshmcp_a, dshmcp_b,
-                                                              Form("plots/%s", output.c_str()), false, false, "", "default", true); // fix mean = false
-  float ysig_a = result["binned"]->ysig_a();
-  float ysigerr_a = result["binned"]->ysigerr_a();
-  float ysig_b = result["binned"]->ysig_b();
-  float ysigerr_b = result["binned"]->ysigerr_b();
-  float msig_a = result["binned"]->msig_a();
-  float msigerr_a = result["binned"]->msigerr_a();
-  float msig_b = result["binned"]->msig_b();
-  float msigerr_b = result["binned"]->msigerr_b();
+                                                              Form("plots/%s/idx", output.c_str()), false, true, "nominal", "default", "real-data", true); // fix mean = false
+  float ysig_a = result["unbinned"]->ysig_a();
+  float ysigerr_a = result["unbinned"]->ysigerr_a();
+  float ysig_b = result["unbinned"]->ysig_b();
+  float ysigerr_b = result["unbinned"]->ysigerr_b();
+  float msig_a = result["unbinned"]->msig_a();
+  float msigerr_a = result["unbinned"]->msigerr_a();
+  float msig_b = result["unbinned"]->msig_b();
+  float msigerr_b = result["unbinned"]->msigerr_b();
 
   TH1F* hysig_a = new TH1F("hysig_a", "", 40, ysig_a - ysigerr_a*5, ysig_a + ysigerr_a*5);
   TH1F* hysig_b = new TH1F("hysig_b", "", 40, ysig_b - ysigerr_b*5, ysig_b + ysigerr_b*5);
@@ -49,7 +49,7 @@ void toymc(std::string input, std::string output)
 
   RooRealVar* mass = new RooRealVar("Bmass", "Bmass", fitX::BIN_MIN, fitX::BIN_MAX);
   RooWorkspace* wo = new RooWorkspace("wo");
-  TF1* f = result["binned"]->f();
+  TF1* f = result["unbinned"]->f();
   int nentries = h->GetEntries();
   std::vector<TH1F*> hh(nn);
   std::vector<RooDataSet*> dshh(nn);
@@ -70,13 +70,12 @@ void toymc(std::string input, std::string output)
       wo->import(*dshh[i]);
       std::map<std::string, fitX::fitXresult*> rt = fitX::fit(hh[i], 0, hmcp_a, hmcp_b,
                                                               dshh[i], dshmcp_a, dshmcp_b,
-                                                              Form("plots/%s", output.c_str()), false, false, "", "default", true); // fix mean = false
+                                                              Form("plots/%s/idx", output.c_str()), false, i%100==0, Form("-%d",i), "default", Form("pseudo-data (%d)", i), true); // fix mean = false
       hysig_a->Fill(rt["unbinned"]->ysig_a());
       hysig_b->Fill(rt["unbinned"]->ysig_b());
       hmsig_a->Fill(rt["unbinned"]->msig_a());
       hmsig_b->Fill(rt["unbinned"]->msig_b());
     }
-
 
   std::string outputname = Form("rootfiles/%s/toymc.root", output.c_str());
   xjjroot::mkdir(outputname.c_str());
