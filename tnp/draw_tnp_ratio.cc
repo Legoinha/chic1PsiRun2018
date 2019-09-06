@@ -9,11 +9,13 @@
 #include <string>
 #include <algorithm>
 #include "tnpcc_tmp.h"
+#include "fitX.h"
 
-void draw_tnp_ratio(std::string inputname_a, std::string inputname_b, std::string dirname)
+void draw_tnp_ratio(std::string inputname_a, std::string inputname_b, std::string output)
 {
-  if(xjjc::str_contains(inputname_b, "romptPsi") && xjjc::str_contains(inputname_a, "romptX")) std::swap(inputname_a, inputname_b);
+  if(xjjc::str_contains(inputname_b, "_a") && xjjc::str_contains(inputname_a, "_b")) std::swap(inputname_a, inputname_b);
   TFile* inf_a = TFile::Open(inputname_a.c_str());
+  fitX::init(inf_a);
   TFile* inf_b = TFile::Open(inputname_b.c_str());
   std::map<std::string, std::map<std::string, TH1D*>> hhp_a, hhp_b;
   std::map<std::string, std::map<std::string, TH1D*>> hhp_ratio;
@@ -109,8 +111,8 @@ void draw_tnp_ratio(std::string inputname_a, std::string inputname_b, std::strin
   leg->AddEntry(hhp_ratio["nominal"]["nominal"], "Nominal", "l");
   leg->Draw();
   gPad->RedrawAxis();
-  std::string outputname = xjjc::str_replaceall(xjjc::str_replaceall(xjjc::str_replaceall(inputname_a, "rootfiles/"+dirname+"/", "plots/"+dirname+"/c"), "Psi2SPiPi", ""), ".root", ".pdf");
-  gSystem->Exec(Form("mkdir -p plots/%s", dirname.c_str()));
+  std::string outputname = "plots/"+output+fitX::tagname()+"/drawtnp_ratio.pdf";
+  xjjroot::mkdir(outputname);
   c->SaveAs(outputname.c_str());  
 
   // print

@@ -42,10 +42,10 @@ void tnp_converter(std::string inputname, std::string dirname, std::string name)
   
   TFile* inf = TFile::Open(inputname.c_str());
   xjjroot::packtree* pt = new xjjroot::packtree(inf, "Bfinder/ntmix", "mcp_tnp");
-  mytmva::ntuple* ntp = pt->ntp;
+  mytmva::ntuple* ntp = pt->ntp();
 
   std::cout<<"==> Scaning file"<<std::endl;
-  int nentries = ntp->getnt()->GetEntries();
+  int nentries = ntp->nt()->GetEntries();
   for(int i=0; i<nentries; i++)
     {
       pt->getentry(i); 
