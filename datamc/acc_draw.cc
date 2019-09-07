@@ -65,6 +65,10 @@ void acc_draw(std::string inputpt, std::string inputabsy, std::string output)
   xjjroot::mkdir(outputname);
   c->RedrawAxis();
   c->SaveAs(outputname.c_str());
+
+  float per = sqrt((lpt->mean()-lpt->nominal())*(lpt->mean()-lpt->nominal()) + (labsy->mean()-labsy->nominal())*(labsy->mean()-labsy->nominal()));
+  per /= lpt->nominal();
+  std::cout<<"Acceptance & "<<Form("%.1f", per*1.e+2)<<"\\% \\\\"<<std::endl;
 }
 
 int main(int argc, char* argv[])

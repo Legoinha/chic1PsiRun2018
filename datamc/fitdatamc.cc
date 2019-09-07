@@ -74,7 +74,7 @@ void fitdatamc(std::string input, std::string output, std::string type)
                              vv->unit().c_str()));
       std::map<std::string, fitX::fitXresult*> result = fitX::fit(h[i], 0, hmcp_a, hmcp_b,
                                                                   dsh[i], dshmcp_a, dshmcp_b,
-                                                                  Form("plots/%s/idx", output.c_str()), false, true, Form("-%d", i), label); // fix mean = false
+                                                                  Form("plots/%s/idx", output.c_str()), 0, true, Form("-%d", i), label); // fix mean = false
       ysig_a[i] = result["unbinned"]->ysig_a();
       ysigerr_a[i] = result["unbinned"]->ysigerr_a();
       ysig_b[i] = result["unbinned"]->ysig_b();
