@@ -40,10 +40,10 @@ void fprompt_savehist(std::string input, std::string inputmcp_a, std::string inp
   RooDataSet* dshmcp_a;
   TH1F* hmcp_b = new TH1F("hmcp_b", Form(";m_{#mu#mu#pi#pi} (GeV/c^{2});Entries / %.0f MeV", fitX::BIN_WIDTH_H*1.e+3), fitX::NBIN_H, fitX::BIN_MIN_H, fitX::BIN_MAX_H); hmcp_b->Sumw2();
   RooDataSet* dshmcp_b;
-  TH1F* hlxymcnp_a = new TH1F("hlxymcnp_a", Form(";%s;Probability", lxydis::vars[lxyvar].c_str()), lxyxbins["lxynonprompt"].size()-1, lxyxbins["lxynonprompt"].data()); hlxymcnp_a->Sumw2();
-  TH1F* hlxymcnp_b = new TH1F("hlxymcnp_b", Form(";%s;Probability", lxydis::vars[lxyvar].c_str()), lxyxbins["lxynonprompt"].size()-1, lxyxbins["lxynonprompt"].data()); hlxymcnp_b->Sumw2();
-  TH1F* hlxymcp_a = new TH1F("hlxymcp_a", Form(";%s;Probability", lxydis::vars[lxyvar].c_str()), lxyxbins["lxyprompt"].size()-1, lxyxbins["lxyprompt"].data()); hlxymcp_a->Sumw2();
-  TH1F* hlxymcp_b = new TH1F("hlxymcp_b", Form(";%s;Probability", lxydis::vars[lxyvar].c_str()), lxyxbins["lxyprompt"].size()-1, lxyxbins["lxyprompt"].data()); hlxymcp_b->Sumw2();
+  TH1F* hlxymcnp_a = new TH1F("hlxymcnp_a", Form(";%s;Probability", lxydis::vars[lxyvar].c_str()), lxyxbins[Form("%snonprompt", lxyvar.c_str())].size()-1, lxyxbins[Form("%snonprompt", lxyvar.c_str())].data()); hlxymcnp_a->Sumw2();
+  TH1F* hlxymcnp_b = new TH1F("hlxymcnp_b", Form(";%s;Probability", lxydis::vars[lxyvar].c_str()), lxyxbins[Form("%snonprompt", lxyvar.c_str())].size()-1, lxyxbins[Form("%snonprompt", lxyvar.c_str())].data()); hlxymcnp_b->Sumw2();
+  TH1F* hlxymcp_a = new TH1F("hlxymcp_a", Form(";%s;Probability", lxydis::vars[lxyvar].c_str()), lxyxbins[Form("%sprompt", lxyvar.c_str())].size()-1, lxyxbins[Form("%sprompt", lxyvar.c_str())].data()); hlxymcp_a->Sumw2();
+  TH1F* hlxymcp_b = new TH1F("hlxymcp_b", Form(";%s;Probability", lxydis::vars[lxyvar].c_str()), lxyxbins[Form("%sprompt", lxyvar.c_str())].size()-1, lxyxbins[Form("%sprompt", lxyvar.c_str())].data()); hlxymcp_b->Sumw2();
 
   //
   TTree* ntmix = fitX::getnt(input, "Bfinder/ntmix"); if(!ntmix) { return; }
@@ -113,7 +113,7 @@ void fprompt_savehist(std::string input, std::string inputmcp_a, std::string inp
   ntmixmcnp_b->Project("hlxymcnp_b", lxydis::formulas[lxyvar].c_str(), TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
   fitX::printhist(hlxymcnp_b);
 
-  std::string outputname = "rootfiles/" + output + fitX::tagname() + "/fprompt_savehist.root";
+  std::string outputname = "rootfiles/" + output + fitX::tagname() + "/" + lxyvar + "/fprompt_savehist.root";
   xjjroot::mkdir(outputname.c_str());
   TFile* outf = new TFile(outputname.c_str(), "recreate");
   outf->cd();

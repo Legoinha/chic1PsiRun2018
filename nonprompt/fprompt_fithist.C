@@ -50,9 +50,8 @@ void fprompt_fithist(std::string input, std::string output, std::string lxyvar="
 
   std::map<std::string, fitX::fitXresult*> resulth = fitX::fit(h, 0, hmcp_a, hmcp_b, 
                                                                dsh, dshmcp_a, dshmcp_b,
-                                                               Form("plots/%s", output.c_str()), false, true, "th", 
+                                                               Form("plots/%s", output.c_str()), 0, true, "th", 
                                                                "Inclusive");
-  std::cout<<"test"<<std::endl;
   hyield_a->SetBinContent(fitX::ibin_a, resulth["unbinned"]->ysig_a());
   hyield_a->SetBinError(fitX::ibin_a, resulth["unbinned"]->ysigerr_a());
   hyield_b->SetBinContent(fitX::ibin_b, resulth["unbinned"]->ysig_b());
@@ -66,7 +65,7 @@ void fprompt_fithist(std::string input, std::string output, std::string lxyvar="
     {
       std::map<std::string, fitX::fitXresult*> resulthBenr = fitX::fit(hBenr[i], 0, hmcp_a, hmcp_b, 
                                                                        dshBenr[i], dshmcp_a, dshmcp_b,
-                                                                       Form("plots/%s", output.c_str()), false, true, Form("thBenr-%d",i), 
+                                                                       Form("plots/%s", output.c_str()), resulth["unbinned"]->msig_b(), true, Form("thBenr-%d",i), 
                                                                        Form("B-enr (%s > %s)", lxydis::vars[lxyvar].c_str(), xjjc::number_remove_zero(lxydis::lxycut[lxyvar][i]).c_str()));
       hBenryield_a[i]->SetBinContent(fitX::ibin_a, resulthBenr["unbinned"]->ysig_a());
       hBenryield_a[i]->SetBinError(fitX::ibin_a, resulthBenr["unbinned"]->ysigerr_a());
@@ -134,7 +133,8 @@ void fprompt_fithist(std::string input, std::string output, std::string lxyvar="
   gPad->SetLogy();
   hlxymcp_a->Draw("histe");
   hlxymcp_b->Draw("histe same");
-  xjjroot::drawline(0.1, 0, 0.1, hlxymcp_a->GetMaximum(), kGray+1, 2, 2);
+  for(int i=0; i<ncut; i++) 
+    xjjroot::drawline(lxydis::lxycut[lxyvar][i], 0, lxydis::lxycut[lxyvar][i], hlxymcp_a->GetMaximum(), xjjroot::mycolor_middle[xjjroot::cc[i]], 2, 2, 0.6);
   fitX::drawkinematics();
   xjjroot::drawtex(0.23, 0.85, "#psi(2S)", 0.042, 12, 62, fitX::color_a);
   xjjroot::drawtex(0.23, 0.78, "X(3872)", 0.042, 12, 62, fitX::color_b);
@@ -144,7 +144,8 @@ void fprompt_fithist(std::string input, std::string output, std::string lxyvar="
   gPad->SetLogy();
   hlxymcnp_a->Draw("histe");
   hlxymcnp_b->Draw("histe same");
-  xjjroot::drawline(0.1, 0, 0.1, hlxymcnp_a->GetMaximum(), kGray+1, 2, 2);
+  for(int i=0; i<ncut; i++) 
+    xjjroot::drawline(lxydis::lxycut[lxyvar][i], 0, lxydis::lxycut[lxyvar][i], hlxymcnp_a->GetMaximum(), xjjroot::mycolor_middle[xjjroot::cc[i]], 2, 2, 0.6);
   fitX::drawkinematics();
   xjjroot::drawtex(0.23, 0.85, "#psi(2S)", 0.042, 12, 62, fitX::color_a);
   xjjroot::drawtex(0.23, 0.78, "X(3872)", 0.042, 12, 62, fitX::color_b);
@@ -170,7 +171,7 @@ void fprompt_fithist(std::string input, std::string output, std::string lxyvar="
       grfprompt_b[i] = lxydis::calclxyfprompt(hyield_b, hBenryield_b[i], hlxyfrac_b, Form("grfprompt_b-%d", i), &hyieldprompt_b);
       xjjroot::setthgrstyle(grfprompt_a[i], xjjroot::mycolor_middle[xjjroot::cc[i]], 25, 1.5, xjjroot::mycolor_middle[xjjroot::cc[i]], 1, 3);
       xjjroot::setthgrstyle(grfprompt_b[i], xjjroot::mycolor_middle[xjjroot::cc[i]], 25, 1.5, xjjroot::mycolor_middle[xjjroot::cc[i]], 1, 3);
-      legfprompt->AddEntry(hBenryield_a[i], Form("%s > %s", lxydis::vars[lxyvar].c_str(), xjjc::number_remove_zero(lxydis::lxycut[lxyvar][i]).c_str()), "pl");
+      legfprompt->AddEntry(grfprompt_a[i], Form("%s > %s", lxydis::vars[lxyvar].c_str(), xjjc::number_remove_zero(lxydis::lxycut[lxyvar][i]).c_str()), "pl");
       delete hlxyfrac_a;
       delete hlxyfrac_b;
       delete hyieldprompt_a;

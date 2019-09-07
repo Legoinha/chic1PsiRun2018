@@ -9,7 +9,7 @@ ymax=1.6
 
 optcuts="&& BDT > 0.06 && (Bmass-3.096916-Btktkmass) < 0.13"
 tags="BDTQvalue"
-lxyvar="lxyz"
+lxyvar="lxy" ## lxy, lxyz
 
 input=/raid5/data/wangj/BntupleRun2018/mva_output_20190808ptdep/ntmix_20190806_Bfinder_20190513_HIDoubleMuon__PsiPeri__HIRun2018A_04Apr2019_v1_HF_and_MuonJSON_skim_trainX_20190808ptdep_sideband_tktk0p2_BDT_BDTD_BDTG_BDTF_LD_15p0_50p0_0-10-1-2-9_1bin.root
 inputmc_a_prompt=/raid5/data/wangj/BntupleRun2018/mva_output_20190808ptdep/ntmix_20190808_Bfinder_20190712_Hydjet_Pythia8_PromptPsi2S_1033p1_pt6tkpt0p9dls0_pthatweight_trainX_20190808ptdep_sideband_tktk0p2_BDT_BDTD_BDTG_BDTF_LD_15p0_50p0_0-10-1-2-9_1bin.root
@@ -38,10 +38,10 @@ echo -e "\e[32;1mcompiling...\e[0m"
     echo " -- "fprompt_fithist.C
     g++ fprompt_fithist.C $(root-config --libs --cflags) -lRooFit -lRooFitCore -lRooStats -g -o fprompt_fithist_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; }
 }
-# [[ $RUN_DRAWHIST -eq 1 || $# -eq 0 ]] && {
-#     echo " -- "fprompt_drawhist.C
-#     g++ fprompt_drawhist.C $(root-config --libs --cflags) -g -o fprompt_drawhist_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; }
-# }
+[[ $RUN_DRAWHIST -eq 1 || $# -eq 0 ]] && {
+    echo " -- "fprompt_drawhist.C
+    g++ fprompt_drawhist.C $(root-config --libs --cflags) -g -o fprompt_drawhist_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; }
+}
 
 ##
 echo
@@ -50,7 +50,7 @@ cut="$cut && mvapref ${optcuts}"
 
 name=trainX_20190808ptdep_sideband_tktk0p2_15p0_50p0_0-10-1-2-9_${tags}
 echo -e "----------------------------------------"
-echo -e "==> File directory: \e[4m$name\e[0m"
+echo -e "==> File directory: \e[4m$name/$lxyvar\e[0m"
 echo -e "----------------------------------------"
 
 [[ $RUN_SAVEHIST -eq 1 ]] && {
@@ -60,9 +60,9 @@ echo -e "----------------------------------------"
 rootdir=rootfiles/$name$kinematic/
 
 [[ $RUN_FITHIST -eq 1 ]] && {
-    ./fprompt_fithist_${tmp}.exe "$rootdir/fprompt_savehist.root" $name "$lxyvar"
+    ./fprompt_fithist_${tmp}.exe "$rootdir/$lxyvar/fprompt_savehist.root" $name "$lxyvar"
 }
-# [[ $RUN_DRAWHIST -eq 1 ]] && ./fprompt_drawhist_${tmp}.exe "$rootdir/fprompt_fithist.root" "$name$kinematic"
+[[ $RUN_DRAWHIST -eq 1 ]] && ./fprompt_drawhist_${tmp}.exe "$name$kinematic"
 
 rm *_${tmp}.exe 2> /dev/null
 

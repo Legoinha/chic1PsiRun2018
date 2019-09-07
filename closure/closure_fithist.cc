@@ -49,7 +49,7 @@ void closure_fithist(std::string input, std::string output)
     {
       std::map<std::string, fitX::fitXresult*> result_a = fitX::fit(h_a[i], 0, hmcp_a[i], hmcp_b[i],
                                                                     dsh_a[i], dshmcp_a[i], dshmcp_b[i],
-                                                                    Form("plots/%s/idx_a", output.c_str()), false, true, Form("_%d", i), 
+                                                                    Form("plots/%s/idx_a", output.c_str()), 0, true, Form("_%d", i), 
                                                                     Form("%s < p_{T} < %s GeV/c", xjjc::number_remove_zero(ptbins[i]).c_str(), xjjc::number_remove_zero(ptbins[i+1]).c_str()));
       hyield_unbinned_a->SetBinContent(i+1, result_a["unbinned"]->ysig_a());
       hyield_unbinned_a->SetBinError(i+1, result_a["unbinned"]->ysigerr_a());
@@ -58,7 +58,7 @@ void closure_fithist(std::string input, std::string output)
       
       std::map<std::string, fitX::fitXresult*> result_b = fitX::fit(h_b[i], 0, hmcp_a[i], hmcp_b[i],
                                                                     dsh_b[i], dshmcp_a[i], dshmcp_b[i],
-                                                                    Form("plots/%s/idx_b", output.c_str()), false, true, Form("_%d", i), 
+                                                                    Form("plots/%s/idx_b", output.c_str()), 0, true, Form("_%d", i), 
                                                                     Form("%s < p_{T} < %s GeV/c", xjjc::number_remove_zero(ptbins[i]).c_str(), xjjc::number_remove_zero(ptbins[i+1]).c_str()));
       hyield_unbinned_b->SetBinContent(i+1, result_b["unbinned"]->ysig_b());
       hyield_unbinned_b->SetBinError(i+1, result_b["unbinned"]->ysigerr_b());

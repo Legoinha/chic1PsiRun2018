@@ -8,7 +8,7 @@
 #include "fit.h"
 
 int nn = 600;
-void labelsmc(std::string label, double mean, double sigma, std::string mory);
+void labelsmc(std::string label, double mean, double sigma, std::string var, int precision, std::string unit);
 void drawtoymc(std::string input, std::string output)
 {
   std::cout<<"\e[32;1m -- "<<__FUNCTION__<<"\e[0m"<<std::endl;
@@ -55,7 +55,7 @@ void drawtoymc(std::string input, std::string output)
   hysig_a->Fit("fysig_a", "Nq");
   hysig_a->Fit("fysig_a", "LL");
   fitX::drawpull(hysig_a, fysig_a, fitX::color_a);
-  labelsmc("#psi(2S)", fysig_a->GetParameter(1), fysig_a->GetParameter(2), "N");
+  labelsmc("#psi(2S)", fysig_a->GetParameter(1), fysig_a->GetParameter(2), "N", 2, "");
   xjjroot::drawcomment(output.c_str());
   cysig->cd(2);
   hysig_b->Draw("pe");
@@ -63,7 +63,7 @@ void drawtoymc(std::string input, std::string output)
   hysig_b->Fit("fysig_b", "Nq");
   hysig_b->Fit("fysig_b", "LL");
   fitX::drawpull(hysig_b, fysig_b, fitX::color_b);
-  labelsmc("X(3872)", fysig_b->GetParameter(1), fysig_b->GetParameter(2), "N");
+  labelsmc("X(3872)", fysig_b->GetParameter(1), fysig_b->GetParameter(2), "N", 2, "");
   std::string outputname_ysig = Form("plots/%s/ctoymc_ysig.pdf", output.c_str());
   xjjroot::mkdir(outputname_ysig);
   cysig->SaveAs(outputname_ysig.c_str());
@@ -110,7 +110,7 @@ void drawtoymc(std::string input, std::string output)
   hmsig_a->Fit("fmsig_a", "Nq");
   hmsig_a->Fit("fmsig_a", "LL");
   fitX::drawpull(hmsig_a, fmsig_a, fitX::color_a);
-  labelsmc("#psi(2S)", fmsig_a->GetParameter(1), fmsig_a->GetParameter(2), "m");
+  labelsmc("#psi(2S)", fmsig_a->GetParameter(1), fmsig_a->GetParameter(2), "m", 4, " GeV");
   xjjroot::drawcomment(output.c_str());
   cmsig->cd(2);
   hmsig_b->Draw("pe");
@@ -118,29 +118,61 @@ void drawtoymc(std::string input, std::string output)
   hmsig_b->Fit("fmsig_b", "Nq");
   hmsig_b->Fit("fmsig_b", "LL");
   fitX::drawpull(hmsig_b, fmsig_b, fitX::color_b);
-  labelsmc("X(3872)", fmsig_b->GetParameter(1), fmsig_b->GetParameter(2), "m");
+  labelsmc("X(3872)", fmsig_b->GetParameter(1), fmsig_b->GetParameter(2), "m", 4, " GeV");
   std::string outputname_msig = Form("plots/%s/ctoymc_msig.pdf", output.c_str());
   xjjroot::mkdir(outputname_msig);
   cmsig->SaveAs(outputname_msig.c_str());
   std::cout<<fmsig_a->GetParameter(2)<<" "<<fmsig_b->GetParameter(2)<<std::endl;;
 
+  // --> minNLL
+
+  TH1F* hminNll = (TH1F*)inf->Get("hminNll");
+  hminNll->GetXaxis()->SetNdivisions(505);
+  hminNll->GetXaxis()->SetTitle("-log(L)");
+  hminNll->SetMaximum(hminNll->GetMaximum()*1.2);
+  xjjroot::setthgrstyle(hminNll, kGray+3, 20, 1., kGray+3, 1, 1);
+  xjjroot::sethempty(hminNll);
+
+  TF1* fminNll = new TF1("fminNll", "[0]*TMath::Gaus(x, [1], [2])/(TMath::Sqrt(2*3.1415926)*[2])");
+  float xmin = hminNll->GetXaxis()->GetXmin(), xmax = hminNll->GetXaxis()->GetXmax();
+  xjjroot::settfstyle(fminNll, kGray+3, 7, 5);
+  fminNll->SetParLimits(0, 0, 1.e+4);
+  fminNll->SetParameter(0, nn);
+  fminNll->SetParLimits(1, xmin, xmax);
+  fminNll->SetParameter(1, (xmin+xmax)/2.);
+  fminNll->SetParameter(2, (xmax-xmin)/10.);
+  fminNll->SetParLimits(2, 0, (xmax-xmin)/2.);
+
+  xjjroot::setgstyle(2);
+  TCanvas* cminNll = new TCanvas("cminNll", "", 600, 600);
+  hminNll->Draw("pe");
+  hminNll->Fit("fminNll", "Nq");
+  hminNll->Fit("fminNll", "Nq");
+  hminNll->Fit("fminNll", "LL");
+  fitX::drawpull(hminNll, fminNll, kGray+2);
+  labelsmc("Minimum likelihood", fminNll->GetParameter(1), fminNll->GetParameter(2), "l", 0, "");
+  xjjroot::drawcomment(output.c_str());
+  std::string outputname_minNll = Form("plots/%s/ctoymc_minNll.pdf", output.c_str());
+  xjjroot::mkdir(outputname_minNll);
+  cminNll->SaveAs(outputname_minNll.c_str());
+
 }
 
-void labelsmc(std::string label, double mean, double sigma, std::string mory)
+void labelsmc(std::string label, double mean, double sigma, std::string var, int precision, std::string unit)
 {
   xjjroot::drawtex(0.22, 0.85, label.c_str(), 0.04, 12, 62);
   xjjroot::drawtex(0.22, 0.85-0.05, fitX::pttag().c_str(), 0.04, 12, 42);
   xjjroot::drawtex(0.22, 0.85-0.05*2, fitX::ytag().c_str(), 0.04, 12, 42);
   xjjroot::drawtex(0.22, 0.85-0.05*3, fitX::centtag().c_str(), 0.04, 12, 42);
-  std::string mtitle(mory=="m"?Form("#bar{m} = %.4f GeV", mean):Form("#bar{N} = %.2f", mean));
+  std::string mtitle(Form("#bar{%s} = %.*f%s", var.c_str(), precision, mean, unit.c_str()));
   xjjroot::drawtex(0.65, 0.86, mtitle.c_str(), 0.038);
-  std::string stitle(mory=="m"?Form("#sigma_{m} = %.4f GeV", sigma):Form("#sigma_{N} = %.2f", sigma));
+  std::string stitle(Form("#sigma_{%s} = %.*f%s", var.c_str(), precision, sigma, unit.c_str()));
   xjjroot::drawtex(0.65, 0.86-0.05, stitle.c_str(), 0.038);
   xjjroot::drawCMS();
 }
 
 int main(int argc, char* argv[])
 {
-  if(argc==3) drawtoymc(argv[1], argv[2]);
-  
+  if(argc==3) { drawtoymc(argv[1], argv[2]); return 0; }
+  return 1;
 }

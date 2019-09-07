@@ -54,6 +54,7 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   std::vector<std::string> vtitle = {"Inclusive", "B-enriched (l_{xy} > 0.1 mm)"};
   std::vector<Style_t> mstyle = {20, 24};
 
+  float mm = 0;
   xjjroot::setgstyle();
   TCanvas* cy = new TCanvas("cy", "", 1200, 600);
   cy->Divide(2, 1);
@@ -62,7 +63,7 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
       // ====>
       std::map<std::string, fitX::fitXresult*> result = fitX::fit(vh[l], 0, hmcp_a, hmcp_b, 
                                                                   vdsh[l], dshmcp_a, dshmcp_b,
-                                                                  Form("plots/%s", output.c_str()), l==1, true, "_"+vname[l], vtitle[l], fitopt);
+                                                                  Form("plots/%s", output.c_str()), mm, true, "_"+vname[l], vtitle[l], fitopt);
       cy->cd(l+1);
       xjjroot::setgstyle();
       // <====
@@ -70,6 +71,7 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
       float ysigerr_a = result["unbinned"]->ysigerr_a();
       float ysig_b = result["unbinned"]->ysig_b();
       float ysigerr_b = result["unbinned"]->ysigerr_b();
+      mm = result["unbinned"]->msig_b();
 
       // yield
       xjjroot::setthgrstyle(vhyield_a[l], fitX::color_a, mstyle[l], 1.2, fitX::color_a, 2, 3, fitX::color_a, 0.1, 1001);

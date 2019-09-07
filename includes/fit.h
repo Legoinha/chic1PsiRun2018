@@ -7,6 +7,7 @@
 #include <TFile.h>
 #include <TF1.h>
 #include <TH1F.h>
+#include <TH2F.h>
 #include <TMath.h>
 #include <TCanvas.h>
 #include <TSystem.h>
@@ -39,11 +40,11 @@ RooDataSet* dsh;                 // data unbinned RooDataSet
 RooDataSet *dshmcp_a, *dshmcp_b; // mc mass template RooDataSet
 
 // ====>
-std::map<std::string, fitX::fitXresult*> result = fitX::fit(h, 0, hmcp_a, hmcp_b, dsh, dshmcp_a, dshmcp_b, "plots/", false, true, "name");
-float N_psi2s = result["unbinned"]->fsig_a();
-float Nerr_psi2s = result["unbinned"]->fsigerr_a();
-float N_psi2s = result["unbinned"]->fsig_a();
-float Nerr_psi2s = result["unbinned"]->fsigerr_a();
+std::map<std::string, fitX::fitXresult*> result = fitX::fit(h, 0, hmcp_a, hmcp_b, dsh, dshmcp_a, dshmcp_b, "directory/", false, (bool)saveornot, "name");
+float N_psi2s = result["unbinned"]->ysig_a();
+float Nerr_psi2s = result["unbinned"]->ysigerr_a();
+float N_psi2s = result["unbinned"]->ysig_a();
+float Nerr_psi2s = result["unbinned"]->ysigerr_a();
 // <====
 ---------------------------------------- */
 
@@ -68,20 +69,24 @@ namespace fitX
     TF1* fsig_a() { return ffsig_a; }
     TF1* fsig_b() { return ffsig_b; }
     TF1* fbkg() { return ffbkg; }
+    float minNll() { return fminNll; }
+    TH2F* hcorr() { return fhcorr; }
     RooWorkspace* ww() { return fww; }
     void setf(TF1* f, TF1* fsig_a, TF1* fsig_b, TF1* fbkg) { ff = f; ffsig_a = fsig_a; ffsig_b = fsig_b; ffbkg = fbkg; }
-    void setw(RooWorkspace* w) { fww = w; }
+    void setw(RooWorkspace* w, float minNll, TH2F* hcorr) { fww = w; fminNll = minNll; fhcorr = hcorr; }
 
   private:
     float fysig_a, fysig_b, fysigerr_a, fysigerr_b;
     float fmsig_a, fmsig_b, fmsigerr_a, fmsigerr_b;
+    float fminNll;
     TF1 *ff, *ffsig_a, *ffsig_b, *ffbkg;
     RooWorkspace* fww;
+    TH2F* fhcorr;
   };
   // ===>
   std::map<std::string, fitX::fitXresult*> fit(TH1F* hh, TH1F* hh_ss, TH1F* hhmc_a, TH1F* hhmc_b, 
                                                RooDataSet* dshh, RooDataSet* dshhmc_a, RooDataSet* dshhmc_b,
-                                               std::string outputdir, bool fixmean, bool saveplot, std::string name="", std::string title="", std::string option="default", bool silence=true);
+                                               std::string outputdir, float fixmean, bool saveplot, std::string name="", std::string title="", std::string option="default", bool silence=true);
   // <===
   void setmasshist(TH1* h, float xoffset=0, float yoffset=0, Color_t pcolor=kBlack);
   void setmasshist(RooPlot* h, float xoffset=0, float yoffset=0, Color_t pcolor=kBlack);
@@ -115,7 +120,7 @@ namespace fitX
 // --->
 std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* hhmc_a, TH1F* hhmc_b, 
                                                    RooDataSet* dshh, RooDataSet* dshhmc_a, RooDataSet* dshhmc_b, 
-                                                   std::string outputdir, bool fixmean, bool saveplot, std::string name, std::string title, std::string option, bool silence)
+                                                   std::string outputdir, float fixmean, bool saveplot, std::string name, std::string title, std::string option, bool silence)
 {
   std::string uniqstr(xjjc::currenttime());
   if(saveplot) gSystem->Exec(Form("mkdir -p %s", outputdir.c_str()));
@@ -407,9 +412,11 @@ std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* 
       pars[6]->setVal(fitX::FIT_MASS_PSI2S);
       pars[6]->setRange(fitX::FIT_MASS_PSI2S - fitX::FIT_MASS_PSI2S_WIN, fitX::FIT_MASS_PSI2S + fitX::FIT_MASS_PSI2S_WIN);
       // pars[6]->setConstant();
-      f->FixParameter(11, fitX::FIT_MASS_X);
-      pars[11]->setVal(fitX::FIT_MASS_X);
-      pars[11]->setRange(fitX::FIT_MASS_X, fitX::FIT_MASS_X);
+      f->FixParameter(11, fixmean);
+      pars[11]->setVal(fixmean);
+      // f->FixParameter(11, fitX::FIT_MASS_X);
+      // pars[11]->setVal(fitX::FIT_MASS_X);
+      pars[11]->setRange(fitX::FIT_MASS_X - fitX::FIT_MASS_X_WIN, fitX::FIT_MASS_X + fitX::FIT_MASS_X_WIN);
       pars[11]->setConstant();
     }
   // <<<
@@ -489,6 +496,8 @@ std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* 
   fitX::labelsdata(pars[6]->getVal(), pars[6]->getError(), pars[5]->getVal(), pars[5]->getError(),
                    pars[11]->getVal(), pars[11]->getError(), pars[10]->getVal(), pars[10]->getError(),
                    TMath::Prob(frempty->chiSquare("pdf", "dshist", ndof)*ndof, ndof), title);
+  float minNll = fitr->minNll();
+  std::cout<<"\e[31;1m"<<minNll<<"\e[0m"<<std::endl;
 
   if(!fixmean)
     {
@@ -511,33 +520,7 @@ std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* 
 
   RooStats::SPlot* sData = new RooStats::SPlot("sData", "An SPlot", *dsh, pdf, RooArgList(*(pars[5]), *(pars[10]), *nbkg));
   ww->import(*dsh, RooFit::Rename(Form("%s_ws", dshh->GetName())));
-  // std::cout << "Check SWeights:" << std::endl;
-  // std::cout << std::endl <<  "Yield of psi' is "
-  //           << pars[5]->getVal() << ".  From sWeights it is "
-  //           << sData->GetYieldFromSWeight("par5") << std::endl;
-  // std::cout << "Yield of X3872 is "
-  //           << pars[10]->getVal() << ".  From sWeights it is "
-  //           << sData->GetYieldFromSWeight("par10") << std::endl
-  //           << std::endl;
-  // std::cout << "Yield of bkg is "
-  //           << nbkg->getVal() << ".  From sWeights it is "
-  //           << sData->GetYieldFromSWeight("nbkg") << std::endl
-  //           << std::endl;
-  // int wpar5 = 0, wpar10 = 0, wnbkg = 0;
-  // for(int i=0; i<dsh->numEntries(); i++)
-  //   {
-  //     if(i%100==0) {
-  //     std::cout << "par5 Weight   " << sData->GetSWeight(i, "par5")
-  //               << "   par10 Weight   " << sData->GetSWeight(i, "par10")
-  //               << "   nbkg Weight   " << sData->GetSWeight(i, "nbkg")
-  //               << "  Total Weight   " << sData->GetSumOfEventSWeight(i)
-  //               << std::endl;
-  //     }
-  //     wpar5 += sData->GetSWeight(i, "par5");
-  //     wpar10 += sData->GetSWeight(i, "par10");
-  //     wnbkg += sData->GetSWeight(i, "nbkg");
-  //   }
-  // std::cout<<"count events: wpar5 = "<<wpar5<<", wpar10 = "<<wpar10<<", wnbkg = "<<wnbkg<<"."<<std::endl;
+  ww->import(*pdf, RooFit::Rename(Form("pdf_%s", name.c_str())));
 
   delete cmc;
   delete c;
@@ -547,11 +530,11 @@ std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* 
   fitresult["binned"] = new fitX::fitXresult(ysig_a, ysig_b, f->GetParError(5)*ysig_a/f->GetParameter(5), f->GetParError(10)*ysig_a/f->GetParameter(10), 
                                              f->GetParameter(6), f->GetParameter(11), f->GetParError(6), f->GetParError(11));
   fitresult["binned"]->setf(fs["f"], fs["fsig_a"], fs["fsig_b"], fs["fbkg"]);
-  fitresult["binned"]->setw(0);
+  fitresult["binned"]->setw(0, 0, new TH2F(Form("hcorr-binned-%s", name.c_str()), ";;", 1, 0, 1, 1, 0, 1));
   fitresult["unbinned"] = new fitX::fitXresult(pars[5]->getVal(), pars[10]->getVal(), pars[5]->getError(), pars[10]->getError(),
                                                pars[6]->getVal(), pars[11]->getVal(), pars[6]->getError(), pars[11]->getError());
   fitresult["unbinned"]->setf(fr["f"], fr["fsig_a"], fr["fsig_b"], fr["fbkg"]);
-  fitresult["unbinned"]->setw(ww);
+  fitresult["unbinned"]->setw(ww, minNll, (TH2F*)fitr->correlationHist(Form("hcorr-unbinned-%s", name.c_str())));
 
   return fitresult;
 }
