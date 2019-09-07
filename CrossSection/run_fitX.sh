@@ -7,36 +7,24 @@ centmax=90
 ymin=0
 ymax=1.6
 
-counts=(1)
+counts=(0 1 2 3)
 optcuts=(
-    "&& BDTF > 0.3 && (Bmass-3.096916-Btktkmass) < 0.12"
     "&& BDT > 0.06 && (Bmass-3.096916-Btktkmass) < 0.13"
-    "&& BDTD > 0.12 && (Bmass-3.096916-Btktkmass) < 0.12"
-    "&& BDTG > 0.70 && (Bmass-3.096916-Btktkmass) < 0.12"
-    "&& BDTF > 0.3"
-    "&& BDT > 0.07"
-    "&& BDTD > 0.12"
-    "&& BDTG > 0.70"
+    "&& BDTF > 0.3 && (Bmass-3.096916-Btktkmass) < 0.13"
+    "&& BDTD > 0.11 && (Bmass-3.096916-Btktkmass) < 0.13"
+    "&& BDTG > 0.68 && (Bmass-3.096916-Btktkmass) < 0.13"
 )
 optcutntuples=(
-    "ntp->BDTF[j] > 0.3 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.12"
     "ntp->BDT[j] > 0.06 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13"
-    "ntp->BDTD[j] > 0.12 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.12"
-    "ntp->BDTG[j] > 0.70 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.12"
-    "ntp->BDTF[j] > 0.3"
-    "ntp->BDT[j] > 0.07"
-    "ntp->BDTD[j] > 0.12"
-    "ntp->BDTG[j] > 0.70"
+    "ntp->BDTF[j] > 0.3 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13"
+    "ntp->BDTD[j] > 0.11 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13"
+    "ntp->BDTG[j] > 0.68 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13"
 )
 tags=(
-    "BDTFQvalue"
     "BDTQvalue"
+    "BDTFQvalue"
     "BDTDQvalue"
     "BDTGQvalue"
-    "BDTFnoQ"
-    "BDTnoQ"
-    "BDTDnoQ"
-    "BDTGnoQ"
 )
 
 input=/raid5/data/wangj/BntupleRun2018/mva_output_20190808ptdep/ntmix_20190806_Bfinder_20190513_HIDoubleMuon__PsiPeri__HIRun2018A_04Apr2019_v1_HF_and_MuonJSON_skim_trainX_20190808ptdep_sideband_tktk0p2_BDT_BDTD_BDTG_BDTF_LD_15p0_50p0_0-10-1-2-9_1bin.root
@@ -79,10 +67,6 @@ sed -i "s/__PTBIN_INPUT__/$ptbins/g" tnpcc_tmp.h
     echo " -- "fitX_drawhist.C
     g++ fitX_drawhist.C $(root-config --libs --cflags) -g -o fitX_drawhist_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; }
 }
-# [[ $RUN_PDFVAR -eq 1 || $# -eq 0 ]] && {
-#     echo " -- "fitX_pdfvar.C
-#     g++ fitX_pdfvar.C $(root-config --libs --cflags) -g -o fitX_pdfvar_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; }
-# }
 
 ##
 [[ $RUN_SAVEHIST -eq 1 ]] && {
@@ -131,22 +115,7 @@ do
         ./fitX_fithist_${tmp}.exe "$rootdir/fitX_savehist.root" $name
     }
     [[ $RUN_DRAWHIST -eq 1 ]] && ./fitX_drawhist_${tmp}.exe "$rootdir/fitX_fithist.root" "$name$kinematic"
-    # [[ $RUN_PDFVAR -eq 1 ]] && ./fitX_pdfvar_${tmp}.exe "$rootdir/fitX_savehist.root" $name
-
-    # syst
-    # echo fitX_pdfvar.C
-    # g++ fitX_pdfvar.C $(root-config --libs --cflags) -lRooFit -lRooFitCore -lRooStats -g -o fitX_pdfvar_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; }
-    # [[ ${5:-0} -eq 1 ]] && ./fitX_pdfvar_${tmp}.exe "$outputdir/fitX_savehist" $name
 
 done
 
-
-# [[ -f fitX_pdfvar_${tmp}.exe ]] && rm fitX_pdfvar_${tmp}.exe
-[[ -f fitX_drawhist_${tmp}.exe ]] && rm fitX_drawhist_${tmp}.exe
-[[ -f fitX_fithist_${tmp}.exe ]] && rm fitX_fithist_${tmp}.exe
-[[ -f fitX_savehist_${tmp}.exe ]] && rm fitX_savehist_${tmp}.exe
-[[ -f fitX_flatten_${tmp}.exe ]] && rm fitX_flatten_${tmp}.exe
-[[ -f draw_tnp_${tmp}.exe ]] && rm draw_tnp_${tmp}.exe
-[[ -f tnpcc_tmp.h ]] && rm tnpcc_tmp.h
-
-# rm fitX_pdfvar_${tmp}.exe
+rm *_${tmp}.exe 2>/dev/null

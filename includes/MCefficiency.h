@@ -57,16 +57,16 @@ namespace MCeff
 
 MCeff::MCefficiency::MCefficiency(std::string name, int whichincl, std::vector<float> _ptbins) : fname(name), fincl(whichincl), fptbins(_ptbins), fnptbins(_ptbins.size()-1)
 {
-  createhist();
   fptbins_incl = MCeff::ptBins_incl;
   fnptbins_incl = MCeff::nPtBins_incl;
+  createhist();
 }
 
 MCeff::MCefficiency::MCefficiency(TFile* inf, std::string name, int whichincl) : fname(name), fincl(whichincl)
 {
-  readhist(inf);
   fptbins_incl = MCeff::ptBins_incl;
   fnptbins_incl = MCeff::nPtBins_incl;
+  readhist(inf);
 }
 
 void MCeff::MCefficiency::createhist()
@@ -105,8 +105,9 @@ void MCeff::MCefficiency::calceff()
 
 void MCeff::MCefficiency::setstyle(Color_t color, Style_t mstyle/*=20*/, Style_t lstyle/*=2*/)
 {
-  xjjroot::setthgrstyle(fheff, 0, 0, 0, color, lstyle, 3, color, 0.2, 1001);
+  xjjroot::setthgrstyle(fheff, color, mstyle, 1.2, color, lstyle, 3, color, 0.2, 1001);
   xjjroot::setthgrstyle(fheff_incl, color, mstyle, 1.2, color, lstyle, 3, color, 0.2, 1001);
-  xjjroot::setthgrstyle(fgreff, 0, 0, 0, color, lstyle, 3, color, 0.2, 1001);
+  xjjroot::setthgrstyle(fgreff, color, mstyle, 1.2, color, lstyle, 3, color, 0.2, 1001);
   xjjroot::setthgrstyle(fgreff_incl, color, mstyle, 1.2, color, lstyle, 3, color, 0.2, 1001);
 }
+

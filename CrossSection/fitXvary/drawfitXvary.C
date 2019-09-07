@@ -378,7 +378,7 @@ void drawfitXvary(std::string input, std::string output, std::string cutvar)
       if(dev > per_b && hyieldCorr_b->GetBinContent(i+1)>0) per_b = dev;
     }
   float per_ab = TMath::Sqrt(per_a*per_a + per_b*per_b);
-  std::cout<<"Acceptance and Efficiency & "<<Form("%.1f", per_a*1.e+2)<<"\\% & "<<Form("%.1f", per_b*1.e+2)<<"\\% & "<<Form("%.1f", per_ab*1.e+2)<<"\\% \\\\"<<std::endl;
+  std::cout<<"Efficiency & "<<Form("%.1f", per_a*1.e+2)<<"\\% & "<<Form("%.1f", per_b*1.e+2)<<"\\% & "<<Form("%.1f", per_ab*1.e+2)<<"\\% \\\\"<<std::endl;
 
 }
 

@@ -8,32 +8,32 @@
 #include "systematics.h"
 #include "fitX.h"
 
-// std::vector<std::string> fitopt = {"poly4", "poly3", "poly2", "3gaus", "floatwidth"};
-std::vector<std::string> fitopt = {"poly4", "poly3", "3gaus", "floatwidth"};
+std::vector<std::string> algoopt = {"BDT", "BDTF", "BDTD", "BDTG"};
 void drawpercent(TH1F* hh, float y=0.6);
 
-void pdf_drawhist(std::string output)
+void algo_drawhist(std::string output)
 {
   std::cout<<"\e[32;1m -- "<<__FUNCTION__<<"\e[0m"<<std::endl;
-  fitX::init(TFile::Open(std::string("rootfiles/"+output+"/fitX_fithist.root").c_str()));
+  fitX::init(TFile::Open(std::string("rootfiles/"+xjjc::str_replaceall(output,"_ALGO_","BDTQvalue")+"/fitX_fithist.root").c_str()));
+  
   std::map<std::string, TH1F*> hyieldpromptCorr, hratio;
   std::vector<int> cc;
-  TH1F* hhyieldpromptCorr_a = new TH1F("hhyieldpromptCorr_a", ";;N_{signal} #times f_{prompt} / (#alpha #times #epsilon )_{prompt}", fitopt.size(), 0, fitopt.size());
+  TH1F* hhyieldpromptCorr_a = new TH1F("hhyieldpromptCorr_a", ";;N_{signal} #times f_{prompt} / (#alpha #times #epsilon )_{prompt}", algoopt.size(), 0, algoopt.size());
   xjjroot::sethempty(hhyieldpromptCorr_a, 0, 0.4);
   hhyieldpromptCorr_a->GetXaxis()->SetLabelSize(hhyieldpromptCorr_a->GetXaxis()->GetLabelSize()*1.4);
   xjjroot::setthgrstyle(hhyieldpromptCorr_a, fitX::color_a, 20, 1.2, fitX::color_a, 2, 2);
-  TH1F* hhyieldpromptCorr_b = new TH1F("hhyieldpromptCorr_b", ";;N_{signal} #times f_{prompt} / (#alpha #times #epsilon )_{prompt}", fitopt.size(), 0, fitopt.size());
+  TH1F* hhyieldpromptCorr_b = new TH1F("hhyieldpromptCorr_b", ";;N_{signal} #times f_{prompt} / (#alpha #times #epsilon )_{prompt}", algoopt.size(), 0, algoopt.size());
   xjjroot::sethempty(hhyieldpromptCorr_b, 0, 0.4);
   hhyieldpromptCorr_b->GetXaxis()->SetLabelSize(hhyieldpromptCorr_b->GetXaxis()->GetLabelSize()*1.4);
   xjjroot::setthgrstyle(hhyieldpromptCorr_b, fitX::color_b, 20, 1.2, fitX::color_b, 2, 2);
-  TH1F* hhratio = new TH1F("hhratio", ";;R", fitopt.size(), 0, fitopt.size());
+  TH1F* hhratio = new TH1F("hhratio", ";;R", algoopt.size(), 0, algoopt.size());
   xjjroot::sethempty(hhratio, 0, 0.2);
   hhratio->GetXaxis()->SetLabelSize(hhratio->GetXaxis()->GetLabelSize()*1.4);
   xjjroot::setthgrstyle(hhratio, kBlack, 21, 1.2, kBlack, 1, 2);
-  for(int i=0; i<fitopt.size(); i++)
+  for(int i=0; i<algoopt.size(); i++)
     {
-      auto tt = fitopt[i];
-      TFile* inf = TFile::Open(std::string("rootfiles/"+output+"/"+tt+"/fitX_fithist.root").c_str());
+      auto tt = algoopt[i];
+      TFile* inf = TFile::Open(std::string("rootfiles/"+xjjc::str_replaceall(output,"_ALGO_",tt+"Qvalue")+"/fitX_fithist.root").c_str());
       hyieldpromptCorr[tt] = (TH1F*)inf->Get("hyieldpromptCorr");
       hyieldpromptCorr[tt]->SetName(Form("hyieldpromptCorr_%s", tt.c_str()));
       hratio[tt] = (TH1F*)inf->Get("hratio");
@@ -54,9 +54,9 @@ void pdf_drawhist(std::string output)
       hhratio->SetBinError(i+1, hratio[tt]->GetBinError(1));
     }
   hhyieldpromptCorr_a->SetMinimum(0);
-  hhyieldpromptCorr_a->SetMaximum(hhyieldpromptCorr_a->GetMaximum()*2.5);
+  hhyieldpromptCorr_a->SetMaximum(hhyieldpromptCorr_a->GetMaximum()*2);
   hhyieldpromptCorr_b->SetMinimum(0);
-  hhyieldpromptCorr_b->SetMaximum(hhyieldpromptCorr_b->GetMaximum()*2.5);
+  hhyieldpromptCorr_b->SetMaximum(hhyieldpromptCorr_b->GetMaximum()*2);
   hhratio->SetMinimum(0);
   hhratio->SetMaximum(hhratio->GetMaximum()*3);
 
@@ -68,30 +68,30 @@ void pdf_drawhist(std::string output)
   c->Divide(3, 1);
   c->cd(1);
   hhyieldpromptCorr_a->Draw("pe");
-  drawpercent(hhyieldpromptCorr_a, 0.60);
+  // drawpercent(hhyieldpromptCorr_a, 0.60);
   fitX::drawkinematics();
   xjjroot::drawtex(0.24, 0.81, fitX::title_a.c_str(), 0.042, 0.12, 62);
   xjjroot::drawCMS();
   c->cd(2);
   hhyieldpromptCorr_b->Draw("pe");
-  drawpercent(hhyieldpromptCorr_b, 0.60);
+  // drawpercent(hhyieldpromptCorr_b, 0.60);
   fitX::drawkinematics();
   xjjroot::drawtex(0.24, 0.81, fitX::title_b.c_str(), 0.042, 0.12, 62);
   xjjroot::drawCMS();
   c->cd(3);
   hhratio->Draw("pe");
-  drawpercent(hhratio, 0.60);
+  // drawpercent(hhratio, 0.60);
   fitX::drawkinematics();
   xjjroot::drawCMS();
 
-  std::string outputname("plots/"+output+"/pdfvar/cpdfvar.pdf");
+  std::string outputname("plots/"+xjjc::str_replaceall(output,"_ALGO_","BDTQvalue")+"/algovar/calgovar.pdf");
   xjjroot::mkdir(outputname);
   c->SaveAs(outputname.c_str());
 }
 
 int main(int argc, char* argv[])
 {
-  if(argc==2) { pdf_drawhist(argv[1]); return 0; }
+  if(argc==2) { algo_drawhist(argv[1]); return 0; }
   return 1;
 }
 
@@ -106,3 +106,4 @@ void drawpercent(TH1F* hh, float y)
       xjjroot::drawtex(lm + dm/2. + dm*i, y, tper.c_str(), 0.038, 22, 62, kGray+1);
     }
 }
+
