@@ -8,17 +8,17 @@ void fitX_flatten(std::string inputname, std::string outputname="", std::string 
   std::cout<<"\e[32;1m -- "<<__FUNCTION__<<"\e[0m"<<std::endl;
   if(outputname=="")
     outputname = xjjc::str_replaceall(inputname, ".root", "_flatten.root");
-  fitX::tree_flatten* ntf = new fitX::tree_flatten(inputname);
-  ntf->flatten();
-  TTree* ntskim = (TTree*)ntf->outnt->CopyTree(TCut(cut.c_str()));
-  ntskim->SetName("ntmix_skim");
   std::cout<<"output: "<<outputname<<std::endl;
   TFile* outf = new TFile(outputname.c_str(), "recreate");
   outf->cd();
-  ntf->outnt->Write();
-  std::cout<<ntf->outnt->GetEntries()<<std::endl;;
-  ntskim->Write();
-  std::cout<<ntskim->GetEntries()<<std::endl;;  
+  fitX::tree_flatten* ntf = new fitX::tree_flatten(inputname, "ntmix", outf);
+  ntf->flatten();
+  // TTree* ntskim = (TTree*)ntf->outnt->CopyTree(TCut(cut.c_str()));
+  // ntskim->SetName("ntmix_skim");
+  ntf->outnt()->Write();
+  xjjroot::printhist(ntf->outnt());
+  // ntskim->Write();
+  // std::cout<<ntskim->GetEntries()<<std::endl;;  
   outf->Close();
 }
 

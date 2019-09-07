@@ -3,6 +3,7 @@
 
 #include <TFile.h>
 #include <TTree.h>
+#include <TDirectory.h>
 #include <string>
 #include "xjjcuti.h"
 
@@ -32,11 +33,12 @@ namespace fitX
   class tree_flatten
   {
   public:
-    tree_flatten(std::string inputname, std::string treename="ntmix");
+    tree_flatten(std::string inputname, std::string treename="ntmix", TDirectory* outdir=gDirectory);
     void flatten();
-    TTree* outnt;
+    TTree* outnt() { return foutnt; }
 
   private:
+    TTree* foutnt;
     std::string ffname, fntname;
     TTree* fnt;
     int Bsize;
@@ -54,6 +56,10 @@ namespace fitX
       new br_element<float, MAX_XB>("BDTG"),
       new br_element<float, MAX_XB>("BDTD"),
       new br_element<float, MAX_XB>("BDTF"),
+      new br_element<float, MAX_XB>("BsvpvDistance"),
+      new br_element<float, MAX_XB>("BsvpvDisErr"),
+      new br_element<float, MAX_XB>("Balpha"),
+      new br_element<float, MAX_XB>("Beta"),
       new br_element<float, MAX_XB>("pthatweight", false)
     };
     std::vector<br_element<int, MAX_XB>*> branchesi = {
@@ -69,13 +75,14 @@ namespace fitX
     };
   };
 
-  tree_flatten::tree_flatten(std::string inputname, std::string treename) : 
+  tree_flatten::tree_flatten(std::string inputname, std::string treename, TDirectory* outdir) : 
     ffname(inputname), 
     fntname(treename)
   {
     fnt = (TTree*)fitX::getnt(ffname, Form("Bfinder/%s", fntname.c_str()));
-    gDirectory->cd("root:/");
-    outnt = new TTree(Form("%s_flatten", fnt->GetName()), "");
+    // gDirectory->cd("root:/");
+    outdir->cd();
+    foutnt = new TTree(Form("%s_flatten", fnt->GetName()), "");
     fnt->SetBranchAddress("Bsize", &Bsize);
     for(auto& br : branchesf)
       {
@@ -86,7 +93,7 @@ namespace fitX
         else 
           { 
             br->exist = true; 
-            outnt->Branch(br->name.c_str(), &br->value);
+            foutnt->Branch(br->name.c_str(), &br->value);
           }
       }
     for(auto& br : branchesi)
@@ -98,7 +105,7 @@ namespace fitX
         else 
           { 
             br->exist = true; 
-            outnt->Branch(br->name.c_str(), &br->value);
+            foutnt->Branch(br->name.c_str(), &br->value);
           }
       }
     for(auto& br : brancheso)
@@ -110,7 +117,7 @@ namespace fitX
         else 
           { 
             br->exist = true; 
-            outnt->Branch(br->name.c_str(), &br->value);
+            foutnt->Branch(br->name.c_str(), &br->value);
           }
       }
   }
@@ -118,7 +125,7 @@ namespace fitX
   void tree_flatten::flatten()
   {
     int nentries = fnt->GetEntries();
-    // outnt->cd();
+    // foutnt->cd();
     for(int i=0; i<nentries; i++)
       {
         fnt->GetEntry(i);
@@ -130,10 +137,10 @@ namespace fitX
             for(auto& br : branchesf) { if(br->isarray()) { br->value = br->array[j]; } }
             for(auto& br : branchesi) { if(br->isarray()) { br->value = br->array[j]; } }
             for(auto& br : brancheso) { if(br->isarray()) { br->value = br->array[j]; } }
-            outnt->Fill();
+            foutnt->Fill();
           }
       }
-    // outnt->Write();
+    // foutnt->Write();
     xjjc::progressbar_summary(nentries);
   }
 
