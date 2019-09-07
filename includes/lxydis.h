@@ -16,8 +16,8 @@ namespace lxydis
   float binmin = -0.5, binmax = 2.5;
   std::map<std::string, std::vector<float>> lxycut = 
     {
-      std::pair<std::string, std::vector<float>>("lxy", {0.1, 0.15, 0.2, 0.3}),
-      std::pair<std::string, std::vector<float>>("lxyz", {0.1}),
+      std::pair<std::string, std::vector<float>>("lxy", {0.1, 0.15, 0.2}),
+      std::pair<std::string, std::vector<float>>("lxyz", {0.1, 0.15}),
     };
   std::vector<float> mvalist = {-1., 0, 0.4, 0.6, 0.7, 0.76, 0.80}; int thismva = 5;
 
