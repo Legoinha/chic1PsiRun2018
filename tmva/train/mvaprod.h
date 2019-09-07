@@ -291,11 +291,11 @@ int mytmva::createmva(TTree* nttree, TFile* outf, std::vector<std::vector<std::s
   
   std::cout<<mytmva::titlecolor<<"==> "<<__FUNCTION__<<": Filling mva values:"<<mytmva::nocolor<<std::endl;
   outf->cd();
-  int nentries = nevt>0&&nevt<values->getnt()->getnt()->GetEntries()?nevt:values->getnt()->getnt()->GetEntries();
+  int nentries = nevt>0&&nevt<values->getnt()->nt()->GetEntries()?nevt:values->getnt()->nt()->GetEntries();
   for(int i=0; i<nentries; i++)
     {
       if(i%300==0) xjjc::progressbar(i, nentries);
-      values->getnt()->getnt()->GetEntry(i);
+      values->getnt()->nt()->GetEntry(i);
 
       mvaBsize = values->getnt()->Bsize;
       for(int j=0; j<values->getnt()->Bsize; j++)
