@@ -15,10 +15,13 @@
 #include "xjjcuti.h"
 
 void fitX_savehist(std::string input, std::string inputmcp_a, std::string inputmcp_b, std::string inputmcnp_a, std::string inputmcnp_b,
-                   std::string cut, std::string cutgen, std::string output)
+                   std::string cut, std::string cutgen, std::string cutgenacc, std::string cutpre, std::string output)
 {
   std::cout<<"\e[32;1m -- "<<__FUNCTION__<<"\e[0m"<<std::endl;
   std::cout<<cut<<std::endl;
+  std::cout<<cutgen<<std::endl;
+  std::cout<<cutgenacc<<std::endl;
+  std::cout<<cutpre<<std::endl;
   std::map<std::string, std::vector<float>> lxyxbins = lxydis::setupbins();
   std::string input_flatten = xjjc::str_replaceall(input, ".root", "_flatten.root");
   std::string inputmcp_a_flatten = xjjc::str_replaceall(inputmcp_a, ".root", "_flatten.root");
@@ -66,8 +69,15 @@ void fitX_savehist(std::string input, std::string inputmcp_a, std::string inputm
                              fitX::ptmincut, fitX::ptmaxcut, 
                              fitX::ymincut, fitX::ymaxcut, 
                              fitX::centmincut*2, fitX::centmaxcut*2);
+  std::string cutrecopre = Form("(%s) && Bmass >= %f && Bmass < %f && Bpt>%f && Bpt<%f && TMath::Abs(By)>=%f && TMath::Abs(By)<%f && hiBin>=%f && hiBin<=%f", cutpre.c_str(), 
+                                fitX::BIN_MIN, fitX::BIN_MAX, 
+                                fitX::ptmincut, fitX::ptmaxcut, 
+                                fitX::ymincut, fitX::ymaxcut, 
+                                fitX::centmincut*2, fitX::centmaxcut*2);
   std::string cutmcreco = Form("%s && Bgen>=23333 && BgencollisionId==0", cutreco.c_str());
+  std::string cutmcpre = Form("%s && Bgen>=23333 && BgencollisionId==0", cutrecopre.c_str());
   std::string cutmcgen = Form("(%s) && Gpt>%f && Gpt<%f && TMath::Abs(Gy)>=%f && TMath::Abs(Gy)<%f && hiBin>=%f && hiBin<=%f && GisSignal==7 && GcollisionId==0", cutgen.c_str(), fitX::ptmincut, fitX::ptmaxcut, fitX::ymincut, fitX::ymaxcut, fitX::centmincut*2, fitX::centmaxcut*2);
+  std::string cutmcgenacc = Form("(%s) && Gpt>%f && Gpt<%f && TMath::Abs(Gy)>=%f && TMath::Abs(Gy)<%f && hiBin>=%f && hiBin<=%f && GisSignal==7 && GcollisionId==0", cutgenacc.c_str(), fitX::ptmincut, fitX::ptmaxcut, fitX::ymincut, fitX::ymaxcut, fitX::centmincut*2, fitX::centmaxcut*2);
 
   //
   std::cout<<" == data ==>"<<std::endl;
@@ -97,6 +107,10 @@ void fitX_savehist(std::string input, std::string inputmcp_a, std::string inputm
   fitX::printhist(mceff_a->heffmc());
   ntmixmcp_a->Project(mceff_a->heffmc_incl()->GetName(), Form("%d", fitX::ibin_a-1), TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
   fitX::printhist(mceff_a->heffmc_incl());
+  ntmixmcp_a->Project(mceff_a->heffmcpre()->GetName(), "Bpt", TCut(mcweight.c_str())*TCut(cutmcpre.c_str()));
+  fitX::printhist(mceff_a->heffmcpre());
+  ntmixmcp_a->Project(mceff_a->heffmcpre_incl()->GetName(), Form("%d", fitX::ibin_a-1), TCut(mcweight.c_str())*TCut(cutmcpre.c_str()));
+  fitX::printhist(mceff_a->heffmcpre_incl());
   ntmixmcp_a->Project("hlxymcp_a", lxydis::formulas["lxy"].c_str(), TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
   fitX::printhist(hlxymcp_a);
 
@@ -112,6 +126,10 @@ void fitX_savehist(std::string input, std::string inputmcp_a, std::string inputm
   fitX::printhist(mceff_b->heffmc());
   ntmixmcp_b->Project(mceff_b->heffmc_incl()->GetName(), Form("%d", fitX::ibin_b-1), TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
   fitX::printhist(mceff_b->heffmc_incl());
+  ntmixmcp_b->Project(mceff_b->heffmcpre()->GetName(), "Bpt", TCut(mcweight.c_str())*TCut(cutmcpre.c_str()));
+  fitX::printhist(mceff_b->heffmcpre());
+  ntmixmcp_b->Project(mceff_b->heffmcpre_incl()->GetName(), Form("%d", fitX::ibin_b-1), TCut(mcweight.c_str())*TCut(cutmcpre.c_str()));
+  fitX::printhist(mceff_b->heffmcpre_incl());
   ntmixmcp_b->Project("hlxymcp_b", lxydis::formulas["lxy"].c_str(), TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
   fitX::printhist(hlxymcp_b);
 
@@ -121,12 +139,20 @@ void fitX_savehist(std::string input, std::string inputmcp_a, std::string inputm
   fitX::printhist(mceff_a->heffgen());
   ntGenmcp_a->Project(mceff_a->heffgen_incl()->GetName(), Form("%d", fitX::ibin_a-1), TCut(mcweight.c_str())*TCut(cutmcgen.c_str()));
   fitX::printhist(mceff_a->heffgen_incl());
+  ntGenmcp_a->Project(mceff_a->heffgenacc()->GetName(), "Gpt", TCut(mcweight.c_str())*TCut(cutmcgenacc.c_str()));
+  fitX::printhist(mceff_a->heffgenacc());
+  ntGenmcp_a->Project(mceff_a->heffgenacc_incl()->GetName(), Form("%d", fitX::ibin_a-1), TCut(mcweight.c_str())*TCut(cutmcgenacc.c_str()));
+  fitX::printhist(mceff_a->heffgenacc_incl());
 
   std::cout<<" == mcgenp_b ==>"<<std::endl;
   ntGenmcp_b->Project(mceff_b->heffgen()->GetName(), "Gpt", TCut(mcweight.c_str())*TCut(cutmcgen.c_str()));
   fitX::printhist(mceff_b->heffgen());
   ntGenmcp_b->Project(mceff_b->heffgen_incl()->GetName(), Form("%d", fitX::ibin_b-1), TCut(mcweight.c_str())*TCut(cutmcgen.c_str()));
   fitX::printhist(mceff_b->heffgen_incl());
+  ntGenmcp_b->Project(mceff_b->heffgenacc()->GetName(), "Gpt", TCut(mcweight.c_str())*TCut(cutmcgenacc.c_str()));
+  fitX::printhist(mceff_b->heffgenacc());
+  ntGenmcp_b->Project(mceff_b->heffgenacc_incl()->GetName(), Form("%d", fitX::ibin_b-1), TCut(mcweight.c_str())*TCut(cutmcgenacc.c_str()));
+  fitX::printhist(mceff_b->heffgenacc_incl());
 
   std::cout<<" == mcnp_a ==>"<<std::endl;
   ntmixmcnp_a->Project("hlxymcnp_a", lxydis::formulas["lxy"].c_str(), TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
@@ -152,10 +178,18 @@ void fitX_savehist(std::string input, std::string inputmcp_a, std::string inputm
   mceff_a->heffmc_incl()->Write();
   mceff_a->heffgen()->Write();
   mceff_a->heffgen_incl()->Write();
+  mceff_a->heffgenacc()->Write();
+  mceff_a->heffgenacc_incl()->Write();
+  mceff_a->heffmcpre()->Write();
+  mceff_a->heffmcpre_incl()->Write();
   mceff_b->heffmc()->Write();
   mceff_b->heffmc_incl()->Write();
   mceff_b->heffgen()->Write();
   mceff_b->heffgen_incl()->Write();
+  mceff_b->heffgenacc()->Write();
+  mceff_b->heffgenacc_incl()->Write();
+  mceff_b->heffmcpre()->Write();
+  mceff_b->heffmcpre_incl()->Write();
   outf->cd();
   gDirectory->Add(ww);
   ww->Write();
@@ -169,7 +203,9 @@ void fitX_savehist(std::string input, std::string inputmcp_a, std::string inputm
   info->Branch("inputmcnp_b", &inputmcnp_b);
   info->Branch("cutreco", &cutreco);
   info->Branch("cutmcreco", &cutmcreco);
+  info->Branch("cutmcpre", &cutmcpre);
   info->Branch("cutmcgen", &cutmcgen);
+  info->Branch("cutmcgenacc", &cutmcgenacc);
   info->Fill();
   info->Write();
   fitX::write();
@@ -179,8 +215,8 @@ void fitX_savehist(std::string input, std::string inputmcp_a, std::string inputm
 
 int main(int argc, char* argv[])
 {
-  if(argc==15) { 
-    fitX::init(atof(argv[9]), atof(argv[10]), atof(argv[11]), atof(argv[12]), atof(argv[13]), atof(argv[14]));
-    fitX_savehist(argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7], argv[8]); return 0; }
+  if(argc==17) { 
+    fitX::init(atof(argv[11]), atof(argv[12]), atof(argv[13]), atof(argv[14]), atof(argv[15]), atof(argv[16]));
+    fitX_savehist(argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7], argv[8], argv[9], argv[10]); return 0; }
   return 1;
 }

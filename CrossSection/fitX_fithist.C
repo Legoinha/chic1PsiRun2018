@@ -16,11 +16,14 @@
 #include "systematics.h"
 
 void drawkinematic();
-
-void fitX_fithist(std::string input, std::string output, std::string inputtnp_a, std::string inputtnp_b, std::string fitopt="default")
+void drawlabels();
+TH2F* createhempty(std::string name, std::string ytitle, float ymax=1.);
+TH2F* createhempty_incl(std::string name, std::string ytitle, float ymax=1.);
+void drawval(TEfficiency* greff_a, TEfficiency* greff_b, float ymax);
+void fitX_fithist(std::string input, std::string output, std::string inputtnp_a, std::string inputtnp_b, std::string fitopt="")
 {
   std::cout<<"\e[32;1m -- "<<__FUNCTION__<<"\e[0m"<<std::endl;
-  if(fitopt!="default") { output += ("/"+fitopt); }
+  if(fitopt!="") { output += ("/"+fitopt); }
   TFile* inf = new TFile(input.c_str());
   fitX::init(inf);
   RooWorkspace* ww = (RooWorkspace*)inf->Get("ww");
@@ -51,7 +54,7 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   std::vector<TH1F*> vhyield_a = {hyield_a, hBenryield_a};
   std::vector<TH1F*> vhyield_b = {hyield_b, hBenryield_b};
   std::vector<std::string> vname = {"th", "thBenr"};
-  std::vector<std::string> vtitle = {"Inclusive", "B-enriched (l_{xy} > 0.1 mm)"};
+  std::vector<std::string> vtitle = {Form("#splitline{Inclusive}{%s}", fitopt.c_str()), Form("#splitline{B-enriched (l_{xy} > 0.1 mm)}{%s}", fitopt.c_str())};
   std::vector<Style_t> mstyle = {20, 24};
 
   float mm = 0;
@@ -75,17 +78,17 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
 
       // yield
       xjjroot::setthgrstyle(vhyield_a[l], fitX::color_a, mstyle[l], 1.2, fitX::color_a, 2, 3, fitX::color_a, 0.1, 1001);
-      vhyield_a[l]->SetBinContent(2, ysig_a);
-      vhyield_a[l]->SetBinError(2, ysigerr_a);
+      vhyield_a[l]->SetBinContent(fitX::ibin_a, ysig_a);
+      vhyield_a[l]->SetBinError(fitX::ibin_a, ysigerr_a);
       xjjroot::setthgrstyle(vhyield_b[l], fitX::color_b, mstyle[l], 1.2, fitX::color_b, 2, 3, fitX::color_b, 0.1, 1001);
-      vhyield_b[l]->SetBinContent(4, ysig_b);
-      vhyield_b[l]->SetBinError(4, ysigerr_b);
+      vhyield_b[l]->SetBinContent(fitX::ibin_b, ysig_b);
+      vhyield_b[l]->SetBinError(fitX::ibin_b, ysigerr_b);
       // float ymax = 300.; // !
       float ymax = vhyield_a[l]->GetMaximum()*2.5; // !
       TH2F* hempty = new TH2F(Form("hempty%d",l), ";;Raw Yield", 5, 0, 5, 10, 0, ymax);
       xjjroot::sethempty(hempty, 0, 0.3);
-      hempty->GetXaxis()->SetBinLabel(2, "#psi(2S)");
-      hempty->GetXaxis()->SetBinLabel(4, "X(3872)");
+      hempty->GetXaxis()->SetBinLabel(fitX::ibin_a, fitX::title_a.c_str());
+      hempty->GetXaxis()->SetBinLabel(fitX::ibin_b, fitX::title_b.c_str());
       hempty->GetXaxis()->SetLabelSize(hempty->GetXaxis()->GetLabelSize()*1.5);
       hempty->Draw();
       vhyield_a[l]->Draw("ple same");
@@ -120,8 +123,8 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   hlxymcp_b->Draw("histe same");
   xjjroot::drawline(0.1, 0, 0.1, hlxymcp_a->GetMaximum(), kGray+1, 2, 2);
   drawkinematic();
-  xjjroot::drawtex(0.23, 0.85, "#psi(2S)", 0.042, 12, 62, fitX::color_a);
-  xjjroot::drawtex(0.23, 0.78, "X(3872)", 0.042, 12, 62, fitX::color_b);
+  xjjroot::drawtex(0.23, 0.85, fitX::title_a.c_str(), 0.042, 12, 62, fitX::color_a);
+  xjjroot::drawtex(0.23, 0.78, fitX::title_b.c_str(), 0.042, 12, 62, fitX::color_b);
   xjjroot::drawtex(0.57, 0.85, "Prompt", 0.042, 22, 62);
   xjjroot::drawCMS("Simulation");
   clxy->cd(2);
@@ -130,8 +133,8 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   hlxymcnp_b->Draw("histe same");
   xjjroot::drawline(0.1, 0, 0.1, hlxymcnp_a->GetMaximum(), kGray+1, 2, 2);
   drawkinematic();
-  xjjroot::drawtex(0.23, 0.85, "#psi(2S)", 0.042, 12, 62, fitX::color_a);
-  xjjroot::drawtex(0.23, 0.78, "X(3872)", 0.042, 12, 62, fitX::color_b);
+  xjjroot::drawtex(0.23, 0.85, fitX::title_a.c_str(), 0.042, 12, 62, fitX::color_a);
+  xjjroot::drawtex(0.23, 0.78, fitX::title_b.c_str(), 0.042, 12, 62, fitX::color_b);
   xjjroot::drawtex(0.57, 0.85, "Nonprompt", 0.042, 22, 62);
   xjjroot::drawCMS("Simulation");
   xjjroot::mkdir(Form("plots/%s/clxy.pdf", output.c_str()));
@@ -139,11 +142,11 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   
   std::vector<double> vlxyfrac = lxydis::nplxyfrac(hlxymcnp_a, hlxymcnp_b);
   TH1F* hlxyfrac_a = new TH1F("hlxyfrac_a", "", 5, 0, 5); //hlxyfrac_a->Sumw2();
-  hlxyfrac_a->SetBinContent(2, vlxyfrac[0]);
-  hlxyfrac_a->SetBinError(2, vlxyfrac[1]);
+  hlxyfrac_a->SetBinContent(fitX::ibin_a, vlxyfrac[0]);
+  hlxyfrac_a->SetBinError(fitX::ibin_a, vlxyfrac[1]);
   TH1F* hlxyfrac_b = new TH1F("hlxyfrac_b", "", 5, 0, 5); //hlxyfrac_b->Sumw2();
-  hlxyfrac_b->SetBinContent(4, vlxyfrac[2]);
-  hlxyfrac_b->SetBinError(4, vlxyfrac[3]);
+  hlxyfrac_b->SetBinContent(fitX::ibin_b, vlxyfrac[2]);
+  hlxyfrac_b->SetBinError(fitX::ibin_b, vlxyfrac[3]);
   TH1F *hyieldprompt_a, *hyieldprompt_b;
   TEfficiency* grfprompt_a = lxydis::calclxyfprompt(hyield_a, hBenryield_a, hlxyfrac_a, "grfprompt_a", &hyieldprompt_a);
   TEfficiency* grfprompt_b = lxydis::calclxyfprompt(hyield_b, hBenryield_b, hlxyfrac_b, "grfprompt_b", &hyieldprompt_b);
@@ -154,8 +157,8 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   TCanvas* cfprompt = new TCanvas("cfprompt", "", 600, 600);
   TH2F* hemptyfprompt = new TH2F("hemptyfprompt", ";;f_{prompt}", 5, 0, 5, 10, 0, 1.4);
   xjjroot::sethempty(hemptyfprompt, 0, 0.3);
-  hemptyfprompt->GetXaxis()->SetBinLabel(2, "#psi(2S)");
-  hemptyfprompt->GetXaxis()->SetBinLabel(4, "X(3872)");
+  hemptyfprompt->GetXaxis()->SetBinLabel(fitX::ibin_a, fitX::title_a.c_str());
+  hemptyfprompt->GetXaxis()->SetBinLabel(fitX::ibin_b, fitX::title_b.c_str());
   hemptyfprompt->GetXaxis()->SetLabelSize(hemptyfprompt->GetXaxis()->GetLabelSize()*1.5);
   hemptyfprompt->Draw();
   xjjroot::drawline(0, 1, 5, 1, kGray+1, 9, 2);
@@ -169,22 +172,31 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
 
   // efficiency
   mceff_a->calceff();
+  mceff_a->calcacc();
   mceff_a->setstyle(fitX::color_a);
   mceff_b->calceff();
+  mceff_b->calcacc();
   mceff_b->setstyle(fitX::color_b);
-  float ymaxeff = 0.2;
-  TH2F* hemptyeff = new TH2F("hemptyeff", ";p_{T} (GeV/c);#alpha #times #epsilon_{reco} #times #epsilon_{sel}", 10, MCeff::ptBins[0], MCeff::ptBins[MCeff::nPtBins], 10, 0, ymaxeff);
-  xjjroot::sethempty(hemptyeff, 0, 0.3);
-  TH2F* hemptyeff_incl = new TH2F("hemptyeff_incl", ";;#alpha #times #epsilon_{reco} #times #epsilon_{sel}", 5, 0, 5, 10, 0, ymaxeff);
-  xjjroot::sethempty(hemptyeff_incl, 0, 0.3);
-  hemptyeff_incl->GetXaxis()->SetBinLabel(2, "#psi(2S)");
-  hemptyeff_incl->GetXaxis()->SetBinLabel(4, "X(3872)");
-  hemptyeff_incl->GetXaxis()->SetLabelSize(hemptyeff_incl->GetXaxis()->GetLabelSize()*1.5);
+  float ymaxeff = 0.2, ymaxacc = 1.0, ymaxeffpre = 1.0, ymaxeffcut = 1.0;
+  TH2F* hemptyeff = createhempty("hemptyeff", "#alpha #times #epsilon_{reco} #times #epsilon_{sel}", ymaxeff);
+  TH2F* hemptyeff_incl = createhempty_incl("hemptyeff_incl", "#alpha #times #epsilon_{reco} #times #epsilon_{sel}", ymaxeff);
+  TH2F* hemptyacc = createhempty("hemptyacc", "#alpha", ymaxacc);
+  TH2F* hemptyacc_incl = createhempty_incl("hemptyacc_incl", "#alpha", ymaxacc);
+  TH2F* hemptyeffpre = createhempty("hemptyeffpre", "#epsilon_{reco}", ymaxeffpre);
+  TH2F* hemptyeffpre_incl = createhempty_incl("hemptyeffpre_incl", "#epsilon_{reco}", ymaxeffpre);
+  TH2F* hemptyeffcut = createhempty("hemptyeffcut", "#epsilon_{sel}", ymaxeffcut);
+  TH2F* hemptyeffcut_incl = createhempty_incl("hemptyeffcut_incl", "#epsilon_{sel}", ymaxeffcut);
   TLegend* legeff = new TLegend(0.70, 0.20, 1.10, 0.32);
   xjjroot::setleg(legeff, 0.042);
-  legeff->AddEntry(mceff_a->greff(), "#psi(2S)", "fl");
-  legeff->AddEntry(mceff_b->greff(), "X(3872)", "fl");
+  legeff->AddEntry(mceff_a->greff(), fitX::title_a.c_str(), "fl");
+  legeff->AddEntry(mceff_b->greff(), fitX::title_b.c_str(), "fl");
+  TLegend* legacc = new TLegend(0.70, 0.40, 1.10, 0.52);
+  xjjroot::setleg(legacc, 0.042);
+  legacc->AddEntry(mceff_a->gracc(), fitX::title_a.c_str(), "fl");
+  legacc->AddEntry(mceff_b->gracc(), fitX::title_b.c_str(), "fl");
+
   xjjroot::setgstyle();
+
   TCanvas* ceff = new TCanvas("ceff", "", 1200, 600);
   ceff->Divide(2, 1);
   ceff->cd(1);
@@ -196,7 +208,6 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   legeff->Draw();
   xjjroot::drawtex(0.23, 0.84, "PYTHIA8 + HYDJET", 0.042, 12, 62);
   xjjroot::drawtex(0.23, 0.77, "Prompt", 0.042, 12, 62);
-
   xjjroot::drawCMSleft("#scale[1.25]{#bf{CMS}} #it{Simulation}");
   xjjroot::drawCMSright();
   xjjroot::drawtex(0.92, 0.84, fitX::ytag().c_str(), 0.04, 32, 42);
@@ -219,6 +230,63 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   xjjroot::drawCMSright();
   xjjroot::mkdir(Form("plots/%s/ceff.pdf", output.c_str()));
   ceff->SaveAs(Form("plots/%s/ceff.pdf", output.c_str()));
+
+  TCanvas* cacc = new TCanvas("cacc", "", 1800, 1200);
+  cacc->Divide(3, 2);
+  cacc->cd(1);
+  hemptyacc->Draw();
+  mceff_a->gracc()->Draw("same3");
+  mceff_a->gracc()->Draw("samelX");
+  mceff_b->gracc()->Draw("same3");
+  mceff_b->gracc()->Draw("samelX");
+  legacc->Draw();
+  xjjroot::drawtex(0.92, 0.84, fitX::ytag().c_str(), 0.04, 32, 42);
+  xjjroot::drawtex(0.92, 0.79, fitX::centtag().c_str(), 0.04, 32, 42);
+  drawlabels();
+  cacc->cd(2);
+  hemptyeffpre->Draw();
+  mceff_a->greffpre()->Draw("same3");
+  mceff_a->greffpre()->Draw("samelX");
+  mceff_b->greffpre()->Draw("same3");
+  mceff_b->greffpre()->Draw("samelX");
+  legacc->Draw();
+  xjjroot::drawtex(0.92, 0.84, fitX::ytag().c_str(), 0.04, 32, 42);
+  xjjroot::drawtex(0.92, 0.79, fitX::centtag().c_str(), 0.04, 32, 42);
+  drawlabels();
+  cacc->cd(3);
+  hemptyeffcut->Draw();
+  mceff_a->greffcut()->Draw("same3");
+  mceff_a->greffcut()->Draw("samelX");
+  mceff_b->greffcut()->Draw("same3");
+  mceff_b->greffcut()->Draw("samelX");
+  legacc->Draw();
+  xjjroot::drawtex(0.92, 0.84, fitX::ytag().c_str(), 0.04, 32, 42);
+  xjjroot::drawtex(0.92, 0.79, fitX::centtag().c_str(), 0.04, 32, 42);
+  drawlabels();
+  cacc->cd(4);
+  hemptyacc_incl->Draw();
+  mceff_a->gracc_incl()->Draw("same ple");
+  mceff_b->gracc_incl()->Draw("same ple");
+  drawval(mceff_a->gracc_incl(), mceff_b->gracc_incl(), hemptyacc_incl->GetYaxis()->GetXmax());
+  drawkinematic();
+  drawlabels();
+  cacc->cd(5);
+  hemptyeffpre_incl->Draw();
+  mceff_a->greffpre_incl()->Draw("same ple");
+  mceff_b->greffpre_incl()->Draw("same ple");
+  drawval(mceff_a->greffpre_incl(), mceff_b->greffpre_incl(), hemptyeffpre_incl->GetYaxis()->GetXmax());
+  drawkinematic();
+  drawlabels();
+  cacc->cd(6);
+  hemptyeffcut_incl->Draw();
+  mceff_a->greffcut_incl()->Draw("same ple");
+  mceff_b->greffcut_incl()->Draw("same ple");
+  drawval(mceff_a->greffcut_incl(), mceff_b->greffcut_incl(), hemptyeffcut_incl->GetYaxis()->GetXmax());
+  drawkinematic();
+  xjjroot::drawcomment(output.c_str(), "r");
+  drawlabels();
+  xjjroot::mkdir(Form("plots/%s/cacc.pdf", output.c_str()));
+  cacc->SaveAs(Form("plots/%s/cacc.pdf", output.c_str()));
 
   // tnp
   TFile* inftnp_a = TFile::Open(inputtnp_a.c_str());
@@ -263,8 +331,8 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   float ymaxyieldpromptCorr = std::max(hyieldpromptCorr_a->GetMaximum(), hyieldpromptCorr_b->GetMaximum())*2.5; // !
   TH2F* hemptyyieldpromptCorr = new TH2F("hemptyyieldpromptCorr", ";;N_{signal} #times f_{prompt} / (#alpha #times #epsilon )_{prompt}", 5, 0, 5, 10, 0, ymaxyieldpromptCorr);
   xjjroot::sethempty(hemptyyieldpromptCorr, 0, 0.3);
-  hemptyyieldpromptCorr->GetXaxis()->SetBinLabel(2, "#psi(2S)");
-  hemptyyieldpromptCorr->GetXaxis()->SetBinLabel(4, "X(3872)");
+  hemptyyieldpromptCorr->GetXaxis()->SetBinLabel(fitX::ibin_a, fitX::title_a.c_str());
+  hemptyyieldpromptCorr->GetXaxis()->SetBinLabel(fitX::ibin_b, fitX::title_b.c_str());
   hemptyyieldpromptCorr->GetXaxis()->SetLabelSize(hemptyyieldpromptCorr->GetXaxis()->GetLabelSize()*1.5);
   TCanvas* cyieldpromptCorr = new TCanvas("cyieldpromptCorr", "", 600, 600);
   hemptyyieldpromptCorr->Draw();
@@ -359,3 +427,37 @@ void drawkinematic()
   xjjroot::drawtex(0.92, 0.74, fitX::centtag().c_str(), 0.04, 32, 42);
 }
 
+void drawlabels()
+{
+  xjjroot::drawtex(0.23, 0.84, "PYTHIA8 + HYDJET", 0.042, 12, 62);
+  xjjroot::drawtex(0.23, 0.77, "Prompt", 0.042, 12, 62);
+  xjjroot::drawCMSleft("#scale[1.25]{#bf{CMS}} #it{Simulation}");
+  xjjroot::drawCMSright();
+}
+
+TH2F* createhempty(std::string name, std::string ytitle, float ymax)
+{
+  TH2F* hemptyeff = new TH2F(name.c_str(), Form(";p_{T} (GeV/c);%s", ytitle.c_str()), 10, MCeff::ptBins[0], MCeff::ptBins[MCeff::nPtBins], 10, 0, ymax);
+  xjjroot::sethempty(hemptyeff, 0, 0.3);
+  return hemptyeff;
+}
+
+TH2F* createhempty_incl(std::string name, std::string ytitle, float ymax)
+{
+  TH2F* hemptyeff_incl = new TH2F(name.c_str(), Form(";;%s", ytitle.c_str()), 5, 0, 5, 10, 0, ymax);
+  xjjroot::sethempty(hemptyeff_incl, 0, 0.3);
+  hemptyeff_incl->GetXaxis()->SetBinLabel(fitX::ibin_a, fitX::title_a.c_str());
+  hemptyeff_incl->GetXaxis()->SetBinLabel(fitX::ibin_b, fitX::title_b.c_str());
+  hemptyeff_incl->GetXaxis()->SetLabelSize(hemptyeff_incl->GetXaxis()->GetLabelSize()*1.5);
+  return hemptyeff_incl;
+}
+
+void drawval(TEfficiency* greff_a, TEfficiency* greff_b, float ymax)
+{
+  float effval_a = greff_a->GetEfficiency(fitX::ibin_a);
+  xjjroot::drawtex(0.42, effval_a/ymax*(1-gStyle->GetPadBottomMargin()-gStyle->GetPadTopMargin()) + gStyle->GetPadBottomMargin() + 0.1,
+                   Form("%.1f {}^{+ %.1f}_{-  %.1f} #times 10^{-2}", greff_a->GetEfficiency(fitX::ibin_a)*1.e+2, greff_a->GetEfficiencyErrorUp(fitX::ibin_a)*1.e+2, greff_a->GetEfficiencyErrorLow(fitX::ibin_a)*1.e+2), 0.042, 22, 62, fitX::color_a);
+  float effval_b = greff_b->GetEfficiency(fitX::ibin_b);
+  xjjroot::drawtex(0.72, effval_b/ymax*(1-gStyle->GetPadBottomMargin()-gStyle->GetPadTopMargin()) + gStyle->GetPadBottomMargin() + 0.1,
+                   Form("%.1f {}^{+ %.1f}_{-  %.1f} #times 10^{-2}", greff_b->GetEfficiency(fitX::ibin_b)*1.e+2, greff_b->GetEfficiencyErrorUp(fitX::ibin_b)*1.e+2, greff_b->GetEfficiencyErrorLow(fitX::ibin_b)*1.e+2), 0.042, 22, 62, fitX::color_b);
+}

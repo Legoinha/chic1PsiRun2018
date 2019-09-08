@@ -365,7 +365,7 @@ std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* 
   RooAddPdf* sig_a = new RooAddPdf("sig_a", "", RooArgList(sig_a1, sig_a2, sig_a3), RooArgList(*(pars[9]), *(pars[16])), true);
   pars[10] = new RooRealVar("par10", "", f->GetParameter(10)/fitX::BIN_WIDTH, -1.e+4, 1.e+4); // !
   // pars[10] = new RooRealVar("par10", "", 0.1, 0, 1);
-  pars[11] = new RooRealVar("par11", "", fitX::FIT_MASS_X, fitX::FIT_MASS_X, fitX::FIT_MASS_X);
+  pars[11] = new RooRealVar("par11", "", fitX::FIT_MASS_X, fitX::FIT_MASS_X - fitX::FIT_MASS_X_WIN, fitX::FIT_MASS_X + fitX::FIT_MASS_X_WIN);
   pars[12] = new RooRealVar("par12", "", mcpars[12]->getVal(), mcpars[12]->getVal()-mcpars[12]->getError(), mcpars[12]->getVal()+mcpars[12]->getError()); if(option!="floatwidth") { pars[12]->setConstant(); }
   pars[13] = new RooRealVar("par13", "", mcpars[13]->getVal(), mcpars[13]->getVal()-mcpars[13]->getError(), mcpars[13]->getVal()+mcpars[13]->getError()); if(option!="floatwidth") { pars[13]->setConstant(); }
   pars[17] = new RooRealVar("par17", "", mcpars[17]->getVal(), mcpars[17]->getVal()-mcpars[17]->getError(), mcpars[17]->getVal()+mcpars[17]->getError()); pars[17]->setConstant();
@@ -416,7 +416,7 @@ std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* 
       pars[11]->setVal(fixmean);
       // f->FixParameter(11, fitX::FIT_MASS_X);
       // pars[11]->setVal(fitX::FIT_MASS_X);
-      pars[11]->setRange(fitX::FIT_MASS_X - fitX::FIT_MASS_X_WIN, fitX::FIT_MASS_X + fitX::FIT_MASS_X_WIN);
+      // pars[11]->setRange(fitX::FIT_MASS_X - fitX::FIT_MASS_X_WIN, fitX::FIT_MASS_X + fitX::FIT_MASS_X_WIN);
       pars[11]->setConstant();
     }
   // <<<
@@ -599,7 +599,7 @@ void fitX::labelsdata(double mean_a, double mean_a_err, double yield_a, double y
   xjjroot::drawtex(0.32, 0.21, Form("N_{X(3872)} = %.0f #pm %.0f", yield_b, yield_b_err), 0.03, 12, 62, color_b);
 
   xjjroot::drawtex(0.17, 0.84, Form("#chi^{2} Prob = %.1f%s", chi2prob*100., "%"), 0.042, 12);
-  xjjroot::drawtex(0.17, 0.84-0.06, title.c_str(), 0.038, 12, 62);
+  xjjroot::drawtex(0.17, 0.84-0.04, title.c_str(), 0.038, 13, 62);
 
   xjjroot::drawCMS();
 }
