@@ -2,6 +2,7 @@
 #include <TTree.h>
 #include <TH1F.h>
 #include <TH2F.h>
+#include <TGraphAsymmErrors.h>
 #include <TF1.h>
 #include <TRandom3.h>
 #include <TCanvas.h>
@@ -25,10 +26,16 @@ void acc_fit(std::string input, std::string output, std::string type)
   xjjroot::sethempty(hratiodis_a, 0, 0);
   TH1F* hratiodis_b = (TH1F*)inf->Get("hratiodis_b");
   xjjroot::sethempty(hratiodis_b, 0, 0);
+  TGraphAsymmErrors* gratiodis_a = (TGraphAsymmErrors*)inf->Get("gratiodis_a");
+  TGraphAsymmErrors* gratiodis_b = (TGraphAsymmErrors*)inf->Get("gratiodis_b");
 
   int nbin = hratiodis_a->GetXaxis()->GetNbins();
   TH1F* h_a = (TH1F*)hratiodis_a->Clone("h_a");
   TH1F* h_b = (TH1F*)hratiodis_b->Clone("h_b");
+  TGraphAsymmErrors* g_a = (TGraphAsymmErrors*)gratiodis_a->Clone("g_a");
+  TGraphAsymmErrors* g_b = (TGraphAsymmErrors*)gratiodis_b->Clone("g_b");
+  std::vector<double> gx(nbin), gy(nbin);
+  for(int i=0; i<nbin; i++) { g_a->GetPoint(i, gx[i], gy[i]); }
   std::vector<float> means_a(nbin), means_b(nbin), errs_a(nbin), errs_b(nbin);
   for(int k=0; k<nbin; k++) 
     { 
@@ -69,8 +76,11 @@ void acc_fit(std::string input, std::string output, std::string type)
       f_b->SetParameters(0, 0);
       for(int k=0; k<nbin; k++)
         {
-          h_a->SetBinContent(k+1, rmd->Gaus(means_a[k], errs_a[k]));
-          h_b->SetBinContent(k+1, rmd->Gaus(means_b[k], errs_b[k]));
+          float rmd_a = rmd->Gaus(means_a[k], errs_a[k]), rmd_b = rmd->Gaus(means_b[k], errs_b[k]);
+          h_a->SetBinContent(k+1, rmd_a);
+          h_b->SetBinContent(k+1, rmd_b);
+          g_a->SetPoint(k, gx[k], rmd_a);
+          g_b->SetPoint(k, gx[k], rmd_b);
         }
       h_a->Fit("f_a", "Nq", "", xmin_a, xmax_a);
       h_a->Fit("f_a", "Nq", "", xmin_a, xmax_a);
@@ -85,7 +95,8 @@ void acc_fit(std::string input, std::string output, std::string type)
           TCanvas* c = new TCanvas("c", "", 1200, 600);
           c->Divide(2, 1);
           c->cd(1);
-          h_a->Draw("pe");
+          h_a->Draw("AXIS");
+          g_a->Draw("pe same");
           f_a->Draw("same");
           xjjroot::drawline(xmin_a, 1, xmax_a, 1, fitX::color_a, 7, 2, 0.3);
           xjjroot::drawtex(0.24, 0.84, fitX::title_a.c_str(), 0.043, 12, 62, fitX::color_a);
@@ -93,7 +104,8 @@ void acc_fit(std::string input, std::string output, std::string type)
           xjjroot::drawCMS();
           xjjroot::drawcomment(Form("Toy MC --> %d", i));
           c->cd(2);
-          h_b->Draw("pe");
+          h_b->Draw("AXIS");
+          g_b->Draw("pe same");
           f_b->Draw("same");
           xjjroot::drawline(xmin_b, 1, xmax_b, 1, fitX::color_b, 7, 2, 0.3);
           xjjroot::drawtex(0.24, 0.84, fitX::title_b.c_str(), 0.043, 12, 62, fitX::color_b);

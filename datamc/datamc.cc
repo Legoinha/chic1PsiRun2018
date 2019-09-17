@@ -47,6 +47,8 @@ void datamcmain(std::string input, std::string inputmcp_a, std::string inputmcp_
 
   TH1F* hmcdis_a = new TH1F("hmcdis_a", Form(";%s %s;Probability", vv->title().c_str(), vv->unit().c_str()), vv->n()-1, vv->vars().data());
   TH1F* hmcdis_b = new TH1F("hmcdis_b", Form(";%s %s;Probability", vv->title().c_str(), vv->unit().c_str()), vv->n()-1, vv->vars().data());
+  TH1F* hmcfinedis_a = new TH1F("hmcfinedis_a", Form(";%s %s;Probability", vv->title().c_str(), vv->unit().c_str()), vv->nfine(), vv->minfine(), vv->maxfine());
+  TH1F* hmcfinedis_b = new TH1F("hmcfinedis_b", Form(";%s %s;Probability", vv->title().c_str(), vv->unit().c_str()), vv->nfine(), vv->minfine(), vv->maxfine());
   TH1F* hbkgdis_a = new TH1F("hbkgdis_a", Form(";%s %s;Probability", vv->title().c_str(), vv->unit().c_str()), vv->n()-1, vv->vars().data());
   TH1F* hbkgdis_b = new TH1F("hbkgdis_b", Form(";%s %s;Probability", vv->title().c_str(), vv->unit().c_str()), vv->n()-1, vv->vars().data());
 
@@ -104,6 +106,8 @@ void datamcmain(std::string input, std::string inputmcp_a, std::string inputmcp_
   ww->import(*dshmcp_a);
   ntmixmcp_a->Project(hmcdis_a->GetName(), vv->formula().c_str(), TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
   xjjroot::printhist(hmcdis_a);
+  ntmixmcp_a->Project(hmcfinedis_a->GetName(), vv->formula().c_str(), TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
+  xjjroot::printhist(hmcfinedis_a);
 
   std::cout<<" == mcp_b ==>"<<std::endl;
   ntmixmcp_b->Project("hmcp_b", "Bmass", TCut("pthatweight")*TCut(cutmcreco.c_str())); // !! weight
@@ -114,6 +118,8 @@ void datamcmain(std::string input, std::string inputmcp_a, std::string inputmcp_
   ww->import(*dshmcp_b);
   ntmixmcp_b->Project(hmcdis_b->GetName(), vv->formula().c_str(), TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
   xjjroot::printhist(hmcdis_b);
+  ntmixmcp_b->Project(hmcfinedis_b->GetName(), vv->formula().c_str(), TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
+  xjjroot::printhist(hmcfinedis_b);
 
   std::string outputname = "rootfiles/" + output + "/datamc_savehist.root";
   xjjroot::mkdir(outputname.c_str());
@@ -129,6 +135,8 @@ void datamcmain(std::string input, std::string inputmcp_a, std::string inputmcp_
   outf->cd();
   hmcdis_a->Write();
   hmcdis_b->Write();
+  hmcfinedis_a->Write();
+  hmcfinedis_b->Write();
   hbkgdis_a->Write();
   hbkgdis_b->Write();
   TTree* info = new TTree("info", "cut info");

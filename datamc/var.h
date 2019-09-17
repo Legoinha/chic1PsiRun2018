@@ -22,6 +22,9 @@ namespace datamc
     bool gt() { return fgt; }
     bool valid() { return fvalid; }
     int n() { return fvars.size(); }
+    int nfine() { return fnfine; }
+    double minfine() { return fminfine; }
+    double maxfine() { return fmaxfine; }
   private:
     bool init();
     bool fvalid;
@@ -31,6 +34,8 @@ namespace datamc
     std::string fformula;
     std::string ftitle;
     std::string funit;
+    int fnfine;
+    double fminfine, fmaxfine;
   };
 }
 
@@ -43,6 +48,9 @@ bool datamc::var::init()
       fgt = true;
       ftitle = "BDT";
       funit = "";
+      fnfine = 40;
+      fminfine = fvars.front();
+      fmaxfine = fvars.back();
     }
   else if(ftype=="Qvalue")
     {
@@ -52,14 +60,20 @@ bool datamc::var::init()
       fgt = false;
       ftitle = "Q = m_{#mu#mu#pi#pi}-m_{#mu#mu}-m_{#pi#pi}";
       funit = "(GeV/c^{2})";
+      fnfine = 40;
+      fminfine = fvars.front();
+      fmaxfine = fvars.back();
     }
   else if(ftype=="pt")
     {
       fformula = "Bpt";
-      fvars = std::vector<double>({15., 25., 50.});
+      fvars = std::vector<double>({15., 20., 25., 50.});
       fgt = true;
       ftitle = "p_{T}";
       funit = "(GeV/c)";
+      fnfine = 35;
+      fminfine = fvars.front();
+      fmaxfine = fvars.back();
     }
 
   else if(ftype=="absy")
@@ -70,6 +84,9 @@ bool datamc::var::init()
       fgt = false;
       ftitle = "|y|";
       funit = "";
+      fnfine = 32;
+      fminfine = fvars.front();
+      fmaxfine = fvars.back();
     }
   else { return false; }
   return true;
