@@ -9,7 +9,7 @@
 #include "fitX.h"
 #include "MCefficiency.h"
 
-int n = 6;
+int n = 5;
 void eff_draw(std::string input, std::string output)
 {
   TFile* inf = TFile::Open(input.c_str());
@@ -20,11 +20,11 @@ void eff_draw(std::string input, std::string output)
     {
       mceff_a[i] = new MCeff::MCefficiency(inf, Form("_a-%d", i));
       mceff_a[i]->calceff();
-      mceff_a[i]->setstyle((i?xjjroot::mycolor_middle[xjjroot::cc[i-1]]:kBlack), 20, 2, 2);
+      mceff_a[i]->setstyle((i?xjjroot::mycolor_middle[xjjroot::cc[i-1]]:kGray+2), 20, 2, 2);
       tleg_a[i] = mceff_a[i]->heffmc()->GetTitle();
       mceff_b[i] = new MCeff::MCefficiency(inf, Form("_b-%d", i));
       mceff_b[i]->calceff();
-      mceff_b[i]->setstyle((i?xjjroot::mycolor_middle[xjjroot::cc[i-1]]:kBlack), 20, 2, 2);
+      mceff_b[i]->setstyle((i?xjjroot::mycolor_middle[xjjroot::cc[i-1]]:kGray+2), 20, 2, 2);
       tleg_b[i] = mceff_b[i]->heffmc()->GetTitle();
     }
 
@@ -55,6 +55,8 @@ void eff_draw(std::string input, std::string output)
     mceff->greff_incl()->Draw("same ple");
   for(auto& mceff : mceff_b)
     mceff->greff_incl()->Draw("same ple");
+  for(int i=0; i<tleg_a.size(); i++)
+    xjjroot::drawtex(0.25, 0.84-i*0.04, tleg_a[i].c_str(), 0.036, 13, 62, mceff_a[i]->greff()->GetLineColor());
   fitX::drawkinematics();
   xjjroot::drawCMS();
   c->RedrawAxis();

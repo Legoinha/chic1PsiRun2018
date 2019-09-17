@@ -54,7 +54,6 @@ void eff_fit(std::string input, std::string output, std::string type)
     std::pair<std::string, std::vector<double>>("exp([0]+[1]*x)"       , std::vector<double>({0, 0})),
     std::pair<std::string, std::vector<double>>("[0]+[1]*x+[2]/x"      , std::vector<double>({1, 0, 0})),
     std::pair<std::string, std::vector<double>>("[0]+[1]/sqrt(x)+[2]/x", std::vector<double>({1, 0, 0})),    
-    std::pair<std::string, std::vector<double>>("[0]+[1]/x+[2]/(x*x)", std::vector<double>({1, 0, 0})),    
     std::pair<std::string, std::vector<double>>("[0]+[1]/x"            , std::vector<double>({1, 0})),
   };
 
