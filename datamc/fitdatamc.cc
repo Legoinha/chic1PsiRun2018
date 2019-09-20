@@ -201,6 +201,7 @@ void fitdatamc(std::string input, std::string output, std::string type)
   xjjroot::sethempty(hdis_a, 0, 0);
   xjjroot::setthgrstyle(hdis_a, kBlack, 47, 1.9, kBlack, 1, 1);
   xjjroot::setthgrstyle(gdis_a, kBlack, 47, 1.9, kBlack, 1, 1);
+  xjjroot::sethempty(hratiodis_a, 0, 0);
   xjjroot::setthgrstyle(hratiodis_a, kBlack, 47, 1.9, kBlack, 1, 1);
   xjjroot::setthgrstyle(gratiodis_a, kBlack, 47, 1.9, kBlack, 1, 1);
   hmcdis_b->SetMinimum(0);
@@ -217,6 +218,7 @@ void fitdatamc(std::string input, std::string output, std::string type)
   xjjroot::sethempty(hdis_b, 0, 0);
   xjjroot::setthgrstyle(hdis_b, kBlack, 47, 1.9, kBlack, 1, 1);
   xjjroot::setthgrstyle(gdis_b, kBlack, 47, 1.9, kBlack, 1, 1);
+  xjjroot::sethempty(hratiodis_b, 0, 0);
   xjjroot::setthgrstyle(hratiodis_b, kBlack, 47, 1.9, kBlack, 1, 1);
   xjjroot::setthgrstyle(gratiodis_b, kBlack, 47, 1.9, kBlack, 1, 1);
 

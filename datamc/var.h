@@ -75,7 +75,6 @@ bool datamc::var::init()
       fminfine = fvars.front();
       fmaxfine = fvars.back();
     }
-
   else if(ftype=="absy")
     {
       // fformula = "TMath::Abs(By)";
@@ -85,6 +84,72 @@ bool datamc::var::init()
       ftitle = "|y|";
       funit = "";
       fnfine = 32;
+      fminfine = fvars.front();
+      fmaxfine = fvars.back();
+    }
+  else if(ftype=="chi2cl")
+    {
+      fformula = "Bchi2cl";
+      fvars = std::vector<double>({0.1, 0.4, 0.7, 1});
+      fgt = true;
+      ftitle = "#chi^{2} prob";
+      funit = "";
+      fnfine = 30;
+      fminfine = fvars.front();
+      fmaxfine = fvars.back();
+    }
+  else if(ftype=="trk1pt")
+    {
+      fformula = "Btrk1Pt";
+      fvars = std::vector<double>({1, 2, 3, 4});
+      fgt = true;
+      ftitle = "trk1 p_{T}";
+      funit = "(GeV/c)";
+      fnfine = 30;
+      fminfine = fvars.front();
+      fmaxfine = fvars.back();
+    }
+  else if(ftype=="trk2pt")
+    {
+      fformula = "Btrk2Pt";
+      fvars = std::vector<double>({1, 2, 3, 4});
+      fgt = true;
+      ftitle = "trk2 p_{T}";
+      funit = "(GeV/c)";
+      fnfine = 30;
+      fminfine = fvars.front();
+      fmaxfine = fvars.back();
+    }
+  else if(ftype=="trkptimb")
+    {
+      fformula = "fabs(Btrk1Pt-Btrk2Pt)/(Btrk1Pt+Btrk2Pt)";
+      fvars = std::vector<double>({0, 0.2, 0.5, 1});
+      fgt = true;
+      ftitle = "|p_{T,#pi1}-p_{T,#pi2}|/(p_{T,#pi1}+p_{T,#pi2})";
+      funit = "";
+      fnfine = 50;
+      fminfine = fvars.front();
+      fmaxfine = fvars.back();
+    }
+  else if(ftype=="dRtrk1")
+    {
+      fformula = "sqrt(pow(acos(cos(Bujphi-Btrk1Phi)),2) + pow(Bujeta-Btrk1Eta,2))";
+      fvars = std::vector<double>({0, 0.1, 0.2, 0.4});
+      fgt = false;
+      ftitle = "#DeltaR (trk1)";
+      funit = "";
+      fnfine = 40;
+      fminfine = fvars.front();
+      fmaxfine = fvars.back();
+    }
+  else if(ftype=="dRtrk2")
+    {
+      fformula = "sqrt(pow(acos(cos(Bujphi-Btrk2Phi)),2) + pow(Bujeta-Btrk2Eta,2))";
+      fvars = std::vector<double>({0, 0.1, 0.2, 0.4});
+      fgt = false;
+      ftitle = "#DeltaR (trk2)";
+      funit = "";
+      fnfine = 40;
       fminfine = fvars.front();
       fmaxfine = fvars.back();
     }
