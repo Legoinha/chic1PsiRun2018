@@ -14,30 +14,18 @@ inputmc=(
 inputtags=("a" "b")
 
 ##
-RUN_TREE=${1:-0}
-RUN_FIT=${2:-0}
-RUN_EFF=${3:-0}
-RUN_DRAW=${4:-0}
+RUN_FIT=${1:-0}
+RUN_EFF=${2:-0}
+RUN_DRAW=${3:-0}
 
 outputdir=rootfiles/trainX_20190808ptdep_sideband_tktk0p2_15p0_50p0_0-10-1-2-9_pt15-50_cent090_y0p0-1p6
 output=${outputdir##*/}
 
 set -x
-[[ $RUN_TREE -eq 1 || $# == 0 ]] && { g++ eff_tree.cc $(root-config --libs --cflags) -g -o eff_tree.exe || { rm *.exe 2>/dev/null ; exit 1; } } 
-[[ $RUN_FIT -eq 1 || $# == 0 ]] && { g++ eff_fit.cc $(root-config --libs --cflags) -g -o eff_fit.exe || { rm *.exe 2>/dev/null ; exit 1; } } 
-[[ $RUN_EFF -eq 1 || $# == 0 ]] && { g++ eff_eff.cc $(root-config --libs --cflags) -g -o eff_eff.exe || { rm *.exe 2>/dev/null ; exit 1; } } 
-[[ $RUN_DRAW -eq 1 || $# == 0 ]] && { g++ eff_draw.cc $(root-config --libs --cflags) -g -o eff_draw.exe || { rm *.exe 2>/dev/null ; exit 1; } } 
+[[ $RUN_FIT -eq 1 || $# == 0 ]] && { g++ eff_fit.cc -I"../includes/" $(root-config --libs --cflags) -g -o eff_fit.exe || { rm *.exe 2>/dev/null ; exit 1; } } 
+[[ $RUN_EFF -eq 1 || $# == 0 ]] && { g++ eff_eff.cc -I"../includes/" $(root-config --libs --cflags) -g -o eff_eff.exe || { rm *.exe 2>/dev/null ; exit 1; } } 
+[[ $RUN_DRAW -eq 1 || $# == 0 ]] && { g++ eff_draw.cc -I"../includes/" $(root-config --libs --cflags) -g -o eff_draw.exe || { rm *.exe 2>/dev/null ; exit 1; } } 
 set +x
-
-[[ $RUN_TREE -eq 1 ]] && {
-    for i in ${counts[@]}
-    do
-        thisoutput=${inputmc[i]%%.root}_skimeff.root
-        [[ -f $thisoutput ]] && continue
-
-        ./eff_tree.exe ${inputmc[i]} $thisoutput
-    done
-}
 
 for i in ${tcounts[@]}
 do
@@ -61,4 +49,4 @@ done
 rm eff_draw.exe 2>/dev/null
 rm eff_eff.exe 2>/dev/null
 rm eff_fit.exe 2>/dev/null
-rm eff_tree.exe 2>/dev/null
+

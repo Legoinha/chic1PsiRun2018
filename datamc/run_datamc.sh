@@ -7,17 +7,29 @@ centmax=90
 ymin=0
 ymax=1.6
 
-counts=(0 1 2 3)
+counts=(0 1 2 3 4 5 6 7 8 9)
 
 types=(
-    "BDT"    # 0
-    "Qvalue" # 1
-    "pt"     # 2
-    "absy"   # 3
+    "BDT"      # 0
+    "Qvalue"   # 1
+    "pt"       # 2
+    "absy"     # 3
+    "chi2cl"   # 4
+    "trk1pt"   # 5
+    "trk2pt"   # 6
+    "dRtrk1"   # 7
+    "dRtrk2"   # 8
+    "trkptimb" # 9
 )
 precuts=(
     "&& (Bmass-3.096916-Btktkmass)<0.15"
     "&& BDT>0.07"
+    "&& (Bmass-3.096916-Btktkmass)<0.12 && BDT>0.07"
+    "&& (Bmass-3.096916-Btktkmass)<0.12 && BDT>0.07"
+    "&& (Bmass-3.096916-Btktkmass)<0.12 && BDT>0.07"
+    "&& (Bmass-3.096916-Btktkmass)<0.12 && BDT>0.07"
+    "&& (Bmass-3.096916-Btktkmass)<0.12 && BDT>0.07"
+    "&& (Bmass-3.096916-Btktkmass)<0.12 && BDT>0.07"
     "&& (Bmass-3.096916-Btktkmass)<0.12 && BDT>0.07"
     "&& (Bmass-3.096916-Btktkmass)<0.12 && BDT>0.07"
 )
@@ -34,19 +46,19 @@ RUN_FITHIST=${2:-0}
 tmp=$(date +%y%m%d%H%M%S)
 
 ##
-g++ getfname.cc $(root-config --libs --cflags) -g -o getfname_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; }
+g++ getfname.cc -I"../includes/" $(root-config --libs --cflags) -g -o getfname_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; }
 kinematic=$(./getfname_${tmp}.exe $ptmin $ptmax $centmin $centmax $ymin $ymax)
 rm getfname_${tmp}.exe
 echo -e "\e[32;1mcompiling...\e[0m"
 
 [[ $RUN_SAVEHIST -eq 1 || $# -eq 0 ]] && {
     echo " -- "datamc.cc
-    g++ datamc.cc $(root-config --libs --cflags) -lRooFit -lRooFitCore -lRooStats -g -o datamc_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; }
+    g++ datamc.cc -I"../includes/" $(root-config --libs --cflags) -lRooFit -lRooFitCore -lRooStats -g -o datamc_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; }
 }
 
 [[ $RUN_FITHIST -eq 1 || $# -eq 0 ]] && {
     echo " -- "fitdatamc.cc
-    g++ fitdatamc.cc $(root-config --libs --cflags) -lRooFit -lRooFitCore -lRooStats -g -o fitdatamc_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; }
+    g++ fitdatamc.cc -I"../includes/" $(root-config --libs --cflags) -lRooFit -lRooFitCore -lRooStats -g -o fitdatamc_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; }
 }
 
 echo

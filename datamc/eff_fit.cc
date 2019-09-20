@@ -116,6 +116,7 @@ void eff_fit(std::string input, std::string output, std::string type)
   fitX::write();
   outf->cd();
   TTree* ntf = new TTree("ntf", "functions");
+  ntf->Branch("n", &n);
   do {
     int i=0;
     for(auto& ff : f_a)

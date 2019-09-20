@@ -24,10 +24,10 @@ outputdir=rootfiles/trainX_20190808ptdep_sideband_tktk0p2_15p0_50p0_0-10-1-2-9_p
 output=${outputdir##*/}
 
 set -x
-[[ $RUN_TREE -eq 1 || $# == 0 ]] && { g++ acc_tree.cc $(root-config --libs --cflags) -g -o acc_tree.exe || { rm *.exe 2>/dev/null ; exit 1; } } 
-[[ $RUN_FIT -eq 1 || $# == 0 ]] && { g++ acc_fit.cc $(root-config --libs --cflags) -g -o acc_fit.exe || { rm *.exe 2>/dev/null ; exit 1; } } 
-[[ $RUN_ACC -eq 1 || $# == 0 ]] && { g++ acc_acc.cc $(root-config --libs --cflags) -g -o acc_acc.exe || { rm *.exe 2>/dev/null ; exit 1; } } 
-[[ $RUN_DRAW -eq 1 || $# == 0 ]] && { g++ acc_draw.cc $(root-config --libs --cflags) -g -o acc_draw.exe || { rm *.exe 2>/dev/null ; exit 1; } } 
+[[ $RUN_TREE -eq 1 || $# == 0 ]] && { g++ acc_tree.cc -I"../includes/" $(root-config --libs --cflags) -g -o acc_tree.exe || { rm *.exe 2>/dev/null ; exit 1; } } 
+[[ $RUN_FIT -eq 1 || $# == 0 ]] && { g++ acc_fit.cc -I"../includes/" $(root-config --libs --cflags) -g -o acc_fit.exe || { rm *.exe 2>/dev/null ; exit 1; } } 
+[[ $RUN_ACC -eq 1 || $# == 0 ]] && { g++ acc_acc.cc -I"../includes/" $(root-config --libs --cflags) -g -o acc_acc.exe || { rm *.exe 2>/dev/null ; exit 1; } } 
+[[ $RUN_DRAW -eq 1 || $# == 0 ]] && { g++ acc_draw.cc -I"../includes/" $(root-config --libs --cflags) -g -o acc_draw.exe || { rm *.exe 2>/dev/null ; exit 1; } } 
 set +x
 
 [[ $RUN_TREE -eq 1 ]] && {
