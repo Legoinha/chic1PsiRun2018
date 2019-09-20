@@ -26,21 +26,21 @@ RUN_DRAWHIST=${3:-0}
 tmp=$(date +%y%m%d%H%M%S)
 
 ##
-g++ getfname.cc $(root-config --libs --cflags) -g -o getfname_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; }
+g++ getfname.cc -I"../includes/" $(root-config --libs --cflags) -g -o getfname_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; }
 kinematic=$(./getfname_${tmp}.exe $ptmin $ptmax $centmin $centmax $ymin $ymax)
 rm getfname_${tmp}.exe
 echo -e "\e[32;1mcompiling...\e[0m"
 [[ $RUN_SAVEHIST -eq 1 || $# -eq 0 ]] && {
     echo " -- "fprompt_savehist.C
-    g++ fprompt_savehist.C $(root-config --libs --cflags) -lRooFit -lRooFitCore -lRooStats -g -o fprompt_savehist_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; } 
+    g++ fprompt_savehist.C -I"../includes/" $(root-config --libs --cflags) -lRooFit -lRooFitCore -lRooStats -g -o fprompt_savehist_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; } 
 }
 [[ $RUN_FITHIST -eq 1 || $# -eq 0 ]] && {
     echo " -- "fprompt_fithist.C
-    g++ fprompt_fithist.C $(root-config --libs --cflags) -lRooFit -lRooFitCore -lRooStats -g -o fprompt_fithist_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; }
+    g++ fprompt_fithist.C -I"../includes/" $(root-config --libs --cflags) -lRooFit -lRooFitCore -lRooStats -g -o fprompt_fithist_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; }
 }
 [[ $RUN_DRAWHIST -eq 1 || $# -eq 0 ]] && {
     echo " -- "fprompt_drawhist.C
-    g++ fprompt_drawhist.C $(root-config --libs --cflags) -g -o fprompt_drawhist_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; }
+    g++ fprompt_drawhist.C -I"../includes/" $(root-config --libs --cflags) -g -o fprompt_drawhist_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; }
 }
 
 ##

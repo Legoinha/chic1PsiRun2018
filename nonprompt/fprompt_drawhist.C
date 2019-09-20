@@ -80,6 +80,18 @@ void fprompt_drawhist(std::string output)
   xjjroot::drawCMS();
   xjjroot::mkdir(Form("plots/%s/cfpromptsyst.pdf", output.c_str()));
   c->SaveAs(Form("plots/%s/cfpromptsyst.pdf", output.c_str()));
+
+  float syst_a = 0, syst_b = 0, syst_r = 0;
+  for(int i=0; i<nn; i++)
+    {
+      if(fabs(y_a[i]-y_a[0]) > syst_a) { syst_a = fabs(y_a[i]-y_a[0]); }
+      if(fabs(y_b[i]-y_b[0]) > syst_b) { syst_b = fabs(y_b[i]-y_b[0]); }
+    }
+  syst_a /= y_a[0];
+  syst_b /= y_b[0];
+  syst_r = TMath::Sqrt(syst_a*syst_a + syst_b*syst_b);
+  
+  std::cout<<"Prompt Fraction & "<<Form("%.1f", syst_a*1.e+2)<<"\\% & "<<Form("%.1f", syst_b*1.e+2)<<"\\% & "<<Form("%.1f", syst_r*1.e+2)<<"\\% \\\\"<<std::endl;
 }
 
 int main(int argc, char* argv[])
