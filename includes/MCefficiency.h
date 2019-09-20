@@ -2,6 +2,7 @@
 
 #include <TFile.h>
 #include <TH1F.h>
+#include <TH2F.h>
 #include <TEfficiency.h>
 #include <TGraphAsymmErrors.h>
 
@@ -43,7 +44,7 @@ namespace MCeff
 
     void calceff();
     void calcacc();
-    void setstyle(Color_t color, Style_t mstyle=20, Style_t lstyle=2);
+    void setstyle(Color_t color, Style_t mstyle=20, Style_t lstyle=2, Width_t lwidth=3);
     std::vector<float> ptbins() { return fptbins; }
     int nbins() { return fnptbins; }
   private:
@@ -74,6 +75,9 @@ namespace MCeff
     std::vector<float> fptbins_incl;
     int fnptbins_incl;
   };
+
+  TH2F* createhempty(std::string name, std::string ytitle, float ymax=1.);
+  TH2F* createhempty_incl(std::string name, std::string ytitle, float ymax=1.);
 }
 
 MCeff::MCefficiency::MCefficiency(std::string name, int whichincl, std::vector<float> _ptbins) : fname(name), fincl(whichincl), fptbins(_ptbins), fnptbins(_ptbins.size()-1)
@@ -180,17 +184,33 @@ void MCeff::MCefficiency::calcacc()
   fgreffcut_incl = new TEfficiency(*fheffmc_incl, *fheffmcpre_incl); fgreffcut_incl->SetName(Form("greffcut_incl%s", fname.c_str()));
 }
 
-void MCeff::MCefficiency::setstyle(Color_t color, Style_t mstyle/*=20*/, Style_t lstyle/*=2*/)
+void MCeff::MCefficiency::setstyle(Color_t color, Style_t mstyle/*=20*/, Style_t lstyle/*=2*/, Width_t lwidth/*=3*/)
 {
-  if(fheff)       { xjjroot::setthgrstyle(fheff      , color, mstyle, 1.2, color, lstyle, 3, color, 0.2, 1001); }
-  if(fheff_incl)  { xjjroot::setthgrstyle(fheff_incl , color, mstyle, 1.2, color, lstyle, 3, color, 0.2, 1001); }
-  if(fgreff)      { xjjroot::setthgrstyle(fgreff     , color, mstyle, 1.2, color, lstyle, 3, color, 0.2, 1001); }
-  if(fgreff_incl) { xjjroot::setthgrstyle(fgreff_incl, color, mstyle, 1.2, color, lstyle, 3, color, 0.2, 1001); }
-  if(fgracc)      { xjjroot::setthgrstyle(fgracc     , color, mstyle, 1.2, color, lstyle, 3, color, 0.2, 1001); }
-  if(fgracc_incl) { xjjroot::setthgrstyle(fgracc_incl, color, mstyle, 1.2, color, lstyle, 3, color, 0.2, 1001); }
-  if(fgreffpre)      { xjjroot::setthgrstyle(fgreffpre     , color, mstyle, 1.2, color, lstyle, 3, color, 0.2, 1001); }
-  if(fgreffpre_incl) { xjjroot::setthgrstyle(fgreffpre_incl, color, mstyle, 1.2, color, lstyle, 3, color, 0.2, 1001); }
-  if(fgreffcut)      { xjjroot::setthgrstyle(fgreffcut     , color, mstyle, 1.2, color, lstyle, 3, color, 0.2, 1001); }
-  if(fgreffcut_incl) { xjjroot::setthgrstyle(fgreffcut_incl, color, mstyle, 1.2, color, lstyle, 3, color, 0.2, 1001); }
+  if(fheff)       { xjjroot::setthgrstyle(fheff      , color, mstyle, 1.2, color, lstyle, lwidth, color, 0.2, 1001); }
+  if(fheff_incl)  { xjjroot::setthgrstyle(fheff_incl , color, mstyle, 1.2, color, lstyle, lwidth, color, 0.2, 1001); }
+  if(fgreff)      { xjjroot::setthgrstyle(fgreff     , color, mstyle, 1.2, color, lstyle, lwidth, color, 0.2, 1001); }
+  if(fgreff_incl) { xjjroot::setthgrstyle(fgreff_incl, color, mstyle, 1.2, color, lstyle, lwidth, color, 0.2, 1001); }
+  if(fgracc)      { xjjroot::setthgrstyle(fgracc     , color, mstyle, 1.2, color, lstyle, lwidth, color, 0.2, 1001); }
+  if(fgracc_incl) { xjjroot::setthgrstyle(fgracc_incl, color, mstyle, 1.2, color, lstyle, lwidth, color, 0.2, 1001); }
+  if(fgreffpre)      { xjjroot::setthgrstyle(fgreffpre     , color, mstyle, 1.2, color, lstyle, lwidth, color, 0.2, 1001); }
+  if(fgreffpre_incl) { xjjroot::setthgrstyle(fgreffpre_incl, color, mstyle, 1.2, color, lstyle, lwidth, color, 0.2, 1001); }
+  if(fgreffcut)      { xjjroot::setthgrstyle(fgreffcut     , color, mstyle, 1.2, color, lstyle, lwidth, color, 0.2, 1001); }
+  if(fgreffcut_incl) { xjjroot::setthgrstyle(fgreffcut_incl, color, mstyle, 1.2, color, lstyle, lwidth, color, 0.2, 1001); }
 }
 
+TH2F* MCeff::createhempty(std::string name, std::string ytitle, float ymax)
+{
+  TH2F* hemptyeff = new TH2F(name.c_str(), Form(";p_{T} (GeV/c);%s", ytitle.c_str()), 10, MCeff::ptBins[0], MCeff::ptBins[MCeff::nPtBins], 10, 0, ymax);
+  xjjroot::sethempty(hemptyeff, 0, 0.3);
+  return hemptyeff;
+}
+
+TH2F* MCeff::createhempty_incl(std::string name, std::string ytitle, float ymax)
+{
+  TH2F* hemptyeff_incl = new TH2F(name.c_str(), Form(";;%s", ytitle.c_str()), 5, 0, 5, 10, 0, ymax);
+  xjjroot::sethempty(hemptyeff_incl, 0, 0.3);
+  hemptyeff_incl->GetXaxis()->SetBinLabel(fitX::ibin_a, fitX::title_a.c_str());
+  hemptyeff_incl->GetXaxis()->SetBinLabel(fitX::ibin_b, fitX::title_b.c_str());
+  hemptyeff_incl->GetXaxis()->SetLabelSize(hemptyeff_incl->GetXaxis()->GetLabelSize()*1.5);
+  return hemptyeff_incl;
+}

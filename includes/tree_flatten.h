@@ -60,6 +60,15 @@ namespace fitX
       new br_element<float, MAX_XB>("BsvpvDisErr"),
       new br_element<float, MAX_XB>("Balpha"),
       new br_element<float, MAX_XB>("Beta"),
+      new br_element<float, MAX_XB>("Bchi2cl"),
+      new br_element<float, MAX_XB>("Btrk1Pt"),
+      new br_element<float, MAX_XB>("Btrk2Pt"),
+      new br_element<float, MAX_XB>("Btrk1Phi"),
+      new br_element<float, MAX_XB>("Btrk2Phi"),
+      new br_element<float, MAX_XB>("Btrk1Eta"),
+      new br_element<float, MAX_XB>("Btrk2Eta"),
+      new br_element<float, MAX_XB>("Bujphi"),
+      new br_element<float, MAX_XB>("Bujeta"),
       new br_element<float, MAX_XB>("pthatweight", false)
     };
     std::vector<br_element<int, MAX_XB>*> branchesi = {

@@ -15,18 +15,20 @@ namespace syst
 
 namespace syst
 {
-  std::vector<float> syst_fit = {5.9, 15.5, 16.6};
-  std::vector<float> syst_eff = {32.2, 35.5, 48.0};
-  std::vector<float> syst_ptshape = {15.2, 2.4, 15.4};
-  std::vector<float> syst_tnp_u = {5.4, 5.3, 0.1};
-  std::vector<float> syst_tnp_d = {4.9, 4.8, 0.1};
-  std::vector<float> syst_fprompt = {15.7, 3.7, 16.2};
+  std::vector<float> syst_fit = {3.4, 4.7, 7.4};
+  std::vector<float> syst_acc = {1.8, 0.6, 1.9};
+  std::vector<float> syst_eff = {23.6, 44.3, 50.2};
+  std::vector<float> syst_ptshape = {19.2, 2.6, 19.4};
+  std::vector<float> syst_tnp_u = {5.5, 5.3, 0.1};
+  std::vector<float> syst_tnp_d = {5.0, 4.8, 0.2};
+  std::vector<float> syst_fprompt = {19.2, 2.8, 19.4};
 }
 
 float syst::getsyst(int type, std::string opt)
 {
   float syst = 0;
   syst += syst_fit[type]*syst_fit[type];
+  syst += syst_acc[type]*syst_acc[type];
   syst += syst_eff[type]*syst_eff[type];
   syst += syst_ptshape[type]*syst_ptshape[type];
   syst += syst_fprompt[type]*syst_fprompt[type];
