@@ -21,11 +21,11 @@ tmp=$(date +%y%m%d%H%M%S)
 echo -e "\e[32;1mcompiling...\e[0m"
 [[ $RUN_FITHIST -eq 1 || $# -eq 0 ]] && {
     echo " -- "toymc.cc
-    g++ toymc.cc $(root-config --libs --cflags) -lRooFit -lRooFitCore -lRooStats -g -o toymc_${tmp}.exe || exit 1
+    g++ toymc.cc -I"../includes/" $(root-config --libs --cflags) -lRooFit -lRooFitCore -lRooStats -g -o toymc_${tmp}.exe || exit 1
 }
 [[ $RUN_DRAWHIST -eq 1 || $# -eq 0 ]] && {
     echo " -- "drawtoymc.cc
-    g++ drawtoymc.cc $(root-config --libs --cflags) -lRooFit -lRooFitCore -lRooStats -g -o drawtoymc_${tmp}.exe || { rm *_${tmp}.exe ; exit 1 ; }
+    g++ drawtoymc.cc -I"../includes/" $(root-config --libs --cflags) -lRooFit -lRooFitCore -lRooStats -g -o drawtoymc_${tmp}.exe || { rm *_${tmp}.exe ; exit 1 ; }
 }
 
 echo
