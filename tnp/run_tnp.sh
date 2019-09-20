@@ -19,7 +19,8 @@ RUN_CONVER=${1:-0}
 RUN_DRAW=${2:-0}
 RUN_DRAWRATIO=${3:-0}
 
-g++ getfname.cc $(root-config --libs --cflags) -g -o getfname_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; }
+set -x
+g++ getfname.cc -I"../includes/" $(root-config --libs --cflags) -g -o getfname_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; }
 kinematic=$(./getfname_${tmp}.exe $ptmin $ptmax $centmin $centmax $ymin $ymax)
 rm getfname_${tmp}.exe
 echo -e "\e[32;1mcompiling...\e[0m"
@@ -29,16 +30,19 @@ sed -i "s/__PTBIN_INPUT__/$ptbins/g" tnpcc_tmp.h
 cp tnp_converter.cc tnp_converter_tmp_${tmp}.cc
 sed -i "s/__CUTINPUT__/${optcutntuples}/g" tnp_converter_tmp_${tmp}.cc
 
-[[ $RUN_CONVER -eq 1 || $# == 0 ]] && { g++ tnp_converter_tmp_${tmp}.cc $(root-config --libs --cflags) -g -o tnp_converter_${tmp}.exe || exit 1 ; }
-[[ $RUN_DRAW -eq 1 || $# == 0 ]] && { g++ draw_tnp.cc $(root-config --libs --cflags) -g -o draw_tnp_${tmp}.exe || { rm *_${tmp}.exe ; exit 1 ;  } ; }
-[[ $RUN_DRAWRATIO -eq 1 || $# == 0 ]] && { g++ draw_tnp_ratio.cc $(root-config --libs --cflags) -g -o draw_tnp_ratio_${tmp}.exe || { rm *_${tmp}.exe ; exit 1 ;  } ; }
+[[ $RUN_CONVER -eq 1 || $# == 0 ]] && { g++ tnp_converter_tmp_${tmp}.cc -I"../includes/" $(root-config --libs --cflags) -g -o tnp_converter_${tmp}.exe || exit 1 ; }
+[[ $RUN_DRAW -eq 1 || $# == 0 ]] && { g++ draw_tnp.cc -I"../includes/" $(root-config --libs --cflags) -g -o draw_tnp_${tmp}.exe || { rm *_${tmp}.exe ; exit 1 ;  } ; }
+[[ $RUN_DRAWRATIO -eq 1 || $# == 0 ]] && { g++ draw_tnp_ratio.cc -I"../includes/" $(root-config --libs --cflags) -g -o draw_tnp_ratio_${tmp}.exe || { rm *_${tmp}.exe ; exit 1 ;  } ; }
 
 rm tnpcc_tmp.h
 rm tnp_converter_tmp_${tmp}.cc
+set +x
 
 [[ $RUN_CONVER -eq 1 ]] && {
-    ./tnp_converter_${tmp}.exe $inputmc_a_prompt $name "_a" $ptmin $ptmax $centmin $centmax $ymin $ymax
-    ./tnp_converter_${tmp}.exe $inputmc_b_prompt $name "_b" $ptmin $ptmax $centmin $centmax $ymin $ymax
+    ./tnp_converter_${tmp}.exe $inputmc_a_prompt $name "_a" "noweight" $ptmin $ptmax $centmin $centmax $ymin $ymax
+    ./tnp_converter_${tmp}.exe $inputmc_b_prompt $name "_b" "noweight" $ptmin $ptmax $centmin $centmax $ymin $ymax
+    ./tnp_converter_${tmp}.exe $inputmc_a_prompt $name "_a" "eff_fit.root" $ptmin $ptmax $centmin $centmax $ymin $ymax
+    ./tnp_converter_${tmp}.exe $inputmc_b_prompt $name "_b" "eff_fit.root" $ptmin $ptmax $centmin $centmax $ymin $ymax
 }
 rootdir=rootfiles/$name$kinematic/
 
