@@ -7,7 +7,7 @@ centmax=90
 ymin=0
 ymax=1.6
 
-counts=(0 1 2 3)
+counts=(0)
 optcuts=(
     "&& BDT > 0.06 && (Bmass-3.096916-Btktkmass) < 0.13"
     "&& BDTF > 0.3 && (Bmass-3.096916-Btktkmass) < 0.13"
@@ -82,9 +82,10 @@ sed -i "s/__PTBIN_INPUT__/$ptbins/g" tnpcc_tmp.h
 echo
 for count in ${counts[@]}
 do
-    cut="HLT_HIL3Mu0NHitQ10_L2Mu0_MAXdR3p5_M1to5_v1 && pprimaryVertexFilter && phfCoincFilter2Th4 && pclusterCompatibilityFilter"
-    cut="$cut && mvapref ${optcuts[count]}"
+    precut="HLT_HIL3Mu0NHitQ10_L2Mu0_MAXdR3p5_M1to5_v1 && pprimaryVertexFilter && phfCoincFilter2Th4 && pclusterCompatibilityFilter && mvapref"
+    cut="$precut ${optcuts[count]}"
     cutgen="1"
+    cutacc="(fabs(Gmu1eta) < 2.4) && ((fabs(Gmu1eta) < 1.2 && Gmu1pt >= 3.5) || (fabs(Gmu1eta) >= 1.2 && fabs(Gmu1eta) < 2.1 && Gmu1pt >= 5.47-1.89*fabs(Gmu1eta)) || (fabs(Gmu1eta) >= 2.1 && Gmu1pt >= 1.5)) && (fabs(Gmu2eta) < 2.4) && ((fabs(Gmu2eta) < 1.2 && Gmu2pt >= 3.5) || (fabs(Gmu2eta) >= 1.2 && fabs(Gmu2eta) < 2.1 && Gmu2pt >= 5.47-1.89*fabs(Gmu2eta)) || (fabs(Gmu2eta) >= 2.1 && Gmu2pt >= 1.5)) && Gtk1pt > 0.9 && Gtk2pt > 0.9 && fabs(Gtk1eta) < 2.4 && fabs(Gtk2eta) < 2.4"
     cp ../tnp/tnp_converter.cc tnp_converter_tmp_${tmp}.cc
     sed -i "s/__CUTINPUT__/${optcutntuples[$count]}/g" tnp_converter_tmp_${tmp}.cc
     [[ $RUN_CONVERTTNP -eq 1 || $# -eq 0 ]] && {
@@ -98,14 +99,14 @@ do
     echo -e "----------------------------------------"
 
     [[ $RUN_SAVEHIST -eq 1 ]] && {
-        ./fitX_savehist_${tmp}.exe $input $inputmc_a_prompt $inputmc_b_prompt $inputmc_a_nonprompt $inputmc_b_nonprompt "$cut" "$cutgen" "$name" $ptmin $ptmax $centmin $centmax $ymin $ymax
+        ./fitX_savehist_${tmp}.exe $input $inputmc_a_prompt $inputmc_b_prompt $inputmc_a_nonprompt $inputmc_b_nonprompt "$cut" "$cutgen" "$cutacc" "$precut" "$name" $ptmin $ptmax $centmin $centmax $ymin $ymax
     }
 
     rootdir=rootfiles/$name$kinematic/
 
     [[ $RUN_CONVERTTNP -eq 1 ]] && {
-        ./tnp_converter_${tmp}.exe $inputmc_a_prompt $name "_a" $ptmin $ptmax $centmin $centmax $ymin $ymax
-        ./tnp_converter_${tmp}.exe $inputmc_b_prompt $name "_b" $ptmin $ptmax $centmin $centmax $ymin $ymax
+        ./tnp_converter_${tmp}.exe $inputmc_a_prompt $name "_a" "noweight" $ptmin $ptmax $centmin $centmax $ymin $ymax
+        ./tnp_converter_${tmp}.exe $inputmc_b_prompt $name "_b" "noweight" $ptmin $ptmax $centmin $centmax $ymin $ymax
         rm tnp_converter_${tmp}.exe
     }
 

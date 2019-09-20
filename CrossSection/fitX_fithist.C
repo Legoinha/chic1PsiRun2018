@@ -17,8 +17,6 @@
 
 void drawkinematic();
 void drawlabels();
-TH2F* createhempty(std::string name, std::string ytitle, float ymax=1.);
-TH2F* createhempty_incl(std::string name, std::string ytitle, float ymax=1.);
 void drawval(TEfficiency* greff_a, TEfficiency* greff_b, float ymax);
 void fitX_fithist(std::string input, std::string output, std::string inputtnp_a, std::string inputtnp_b, std::string fitopt="")
 {
@@ -178,14 +176,14 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   mceff_b->calcacc();
   mceff_b->setstyle(fitX::color_b);
   float ymaxeff = 0.2, ymaxacc = 1.0, ymaxeffpre = 1.0, ymaxeffcut = 1.0;
-  TH2F* hemptyeff = createhempty("hemptyeff", "#alpha #times #epsilon_{reco} #times #epsilon_{sel}", ymaxeff);
-  TH2F* hemptyeff_incl = createhempty_incl("hemptyeff_incl", "#alpha #times #epsilon_{reco} #times #epsilon_{sel}", ymaxeff);
-  TH2F* hemptyacc = createhempty("hemptyacc", "#alpha", ymaxacc);
-  TH2F* hemptyacc_incl = createhempty_incl("hemptyacc_incl", "#alpha", ymaxacc);
-  TH2F* hemptyeffpre = createhempty("hemptyeffpre", "#epsilon_{reco}", ymaxeffpre);
-  TH2F* hemptyeffpre_incl = createhempty_incl("hemptyeffpre_incl", "#epsilon_{reco}", ymaxeffpre);
-  TH2F* hemptyeffcut = createhempty("hemptyeffcut", "#epsilon_{sel}", ymaxeffcut);
-  TH2F* hemptyeffcut_incl = createhempty_incl("hemptyeffcut_incl", "#epsilon_{sel}", ymaxeffcut);
+  TH2F* hemptyeff = MCeff::createhempty("hemptyeff", "#alpha #times #epsilon_{reco} #times #epsilon_{sel}", ymaxeff);
+  TH2F* hemptyeff_incl = MCeff::createhempty_incl("hemptyeff_incl", "#alpha #times #epsilon_{reco} #times #epsilon_{sel}", ymaxeff);
+  TH2F* hemptyacc = MCeff::createhempty("hemptyacc", "#alpha", ymaxacc);
+  TH2F* hemptyacc_incl = MCeff::createhempty_incl("hemptyacc_incl", "#alpha", ymaxacc);
+  TH2F* hemptyeffpre = MCeff::createhempty("hemptyeffpre", "#epsilon_{reco}", ymaxeffpre);
+  TH2F* hemptyeffpre_incl = MCeff::createhempty_incl("hemptyeffpre_incl", "#epsilon_{reco}", ymaxeffpre);
+  TH2F* hemptyeffcut = MCeff::createhempty("hemptyeffcut", "#epsilon_{sel}", ymaxeffcut);
+  TH2F* hemptyeffcut_incl = MCeff::createhempty_incl("hemptyeffcut_incl", "#epsilon_{sel}", ymaxeffcut);
   TLegend* legeff = new TLegend(0.70, 0.20, 1.10, 0.32);
   xjjroot::setleg(legeff, 0.042);
   legeff->AddEntry(mceff_a->greff(), fitX::title_a.c_str(), "fl");
@@ -353,6 +351,11 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   xjjroot::mkdir(Form("plots/%s/cyieldpromptCorr.pdf", output.c_str()));
   cyieldpromptCorr->SaveAs(Form("plots/%s/cyieldpromptCorr.pdf", output.c_str()));
 
+  std::cout<<"-->"<<std::endl;
+  std::cout<<"_a: "<<xx_a[0]<<" "<<yy_a[0]<<" "<<hyieldpromptCorr_a->GetBinContent(fitX::ibin_a)<<" "<<hyieldpromptCorr_a->GetBinError(fitX::ibin_a)<<" "<<yel_a[0]<<" "<<yeh_a[0]<<std::endl;
+  std::cout<<"_b: "<<xx_b[0]<<" "<<yy_b[0]<<" "<<hyieldpromptCorr_b->GetBinContent(fitX::ibin_b)<<" "<<hyieldpromptCorr_b->GetBinError(fitX::ibin_b)<<" "<<yel_b[0]<<" "<<yeh_b[0]<<std::endl;
+  std::cout<<"<--"<<std::endl;
+
   // merge a + b
   TH1F* hyield = (TH1F*)hyield_a->Clone("hyield");
   hyield->Add(hyield_b);
@@ -433,23 +436,6 @@ void drawlabels()
   xjjroot::drawtex(0.23, 0.77, "Prompt", 0.042, 12, 62);
   xjjroot::drawCMSleft("#scale[1.25]{#bf{CMS}} #it{Simulation}");
   xjjroot::drawCMSright();
-}
-
-TH2F* createhempty(std::string name, std::string ytitle, float ymax)
-{
-  TH2F* hemptyeff = new TH2F(name.c_str(), Form(";p_{T} (GeV/c);%s", ytitle.c_str()), 10, MCeff::ptBins[0], MCeff::ptBins[MCeff::nPtBins], 10, 0, ymax);
-  xjjroot::sethempty(hemptyeff, 0, 0.3);
-  return hemptyeff;
-}
-
-TH2F* createhempty_incl(std::string name, std::string ytitle, float ymax)
-{
-  TH2F* hemptyeff_incl = new TH2F(name.c_str(), Form(";;%s", ytitle.c_str()), 5, 0, 5, 10, 0, ymax);
-  xjjroot::sethempty(hemptyeff_incl, 0, 0.3);
-  hemptyeff_incl->GetXaxis()->SetBinLabel(fitX::ibin_a, fitX::title_a.c_str());
-  hemptyeff_incl->GetXaxis()->SetBinLabel(fitX::ibin_b, fitX::title_b.c_str());
-  hemptyeff_incl->GetXaxis()->SetLabelSize(hemptyeff_incl->GetXaxis()->GetLabelSize()*1.5);
-  return hemptyeff_incl;
 }
 
 void drawval(TEfficiency* greff_a, TEfficiency* greff_b, float ymax)
