@@ -29,6 +29,7 @@ void fitX_drawhist(std::string inputname, std::string output)
       yy.push_back(hratio->GetBinContent(i+1));
       yel.push_back(syst::getsyst(2, "d")*hratio->GetBinContent(i+1));
       yeh.push_back(syst::getsyst(2, "u")*hratio->GetBinContent(i+1));
+      std::cout<<i<<" "<<xx[i]<<" "<<hratio->GetBinWidth(i+1)/2.<<" "<<yy[i]<<" "<<hratio->GetBinError(i+1)<<" "<<yel[i]<<" "<<yeh[i]<<std::endl;
     }
   TGraphAsymmErrors* gsyst = new TGraphAsymmErrors(hratio->GetNbinsX(), xx.data(), yy.data(), xel.data(), xeh.data(), yel.data(), yeh.data());
   gsyst->SetName("gr_ratio_syst");
