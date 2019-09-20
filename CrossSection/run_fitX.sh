@@ -44,7 +44,7 @@ RUN_DRAWHIST=${4:-0}
 tmp=$(date +%y%m%d%H%M%S)
 
 ##
-g++ getfname.cc $(root-config --libs --cflags) -g -o getfname_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; }
+g++ getfname.cc -I"../includes/" $(root-config --libs --cflags) -g -o getfname_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; }
 kinematic=$(./getfname_${tmp}.exe $ptmin $ptmax $centmin $centmax $ymin $ymax)
 rm getfname_${tmp}.exe
 echo -e "\e[32;1mcompiling...\e[0m"
@@ -53,19 +53,19 @@ ptbins='float ptbins[] = {'$ptmin', '$ptmax'};'
 sed -i "s/__PTBIN_INPUT__/$ptbins/g" tnpcc_tmp.h
 [[ $RUN_SAVEHIST -eq 1 || $# -eq 0 ]] && {
     echo " -- "fitX_flatten.C
-    g++ fitX_flatten.C $(root-config --libs --cflags) -g -o fitX_flatten_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; } 
+    g++ fitX_flatten.C -I"../includes/" $(root-config --libs --cflags) -g -o fitX_flatten_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; } 
     echo " -- "fitX_savehist.C
-    g++ fitX_savehist.C $(root-config --libs --cflags) -lRooFit -lRooFitCore -lRooStats -g -o fitX_savehist_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; } 
+    g++ fitX_savehist.C -I"../includes/" $(root-config --libs --cflags) -lRooFit -lRooFitCore -lRooStats -g -o fitX_savehist_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; } 
 }
 [[ $RUN_FITHIST -eq 1 || $# -eq 0 ]] && {
     echo " -- "draw_tnp.cc
-    g++ draw_tnp.cc $(root-config --libs --cflags) -g -o draw_tnp_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; } 
+    g++ draw_tnp.cc -I"../includes/" $(root-config --libs --cflags) -g -o draw_tnp_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; } 
     echo " -- "fitX_fithist.C
-    g++ fitX_fithist.C $(root-config --libs --cflags) -lRooFit -lRooFitCore -lRooStats -g -o fitX_fithist_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; }
+    g++ fitX_fithist.C -I"../includes/" $(root-config --libs --cflags) -lRooFit -lRooFitCore -lRooStats -g -o fitX_fithist_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; }
 }
 [[ $RUN_DRAWHIST -eq 1 || $# -eq 0 ]] && {
     echo " -- "fitX_drawhist.C
-    g++ fitX_drawhist.C $(root-config --libs --cflags) -g -o fitX_drawhist_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; }
+    g++ fitX_drawhist.C -I"../includes/" $(root-config --libs --cflags) -g -o fitX_drawhist_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; }
 }
 
 ##
@@ -89,7 +89,7 @@ do
     cp ../tnp/tnp_converter.cc tnp_converter_tmp_${tmp}.cc
     sed -i "s/__CUTINPUT__/${optcutntuples[$count]}/g" tnp_converter_tmp_${tmp}.cc
     [[ $RUN_CONVERTTNP -eq 1 || $# -eq 0 ]] && {
-        g++ tnp_converter_tmp_${tmp}.cc $(root-config --libs --cflags) -g -o tnp_converter_${tmp}.exe || { rm tnp_converter_tmp_${tmp}.cc ; continue ; }
+        g++ tnp_converter_tmp_${tmp}.cc -I"../includes/" $(root-config --libs --cflags) -g -o tnp_converter_${tmp}.exe || { rm tnp_converter_tmp_${tmp}.cc ; continue ; }
     }
     rm tnp_converter_tmp_${tmp}.cc
 
