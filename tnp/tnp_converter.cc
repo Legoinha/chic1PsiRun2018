@@ -6,6 +6,7 @@
 #include <string>
 #include <TFile.h>
 #include <TH1D.h>
+#include <TH2F.h>
 #include <TSystem.h>
 
 #include "fitX.h"
@@ -16,10 +17,48 @@
 
 #include "tnpcc_tmp.h"
 
-void tnp_converter(std::string inputname, std::string dirname, std::string name)
+int n = 5;
+void converter(std::string inputname, std::string outputname, std::string name, std::string ptweight="1", std::string wegihtname="no weight");
+
+void tnp_converter(std::string inputname, std::string dirname, std::string name, std::string weightfilename)
 {
   std::cout<<"\e[32;1m -- "<<__FUNCTION__<<"\e[0m"<<std::endl;
-  std::string outputname = "rootfiles/"+dirname+fitX::tagname()+"/tnp"+name+".root";
+  TFile* weightfile = TFile::Open(weightfilename.c_str());
+  if(weightfile)
+    {
+      TTree* ntf = (TTree*)weightfile->Get("ntf");
+      std::vector<TString*> pars(n), funs(n);
+      for(int i=0; i<n; i++)
+        {
+          pars[i] = 0;
+          funs[i] = 0;
+          ntf->SetBranchAddress(Form("par%s-%d", name.c_str(), i+1), &(pars[i]));
+          ntf->SetBranchAddress(Form("fun%s-%d", name.c_str(), i+1), &(funs[i]));
+        }
+      ntf->GetEntry(0);
+      for(int i=0; i<n; i++)
+        {
+          std::string weight = xjjc::str_replaceall(xjjc::str_tolower(pars[i]->Data()), "tmath::", "");
+          weight = xjjc::str_replaceall(weight, "x[0]", "x");
+          std::string outputname = "rootfiles/"+dirname+fitX::tagname()+"/funs/fun-"+std::string(Form("%d", i+1))+"/"+"tnp"+name+".root";
+          converter(inputname, outputname, name, weight, funs[i]->Data());
+        }
+    }
+  else
+    {
+      std::string outputname = "rootfiles/"+dirname+fitX::tagname()+"/tnp"+name+".root";
+      converter(inputname, outputname, name);
+    }
+
+}
+
+void converter(std::string inputname, std::string outputname, std::string name, std::string ptweight, std::string weightname)
+{
+  std::cout<<"\e[32;1m -- "<<__FUNCTION__<<"\e[0m"<<std::endl;
+
+  std::cout<<"==> Checking pt weight"<<std::endl;
+  std::cout<<ptweight<<std::endl;
+  TF1* fptweight = new TF1("fptweight", ptweight.c_str(), fitX::ptmincut, fitX::ptmaxcut);
 
   std::cout<<"==> Opening files"<<std::endl;
   std::cout<<"input: "<<inputname<<std::endl;
@@ -39,6 +78,7 @@ void tnp_converter(std::string inputname, std::string dirname, std::string name)
           // hhscale[tt][idxk.second]->Sumw2();
         }
     }
+  TH2F* hptweight = new TH2F("hptweight", Form(";p_{T} (GeV/c);%s", weightname.c_str()), 50, tnpcc::ptbins[0], tnpcc::ptbins[tnpcc::nptbins-1], 50, 0, 5);
   
   TFile* inf = TFile::Open(inputname.c_str());
   xjjroot::packtree* pt = new xjjroot::packtree(inf, "Bfinder/ntmix", "mcp_tnp");
@@ -64,6 +104,8 @@ void tnp_converter(std::string inputname, std::string dirname, std::string name)
           // ==>
           if(!(__OPTCUT__)) { continue; } 
           // <==
+          float wptweight = fptweight->Eval(ntp->Bgenpt[j]);
+          hptweight->Fill(ntp->Bgenpt[j], wptweight, weight);
           // ==>
           for(auto& idxk : tnpcc::idxname)
             {
@@ -75,7 +117,7 @@ void tnp_converter(std::string inputname, std::string dirname, std::string name)
               //
               for(auto& tt : tnpcc::types)
                 {
-                  hh[tt][idxk.second]->Fill(ntp->Bpt[j], weight*scales[tt][idxk.second]);
+                  hh[tt][idxk.second]->Fill(ntp->Bpt[j], weight*scales[tt][idxk.second]*wptweight);
                 }
             }
           // <==
@@ -91,22 +133,28 @@ void tnp_converter(std::string inputname, std::string dirname, std::string name)
     {
       for(auto& hk : ht.second)
         {
-          fitX::printhist(hk.second);
+          xjjroot::printhist(hk.second, 20);
           hk.second->Write();
         }
     }
+  hptweight->Write();
   fitX::write();
   outf->Close();
   std::cout<<"==> Output file"<<std::endl;
   std::cout<<outputname<<std::endl;
   std::cout<<std::endl;
+
+  gROOT->cd();
+  for(auto& ht : hh)
+    { for(auto& hk : ht.second) { delete hk.second; } }
+  delete hptweight;
 }
 
 int main(int argc, char* argv[])
 {
-  if(argc==10) { 
-    fitX::init(atof(argv[4]), atof(argv[5]), atof(argv[6]), atof(argv[7]), atof(argv[8]), atof(argv[9]));
-    tnp_converter(argv[1], argv[2], argv[3]); return 0; }
+  if(argc==11) { 
+    fitX::init(atof(argv[5]), atof(argv[6]), atof(argv[7]), atof(argv[8]), atof(argv[9]), atof(argv[10]));
+    tnp_converter(argv[1], argv[2], argv[3], argv[4]); return 0; }
   return 1;
 }
 
@@ -136,3 +184,4 @@ int main(int argc, char* argv[])
 //   * idx = +1: stat variation, +1 sigma
 //   * idx = +2: stat variation, -1 sigma
 // +++++++++++++++++++++++++++++++++++++++
+

@@ -18,6 +18,7 @@ tmp=$(date +%y%m%d%H%M%S)
 RUN_CONVER=${1:-0}
 RUN_DRAW=${2:-0}
 RUN_DRAWRATIO=${3:-0}
+RUN_PTWEIGHT=${4:-0}
 
 set -x
 g++ getfname.cc -I"../includes/" $(root-config --libs --cflags) -g -o getfname_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; }
@@ -30,9 +31,9 @@ sed -i "s/__PTBIN_INPUT__/$ptbins/g" tnpcc_tmp.h
 cp tnp_converter.cc tnp_converter_tmp_${tmp}.cc
 sed -i "s/__CUTINPUT__/${optcutntuples}/g" tnp_converter_tmp_${tmp}.cc
 
-[[ $RUN_CONVER -eq 1 || $# == 0 ]] && { g++ tnp_converter_tmp_${tmp}.cc -I"../includes/" $(root-config --libs --cflags) -g -o tnp_converter_${tmp}.exe || exit 1 ; }
-[[ $RUN_DRAW -eq 1 || $# == 0 ]] && { g++ draw_tnp.cc -I"../includes/" $(root-config --libs --cflags) -g -o draw_tnp_${tmp}.exe || { rm *_${tmp}.exe ; exit 1 ;  } ; }
-[[ $RUN_DRAWRATIO -eq 1 || $# == 0 ]] && { g++ draw_tnp_ratio.cc -I"../includes/" $(root-config --libs --cflags) -g -o draw_tnp_ratio_${tmp}.exe || { rm *_${tmp}.exe ; exit 1 ;  } ; }
+[[ $RUN_CONVER -eq 1 || $# == 0 ]] && { g++ tnp_converter_tmp_${tmp}.cc -I"../includes/" $(root-config --libs --cflags) -g -o tnp_converter_${tmp}.exe || { rm *_${tmp}.* ; exit 1 ; } }
+[[ $RUN_DRAW -eq 1 || $# == 0 ]] && { g++ draw_tnp.cc -I"../includes/" $(root-config --libs --cflags) -g -o draw_tnp_${tmp}.exe || { rm *_${tmp}.* ; exit 1 ;  } ; }
+[[ $RUN_DRAWRATIO -eq 1 || $# == 0 ]] && { g++ draw_tnp_ratio.cc -I"../includes/" $(root-config --libs --cflags) -g -o draw_tnp_ratio_${tmp}.* || { rm *_${tmp}.* ; exit 1 ;  } ; }
 
 rm tnpcc_tmp.h
 rm tnp_converter_tmp_${tmp}.cc
@@ -41,14 +42,20 @@ set +x
 [[ $RUN_CONVER -eq 1 ]] && {
     ./tnp_converter_${tmp}.exe $inputmc_a_prompt $name "_a" "noweight" $ptmin $ptmax $centmin $centmax $ymin $ymax
     ./tnp_converter_${tmp}.exe $inputmc_b_prompt $name "_b" "noweight" $ptmin $ptmax $centmin $centmax $ymin $ymax
-    ./tnp_converter_${tmp}.exe $inputmc_a_prompt $name "_a" "eff_fit.root" $ptmin $ptmax $centmin $centmax $ymin $ymax
-    ./tnp_converter_${tmp}.exe $inputmc_b_prompt $name "_b" "eff_fit.root" $ptmin $ptmax $centmin $centmax $ymin $ymax
+    [[ $RUN_PTWEIGHT -eq 1 ]] && {
+        ./tnp_converter_${tmp}.exe $inputmc_a_prompt $name "_a" "eff_fit.root" $ptmin $ptmax $centmin $centmax $ymin $ymax
+        ./tnp_converter_${tmp}.exe $inputmc_b_prompt $name "_b" "eff_fit.root" $ptmin $ptmax $centmin $centmax $ymin $ymax
+    }
 }
 rootdir=rootfiles/$name$kinematic/
 
 [[ $RUN_DRAW -eq 1 ]] && {
     ./draw_tnp_${tmp}.exe "$rootdir/tnp_a.root" $name "_a"
     ./draw_tnp_${tmp}.exe "$rootdir/tnp_b.root" $name "_b"
+    [[ $RUN_PTWEIGHT -eq 1 ]] && {
+        ./draw_tnp_${tmp}.exe "$rootdir/funs/fun-1/tnp_a.root" "$rootdir/funs/fun-2/tnp_a.root" "$rootdir/funs/fun-3/tnp_a.root" "$rootdir/funs/fun-4/tnp_a.root" "$rootdir/funs/fun-5/tnp_a.root" $name "_a"
+        ./draw_tnp_${tmp}.exe "$rootdir/funs/fun-1/tnp_b.root" "$rootdir/funs/fun-2/tnp_b.root" "$rootdir/funs/fun-3/tnp_b.root" "$rootdir/funs/fun-4/tnp_b.root" "$rootdir/funs/fun-5/tnp_b.root" $name "_b"
+    }
 }
 
 [[ $RUN_DRAWRATIO -eq 1 ]] && {
