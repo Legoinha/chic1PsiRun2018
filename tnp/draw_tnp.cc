@@ -1,6 +1,7 @@
 #include <TFile.h>
 #include <TCanvas.h>
 #include <TH1D.h>
+#include <TH2F.h>
 #include <TGraphAsymmErrors.h>
 #include <TSystem.h>
 #include <TLegend.h>
@@ -23,7 +24,7 @@ void draw_tnp(std::vector<std::string> inputname, std::string dirname, std::stri
   std::vector<std::string> tname(n);
   for(int i=0; i<n; i++) { 
     dd[i] = new tnpcc::drawtnp(inputname[i].c_str(), Form("_%d", i+1), (n==1?0:xjjroot::mycolor_middle[xjjroot::cc[i]])); 
-    tname[i] = (TH2F*)(dd[i]->inf()->Get("hptweight"))->GetYaxis()->GetTitle();
+    tname[i] = ((TH2F*)(dd[i]->inf()->Get("hptweight")))->GetYaxis()->GetTitle();
   }
   fitX::init(dd[0]->inf());
 
@@ -73,7 +74,7 @@ void draw_tnp(std::vector<std::string> inputname, std::string dirname, std::stri
   else
     {
       float ty = 0.85, tx = 0.89;
-      TLegend* leg = new TLegend(0.60, ty-0.04-0.045*n-0.01, 0.89, ty-0.04-0.01, "p_{T} weight");
+      TLegend* leg = new TLegend(0.59, ty-0.04-0.05*n, 0.79, ty-0.04, "p_{T} weight");
       xjjroot::setleg(leg, 0.04);
 
       TCanvas* c = new TCanvas("c", "", 600, 600);

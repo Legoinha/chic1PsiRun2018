@@ -9,19 +9,19 @@ ymax=1.6
 
 counts=(0)
 optcuts=(
-    "&& BDT > 0.06 && (Bmass-3.096916-Btktkmass) < 0.13"
+    "&& BDT > 0.06 && (Bmass-3.096916-Btktkmass) < 0.13" # nominal
     "&& BDTF > 0.3 && (Bmass-3.096916-Btktkmass) < 0.13"
     "&& BDTD > 0.11 && (Bmass-3.096916-Btktkmass) < 0.13"
     "&& BDTG > 0.68 && (Bmass-3.096916-Btktkmass) < 0.13"
 )
 optcutntuples=(
-    "ntp->BDT[j] > 0.06 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13"
+    "ntp->BDT[j] > 0.06 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13" # nominal
     "ntp->BDTF[j] > 0.3 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13"
     "ntp->BDTD[j] > 0.11 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13"
     "ntp->BDTG[j] > 0.68 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13"
 )
 tags=(
-    "BDTQvalue"
+    "BDTQvalue" # nominal
     "BDTFQvalue"
     "BDTDQvalue"
     "BDTGQvalue"
@@ -120,3 +120,5 @@ do
 done
 
 rm *_${tmp}.exe 2>/dev/null
+rm tnpcc_tmp.h 2>/dev/null
+
