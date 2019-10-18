@@ -112,11 +112,11 @@ bool datamc::var::init()
   else if(ftype=="trk2pt")
     {
       fformula = "Btrk2Pt";
-      fvars = std::vector<double>({1, 2, 3, 4});
+      fvars = std::vector<double>({1, 2, 3, 4, 5});
       fgt = true;
       ftitle = "trk2 p_{T}";
       funit = "(GeV/c)";
-      fnfine = 30;
+      fnfine = 40;
       fminfine = fvars.front();
       fmaxfine = fvars.back();
     }
@@ -150,6 +150,28 @@ bool datamc::var::init()
       ftitle = "#DeltaR (trk2)";
       funit = "";
       fnfine = 40;
+      fminfine = fvars.front();
+      fmaxfine = fvars.back();
+    }
+  else if(ftype=="BDTnoQ")
+    {
+      fformula = "BDT";
+      fvars = std::vector<double>({-0.3, -0.1, 0., 0.04, 0.08, 0.12, 0.16, 0.30});
+      fgt = true;
+      ftitle = "BDT";
+      funit = "";
+      fnfine = 60;
+      fminfine = fvars.front();
+      fmaxfine = fvars.back();
+    }
+  else if(ftype=="lxy")
+    {
+      fformula = "10*Blxy*Bmass/Bpt";
+      fvars = std::vector<double>({-0.1, -0.04, 0, 0.04, 0.14, 0.3, 0.5, 0.7, 1.1, 1.5});
+      fgt = true;
+      ftitle = "l_{xy}";
+      funit = "(mm)";
+      fnfine = 55;
       fminfine = fvars.front();
       fmaxfine = fvars.back();
     }

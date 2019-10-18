@@ -11,16 +11,17 @@
 #include "fitX.h"
 
 std::vector<std::string> lxyvars = {"lxy", "lxyz"};
-
+float fprompt_a = 0.388365, errfprompt_a = 0.0778002;
 void fprompt_drawhist(std::string output)
 {
   std::cout<<"\e[32;1m -- "<<__FUNCTION__<<"\e[0m"<<std::endl;
   std::map<std::string, std::vector<TEfficiency*>> grfprompt_a, grfprompt_b;
   int nn = 0; for(auto& lxyvar : lxyvars) { nn += lxydis::lxycut[lxyvar].size(); }
+  nn++;
   
   TH2F* hemptyfprompt = new TH2F("hemptyfprompt", ";;f_{prompt}", nn, 0, nn, 10, 0.1, 1.3);
   xjjroot::sethempty(hemptyfprompt, 0, 0.2);
-  hemptyfprompt->GetXaxis()->SetLabelSize(hemptyfprompt->GetXaxis()->GetLabelSize()*1.4);
+  hemptyfprompt->GetXaxis()->SetLabelSize(hemptyfprompt->GetXaxis()->GetLabelSize()*1.2);
   float xmin = hemptyfprompt->GetXaxis()->GetXmin(), xmax = hemptyfprompt->GetXaxis()->GetXmax(),
     ymin = hemptyfprompt->GetYaxis()->GetXmin(), ymax = hemptyfprompt->GetYaxis()->GetXmax();
 
@@ -54,6 +55,13 @@ void fprompt_drawhist(std::string output)
           n++;
         }
     }
+  x[nn-1]     = nn-1+0.5;
+  ex[nn-1]    = 0.5;
+  y_a[nn-1]   = fprompt_a;
+  eyl_a[nn-1] = errfprompt_a;
+  eyh_a[nn-1] = errfprompt_a;
+  hemptyfprompt->GetXaxis()->SetBinLabel(nn, "l_{xy} Fit");
+      
   TGraphAsymmErrors* gfprompt_a = new TGraphAsymmErrors(nn, x.data(), y_a.data(), ex.data(), ex.data(), eyl_a.data(), eyh_a.data());
   gfprompt_a->SetName("gfprompt_a");
   xjjroot::setthgrstyle(gfprompt_a, fitX::color_a, 25, 1.4, fitX::color_a, 1, 3);
@@ -85,6 +93,7 @@ void fprompt_drawhist(std::string output)
   for(int i=0; i<nn; i++)
     {
       if(fabs(y_a[i]-y_a[0]) > syst_a) { syst_a = fabs(y_a[i]-y_a[0]); }
+      if(i==nn-1) continue;
       if(fabs(y_b[i]-y_b[0]) > syst_b) { syst_b = fabs(y_b[i]-y_b[0]); }
     }
   syst_a /= y_a[0];
