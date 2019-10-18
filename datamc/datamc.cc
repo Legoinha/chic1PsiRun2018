@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "var.h"
+// #include "fit_a.h"
 #include "fit.h"
 #include "project.h"
 
@@ -31,6 +32,8 @@ void datamcmain(std::string input, std::string inputmcp_a, std::string inputmcp_
   std::string inputmcp_b_flatten = xjjc::str_replaceall(inputmcp_b, ".root", "_flatten.root");
 
   std::string mcweight = "(pthatweight*Ncoll)";
+  std::string mcweight_a = "(pthatweight*Ncoll*(-1.502425+0.049572*Bgenpt+29.751642/Bgenpt))";
+  std::string mcweight_b = "(pthatweight*Ncoll*(-10.797509+0.239998*Bgenpt+137.456058/Bgenpt))";
   RooRealVar* mass = new RooRealVar("Bmass", "Bmass", fitX::BIN_MIN, fitX::BIN_MAX);
   RooRealVar* massmc_a = new RooRealVar("Bmass", "massmc_a", fitX::BIN_MIN_L, fitX::BIN_MAX_L);
   RooRealVar* massmc_b = new RooRealVar("Bmass", "massmc_b", fitX::BIN_MIN_H, fitX::BIN_MAX_H);
@@ -104,9 +107,9 @@ void datamcmain(std::string input, std::string inputmcp_a, std::string inputmcp_
   xjjroot::printhist(ntmixmcp_a_skim);
   dshmcp_a = new RooDataSet("dshmcp_a", "", ntmixmcp_a_skim, RooArgSet(*massmc_a, *pthatweight), "pthatweight");
   ww->import(*dshmcp_a);
-  ntmixmcp_a->Project(hmcdis_a->GetName(), vv->formula().c_str(), TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
+  ntmixmcp_a->Project(hmcdis_a->GetName(), vv->formula().c_str(), TCut(mcweight_a.c_str())*TCut(cutmcreco.c_str()));
   xjjroot::printhist(hmcdis_a);
-  ntmixmcp_a->Project(hmcfinedis_a->GetName(), vv->formula().c_str(), TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
+  ntmixmcp_a->Project(hmcfinedis_a->GetName(), vv->formula().c_str(), TCut(mcweight_a.c_str())*TCut(cutmcreco.c_str()));
   xjjroot::printhist(hmcfinedis_a);
 
   std::cout<<" == mcp_b ==>"<<std::endl;
@@ -116,9 +119,9 @@ void datamcmain(std::string input, std::string inputmcp_a, std::string inputmcp_
   xjjroot::printhist(ntmixmcp_b_skim);
   dshmcp_b = new RooDataSet("dshmcp_b", "", ntmixmcp_b_skim, RooArgSet(*massmc_b, *pthatweight), "pthatweight");
   ww->import(*dshmcp_b);
-  ntmixmcp_b->Project(hmcdis_b->GetName(), vv->formula().c_str(), TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
+  ntmixmcp_b->Project(hmcdis_b->GetName(), vv->formula().c_str(), TCut(mcweight_b.c_str())*TCut(cutmcreco.c_str()));
   xjjroot::printhist(hmcdis_b);
-  ntmixmcp_b->Project(hmcfinedis_b->GetName(), vv->formula().c_str(), TCut(mcweight.c_str())*TCut(cutmcreco.c_str()));
+  ntmixmcp_b->Project(hmcfinedis_b->GetName(), vv->formula().c_str(), TCut(mcweight_b.c_str())*TCut(cutmcreco.c_str()));
   xjjroot::printhist(hmcfinedis_b);
 
   std::string outputname = "rootfiles/" + output + "/datamc_savehist.root";
