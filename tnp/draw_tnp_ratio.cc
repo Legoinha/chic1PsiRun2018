@@ -23,20 +23,20 @@ void draw_tnp_ratio(std::string inputname_a, std::string inputname_b, std::strin
   std::map<std::string, std::map<std::string, TGraphAsymmErrors*>> ggp_ratio;
   for(auto& tt : tnpcc::types)
     {
-      hhp_a[tt]["nominal"] = (TH1D*)inf_a->Get(Form("scale_htnp_%s_%s", tt.c_str(), "nominal"));
+      hhp_a[tt]["nominal"] = (TH1D*)inf_a->Get(Form("scale_htnp_%s_%s_1", tt.c_str(), "nominal"));
       hhp_a[tt]["nominal"]->SetName(Form("%s_a", hhp_a[tt]["nominal"]->GetName()));
       xjjroot::sethempty(hhp_a[tt]["nominal"], 0, 0.3);
       for(auto& ee : tnpcc::err)
         {
-          ggp_a[tt][ee] = (TGraphAsymmErrors*)inf_a->Get(Form("ggptnp_%s_%s", tt.c_str(), ee.c_str()));
+          ggp_a[tt][ee] = (TGraphAsymmErrors*)inf_a->Get(Form("ggptnp_%s_%s_1", tt.c_str(), ee.c_str()));
           ggp_a[tt][ee]->SetName(Form("%s_a", ggp_a[tt][ee]->GetName()));
         }
-      hhp_b[tt]["nominal"] = (TH1D*)inf_b->Get(Form("scale_htnp_%s_%s", tt.c_str(), "nominal"));
+      hhp_b[tt]["nominal"] = (TH1D*)inf_b->Get(Form("scale_htnp_%s_%s_1", tt.c_str(), "nominal"));
       hhp_b[tt]["nominal"]->SetName(Form("%s_b", hhp_b[tt]["nominal"]->GetName()));
       xjjroot::sethempty(hhp_b[tt]["nominal"], 0, 0.3);
       for(auto& ee : tnpcc::err)
         {
-          ggp_b[tt][ee] = (TGraphAsymmErrors*)inf_b->Get(Form("ggptnp_%s_%s", tt.c_str(), ee.c_str()));
+          ggp_b[tt][ee] = (TGraphAsymmErrors*)inf_b->Get(Form("ggptnp_%s_%s_1", tt.c_str(), ee.c_str()));
           ggp_b[tt][ee]->SetName(Form("%s_b", ggp_b[tt][ee]->GetName()));
         }
 

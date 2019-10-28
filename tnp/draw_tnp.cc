@@ -24,7 +24,7 @@ void draw_tnp(std::vector<std::string> inputname, std::string dirname, std::stri
   std::vector<std::string> tname(n);
   for(int i=0; i<n; i++) { 
     dd[i] = new tnpcc::drawtnp(inputname[i].c_str(), Form("_%d", i+1), (n==1?0:xjjroot::mycolor_middle[xjjroot::cc[i]])); 
-    tname[i] = ((TH2F*)(dd[i]->inf()->Get("hptweight")))->GetYaxis()->GetTitle();
+    tname[i] = n==1?"":((TH2F*)(dd[i]->inf()->Get("hptweight")))->GetYaxis()->GetTitle();
   }
   fitX::init(dd[0]->inf());
 
@@ -70,6 +70,15 @@ void draw_tnp(std::vector<std::string> inputname, std::string dirname, std::stri
         }
       fitX::write();
       outf->Close();
+
+      float stat_u = dd[0]->ggp["total"]["stat"]->GetErrorYhigh(0)/dd[0]->hhp["total"]["nominal"]->GetBinContent(1);
+      float stat_d = dd[0]->ggp["total"]["stat"]->GetErrorYlow(0)/dd[0]->hhp["total"]["nominal"]->GetBinContent(1);
+      float syst_u = dd[0]->ggp["total"]["syst"]->GetErrorYhigh(0)/dd[0]->hhp["total"]["nominal"]->GetBinContent(1);
+      float syst_d = dd[0]->ggp["total"]["syst"]->GetErrorYlow(0)/dd[0]->hhp["total"]["nominal"]->GetBinContent(1);
+      float err_u = sqrt(stat_u*stat_u + syst_u*syst_u);
+      float err_d = sqrt(stat_d*stat_d + syst_d*syst_d);
+      std::cout<<"err_u "<<err_u<<std::endl;
+      std::cout<<"err_d "<<err_d<<std::endl;
     }
   else
     {

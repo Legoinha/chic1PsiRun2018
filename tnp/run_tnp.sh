@@ -33,7 +33,7 @@ sed -i "s/__CUTINPUT__/${optcutntuples}/g" tnp_converter_tmp_${tmp}.cc
 
 [[ $RUN_CONVER -eq 1 || $# == 0 ]] && { g++ tnp_converter_tmp_${tmp}.cc -I"../includes/" $(root-config --libs --cflags) -g -o tnp_converter_${tmp}.exe || { rm *_${tmp}.* ; exit 1 ; } }
 [[ $RUN_DRAW -eq 1 || $# == 0 ]] && { g++ draw_tnp.cc -I"../includes/" $(root-config --libs --cflags) -g -o draw_tnp_${tmp}.exe || { rm *_${tmp}.* ; exit 1 ;  } ; }
-[[ $RUN_DRAWRATIO -eq 1 || $# == 0 ]] && { g++ draw_tnp_ratio.cc -I"../includes/" $(root-config --libs --cflags) -g -o draw_tnp_ratio_${tmp}.* || { rm *_${tmp}.* ; exit 1 ;  } ; }
+[[ $RUN_DRAWRATIO -eq 1 || $# == 0 ]] && { g++ draw_tnp_ratio.cc -I"../includes/" $(root-config --libs --cflags) -g -o draw_tnp_ratio_${tmp}.exe || { rm *_${tmp}.* ; exit 1 ;  } ; }
 
 rm tnpcc_tmp.h
 rm tnp_converter_tmp_${tmp}.cc
