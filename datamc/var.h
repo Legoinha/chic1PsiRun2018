@@ -156,7 +156,7 @@ bool datamc::var::init()
   else if(ftype=="BDTnoQ")
     {
       fformula = "BDT";
-      fvars = std::vector<double>({-0.3, -0.1, 0., 0.04, 0.08, 0.12, 0.16, 0.30});
+      fvars = std::vector<double>({-0.4, -0.3, -0.2, -0.1, -0.02, 0.02, 0.06, 0.10, 0.16, 0.30});
       fgt = true;
       ftitle = "BDT";
       funit = "";

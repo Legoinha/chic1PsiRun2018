@@ -14,7 +14,8 @@
 #include <vector>
 
 #include "var.h"
-#include "fit.h"
+// #include "fit.h"
+#include "fit_a.h"
 
 #include "xjjcuti.h"
 #include "xjjrootuti.h"
@@ -60,7 +61,7 @@ void fitdatamc(std::string input, std::string output, std::string type)
   hdis_a->GetXaxis()->SetNdivisions(505);
   TH1F* hdis_b = new TH1F("hdis_b", Form(";%s %s;Probability", vv->title().c_str(), vv->unit().c_str()), vv->n()-1, vv->vars().data());
   hdis_b->GetXaxis()->SetNdivisions(505);
-  RooRealVar* varr = new RooRealVar(vv->formula().c_str(), "varr", vv->vars().front(), vv->vars().back());
+  RooRealVar* varr = new RooRealVar(vv->formula().c_str(), Form("%s %s", vv->title().c_str(), vv->unit().c_str()), vv->vars().front(), vv->vars().back());
 
   // fit
   std::vector<TF1*> ff(vv->n()-1, 0);
@@ -93,13 +94,10 @@ void fitdatamc(std::string input, std::string output, std::string type)
         {
           RooWorkspace* w = result["unbinned"]->ww();
           dsh_ws = (RooDataSet*)w->data(Form("%s_ws", dsh[i]->GetName()));
+          std::cout<<"\e[33;1m"<<vv->vars()[icut]<<"\e[0m"<<std::endl;
         }
     }
-  // RooArgSet* variables = roopdf->getVariables();
-  // RooArgSet* params = roopdf->getParameters((*variables)["Bmass"]);
-  // std::cout<<((RooRealVar*)(params->find("par5")))->getVal()<<" "<<((RooRealVar*)(params->find("par10")))->getVal()<<" "<<((RooRealVar*)(params->find("nbkg")))->getVal()<<std::endl;
-  // RooStats::SPlot* sData = new RooStats::SPlot("sData", "An SPlot", *roodsh, roopdf, RooArgList(*(params->find("par5")), *(params->find("par10")), *(params->find("nbkg"))));
-  // RooStats::SPlot* sData = new RooStats::SPlot("sData", "An SPlot", *roodsh, roopdf, RooArgList(*(params->find("par5")), *(params->find("nbkg"))));
+
   wws->import(*dsh_ws);
   dsh_ws->Print("v");
   RooDataSet* dsh_ws_par5 = new RooDataSet(dsh_ws->GetName(), dsh_ws->GetTitle(), dsh_ws, *dsh_ws->get(), 0, "par5_sw");
@@ -236,6 +234,7 @@ void fitdatamc(std::string input, std::string output, std::string type)
   float ymax = std::max(h.front()->GetMaximum(), h.back()->GetMaximum())*1.2;
   TH2F* hempty_a = new TH2F("hempty_a", Form(";m_{#mu#mu#pi#pi} (GeV/c^{2});%s", Form("Entries / %.0f MeV", fitX::BIN_WIDTH*1.e+3)), 
                             fitX::NBIN/2, fitX::BIN_MIN, fitX::BIN_MIN+fitX::BIN_WIDTH*fitX::NBIN/2, 10, 0, ymax);
+                            // fitX::NBIN, fitX::BIN_MIN, fitX::BIN_MAX, 10, 0, ymax);
   hempty_a->GetXaxis()->SetNdivisions(505);
   xjjroot::sethempty(hempty_a, 0, 0);
   TH2F* hempty_b = new TH2F("hempty_b", Form(";m_{#mu#mu#pi#pi} (GeV/c^{2});%s", Form("Entries / %.0f MeV", fitX::BIN_WIDTH*1.e+3)), 
@@ -354,6 +353,7 @@ void fitdatamc(std::string input, std::string output, std::string type)
   outf->cd();
   fitX::write();
   outf->Close();
+
 }
 
 int main(int argc, char* argv[])

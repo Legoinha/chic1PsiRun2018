@@ -66,12 +66,13 @@ void datamcmain(std::string input, std::string inputmcp_a, std::string inputmcp_
   gROOT->cd();
   RooWorkspace* ww = new RooWorkspace("ww");
 
-  std::string cutreco = Form("(%s) && Bmass >= %f && Bmass < %f && Bpt>%f && Bpt<%f && TMath::Abs(By)>=%f && TMath::Abs(By)<%f && hiBin>=%f && hiBin<=%f", cut.c_str(),
-                             fitX::BIN_MIN, fitX::BIN_MAX,
+  std::string cutreco = Form("(%s) && Bpt>%f && Bpt<%f && TMath::Abs(By)>=%f && TMath::Abs(By)<%f && hiBin>=%f && hiBin<=%f", cut.c_str(),
                              fitX::ptmincut, fitX::ptmaxcut,
                              fitX::ymincut, fitX::ymaxcut,
                              fitX::centmincut*2, fitX::centmaxcut*2);
   std::string cutmcreco = Form("%s && Bgen>=23333 && BgencollisionId==0", cutreco.c_str());
+  // cutreco += std::string(Form("&& Bmass >= %f && Bmass < %f", fitX::BIN_MIN, fitX::BIN_MAX));
+
   std::vector<std::string> cutrecoi(vv->n()-1);
   for(int i=0; i<vv->n()-1; i++)
     {

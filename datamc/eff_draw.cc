@@ -63,6 +63,22 @@ void eff_draw(std::string input, std::string output)
   std::string outputname = "plots/"+output+"/pt/efficiency/ceffsyst.pdf";
   xjjroot::mkdir(outputname);
   c->SaveAs(outputname.c_str());
+
+  float syst_a = 0, effnom_a = mceff_a[0]->greff_incl()->GetEfficiency(fitX::ibin_a);
+  for(auto& mceff : mceff_a)
+    {
+      float dev = fabs(mceff->greff_incl()->GetEfficiency(fitX::ibin_a)-effnom_a);
+      if(dev > syst_a) syst_a = dev;
+    }
+  syst_a /= effnom_a;
+  float syst_b = 0, effnom_b = mceff_b[0]->greff_incl()->GetEfficiency(fitX::ibin_b);
+  for(auto& mceff : mceff_b)
+    {
+      float dev = fabs(mceff->greff_incl()->GetEfficiency(fitX::ibin_b)-effnom_b);
+      if(dev > syst_b) syst_b = dev;
+    }
+  syst_b /= effnom_b;
+  std::cout<<"\\pt Shape & "<<Form("%.1f", syst_a*100)<<"\\% & "<<Form("%.1f", syst_b*100)<<"\\% & "<<Form("%.1f", sqrt(syst_a*syst_a+syst_b*syst_b)*100)<<"\\% \\\\"<<std::endl;
     
 }
 

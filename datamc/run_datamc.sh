@@ -7,8 +7,7 @@ centmax=90
 ymin=0
 ymax=1.6
 
-counts=(0 1 2 3 4 5 6 7 8 9)
-
+counts=({0..9})
 types=(
     "BDT"      # 0
     "Qvalue"   # 1
@@ -20,18 +19,22 @@ types=(
     "dRtrk1"   # 7
     "dRtrk2"   # 8
     "trkptimb" # 9
+    "BDTnoQ"   # 10
+    "lxy"      # 11
 )
 precuts=(
-    "&& (Bmass-3.096916-Btktkmass)<0.15"
-    "&& BDT>0.07"
-    "&& (Bmass-3.096916-Btktkmass)<0.12 && BDT>0.07"
-    "&& (Bmass-3.096916-Btktkmass)<0.12 && BDT>0.07"
-    "&& (Bmass-3.096916-Btktkmass)<0.12 && BDT>0.07"
-    "&& (Bmass-3.096916-Btktkmass)<0.12 && BDT>0.07"
-    "&& (Bmass-3.096916-Btktkmass)<0.12 && BDT>0.07"
-    "&& (Bmass-3.096916-Btktkmass)<0.12 && BDT>0.07"
-    "&& (Bmass-3.096916-Btktkmass)<0.12 && BDT>0.07"
-    "&& (Bmass-3.096916-Btktkmass)<0.12 && BDT>0.07"
+    "&& (Bmass-3.096916-Btktkmass)<0.15"             # 0
+    "&& BDT>0.07"                                    # 1
+    "&& (Bmass-3.096916-Btktkmass)<0.12 && BDT>0.07" # 2
+    "&& (Bmass-3.096916-Btktkmass)<0.12 && BDT>0.07" # 3
+    "&& (Bmass-3.096916-Btktkmass)<0.12 && BDT>0.07" # 4 
+    "&& (Bmass-3.096916-Btktkmass)<0.12 && BDT>0.07" # 5
+    "&& (Bmass-3.096916-Btktkmass)<0.12 && BDT>0.07" # 6
+    "&& (Bmass-3.096916-Btktkmass)<0.12 && BDT>0.07" # 7
+    "&& (Bmass-3.096916-Btktkmass)<0.12 && BDT>0.07" # 8
+    "&& (Bmass-3.096916-Btktkmass)<0.12 && BDT>0.07" # 9
+    "&& BDT>-1"                                      # 10
+    "&& BDT>0.04"                                    # 11
 )
 
 input=/raid5/data/wangj/BntupleRun2018/mva_output_20190808ptdep/ntmix_20190806_Bfinder_20190513_HIDoubleMuon__PsiPeri__HIRun2018A_04Apr2019_v1_HF_and_MuonJSON_skim_trainX_20190808ptdep_sideband_tktk0p2_BDT_BDTD_BDTG_BDTF_LD_15p0_50p0_0-10-1-2-9_1bin.root
