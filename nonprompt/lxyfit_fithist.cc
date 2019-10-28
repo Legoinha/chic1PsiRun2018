@@ -20,6 +20,7 @@
 #include "xjjrootuti.h"
 
 void drawkinematics();
+int nsmear = 10;
 void lxyfit_fithist(std::string input, std::string output, std::string type)
 {
   std::cout<<"\e[32;1m -- "<<__FUNCTION__<<"\e[0m"<<std::endl;
@@ -44,22 +45,22 @@ void lxyfit_fithist(std::string input, std::string output, std::string type)
   hmcp_b->Scale(hmcp_b->GetEntries()/hmcp_b->Integral());
 
   // distribution
-  TH1F* hmcpdis_a = (TH1F*)inf->Get("hmcpdis_a");
-  hmcpdis_a->GetXaxis()->SetNdivisions(505);
-  TH1F* hmcpdis_b = (TH1F*)inf->Get("hmcpdis_b");
-  hmcpdis_b->GetXaxis()->SetNdivisions(505);
-  TH1F* hmcnpdis_a = (TH1F*)inf->Get("hmcnpdis_a");
-  hmcnpdis_a->GetXaxis()->SetNdivisions(505);
-  TH1F* hmcnpdis_b = (TH1F*)inf->Get("hmcnpdis_b");
-  hmcnpdis_b->GetXaxis()->SetNdivisions(505);
-  TH1F* hmcpfinedis_a = (TH1F*)inf->Get("hmcpfinedis_a");
-  hmcpfinedis_a->GetXaxis()->SetNdivisions(505);
-  TH1F* hmcpfinedis_b = (TH1F*)inf->Get("hmcpfinedis_b");
-  hmcpfinedis_b->GetXaxis()->SetNdivisions(505);
-  TH1F* hmcnpfinedis_a = (TH1F*)inf->Get("hmcnpfinedis_a");
-  hmcnpfinedis_a->GetXaxis()->SetNdivisions(505);
-  TH1F* hmcnpfinedis_b = (TH1F*)inf->Get("hmcnpfinedis_b");
-  hmcnpfinedis_b->GetXaxis()->SetNdivisions(505);
+  std::vector<TH1F*> hmcpdis_a(nsmear); 
+  for(int i=0;i<nsmear;i++) 
+    { hmcpdis_a[i] = (TH1F*)inf->Get(Form("hmcpdis_a_%d",i));
+      hmcpdis_a[i]->GetXaxis()->SetNdivisions(505); }
+  std::vector<TH1F*> hmcpdis_b(nsmear); 
+  for(int i=0;i<nsmear;i++) 
+    { hmcpdis_b[i] = (TH1F*)inf->Get(Form("hmcpdis_b_%d",i));
+      hmcpdis_b[i]->GetXaxis()->SetNdivisions(505); }
+  std::vector<TH1F*> hmcnpdis_a(nsmear);
+  for(int i=0;i<nsmear;i++) 
+    { hmcnpdis_a[i] = (TH1F*)inf->Get(Form("hmcnpdis_a_%d",i));
+      hmcnpdis_a[i]->GetXaxis()->SetNdivisions(505); }
+  std::vector<TH1F*> hmcnpdis_b(nsmear);
+  for(int i=0;i<nsmear;i++) 
+    { hmcnpdis_b[i] = (TH1F*)inf->Get(Form("hmcnpdis_b_%d",i));
+      hmcnpdis_b[i]->GetXaxis()->SetNdivisions(505); }
   TH1F* hdis_a = new TH1F("hdis_a", Form(";%s %s;Probability", vv->title().c_str(), vv->unit().c_str()), vv->n()-1, vv->vars().data());
   hdis_a->GetXaxis()->SetNdivisions(505);
   TH1F* hdis_b = new TH1F("hdis_b", Form(";%s %s;Probability", vv->title().c_str(), vv->unit().c_str()), vv->n()-1, vv->vars().data());
@@ -110,49 +111,49 @@ void lxyfit_fithist(std::string input, std::string output, std::string type)
 
   for(int i=0; i<vv->n()-1; i++)
     {
-      std::cout<<ysig_a[i]<<" "<<ysigerr_a[i]<<std::endl;
       hdis_a->SetBinContent(i+1, ysig_a[i]);
       hdis_a->SetBinError(i+1, ysigerr_a[i]);
       hdis_b->SetBinContent(i+1, ysig_b[i]);
       hdis_b->SetBinError(i+1, ysigerr_b[i]);
     }
-  hmcpdis_a->Scale(1./hmcpdis_a->Integral(), "width");
-  hmcpdis_b->Scale(1./hmcpdis_b->Integral(), "width");
-  hmcnpdis_a->Scale(1./hmcnpdis_a->Integral(), "width");
-  hmcnpdis_b->Scale(1./hmcnpdis_b->Integral(), "width");
-  hmcpfinedis_a->Scale(1./hmcpfinedis_a->Integral(), "width");
-  hmcpfinedis_b->Scale(1./hmcpfinedis_b->Integral(), "width");
-  hmcnpfinedis_a->Scale(1./hmcnpfinedis_a->Integral(), "width");
-  hmcnpfinedis_b->Scale(1./hmcnpfinedis_b->Integral(), "width");
+  for(auto& hh : hmcpdis_a) hh->Scale(1./hh->Integral(), "width");
+  for(auto& hh : hmcpdis_b) hh->Scale(1./hh->Integral(), "width");
+  for(auto& hh : hmcnpdis_a) hh->Scale(1./hh->Integral(), "width");
+  for(auto& hh : hmcnpdis_b) hh->Scale(1./hh->Integral(), "width");
   hdis_a->Scale(1./hdis_a->Integral(), "width");
   hdis_b->Scale(1./hdis_b->Integral(), "width");
 
   std::vector<double> xw_a(vv->n()-1), xw_b(vv->n()-1);
   for(int i=0; i<vv->n()-1; i++)
     {
-      xw_a[i] = hmcpdis_a->GetBinCenter(i+1);
-      xw_b[i] = hmcpdis_b->GetBinCenter(i+1);
+      xw_a[i] = hmcpdis_a[0]->GetBinCenter(i+1);
+      xw_b[i] = hmcpdis_b[0]->GetBinCenter(i+1);
     }
 
   TGraphAsymmErrors* gdis_a = xjjroot::setwcenter(hdis_a, xw_a, "gdis_a");
   TGraphAsymmErrors* gdis_b = xjjroot::setwcenter(hdis_b, xw_b, "gdis_b");
 
   // Draw
-  hmcpdis_a->SetMinimum(1.e-5);
-  hmcpdis_a->SetMaximum(std::max(hmcpdis_a->GetMaximum(), hdis_a->GetMaximum())*1.e+2);
-  xjjroot::sethempty(hmcpdis_a, 0, 0);
-  xjjroot::setthgrstyle(hmcpdis_a, xjjroot::mycolor_middle["red"], 21, 0.5, xjjroot::mycolor_middle["red"], 1, 1, xjjroot::mycolor_middle["red"], 0.6, 3005);
-  xjjroot::sethempty(hmcnpdis_a, 0, 0);
-  xjjroot::setthgrstyle(hmcnpdis_a, xjjroot::mycolor_middle["azure"], 21, 0.5, xjjroot::mycolor_middle["azure"], 1, 1, xjjroot::mycolor_middle["azure"], 0.6, 3004);
+  for(auto& hh : hmcpdis_a) 
+    { hh->SetMinimum(1.e-5);
+      hh->SetMaximum(std::max(hh->GetMaximum(), hdis_a->GetMaximum())*1.e+2);
+      xjjroot::sethempty(hh, 0, 0);
+      xjjroot::setthgrstyle(hh, xjjroot::mycolor_middle["red"], 21, 0.5, xjjroot::mycolor_middle["red"], 1, 1, xjjroot::mycolor_middle["red"], 0.6, 3005); }
+  for(auto& hh : hmcnpdis_a)
+    { xjjroot::sethempty(hh, 0, 0);
+      xjjroot::setthgrstyle(hh, xjjroot::mycolor_middle["azure"], 21, 0.5, xjjroot::mycolor_middle["azure"], 1, 1, xjjroot::mycolor_middle["azure"], 0.6, 3004); }
   xjjroot::sethempty(hdis_a, 0, 0);
   xjjroot::setthgrstyle(hdis_a, kBlack, 47, 1.9, kBlack, 1, 1);
   xjjroot::setthgrstyle(gdis_a, kBlack, 47, 1.9, kBlack, 1, 1);
-  hmcpdis_b->SetMinimum(1.e-5);
-  hmcpdis_b->SetMaximum(std::max(hmcpdis_b->GetMaximum(), hdis_b->GetMaximum())*1.e+2);
-  xjjroot::sethempty(hmcpdis_b, 0, 0);
-  xjjroot::setthgrstyle(hmcpdis_b, xjjroot::mycolor_middle["red"], 21, 0.5, xjjroot::mycolor_middle["red"], 1, 1, xjjroot::mycolor_middle["red"], 0.6, 3005);
-  xjjroot::sethempty(hmcnpdis_b, 0, 0);
-  xjjroot::setthgrstyle(hmcnpdis_b, xjjroot::mycolor_middle["azure"], 21, 0.5, xjjroot::mycolor_middle["azure"], 1, 1, xjjroot::mycolor_middle["azure"], 0.6, 3004);
+
+  for(auto& hh : hmcpdis_b) 
+    { hh->SetMinimum(1.e-5);
+      hh->SetMaximum(std::max(hh->GetMaximum(), hdis_b->GetMaximum())*1.e+2);
+      xjjroot::sethempty(hh, 0, 0);
+      xjjroot::setthgrstyle(hh, xjjroot::mycolor_middle["red"], 21, 0.5, xjjroot::mycolor_middle["red"], 1, 1, xjjroot::mycolor_middle["red"], 0.6, 3005); }
+  for(auto& hh : hmcnpdis_b)
+    { xjjroot::sethempty(hh, 0, 0);
+      xjjroot::setthgrstyle(hh, xjjroot::mycolor_middle["azure"], 21, 0.5, xjjroot::mycolor_middle["azure"], 1, 1, xjjroot::mycolor_middle["azure"], 0.6, 3004); }
   xjjroot::sethempty(hdis_b, 0, 0);
   xjjroot::setthgrstyle(hdis_b, kBlack, 47, 1.9, kBlack, 1, 1);
   xjjroot::setthgrstyle(gdis_b, kBlack, 47, 1.9, kBlack, 1, 1);
@@ -160,13 +161,13 @@ void lxyfit_fithist(std::string input, std::string output, std::string type)
   TLegend* leg_a = new TLegend(0.22, 0.81-0.047*3, 0.64, 0.81);
   xjjroot::setleg(leg_a, 0.042);
   leg_a->AddEntry(gdis_a, "Data signal", "pl");
-  leg_a->AddEntry(hmcpdis_a, "MC Prompt template", "pl");
-  leg_a->AddEntry(hmcnpdis_a, "MC Non-prompt template", "pl");
+  leg_a->AddEntry(hmcpdis_a[0], "MC Prompt template", "pl");
+  leg_a->AddEntry(hmcnpdis_a[0], "MC Non-prompt template", "pl");
   TLegend* leg_b = new TLegend(0.22, 0.81-0.047*3, 0.64, 0.81);
   xjjroot::setleg(leg_b, 0.042);
   leg_b->AddEntry(gdis_b, "Data signal", "pl");
-  leg_b->AddEntry(hmcpdis_b, "MC Prompt template", "pl");
-  leg_b->AddEntry(hmcnpdis_b, "MC Non-prompt template", "pl");
+  leg_b->AddEntry(hmcpdis_b[0], "MC Prompt template", "pl");
+  leg_b->AddEntry(hmcnpdis_b[0], "MC Non-prompt template", "pl");
 
   TH2F* hempty_a = new TH2F("hempty_a", Form(";m_{#mu#mu#pi#pi} (GeV/c^{2});%s", Form("Entries / %.0f MeV", fitX::BIN_WIDTH*1.e+3)), 
                             fitX::NBIN/2, fitX::BIN_MIN, fitX::BIN_MIN+fitX::BIN_WIDTH*fitX::NBIN/2, 10, 0, ymax);
@@ -189,8 +190,8 @@ void lxyfit_fithist(std::string input, std::string output, std::string type)
   xjjroot::drawCMS();
   c_a->cd(2);
   gPad->SetLogy();
-  hmcpdis_a->Draw("hist e");
-  hmcnpdis_a->Draw("hist e same");
+  hmcpdis_a[0]->Draw("hist e");
+  hmcnpdis_a[0]->Draw("hist e same");
   gdis_a->Draw("pe same");
   drawkinematics();
   xjjroot::drawtex(0.24, 0.84, fitX::title_a.c_str(), 0.038, 12, 62, kBlack);
@@ -210,8 +211,8 @@ void lxyfit_fithist(std::string input, std::string output, std::string type)
   xjjroot::drawCMS();
   c_b->cd(2);
   gPad->SetLogy();
-  hmcpdis_b->Draw("hist e");
-  hmcnpdis_b->Draw("hist e same");
+  hmcpdis_b[0]->Draw("hist e");
+  hmcnpdis_b[0]->Draw("hist e same");
   gdis_b->Draw("pe same");
   drawkinematics();
   xjjroot::drawtex(0.24, 0.84, fitX::title_b.c_str(), 0.038, 12, 62, kBlack);
@@ -225,10 +226,10 @@ void lxyfit_fithist(std::string input, std::string output, std::string type)
   xjjroot::mkdir(outputname);
   TFile* outf = new TFile(outputname.c_str(), "recreate");
   outf->cd();
-  hmcpdis_a->Write();
-  hmcpdis_b->Write();
-  hmcnpdis_a->Write();
-  hmcnpdis_b->Write();
+  for(auto& hh : hmcpdis_a) hh->Write();
+  for(auto& hh : hmcpdis_b) hh->Write();
+  for(auto& hh : hmcnpdis_a) hh->Write();
+  for(auto& hh : hmcnpdis_b) hh->Write();
   hdis_a->Write();
   hdis_b->Write();
   gdis_a->Write();

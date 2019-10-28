@@ -16,6 +16,7 @@
 #include "xjjcuti.h"
 #include "xjjrootuti.h"
 
+int nsmear = 10;
 void lxyfit_savehist(std::string input, std::string inputmcp_a, std::string inputmcp_b, std::string inputmcnp_a, std::string inputmcnp_b,
                      std::string cut, std::string type, std::string output)
 {
@@ -47,15 +48,15 @@ void lxyfit_savehist(std::string input, std::string inputmcp_a, std::string inpu
   TH1F* hmcp_a = new TH1F("hmcp_a", Form(";m_{#mu#mu#pi#pi} (GeV/c^{2});Entries / %.0f MeV", fitX::BIN_WIDTH_L*1.e+3), fitX::NBIN_L, fitX::BIN_MIN_L, fitX::BIN_MAX_L); hmcp_a->Sumw2();
   TH1F* hmcp_b = new TH1F("hmcp_b", Form(";m_{#mu#mu#pi#pi} (GeV/c^{2});Entries / %.0f MeV", fitX::BIN_WIDTH_H*1.e+3), fitX::NBIN_H, fitX::BIN_MIN_H, fitX::BIN_MAX_H); hmcp_b->Sumw2();
 
-  TH1F* hmcpdis_a = new TH1F("hmcpdis_a", Form(";%s %s;Probability", vv->title().c_str(), vv->unit().c_str()), vv->n()-1, vv->vars().data());
-  TH1F* hmcpdis_b = new TH1F("hmcpdis_b", Form(";%s %s;Probability", vv->title().c_str(), vv->unit().c_str()), vv->n()-1, vv->vars().data());
-  TH1F* hmcnpdis_a = new TH1F("hmcnpdis_a", Form(";%s %s;Probability", vv->title().c_str(), vv->unit().c_str()), vv->n()-1, vv->vars().data());
-  TH1F* hmcnpdis_b = new TH1F("hmcnpdis_b", Form(";%s %s;Probability", vv->title().c_str(), vv->unit().c_str()), vv->n()-1, vv->vars().data());
+  std::vector<TH1F*> hmcpdis_a(nsmear); 
+  for(int i=0;i<nsmear;i++) { hmcpdis_a[i] = new TH1F(Form("hmcpdis_a_%d", i), Form(";%s %s;Probability", vv->title().c_str(), vv->unit().c_str()), vv->n()-1, vv->vars().data()); }
+  std::vector<TH1F*> hmcpdis_b(nsmear); 
+  for(int i=0;i<nsmear;i++) { hmcpdis_b[i] = new TH1F(Form("hmcpdis_b_%d", i), Form(";%s %s;Probability", vv->title().c_str(), vv->unit().c_str()), vv->n()-1, vv->vars().data()); }
+  std::vector<TH1F*> hmcnpdis_a(nsmear); 
+  for(int i=0;i<nsmear;i++) { hmcnpdis_a[i] = new TH1F(Form("hmcnpdis_a_%d", i), Form(";%s %s;Probability", vv->title().c_str(), vv->unit().c_str()), vv->n()-1, vv->vars().data()); }
+  std::vector<TH1F*> hmcnpdis_b(nsmear); 
+  for(int i=0;i<nsmear;i++) { hmcnpdis_b[i] = new TH1F(Form("hmcnpdis_b_%d", i), Form(";%s %s;Probability", vv->title().c_str(), vv->unit().c_str()), vv->n()-1, vv->vars().data()); }
 
-  TH1F* hmcpfinedis_a = new TH1F("hmcpfinedis_a", Form(";%s %s;Probability", vv->title().c_str(), vv->unit().c_str()), vv->nfine(), vv->minfine(), vv->maxfine());
-  TH1F* hmcpfinedis_b = new TH1F("hmcpfinedis_b", Form(";%s %s;Probability", vv->title().c_str(), vv->unit().c_str()), vv->nfine(), vv->minfine(), vv->maxfine());
-  TH1F* hmcnpfinedis_a = new TH1F("hmcnpfinedis_a", Form(";%s %s;Probability", vv->title().c_str(), vv->unit().c_str()), vv->nfine(), vv->minfine(), vv->maxfine());
-  TH1F* hmcnpfinedis_b = new TH1F("hmcnpfinedis_b", Form(";%s %s;Probability", vv->title().c_str(), vv->unit().c_str()), vv->nfine(), vv->minfine(), vv->maxfine());
   TH1F* hbkgdis_a = new TH1F("hbkgdis_a", Form(";%s %s;Probability", vv->title().c_str(), vv->unit().c_str()), vv->n()-1, vv->vars().data());
   TH1F* hbkgdis_b = new TH1F("hbkgdis_b", Form(";%s %s;Probability", vv->title().c_str(), vv->unit().c_str()), vv->n()-1, vv->vars().data());
 
@@ -112,10 +113,13 @@ void lxyfit_savehist(std::string input, std::string inputmcp_a, std::string inpu
   xjjroot::printhist(ntmixmcp_a_skim, 13);
   dshmcp_a = new RooDataSet("dshmcp_a", "", ntmixmcp_a_skim, RooArgSet(*massmc_a, *pthatweight), "pthatweight");
   ww->import(*dshmcp_a);
-  ntmixmcp_a->Project(hmcpdis_a->GetName(), vv->formula().c_str(), TCut(mcweight_a.c_str())*TCut(cutmcreco.c_str()));
-  xjjroot::printhist(hmcpdis_a, 13);
-  ntmixmcp_a->Project(hmcpfinedis_a->GetName(), vv->formula().c_str(), TCut(mcweight_a.c_str())*TCut(cutmcreco.c_str()));
-  xjjroot::printhist(hmcpfinedis_a, 13);
+  // ntmixmcp_a->Project(hmcpdis_a->GetName(), vv->formula().c_str(), TCut(mcweight_a.c_str())*TCut(cutmcreco.c_str()));
+  // xjjroot::printhist(hmcpdis_a, 13);
+  for(int i=0; i<nsmear; i++) 
+    {
+      ntmixmcp_a->Project(hmcpdis_a[i]->GetName(), Form("%s*%f", vv->formula().c_str(), 1.0+0.04*i), TCut(mcweight_a.c_str())*TCut(cutmcreco.c_str()));
+      xjjroot::printhist(hmcpdis_a[i], 13);
+    }
 
   std::cout<<" == mcp_b ==>"<<std::endl;
   ntmixmcp_b->Project("hmcp_b", "Bmass", TCut("pthatweight")*TCut(cutmcreco.c_str())); // !! weight
@@ -124,22 +128,31 @@ void lxyfit_savehist(std::string input, std::string inputmcp_a, std::string inpu
   xjjroot::printhist(ntmixmcp_b_skim, 13);
   dshmcp_b = new RooDataSet("dshmcp_b", "", ntmixmcp_b_skim, RooArgSet(*massmc_b, *pthatweight), "pthatweight");
   ww->import(*dshmcp_b);
-  ntmixmcp_b->Project(hmcpdis_b->GetName(), vv->formula().c_str(), TCut(mcweight_b.c_str())*TCut(cutmcreco.c_str()));
-  xjjroot::printhist(hmcpdis_b, 13);
-  ntmixmcp_b->Project(hmcpfinedis_b->GetName(), vv->formula().c_str(), TCut(mcweight_b.c_str())*TCut(cutmcreco.c_str()));
-  xjjroot::printhist(hmcpfinedis_b, 13);
+  // ntmixmcp_b->Project(hmcpdis_b->GetName(), vv->formula().c_str(), TCut(mcweight_b.c_str())*TCut(cutmcreco.c_str()));
+  // xjjroot::printhist(hmcpdis_b, 13);
+  for(int i=0; i<nsmear; i++) 
+    {
+      ntmixmcp_b->Project(hmcpdis_b[i]->GetName(), Form("%s*%f", vv->formula().c_str(), 1.0+0.04*i), TCut(mcweight_b.c_str())*TCut(cutmcreco.c_str()));
+      xjjroot::printhist(hmcpdis_b[i], 13);
+    }
 
   std::cout<<" == mcnp_a ==>"<<std::endl;
-  ntmixmcnp_a->Project(hmcnpdis_a->GetName(), vv->formula().c_str(), TCut(mcweight_a.c_str())*TCut(cutmcreco.c_str()));
-  xjjroot::printhist(hmcnpdis_a, 13);
-  ntmixmcnp_a->Project(hmcnpfinedis_a->GetName(), vv->formula().c_str(), TCut(mcweight_a.c_str())*TCut(cutmcreco.c_str()));
-  xjjroot::printhist(hmcnpfinedis_a, 13);
+  // ntmixmcnp_a->Project(hmcnpdis_a->GetName(), vv->formula().c_str(), TCut(mcweight_a.c_str())*TCut(cutmcreco.c_str()));
+  // xjjroot::printhist(hmcnpdis_a, 13);
+  for(int i=0; i<nsmear; i++) 
+    {
+      ntmixmcnp_a->Project(hmcnpdis_a[i]->GetName(), Form("%s*%f", vv->formula().c_str(), 1.0+0.04*i), TCut(mcweight_a.c_str())*TCut(cutmcreco.c_str()));
+      xjjroot::printhist(hmcnpdis_a[i], 13);
+    }
 
   std::cout<<" == mcnp_b ==>"<<std::endl;
-  ntmixmcnp_b->Project(hmcnpdis_b->GetName(), vv->formula().c_str(), TCut(mcweight_b.c_str())*TCut(cutmcreco.c_str()));
-  xjjroot::printhist(hmcnpdis_b, 13);
-  ntmixmcnp_b->Project(hmcnpfinedis_b->GetName(), vv->formula().c_str(), TCut(mcweight_b.c_str())*TCut(cutmcreco.c_str()));
-  xjjroot::printhist(hmcnpfinedis_b, 13);
+  // ntmixmcnp_b->Project(hmcnpdis_b->GetName(), vv->formula().c_str(), TCut(mcweight_b.c_str())*TCut(cutmcreco.c_str()));
+  // xjjroot::printhist(hmcnpdis_b, 13);
+  for(int i=0; i<nsmear; i++) 
+    {
+      ntmixmcnp_b->Project(hmcnpdis_b[i]->GetName(), Form("%s*%f", vv->formula().c_str(), 1.0+0.04*i), TCut(mcweight_b.c_str())*TCut(cutmcreco.c_str()));
+      xjjroot::printhist(hmcnpdis_b[i], 13);
+    }
 
   std::string outputname = "rootfiles/" + output + "/datamc_savehist.root";
   xjjroot::mkdir(outputname.c_str());
@@ -153,14 +166,10 @@ void lxyfit_savehist(std::string input, std::string inputmcp_a, std::string inpu
   ww->Write();
   ww->Print();
   outf->cd();
-  hmcpdis_a->Write();
-  hmcpdis_b->Write();
-  hmcnpdis_a->Write();
-  hmcnpdis_b->Write();
-  hmcpfinedis_a->Write();
-  hmcpfinedis_b->Write();
-  hmcnpfinedis_a->Write();
-  hmcnpfinedis_b->Write();
+  for(auto& hh : hmcpdis_a) hh->Write();
+  for(auto& hh : hmcpdis_b) hh->Write();
+  for(auto& hh : hmcnpdis_a) hh->Write();
+  for(auto& hh : hmcnpdis_b) hh->Write();
   hbkgdis_a->Write();
   hbkgdis_b->Write();
   TTree* info = new TTree("info", "cut info");

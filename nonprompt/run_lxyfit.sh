@@ -66,7 +66,10 @@ do
         ./lxyfit_fithist_${tmp}.exe "${rootdir}/datamc_savehist.root" $name "${types[count]}"
     }
     [[ $RUN_FITLXY -eq 1 ]] && {
-        ./lxyfit_fitlxy_${tmp}.exe "${rootdir}/datamc_fithist.root" $name "${types[count]}"
+        for ii in {0..9..1}
+        do
+            ./lxyfit_fitlxy_${tmp}.exe "${rootdir}/datamc_fithist.root" $name "${types[count]}" $ii
+        done
     }
 done
 
