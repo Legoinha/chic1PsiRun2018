@@ -8,7 +8,7 @@
 #include "systematics.h"
 #include "fitX.h"
 
-// std::vector<std::string> fitopt = {"poly4", "poly3", "poly2", "3gaus", "floatwidth"};
+// std::vector<std::string> fitopt = {"poly4", "poly3", "cheb4", "cheb3", "3gaus", "floatwidth"};
 std::vector<std::string> fitopt = {"poly4", "poly3", "3gaus", "floatwidth"};
 void drawpercent(TH1F* hh, float y=0.6);
 
@@ -87,6 +87,7 @@ void pdf_drawhist(std::string output)
   std::string outputname("plots/"+output+"/pdfvar/cpdfvar.pdf");
   xjjroot::mkdir(outputname);
   c->SaveAs(outputname.c_str());
+
 }
 
 int main(int argc, char* argv[])

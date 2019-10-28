@@ -15,9 +15,9 @@ fitopt=(
     "poly2"
     "floatwidth"
     "3gaus"
-    # "cheb4"
-    # "cheb3"
-    # "cheb2"
+    "cheb4"
+    "cheb3"
+    "cheb2"
 )
 
 RUN_FITHIST=${1:-0}

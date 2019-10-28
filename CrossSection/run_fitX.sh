@@ -13,18 +13,21 @@ optcuts=(
     "&& BDTF > 0.3 && (Bmass-3.096916-Btktkmass) < 0.13"
     "&& BDTD > 0.11 && (Bmass-3.096916-Btktkmass) < 0.13"
     "&& BDTG > 0.68 && (Bmass-3.096916-Btktkmass) < 0.13"
+    "&& BDT > 0.04"
 )
 optcutntuples=(
     "ntp->BDT[j] > 0.06 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13" # nominal
     "ntp->BDTF[j] > 0.3 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13"
     "ntp->BDTD[j] > 0.11 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13"
     "ntp->BDTG[j] > 0.68 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13"
+    "ntp->BDT[j] > 0.04"
 )
 tags=(
     "BDTQvalue" # nominal
     "BDTFQvalue"
     "BDTDQvalue"
     "BDTGQvalue"
+    "BDTLoose2S"
 )
 
 input=/raid5/data/wangj/BntupleRun2018/mva_output_20190808ptdep/ntmix_20190806_Bfinder_20190513_HIDoubleMuon__PsiPeri__HIRun2018A_04Apr2019_v1_HF_and_MuonJSON_skim_trainX_20190808ptdep_sideband_tktk0p2_BDT_BDTD_BDTG_BDTF_LD_15p0_50p0_0-10-1-2-9_1bin.root

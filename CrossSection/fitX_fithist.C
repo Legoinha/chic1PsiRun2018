@@ -288,11 +288,12 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
 
   // tnp
   TFile* inftnp_a = TFile::Open(inputtnp_a.c_str());
-  TH1D* hscale_htnp_total_nominal_a = (TH1D*)inftnp_a->Get("scale_htnp_total_nominal");
+  TH1D* hscale_htnp_total_nominal_a = (TH1D*)inftnp_a->Get("scale_htnp_total_nominal_1");
   hyieldprompt_a->Scale(hscale_htnp_total_nominal_a->GetBinContent(1));
   TFile* inftnp_b = TFile::Open(inputtnp_b.c_str());
-  TH1D* hscale_htnp_total_nominal_b = (TH1D*)inftnp_b->Get("scale_htnp_total_nominal");
+  TH1D* hscale_htnp_total_nominal_b = (TH1D*)inftnp_b->Get("scale_htnp_total_nominal_1");
   hyieldprompt_b->Scale(hscale_htnp_total_nominal_b->GetBinContent(1));
+
   // correct eff
   xjjroot::setgstyle(2);
   TH1F* hyieldpromptCorr_a = (TH1F*)hyieldprompt_a->Clone("hyieldpromptCorr_a");
