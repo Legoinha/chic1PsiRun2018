@@ -175,7 +175,7 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   mceff_b->calceff();
   mceff_b->calcacc();
   mceff_b->setstyle(fitX::color_b);
-  float ymaxeff = 0.2, ymaxacc = 1.0, ymaxeffpre = 1.0, ymaxeffcut = 1.0;
+  float ymaxeff = 0.2, ymaxacc = 1.0, ymaxeffpre = 1.0, ymaxeffcut = 1.0, ymaxeffbdt = 1.3, ymaxeffqvl = 1.3;
   TH2F* hemptyeff = MCeff::createhempty("hemptyeff", "#alpha #times #epsilon_{reco} #times #epsilon_{sel}", ymaxeff);
   TH2F* hemptyeff_incl = MCeff::createhempty_incl("hemptyeff_incl", "#alpha #times #epsilon_{reco} #times #epsilon_{sel}", ymaxeff);
   TH2F* hemptyacc = MCeff::createhempty("hemptyacc", "#alpha", ymaxacc);
@@ -184,6 +184,10 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   TH2F* hemptyeffpre_incl = MCeff::createhempty_incl("hemptyeffpre_incl", "#epsilon_{reco}", ymaxeffpre);
   TH2F* hemptyeffcut = MCeff::createhempty("hemptyeffcut", "#epsilon_{sel}", ymaxeffcut);
   TH2F* hemptyeffcut_incl = MCeff::createhempty_incl("hemptyeffcut_incl", "#epsilon_{sel}", ymaxeffcut);
+  TH2F* hemptyeffbdt = MCeff::createhempty("hemptyeffbdt", "#epsilon_{sel} (BDT)", ymaxeffbdt);
+  TH2F* hemptyeffbdt_incl = MCeff::createhempty_incl("hemptyeffbdt_incl", "#epsilon_{sel} (BDT)", ymaxeffbdt);
+  TH2F* hemptyeffqvl = MCeff::createhempty("hemptyeffqvl", "#epsilon_{sel} (Q value)", ymaxeffqvl);
+  TH2F* hemptyeffqvl_incl = MCeff::createhempty_incl("hemptyeffqvl_incl", "#epsilon_{sel} (Q value)", ymaxeffqvl);
   TLegend* legeff = new TLegend(0.70, 0.20, 1.10, 0.32);
   xjjroot::setleg(legeff, 0.042);
   legeff->AddEntry(mceff_a->greff(), fitX::title_a.c_str(), "fl");
@@ -285,6 +289,46 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   drawlabels();
   xjjroot::mkdir(Form("plots/%s/cacc.pdf", output.c_str()));
   cacc->SaveAs(Form("plots/%s/cacc.pdf", output.c_str()));
+
+  TCanvas* ceffsel = new TCanvas("ceffsel", "", 1200, 1200);
+  ceffsel->Divide(2, 2);
+  ceffsel->cd(1);
+  hemptyeffbdt->Draw();
+  mceff_a->greffbdt()->Draw("same3");
+  mceff_a->greffbdt()->Draw("samelX");
+  mceff_b->greffbdt()->Draw("same3");
+  mceff_b->greffbdt()->Draw("samelX");
+  legacc->Draw();
+  xjjroot::drawtex(0.92, 0.84, fitX::ytag().c_str(), 0.04, 32, 42);
+  xjjroot::drawtex(0.92, 0.79, fitX::centtag().c_str(), 0.04, 32, 42);
+  drawlabels();
+  ceffsel->cd(2);
+  hemptyeffqvl->Draw();
+  mceff_a->greffqvl()->Draw("same3");
+  mceff_a->greffqvl()->Draw("samelX");
+  mceff_b->greffqvl()->Draw("same3");
+  mceff_b->greffqvl()->Draw("samelX");
+  legacc->Draw();
+  xjjroot::drawtex(0.92, 0.84, fitX::ytag().c_str(), 0.04, 32, 42);
+  xjjroot::drawtex(0.92, 0.79, fitX::centtag().c_str(), 0.04, 32, 42);
+  drawlabels();
+  ceffsel->cd(3);
+  hemptyeffbdt_incl->Draw();
+  mceff_a->greffbdt_incl()->Draw("same ple");
+  mceff_b->greffbdt_incl()->Draw("same ple");
+  drawval(mceff_a->greffbdt_incl(), mceff_b->greffbdt_incl(), hemptyeffbdt_incl->GetYaxis()->GetXmax());
+  drawkinematic();
+  drawlabels();
+  ceffsel->cd(4);
+  hemptyeffqvl_incl->Draw();
+  mceff_a->greffqvl_incl()->Draw("same ple");
+  mceff_b->greffqvl_incl()->Draw("same ple");
+  drawval(mceff_a->greffqvl_incl(), mceff_b->greffqvl_incl(), hemptyeffqvl_incl->GetYaxis()->GetXmax());
+  drawkinematic();
+  drawlabels();
+  xjjroot::drawcomment(output.c_str(), "r");
+  xjjroot::mkdir(Form("plots/%s/ceffsel.pdf", output.c_str()));
+  ceffsel->SaveAs(Form("plots/%s/ceffsel.pdf", output.c_str()));
 
   // tnp
   TFile* inftnp_a = TFile::Open(inputtnp_a.c_str());

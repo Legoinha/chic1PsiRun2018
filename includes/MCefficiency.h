@@ -31,12 +31,18 @@ namespace MCeff
     TH1F* heffgenacc_incl() { return fheffgenacc_incl; }
     TH1F* heffmcpre() { return fheffmcpre; }
     TH1F* heffmcpre_incl() { return fheffmcpre_incl; }
+    TH1F* heffmcbdt() { return fheffmcbdt; }
+    TH1F* heffmcbdt_incl() { return fheffmcbdt_incl; }
     TEfficiency* greff() { return fgreff; }
     TEfficiency* greff_incl() { return fgreff_incl; }
     TEfficiency* gracc() { return fgracc; }
     TEfficiency* gracc_incl() { return fgracc_incl; }
     TEfficiency* greffpre() { return fgreffpre; }
     TEfficiency* greffpre_incl() { return fgreffpre_incl; }
+    TEfficiency* greffbdt() { return fgreffbdt; }
+    TEfficiency* greffbdt_incl() { return fgreffbdt_incl; }
+    TEfficiency* greffqvl() { return fgreffqvl; }
+    TEfficiency* greffqvl_incl() { return fgreffqvl_incl; }
     TEfficiency* greffcut() { return fgreffcut; }
     TEfficiency* greffcut_incl() { return fgreffcut_incl; }
     TH1F* heff() { return fheff; }
@@ -62,12 +68,18 @@ namespace MCeff
     TH1F* fheffgenacc_incl;
     TH1F* fheffmcpre;
     TH1F* fheffmcpre_incl;
+    TH1F* fheffmcbdt;
+    TH1F* fheffmcbdt_incl;
     TEfficiency* fgreff;
     TEfficiency* fgreff_incl;
     TEfficiency* fgracc;
     TEfficiency* fgracc_incl;
     TEfficiency* fgreffpre;
     TEfficiency* fgreffpre_incl;
+    TEfficiency* fgreffbdt;
+    TEfficiency* fgreffbdt_incl;
+    TEfficiency* fgreffqvl;
+    TEfficiency* fgreffqvl_incl;
     TEfficiency* fgreffcut;
     TEfficiency* fgreffcut_incl;
     TH1F* fheff;
@@ -90,12 +102,18 @@ MCeff::MCefficiency::MCefficiency(std::string name, int whichincl, std::vector<f
   fheffgenacc_incl = 0;
   fheffmcpre = 0;
   fheffmcpre_incl = 0;
+  fheffmcbdt = 0;
+  fheffmcbdt_incl = 0;
   fgreff = 0;
   fgreff_incl = 0;
   fgracc = 0;
   fgracc_incl = 0;
   fgreffpre = 0;
   fgreffpre_incl = 0;
+  fgreffbdt = 0;
+  fgreffbdt_incl = 0;
+  fgreffqvl = 0;
+  fgreffqvl_incl = 0;
   fgreffcut = 0;
   fgreffcut_incl = 0;
   fheff = 0;
@@ -115,12 +133,18 @@ MCeff::MCefficiency::MCefficiency(TFile* inf, std::string name, int whichincl) :
   fheffgenacc_incl = 0;
   fheffmcpre = 0;
   fheffmcpre_incl = 0;
+  fheffmcbdt = 0;
+  fheffmcbdt_incl = 0;
   fgreff = 0;
   fgreff_incl = 0;
   fgracc = 0;
   fgracc_incl = 0;
   fgreffpre = 0;
   fgreffpre_incl = 0;
+  fgreffbdt = 0;
+  fgreffbdt_incl = 0;
+  fgreffqvl = 0;
+  fgreffqvl_incl = 0;
   fgreffcut = 0;
   fgreffcut_incl = 0;
   fheff = 0;
@@ -144,6 +168,9 @@ void MCeff::MCefficiency::createhist()
   fheffmcpre = new TH1F(Form("heffmcpre%s", fname.c_str()), ";p_{T} (GeV/c);", fnptbins, fptbins.data()); fheffmcpre->Sumw2();
   if(fincl==0) { fheffmcpre_incl = new TH1F(Form("heffmcpre_incl%s", fname.c_str()), "", 5, 0, 5); fheffmcpre_incl->Sumw2(); }
   if(fincl==1) { fheffmcpre_incl = new TH1F(Form("heffmcpre_incl%s", fname.c_str()), "", fnptbins_incl, fptbins_incl.data()); fheffmcpre_incl->Sumw2(); }
+  fheffmcbdt = new TH1F(Form("heffmcbdt%s", fname.c_str()), ";p_{T} (GeV/c);", fnptbins, fptbins.data()); fheffmcbdt->Sumw2();
+  if(fincl==0) { fheffmcbdt_incl = new TH1F(Form("heffmcbdt_incl%s", fname.c_str()), "", 5, 0, 5); fheffmcbdt_incl->Sumw2(); }
+  if(fincl==1) { fheffmcbdt_incl = new TH1F(Form("heffmcbdt_incl%s", fname.c_str()), "", fnptbins_incl, fptbins_incl.data()); fheffmcbdt_incl->Sumw2(); }
 }
 
 void MCeff::MCefficiency::readhist(TFile* inf)
@@ -156,6 +183,8 @@ void MCeff::MCefficiency::readhist(TFile* inf)
   fheffgenacc_incl = (TH1F*)inf->Get(Form("heffgenacc_incl%s", fname.c_str()));
   fheffmcpre       = (TH1F*)inf->Get(Form("heffmcpre%s", fname.c_str()));
   fheffmcpre_incl  = (TH1F*)inf->Get(Form("heffmcpre_incl%s", fname.c_str()));
+  fheffmcbdt       = (TH1F*)inf->Get(Form("heffmcbdt%s", fname.c_str()));
+  fheffmcbdt_incl  = (TH1F*)inf->Get(Form("heffmcbdt_incl%s", fname.c_str()));
   fnptbins = fheffmc->GetXaxis()->GetNbins();
   fptbins.clear();
   for(int i=0; i<fnptbins+1; i++)
@@ -176,12 +205,16 @@ void MCeff::MCefficiency::calceff()
 
 void MCeff::MCefficiency::calcacc()
 {
-  fgracc      = new TEfficiency(*fheffgenacc, *fheffgen); fgracc->SetName(Form("gracc%s", fname.c_str()));
-  fgracc_incl = new TEfficiency(*fheffgenacc_incl, *fheffgen_incl); fgracc_incl->SetName(Form("gracc_incl%s", fname.c_str()));
-  fgreffpre      = new TEfficiency(*fheffmcpre, *fheffgenacc); fgreffpre->SetName(Form("greffpre%s", fname.c_str()));
-  fgreffpre_incl = new TEfficiency(*fheffmcpre_incl, *fheffgenacc_incl); fgreffpre_incl->SetName(Form("greffpre_incl%s", fname.c_str()));
-  fgreffcut      = new TEfficiency(*fheffmc, *fheffmcpre); fgreffcut->SetName(Form("greffcut%s", fname.c_str()));
-  fgreffcut_incl = new TEfficiency(*fheffmc_incl, *fheffmcpre_incl); fgreffcut_incl->SetName(Form("greffcut_incl%s", fname.c_str()));
+  fgracc         = new TEfficiency(*fheffgenacc,      *fheffgen);         fgracc->SetName(Form("gracc%s",                 fname.c_str()));
+  fgracc_incl    = new TEfficiency(*fheffgenacc_incl, *fheffgen_incl);    fgracc_incl->SetName(Form("gracc_incl%s",       fname.c_str()));
+  fgreffpre      = new TEfficiency(*fheffmcpre,       *fheffgenacc);      fgreffpre->SetName(Form("greffpre%s",           fname.c_str()));
+  fgreffpre_incl = new TEfficiency(*fheffmcpre_incl,  *fheffgenacc_incl); fgreffpre_incl->SetName(Form("greffpre_incl%s", fname.c_str()));
+  fgreffcut      = new TEfficiency(*fheffmc,          *fheffmcpre);       fgreffcut->SetName(Form("greffcut%s",           fname.c_str()));
+  fgreffcut_incl = new TEfficiency(*fheffmc_incl,     *fheffmcpre_incl);  fgreffcut_incl->SetName(Form("greffcut_incl%s", fname.c_str()));
+  fgreffbdt      = new TEfficiency(*fheffmcbdt,       *fheffmcpre);       fgreffbdt->SetName(Form("greffbdt%s",           fname.c_str()));
+  fgreffbdt_incl = new TEfficiency(*fheffmcbdt_incl,  *fheffmcpre_incl);  fgreffbdt_incl->SetName(Form("greffbdt_incl%s", fname.c_str()));
+  fgreffqvl      = new TEfficiency(*fheffmc,          *fheffmcbdt);       fgreffqvl->SetName(Form("greffqvl%s",           fname.c_str()));
+  fgreffqvl_incl = new TEfficiency(*fheffmc_incl,     *fheffmcbdt_incl);  fgreffqvl_incl->SetName(Form("greffqvl_incl%s", fname.c_str()));
 }
 
 void MCeff::MCefficiency::setstyle(Color_t color, Style_t mstyle/*=20*/, Style_t lstyle/*=2*/, Width_t lwidth/*=3*/)
@@ -196,6 +229,10 @@ void MCeff::MCefficiency::setstyle(Color_t color, Style_t mstyle/*=20*/, Style_t
   if(fgreffpre_incl) { xjjroot::setthgrstyle(fgreffpre_incl, color, mstyle, 1.2, color, lstyle, lwidth, color, 0.2, 1001); }
   if(fgreffcut)      { xjjroot::setthgrstyle(fgreffcut     , color, mstyle, 1.2, color, lstyle, lwidth, color, 0.2, 1001); }
   if(fgreffcut_incl) { xjjroot::setthgrstyle(fgreffcut_incl, color, mstyle, 1.2, color, lstyle, lwidth, color, 0.2, 1001); }
+  if(fgreffbdt)      { xjjroot::setthgrstyle(fgreffbdt     , color, mstyle, 1.2, color, lstyle, lwidth, color, 0.2, 1001); }
+  if(fgreffbdt_incl) { xjjroot::setthgrstyle(fgreffbdt_incl, color, mstyle, 1.2, color, lstyle, lwidth, color, 0.2, 1001); }
+  if(fgreffqvl)      { xjjroot::setthgrstyle(fgreffqvl     , color, mstyle, 1.2, color, lstyle, lwidth, color, 0.2, 1001); }
+  if(fgreffqvl_incl) { xjjroot::setthgrstyle(fgreffqvl_incl, color, mstyle, 1.2, color, lstyle, lwidth, color, 0.2, 1001); }
 }
 
 TH2F* MCeff::createhempty(std::string name, std::string ytitle, float ymax)
