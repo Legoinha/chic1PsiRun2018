@@ -45,6 +45,7 @@ inputmc_b_nonprompt=/raid5/data/wangj/BntupleRun2018/mva_output_20190808ptdep/nt
 
 RUN_SAVEHIST=${1:-0}
 RUN_FITHIST=${2:-0}
+RUN_DRAWHIST=${3:-0}
 
 tmp=$(date +%y%m%d%H%M%S)
 
@@ -64,6 +65,11 @@ echo -e "\e[32;1mcompiling...\e[0m"
     g++ fitdatamc.cc -I"../includes/" $(root-config --libs --cflags) -lRooFit -lRooFitCore -lRooStats -g -o fitdatamc_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; }
 }
 
+[[ $RUN_DRAWHIST -eq 1 || $# -eq 0 ]] && {
+    echo " -- "drawdatamc.cc
+    g++ drawdatamc.cc -I"../includes/" $(root-config --libs --cflags) -lRooFit -lRooFitCore -lRooStats -g -o drawdatamc_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; }
+}
+
 echo
 for count in ${counts[@]}
 do
@@ -81,8 +87,12 @@ do
     [[ $RUN_FITHIST -eq 1 ]] && {
         ./fitdatamc_${tmp}.exe "${rootdir}/datamc_savehist.root" $name "${types[count]}"
     }
+    [[ $RUN_DRAWHIST -eq 1 ]] && {
+        ./drawdatamc_${tmp}.exe "${rootdir}/datamc_fithist.root" $name "${types[count]}"
+    }
 done
 
+rm drawdatamc_${tmp}.exe 2> /dev/null
 rm fitdatamc_${tmp}.exe 2> /dev/null
 rm datamc_${tmp}.exe 2> /dev/null
 

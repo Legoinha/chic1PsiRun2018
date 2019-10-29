@@ -14,8 +14,8 @@
 #include <vector>
 
 #include "var.h"
-// #include "fit.h"
-#include "fit_a.h"
+#include "fit.h"
+// #include "fit_a.h"
 
 #include "xjjcuti.h"
 #include "xjjrootuti.h"
@@ -99,7 +99,7 @@ void fitdatamc(std::string input, std::string output, std::string type)
     }
 
   wws->import(*dsh_ws);
-  dsh_ws->Print("v");
+  // dsh_ws->Print("v");
   RooDataSet* dsh_ws_par5 = new RooDataSet(dsh_ws->GetName(), dsh_ws->GetTitle(), dsh_ws, *dsh_ws->get(), 0, "par5_sw");
   RooDataSet* dsh_ws_par10 = new RooDataSet(dsh_ws->GetName(), dsh_ws->GetTitle(), dsh_ws, *dsh_ws->get(), 0, "par10_sw");
 
@@ -220,28 +220,6 @@ void fitdatamc(std::string input, std::string output, std::string type)
   xjjroot::setthgrstyle(hratiodis_b, kBlack, 47, 1.9, kBlack, 1, 1);
   xjjroot::setthgrstyle(gratiodis_b, kBlack, 47, 1.9, kBlack, 1, 1);
 
-  TLegend* leg_a = new TLegend(0.22, 0.81-0.047*3, 0.64, 0.81);
-  xjjroot::setleg(leg_a, 0.042);
-  leg_a->AddEntry(gdis_a, "Data signal", "pl");
-  leg_a->AddEntry(hmcdis_a, "MC", "pl");
-  leg_a->AddEntry(hbkgdis_a, "Sideband", "pl");
-  TLegend* leg_b = new TLegend(0.22, 0.81-0.047*3, 0.64, 0.81);
-  xjjroot::setleg(leg_b, 0.042);
-  leg_b->AddEntry(gdis_b, "Data signal", "pl");
-  leg_b->AddEntry(hmcdis_b, "MC", "pl");
-  leg_b->AddEntry(hbkgdis_b, "Sideband", "pl");
-
-  float ymax = std::max(h.front()->GetMaximum(), h.back()->GetMaximum())*1.2;
-  TH2F* hempty_a = new TH2F("hempty_a", Form(";m_{#mu#mu#pi#pi} (GeV/c^{2});%s", Form("Entries / %.0f MeV", fitX::BIN_WIDTH*1.e+3)), 
-                            fitX::NBIN/2, fitX::BIN_MIN, fitX::BIN_MIN+fitX::BIN_WIDTH*fitX::NBIN/2, 10, 0, ymax);
-                            // fitX::NBIN, fitX::BIN_MIN, fitX::BIN_MAX, 10, 0, ymax);
-  hempty_a->GetXaxis()->SetNdivisions(505);
-  xjjroot::sethempty(hempty_a, 0, 0);
-  TH2F* hempty_b = new TH2F("hempty_b", Form(";m_{#mu#mu#pi#pi} (GeV/c^{2});%s", Form("Entries / %.0f MeV", fitX::BIN_WIDTH*1.e+3)), 
-                            fitX::NBIN/2, fitX::BIN_MAX-fitX::BIN_WIDTH*fitX::NBIN/2, fitX::BIN_MAX, 10, 0, ymax);
-  hempty_b->GetXaxis()->SetNdivisions(505);
-  xjjroot::sethempty(hempty_b, 0, 0);
-  
   xjjroot::setgstyle(1);
 
   TCanvas* c_wc = new TCanvas("c_wc", "", 1200, 600);
@@ -274,64 +252,12 @@ void fitdatamc(std::string input, std::string output, std::string type)
   frame_b->Draw();
   c_ws->SaveAs(Form("plots/%s/cdis_ws.pdf", output.c_str()));
 
-  TCanvas* c_a = new TCanvas("c_a", "", 1800, 600);
-  c_a->Divide(3, 1);
-  c_a->cd(1);
-  hempty_a->Draw();
-  for(int i=0;i<vv->n()-1;i++) { h[i]->Draw("pe same"); ff[i]->Draw("same"); }
-  xjjroot::drawtexgroup(0.89, 0.86, tt, 1, 0.5, 0.038, 33, 62, cc);
-  xjjroot::drawtex(0.24, 0.84, fitX::title_a.c_str(), 0.038, 12, 62, kBlack);
-  xjjroot::drawCMS();
-  c_a->cd(2);
-  hmcdis_a->Draw("hist e");
-  hbkgdis_a->Draw("hist e same");
-  gdis_a->Draw("pe same");
-  drawkinematics();
-  xjjroot::drawtex(0.24, 0.84, fitX::title_a.c_str(), 0.038, 12, 62, fitX::color_a);
-  leg_a->Draw();
-  xjjroot::drawCMS();
-  c_a->cd(3);
-  hratiodis_a->Draw("AXIS");
-  xjjroot::drawline(vv->vars().front(), 1., vv->vars().back(), 1., fitX::color_a, 1, 2, 0.6);
-  gratiodis_a->Draw("pe same");
-  drawkinematics();
-  xjjroot::drawtex(0.24, 0.84, fitX::title_a.c_str(), 0.038, 12, 62, fitX::color_a);
-  xjjroot::drawCMS();
-  std::string outputname_a(Form("plots/%s/cdis_a.pdf", output.c_str()));
-  xjjroot::mkdir(outputname_a);
-  c_a->SaveAs(outputname_a.c_str());
-
-  TCanvas* c_b = new TCanvas("c_b", "", 1800, 600);
-  c_b->Divide(3, 1);
-  c_b->cd(1);
-  hempty_b->Draw();
-  for(int i=0;i<vv->n()-1;i++) { h[i]->Draw("pe same"); ff[i]->Draw("same"); }
-  xjjroot::drawtexgroup(0.89, 0.86, tt, 1, 0.5, 0.038, 33, 62, cc);
-  xjjroot::drawtex(0.24, 0.84, fitX::title_b.c_str(), 0.038, 12, 62, kBlack);
-  xjjroot::drawCMS();
-  c_b->cd(2);
-  hmcdis_b->Draw("hist e");
-  hbkgdis_b->Draw("hist e same");
-  gdis_b->Draw("pe same");
-  drawkinematics();
-  xjjroot::drawtex(0.24, 0.84, fitX::title_b.c_str(), 0.038, 12, 62, fitX::color_b);
-  leg_b->Draw();
-  xjjroot::drawCMS();
-  c_b->cd(3);
-  hratiodis_b->Draw("AXIS");
-  xjjroot::drawline(vv->vars().front(), 1., vv->vars().back(), 1., fitX::color_b, 1, 2, 0.6);
-  gratiodis_b->Draw("pe same");
-  drawkinematics();
-  xjjroot::drawtex(0.24, 0.84, fitX::title_b.c_str(), 0.038, 12, 62, fitX::color_b);
-  xjjroot::drawCMS();
-  std::string outputname_b(Form("plots/%s/cdis_b.pdf", output.c_str()));
-  xjjroot::mkdir(outputname_b);
-  c_b->SaveAs(outputname_b.c_str());
-
   std::string outputname = std::string("rootfiles/"+output+"/datamc_fithist.root");
   xjjroot::mkdir(outputname);
   TFile* outf = new TFile(outputname.c_str(), "recreate");
   outf->cd();
+  for(auto& hh : h) hh->Write();
+  for(auto& f : ff) f->Write();  
   hmcdis_a->Write();
   hmcdis_b->Write();
   gmcdis_a->Write();
@@ -342,6 +268,8 @@ void fitdatamc(std::string input, std::string output, std::string type)
   hdis_b->Write();
   gdis_a->Write();
   gdis_b->Write();
+  hbkgdis_a->Write();
+  hbkgdis_b->Write();
   hratiodis_a->Write();
   hratiodis_b->Write();
   gratiodis_a->Write();
@@ -349,7 +277,7 @@ void fitdatamc(std::string input, std::string output, std::string type)
   outf->cd();
   gDirectory->Add(wws);
   wws->Write();
-  wws->Print();
+  // wws->Print();
   outf->cd();
   fitX::write();
   outf->Close();
