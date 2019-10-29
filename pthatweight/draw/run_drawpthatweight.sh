@@ -1,15 +1,15 @@
 #!/bin/bash
 
 inputfiles=(
-    /export/d00/scratch/jwang/BntupleRun2018/official/ntmix_20190808_Bfinder_20190712_Hydjet_Pythia8_NonPromptPsi2S_1033p1_official_pt6tkpt0p9dls0.root
-    /export/d00/scratch/jwang/BntupleRun2018/official/ntmix_20190808_Bfinder_20190712_Hydjet_Pythia8_NonPromptXRho_1033p1_official_pt6tkpt0p9dls0.root
-    /export/d00/scratch/jwang/BntupleRun2018/official/ntmix_20190808_Bfinder_20190712_Hydjet_Pythia8_PromptPsi2S_1033p1_official_pt6tkpt0p9dls0.root
-    /export/d00/scratch/jwang/BntupleRun2018/official/ntmix_20190808_Bfinder_20190730_Hydjet_Pythia8_PromptXPiPi_1033p1_official_pt6tkpt0p9dls0.root
-    /export/d00/scratch/jwang/BntupleRun2018/official/ntmix_20190808_Bfinder_20190730_Hydjet_Pythia8_PromptXRho_1033p1_official_pt6tkpt0p9dls0.root
+    /raid5/data/wangj/BntupleRun2018/official/ntmix_20190808_Bfinder_20190712_Hydjet_Pythia8_NonPromptPsi2S_1033p1_pt6tkpt0p9dls0_pthatweight.root
+    /raid5/data/wangj/BntupleRun2018/official/ntmix_20190808_Bfinder_20190712_Hydjet_Pythia8_NonPromptXRho_1033p1_pt6tkpt0p9dls0_pthatweight.root
+    /raid5/data/wangj/BntupleRun2018/official/ntmix_20190808_Bfinder_20190712_Hydjet_Pythia8_PromptPsi2S_1033p1_pt6tkpt0p9dls0_pthatweight.root
+    /raid5/data/wangj/BntupleRun2018/official/ntmix_20190808_Bfinder_20190730_Hydjet_Pythia8_PromptXPiPi_1033p1_pt6tkpt0p9dls0_pthatweight.root
+    /raid5/data/wangj/BntupleRun2018/official/ntmix_20190808_Bfinder_20190730_Hydjet_Pythia8_PromptXRho_1033p1_pt6tkpt0p9dls0_pthatweight.root
 )
 
-g++ fillpthatweight.C $(root-config --libs --cflags) -g -o fillpthatweight.exe || exit
-g++ drawpthatweight.C $(root-config --libs --cflags) -g -o drawpthatweight.exe || exit
+g++ fillpthatweight.C -I../../includes/ $(root-config --libs --cflags) -g -o fillpthatweight.exe || exit
+g++ drawpthatweight.C -I../../includes/ $(root-config --libs --cflags) -g -o drawpthatweight.exe || exit
 
 [[ ${1:-0} -eq 1 ]] && {
     for ii in ${inputfiles[@]}
