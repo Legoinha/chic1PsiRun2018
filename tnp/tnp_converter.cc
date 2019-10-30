@@ -66,7 +66,6 @@ void converter(std::string inputname, std::string outputname, std::string name, 
 
   std::cout<<"==> Building histograms"<<std::endl;
   std::map<std::string, std::map<std::string, TH1D*>> hh;
-  // std::map<std::string, std::map<std::string, TH1D*>> hscales;
   std::map<std::string, std::map<std::string, double>> scales;
   for(auto& tt : tnpcc::types)
     {
@@ -74,8 +73,16 @@ void converter(std::string inputname, std::string outputname, std::string name, 
         {
           hh[tt][idxk.second] = new TH1D(Form("htnp_%s_%s", tt.c_str(), idxk.second.c_str()), ";p_{T} (GeV/c);", tnpcc::nptbins, tnpcc::ptbins);
           hh[tt][idxk.second]->Sumw2();
-          // hhscale[tt][idxk.second] = new TH1D(Form("hscaletnp_%s_%s", tt.c_str(), idxk.second.c_str()), ";#beta;", tnpcc::scalemin, tnpcc::scalemax);
-          // hhscale[tt][idxk.second]->Sumw2();
+        }
+    }
+  std::vector<TH1D*> hmupt(tnpcc::nmueta, 0);
+  std::map<std::string, std::vector<TH2D*>> hmuscale;
+  for(int m=0; m<tnpcc::nmueta; m++)
+    {
+      hmupt[m] = new TH1D(Form("hmupt-%d", m), ";#mu p_{T};", 60, 0, 30);
+      for(auto& tt : tnpcc::types)
+        {
+          hmuscale[tt].push_back(new TH2D(Form("hmuscale-%s-%d", tt.c_str(), m), Form(";p^{#mu}_{T};#beta^{TnP}(%s)", tt.c_str()), 60, 0, 30, 60, 0.9, 1.5));
         }
     }
   TH2F* hptweight = new TH2F("hptweight", Form(";p_{T} (GeV/c);%s", weightname.c_str()), 50, tnpcc::ptbins[0], tnpcc::ptbins[tnpcc::nptbins-1], 50, 0, 5);
@@ -106,6 +113,10 @@ void converter(std::string inputname, std::string outputname, std::string name, 
           // <==
           float wptweight = fptweight->Eval(ntp->Bgenpt[j]);
           hptweight->Fill(ntp->Bgenpt[j], wptweight, weight);
+
+          int ietamu1 = xjjc::findibin(tnpcc::muetabins, fabs(ntp->Bmu1eta[j]));
+          int ietamu2 = xjjc::findibin(tnpcc::muetabins, fabs(ntp->Bmu2eta[j]));
+
           // ==>
           for(auto& idxk : tnpcc::idxname)
             {
@@ -121,6 +132,18 @@ void converter(std::string inputname, std::string outputname, std::string name, 
                 }
             }
           // <==
+          if(ietamu1 >= 0) 
+            {
+              hmupt[ietamu1]->Fill(ntp->Bmu1pt[j], weight);
+              for(auto& tt : tnpcc::types)
+                hmuscale[tt][ietamu1]->Fill(ntp->Bmu1pt[j], scales[tt]["nominal"], weight);
+            }
+          if(ietamu2 >= 0) 
+            {
+              hmupt[ietamu2]->Fill(ntp->Bmu2pt[j], weight);
+              for(auto& tt : tnpcc::types)
+                hmuscale[tt][ietamu2]->Fill(ntp->Bmu2pt[j], scales[tt]["nominal"], weight);
+            }
         }
     }
   xjjc::progressbar_summary(nentries);
@@ -137,6 +160,8 @@ void converter(std::string inputname, std::string outputname, std::string name, 
           hk.second->Write();
         }
     }
+  for(auto& hmu : hmupt) { hmu->Write(); }
+  for(auto& ht : hmuscale) { for(auto& hmu : ht.second) { hmu->Write(); } }
   hptweight->Write();
   fitX::write();
   outf->Close();

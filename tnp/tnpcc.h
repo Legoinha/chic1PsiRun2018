@@ -35,6 +35,8 @@ namespace tnpcc
   int nptbins = sizeof(ptbins)/sizeof(ptbins[0]) - 1;
   float scalemin = 0.9, scalemax = 1.4;
 
+  std::vector<float> muetabins = {0, 1.2, 2.1, 2.4}; int nmueta = muetabins.size()-1;
+
   class drawtnp
   {
   public:
