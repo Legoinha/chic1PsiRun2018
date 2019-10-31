@@ -11,7 +11,10 @@
 #include "fitX.h"
 
 std::vector<std::string> lxyvars = {"lxy", "lxyz"};
-float fprompt_a = 0.388365, errfprompt_a = 0.0778002;
+float fprompt_a = 0.420654, errfprompt_a = 0.0742122;
+// float fprompt_a = 0.388871, errfprompt_a = 0.0778267;
+float fprompt_b = 0.79613, errfprompt_b = 0.0827859;
+// float fprompt_b = 0.785552, errfprompt_b = 0.0860397;
 void fprompt_drawhist(std::string output)
 {
   std::cout<<"\e[32;1m -- "<<__FUNCTION__<<"\e[0m"<<std::endl;
@@ -60,6 +63,9 @@ void fprompt_drawhist(std::string output)
   y_a[nn-1]   = fprompt_a;
   eyl_a[nn-1] = errfprompt_a;
   eyh_a[nn-1] = errfprompt_a;
+  y_b[nn-1]   = fprompt_b;
+  eyl_b[nn-1] = errfprompt_b;
+  eyh_b[nn-1] = errfprompt_b;
   hemptyfprompt->GetXaxis()->SetBinLabel(nn, "l_{xy} Fit");
       
   TGraphAsymmErrors* gfprompt_a = new TGraphAsymmErrors(nn, x.data(), y_a.data(), ex.data(), ex.data(), eyl_a.data(), eyh_a.data());
@@ -92,13 +98,15 @@ void fprompt_drawhist(std::string output)
   float syst_a = 0, syst_b = 0, syst_r = 0;
   for(int i=0; i<nn; i++)
     {
+      if(i!=nn-1) continue;
       if(fabs(y_a[i]-y_a[0]) > syst_a) { syst_a = fabs(y_a[i]-y_a[0]); }
-      if(i==nn-1) continue;
       if(fabs(y_b[i]-y_b[0]) > syst_b) { syst_b = fabs(y_b[i]-y_b[0]); }
+      if(fabs(y_b[i]/y_a[i]-y_b[0]/y_a[0]) > syst_r) { syst_r = fabs(y_b[i]/y_a[i]-y_b[0]/y_a[0]); }
     }
   syst_a /= y_a[0];
   syst_b /= y_b[0];
-  syst_r = TMath::Sqrt(syst_a*syst_a + syst_b*syst_b);
+  syst_r /= y_b[0]/y_a[0];
+  // syst_r = TMath::Sqrt(syst_a*syst_a + syst_b*syst_b);
   
   std::cout<<"Prompt Fraction & "<<Form("%.1f", syst_a*1.e+2)<<"\\% & "<<Form("%.1f", syst_b*1.e+2)<<"\\% & "<<Form("%.1f", syst_r*1.e+2)<<"\\% \\\\"<<std::endl;
 }
