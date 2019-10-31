@@ -7,7 +7,7 @@ centmax=90
 ymin=0
 ymax=1.6
 
-counts=({0..9})
+counts=(2)
 types=(
     "BDT"      # 0
     "Qvalue"   # 1

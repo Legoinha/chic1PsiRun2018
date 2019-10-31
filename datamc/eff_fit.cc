@@ -49,12 +49,12 @@ void eff_fit(std::string input, std::string output, std::string type)
   float xmax_b = h_b ->GetBinCenter(nbin) + h_b ->GetBinWidth(nbin)/2.;
 
   std::map<std::string, std::vector<double>> parms = {
-    std::pair<std::string, std::vector<double>>("[0]+[1]*x"            , std::vector<double>({1, 0})),
-    // std::pair<std::string, std::vector<double>>("[0]+[1]*x+[2]*x*x"    , std::vector<double>({0, 0, 0})),
+    // std::pair<std::string, std::vector<double>>("[0]+[1]*x"            , std::vector<double>({1, 0})),
+    // std::pair<std::string, std::vector<double>>("[0]+[1]*x+[2]*x*x"    , std::vector<double>({1, 0, 0})),
     std::pair<std::string, std::vector<double>>("exp([0]+[1]*x)"       , std::vector<double>({0, 0})),
-    std::pair<std::string, std::vector<double>>("[0]+[1]*x+[2]/x"      , std::vector<double>({1, 0, 0})),
-    std::pair<std::string, std::vector<double>>("[0]+[1]/sqrt(x)+[2]/x", std::vector<double>({1, 0, 0})),    
-    std::pair<std::string, std::vector<double>>("[0]+[1]/x"            , std::vector<double>({1, 0})),
+    // std::pair<std::string, std::vector<double>>("[0]+[1]*x+[2]/x"      , std::vector<double>({1, 0, 0})),
+    // std::pair<std::string, std::vector<double>>("[0]+[1]/sqrt(x)+[2]/x", std::vector<double>({1, 0, 0})),    
+    // std::pair<std::string, std::vector<double>>("[0]+[1]/x"            , std::vector<double>({1, 0})),
   };
 
   xjjroot::setgstyle(1);

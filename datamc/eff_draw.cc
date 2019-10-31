@@ -9,7 +9,7 @@
 #include "fitX.h"
 #include "MCefficiency.h"
 
-int n = 5;
+int n = 1;
 void eff_draw(std::string input, std::string output)
 {
   TFile* inf = TFile::Open(input.c_str());

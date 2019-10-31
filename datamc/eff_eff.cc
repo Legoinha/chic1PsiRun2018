@@ -10,7 +10,8 @@
 #include "MCefficiency.h"
 #include "xjjcuti.h"
 
-int n = 5;
+// int n = 4;
+int n = 1;
 void eff_eff(std::string input, std::string inputmcp_a, std::string inputmcp_b, 
              std::string cut, std::string cutgen, std::string output)
 {
