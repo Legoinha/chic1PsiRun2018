@@ -31,6 +31,7 @@ namespace fitX
   std::string centtag() { return std::string(Form("Cent. %.0f-%.0f%s", fitX::centmincut, fitX::centmaxcut, "%")); }
   void drawkinematics();
   template<class T> void printhist(T* hh) { std::cout<<"\e[2m"<<hh->GetName()<<"\e[0m\e[36;1m ("<<hh->GetEntries()<<")\e[0m"<<std::endl; }
+  template<class T> void setaxis(T* hh);
 
   Color_t color_data = kRed-3, color_a = kAzure+4, color_b = kGreen-1, color_ss = kGray+1, color_bkg = color_data;
   int ibin_a = 2, ibin_b = 4, nbin = 5;
@@ -81,5 +82,13 @@ void fitX::drawkinematics()
   xjjroot::drawtex(0.90, 0.84-0.04*2, fitX::centtag().c_str(), 0.038, 32, 62);
 }
 
+template<class T>
+void fitX::setaxis(T* hh)
+{
+  xjjroot::sethempty(hh, 0, 0.3);
+  hh->GetXaxis()->SetBinLabel(fitX::ibin_a, fitX::title_a.c_str());
+  hh->GetXaxis()->SetBinLabel(fitX::ibin_b, fitX::title_b.c_str());
+  hh->GetXaxis()->SetLabelSize(hh->GetXaxis()->GetLabelSize()*1.5);
+}
 
 #endif

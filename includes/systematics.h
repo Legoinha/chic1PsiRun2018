@@ -15,13 +15,13 @@ namespace syst
 
 namespace syst
 {
-  std::vector<float> syst_fit = {4.4, 5.0, 6.6};
+  std::vector<float> syst_fit = {3.5, 2.7, 4.4};
   std::vector<float> syst_acc = {1.8, 0.6, 1.9};
-  std::vector<float> syst_eff = {23.6, 44.3, 50.2};
-  std::vector<float> syst_ptshape = {5.8, 21.4, 22.1};
-  std::vector<float> syst_tnp_u = {5.5, 5.3, 0.1};
+  std::vector<float> syst_eff = {27.4, 43.1, 38.0};
+  std::vector<float> syst_ptshape = {12.4, 2.9, 12.8};
+  std::vector<float> syst_tnp_u = {5.4, 5.2, 0.1};
   std::vector<float> syst_tnp_d = {5.0, 4.8, 0.2};
-  std::vector<float> syst_fprompt = {28.4, 3.0, 28.6};
+  std::vector<float> syst_fprompt = {22.4, 10.5, 15.4};
 }
 
 float syst::getsyst(int type, std::string opt)
