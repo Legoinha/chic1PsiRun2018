@@ -82,9 +82,22 @@ void lxyfit_savehist(std::string input, std::string inputmcp_a, std::string inpu
   std::vector<std::string> cutrecoi(vv->n()-1);
   for(int i=0; i<vv->n()-1; i++)
     {
-      cutrecoi[i] = cutreco + std::string(Form("&& %s>%f && %s<%f", 
-                                               vv->formula().c_str(), vv->vars()[i], 
-                                               vv->formula().c_str(), vv->vars()[i+1]));
+      if(i==0)
+        {
+          cutrecoi[i] = cutreco + std::string(Form("&& %s<%f", 
+                                                   vv->formula().c_str(), vv->vars()[i+1]));
+        }
+      else if(i==(vv->n()-2))
+        {
+          cutrecoi[i] = cutreco + std::string(Form("&& %s>%f", 
+                                                   vv->formula().c_str(), vv->vars()[i]));
+        }
+      else
+        {
+          cutrecoi[i] = cutreco + std::string(Form("&& %s>%f && %s<%f", 
+                                                   vv->formula().c_str(), vv->vars()[i], 
+                                                   vv->formula().c_str(), vv->vars()[i+1]));
+        }
     }
   std::string cutbkgreco_a = cutreco + std::string(Form("&& fabs(Bmass-%f)>0.02 && fabs(Bmass-%f)<0.05", fitX::FIT_MASS_PSI2S, fitX::FIT_MASS_PSI2S));
   std::string cutbkgreco_b = cutreco + std::string(Form("&& fabs(Bmass-%f)>0.02 && fabs(Bmass-%f)<0.05", fitX::FIT_MASS_X, fitX::FIT_MASS_X));
@@ -113,8 +126,6 @@ void lxyfit_savehist(std::string input, std::string inputmcp_a, std::string inpu
   xjjroot::printhist(ntmixmcp_a_skim, 13);
   dshmcp_a = new RooDataSet("dshmcp_a", "", ntmixmcp_a_skim, RooArgSet(*massmc_a, *pthatweight), "pthatweight");
   ww->import(*dshmcp_a);
-  // ntmixmcp_a->Project(hmcpdis_a->GetName(), vv->formula().c_str(), TCut(mcweight_a.c_str())*TCut(cutmcreco.c_str()));
-  // xjjroot::printhist(hmcpdis_a, 13);
   for(int i=0; i<nsmear; i++) 
     {
       ntmixmcp_a->Project(hmcpdis_a[i]->GetName(), Form("%s*%f", vv->formula().c_str(), 1.0+0.04*i), TCut(mcweight_a.c_str())*TCut(cutmcreco.c_str()));
@@ -128,8 +139,6 @@ void lxyfit_savehist(std::string input, std::string inputmcp_a, std::string inpu
   xjjroot::printhist(ntmixmcp_b_skim, 13);
   dshmcp_b = new RooDataSet("dshmcp_b", "", ntmixmcp_b_skim, RooArgSet(*massmc_b, *pthatweight), "pthatweight");
   ww->import(*dshmcp_b);
-  // ntmixmcp_b->Project(hmcpdis_b->GetName(), vv->formula().c_str(), TCut(mcweight_b.c_str())*TCut(cutmcreco.c_str()));
-  // xjjroot::printhist(hmcpdis_b, 13);
   for(int i=0; i<nsmear; i++) 
     {
       ntmixmcp_b->Project(hmcpdis_b[i]->GetName(), Form("%s*%f", vv->formula().c_str(), 1.0+0.04*i), TCut(mcweight_b.c_str())*TCut(cutmcreco.c_str()));
@@ -137,8 +146,6 @@ void lxyfit_savehist(std::string input, std::string inputmcp_a, std::string inpu
     }
 
   std::cout<<" == mcnp_a ==>"<<std::endl;
-  // ntmixmcnp_a->Project(hmcnpdis_a->GetName(), vv->formula().c_str(), TCut(mcweight_a.c_str())*TCut(cutmcreco.c_str()));
-  // xjjroot::printhist(hmcnpdis_a, 13);
   for(int i=0; i<nsmear; i++) 
     {
       ntmixmcnp_a->Project(hmcnpdis_a[i]->GetName(), Form("%s*%f", vv->formula().c_str(), 1.0+0.04*i), TCut(mcweight_a.c_str())*TCut(cutmcreco.c_str()));
@@ -146,8 +153,6 @@ void lxyfit_savehist(std::string input, std::string inputmcp_a, std::string inpu
     }
 
   std::cout<<" == mcnp_b ==>"<<std::endl;
-  // ntmixmcnp_b->Project(hmcnpdis_b->GetName(), vv->formula().c_str(), TCut(mcweight_b.c_str())*TCut(cutmcreco.c_str()));
-  // xjjroot::printhist(hmcnpdis_b, 13);
   for(int i=0; i<nsmear; i++) 
     {
       ntmixmcnp_b->Project(hmcnpdis_b[i]->GetName(), Form("%s*%f", vv->formula().c_str(), 1.0+0.04*i), TCut(mcweight_b.c_str())*TCut(cutmcreco.c_str()));

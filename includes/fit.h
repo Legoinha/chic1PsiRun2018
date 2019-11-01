@@ -358,6 +358,7 @@ std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* 
   f->ReleaseParameter(4);
   if(option.back()=='3') { f->FixParameter(4, 0); }
   if(option.back()=='2') { f->FixParameter(4, 0); f->FixParameter(3, 0); }
+  if(option.back()=='1') { f->FixParameter(4, 0); f->FixParameter(3, 0); f->FixParameter(2, 0); }
   f->SetParLimits(5, 0, 1.e+5);
   f->SetParLimits(10, 0, 1.e+5);
   if(xjjc::str_contains(option,"cheb"))
@@ -422,6 +423,7 @@ std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* 
     }
   if(option.back()=='3') { pars[4]->setVal(0); pars[4]->setConstant(); }
   if(option.back()=='2') { pars[4]->setVal(0); pars[4]->setConstant(); pars[3]->setVal(0); pars[3]->setConstant(); }
+  if(option.back()=='1') { pars[4]->setVal(0); pars[4]->setConstant(); pars[3]->setVal(0); pars[3]->setConstant(); pars[2]->setVal(0); pars[2]->setConstant(); }
   RooAbsPdf* bkg;
   if(xjjc::str_contains(option,"cheb")) { bkg = new RooChebychev("bkg", "", *mass, RooArgSet(*(pars[1]), *(pars[2]), *(pars[3]), *(pars[4]))); }
   else                                  { bkg = new RooPolynomial("bkg", "", *mass, RooArgSet(*(pars[0]), *(pars[1]), *(pars[2]), *(pars[3]), *(pars[4])), 0); }

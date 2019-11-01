@@ -9,7 +9,7 @@
 #include "fitX.h"
 
 // std::vector<std::string> fitopt = {"poly4", "poly3", "cheb4", "cheb3", "3gaus", "floatwidth"};
-std::vector<std::string> fitopt = {"poly4", "poly3", "3gaus", "floatwidth"};
+std::vector<std::string> fitopt = {"poly4", "poly3", "range", "3gaus", "floatwidth"};
 void drawpercent(TH1F* hh, float y=0.6);
 
 void pdf_drawhist(std::string output)
@@ -64,8 +64,8 @@ void pdf_drawhist(std::string output)
 
   xjjroot::setgstyle(1);
 
-  TCanvas* c = new TCanvas("c", "", 1800, 600);
-  c->Divide(3, 1);
+  TCanvas* c = new TCanvas("c", "", 1200, 600);
+  c->Divide(2, 1);
   c->cd(1);
   hhyieldpromptCorr_a->Draw("pe");
   drawpercent(hhyieldpromptCorr_a, 0.60);
@@ -78,12 +78,11 @@ void pdf_drawhist(std::string output)
   fitX::drawkinematics();
   xjjroot::drawtex(0.24, 0.81, fitX::title_b.c_str(), 0.042, 0.12, 62);
   xjjroot::drawCMS();
-  c->cd(3);
-  hhratio->Draw("pe");
-  drawpercent(hhratio, 0.60);
-  fitX::drawkinematics();
-  xjjroot::drawCMS();
-
+  // c->cd(3);
+  // hhratio->Draw("pe");
+  // drawpercent(hhratio, 0.60);
+  // fitX::drawkinematics();
+  // xjjroot::drawCMS();
   std::string outputname("plots/"+output+"/pdfvar/cpdfvar.pdf");
   xjjroot::mkdir(outputname);
   c->SaveAs(outputname.c_str());

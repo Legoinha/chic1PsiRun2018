@@ -15,7 +15,7 @@ namespace syst
 
 namespace syst
 {
-  std::vector<float> syst_fit = {3.5, 2.7, 4.4};
+  std::vector<float> syst_fit = {3.5, 4.3, 5.5};
   std::vector<float> syst_acc = {1.8, 0.6, 1.9};
   std::vector<float> syst_eff = {27.4, 43.1, 38.0};
   std::vector<float> syst_ptshape = {12.4, 2.9, 12.8};

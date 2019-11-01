@@ -101,6 +101,10 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   cy->SaveAs(Form("plots/%s/cyield.pdf", output.c_str()));
 
   // fprompt
+  hlxymcnp_a->GetYaxis()->SetTitle("Events");
+  hlxymcnp_b->GetYaxis()->SetTitle("Events");
+  hlxymcp_a->GetYaxis()->SetTitle("Events");
+  hlxymcp_b->GetYaxis()->SetTitle("Events");
   hlxymcnp_a->Scale(1./hlxymcnp_a->Integral(), "width");
   hlxymcnp_b->Scale(1./hlxymcnp_b->Integral(), "width");
   hlxymcp_a->Scale(1./hlxymcp_a->Integral(), "width");
@@ -119,7 +123,8 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   gPad->SetLogy();
   hlxymcp_a->Draw("histe");
   hlxymcp_b->Draw("histe same");
-  xjjroot::drawline(0.1, 0, 0.1, hlxymcp_a->GetMaximum(), kGray+1, 2, 2);
+  // xjjroot::drawline(0.1, 0, 0.1, hlxymcp_a->GetMaximum(), kGray+1, 2, 2);
+  xjjroot::drawline(0.1, 0, 0.1, 2., kGray+1, 2, 2);
   drawkinematic();
   xjjroot::drawtex(0.23, 0.85, fitX::title_a.c_str(), 0.042, 12, 62, fitX::color_a);
   xjjroot::drawtex(0.23, 0.78, fitX::title_b.c_str(), 0.042, 12, 62, fitX::color_b);
@@ -129,7 +134,8 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   gPad->SetLogy();
   hlxymcnp_a->Draw("histe");
   hlxymcnp_b->Draw("histe same");
-  xjjroot::drawline(0.1, 0, 0.1, hlxymcnp_a->GetMaximum(), kGray+1, 2, 2);
+  // xjjroot::drawline(0.1, 0, 0.1, hlxymcnp_a->GetMaximum(), kGray+1, 2, 2);
+  xjjroot::drawline(0.1, 0, 0.1, 2., kGray+1, 2, 2);
   drawkinematic();
   xjjroot::drawtex(0.23, 0.85, fitX::title_a.c_str(), 0.042, 12, 62, fitX::color_a);
   xjjroot::drawtex(0.23, 0.78, fitX::title_b.c_str(), 0.042, 12, 62, fitX::color_b);

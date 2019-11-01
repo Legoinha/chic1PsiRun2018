@@ -10,14 +10,15 @@ ymax=1.6
 tags="BDTQvalue"
 
 fitopt=(
-    "poly4"
-    "poly3"
+    # "poly4"
+    # "poly3"
     "poly2"
-    "floatwidth"
-    "3gaus"
-    "cheb4"
-    "cheb3"
-    "cheb2"
+    "poly1"
+    # "floatwidth"
+    # "3gaus"
+    # "cheb4"
+    # "cheb3"
+    # "cheb2"
 )
 
 RUN_FITHIST=${1:-0}
