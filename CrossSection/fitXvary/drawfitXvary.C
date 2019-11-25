@@ -97,7 +97,7 @@ void drawfitXvary(std::string input, std::string output, std::string cutvar)
   fitXvary::fitXvaryfit(mvas, "B-enr: l_{xy} > 0.1mm",
                         vc.hdataBenr, vc.hmc_a[0], vc.hmc_b[0],
                         vc.dshdataBenr, vc.dshmc_a[0], vc.dshmc_b[0],
-                        hyieldmvaBenr_a, hyieldmvaBenr_b, Form("%s/%s/%s", output.c_str(), cutvar.c_str(), "Benr"), cBenr, true); // fixmean = true
+                        hyieldmvaBenr_a, hyieldmvaBenr_b, Form("%s/%s/%s", output.c_str(), cutvar.c_str(), "Benr"), cBenr, 3.8662); // fixmean = true
   cBenr->SaveAs(Form("plots/%s/%s/cmass_varymva_Benr.pdf", output.c_str(), cutvar.c_str()));
 
   // ==> significance
