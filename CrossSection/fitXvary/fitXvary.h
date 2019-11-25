@@ -170,7 +170,9 @@ int fitX::varycut::loop_vary_data(xjjroot::packtree* pt, int nentries)
         {
           if(!ntp->mvapref[j]) continue;
           
-          if(!(ntp->Bpt[j] > fitX::ptmincut && ntp->Bpt[j] < fitX::ptmaxcut && TMath::Abs(ntp->By[j]) >= fitX::ymincut && TMath::Abs(ntp->By[j]) < fitX::ymaxcut && ntp->hiBin >= fitX::centmincut && ntp->hiBin <= fitX::centmaxcut)) continue;
+          if(!(ntp->Bpt[j] > fitX::ptmincut && ntp->Bpt[j] < fitX::ptmaxcut && 
+               TMath::Abs(ntp->By[j]) >= fitX::ymincut && TMath::Abs(ntp->By[j]) < fitX::ymaxcut && 
+               ntp->hiBin >= fitX::centmincut && ntp->hiBin <= fitX::centmaxcut)) continue;
           if(!((ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < fitX::Qvaluecut)) continue; // !!
           if(ntp->Bmass[j] < fitX::BIN_MIN || ntp->Bmass[j] > fitX::BIN_MAX) continue;
           mass->setVal(ntp->Bmass[j]);
@@ -356,6 +358,12 @@ fitX::varymva* fitX::initvarycut(std::string type)
                   0.06,
                   0
                   );
+      // varbin->set("BDT",
+      //             std::vector<float>({-0.2, -0.1 , -0.04, -0.02, 0    , 0.02 , 0.04, 0.05 , 0.06, 0.07, 0.08, 0.09 ,  0.1,  0.11,  0.12, 0.13 , 0.15 , 0.20 , 0.30}) ,
+      //             std::vector<bool>({false, false, false, false, false, false, true,  true, true, true, true, false, true, false, true , false, false, false, false}),
+      //             0.06,
+      //             0
+      //             );
     }
   else if(type=="BDTF")
     {

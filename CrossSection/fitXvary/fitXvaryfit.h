@@ -17,7 +17,7 @@ namespace fitXvary
                    std::vector<TH1F*> hdata, TH1F* hmcp_a, TH1F* hmcp_b,
                    std::vector<RooDataSet*> dshdata, RooDataSet* dshmcp_a, RooDataSet* dshmcp_b,
                    TH1F* hyieldmva_a, TH1F* hyieldmva_b,
-                   std::string output, TPad* pp, bool fixmean)
+                   std::string output, TPad* pp, float fixmean)
   {
     pp->cd();
     xjjroot::setgstyle(1);
