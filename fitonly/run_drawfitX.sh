@@ -1,4 +1,5 @@
-#!/usr/local/bin/bash
+#!/bin/bash
+# #!/usr/local/bin/bash
 
 subdir=trainX_20190808ptdep_sideband_tktk0p2_15p0_50p0_0-10-1-2-9_BDTQvalue_pt15-50_cent090_y0p0-1p6
 
