@@ -26,7 +26,7 @@ namespace fitX
   void init(TFile* inf);
   void write();
   std::string tagname() { return std::string(Form("_pt%.0f-%.0f",fitX::ptmincut,fitX::ptmaxcut)) + std::string(Form("_cent%.0f%.0f",fitX::centmincut,fitX::centmaxcut)) + std::string(Form("_y%s-%s",xjjc::number_to_string(fitX::ymincut).c_str(),xjjc::number_to_string(fitX::ymaxcut).c_str())); }
-  std::string ytag() { return std::string(Form("%s|y| < %s", (fitX::ymincut?Form("%s < ",xjjc::number_remove_zero(fitX::ymincut)):""), xjjc::number_remove_zero(fitX::ymaxcut).c_str())); }
+  std::string ytag() { return std::string(Form("%s|y| < %s", (fitX::ymincut?Form("%s < ",xjjc::number_remove_zero(fitX::ymincut).c_str()):""), xjjc::number_remove_zero(fitX::ymaxcut).c_str())); }
   std::string pttag() { return std::string(Form("%s < p_{T} < %s GeV/c", xjjc::number_remove_zero(fitX::ptmincut).c_str(), xjjc::number_remove_zero(fitX::ptmaxcut).c_str())); }
   std::string centtag() { return std::string(Form("Cent. %.0f-%.0f%s", fitX::centmincut, fitX::centmaxcut, "%")); }
   void drawkinematics();

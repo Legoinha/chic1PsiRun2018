@@ -98,16 +98,37 @@ float runfit(TH1F* h, TH1F* hmcp_a, TH1F* hmcp_b,                         // bin
 
   RooWorkspace* ww = result["unbinned"]->ww();
   RooRealVar* par10 = ww->var("par10");
-  RooArgSet poi(*par10);
+  RooRealVar* fsyst = ww->var("fsyst");
+  // RooArgSet poi(*par10); // <---------- switch
+  RooRealVar* nsig = ww->var("nsig"); // <---------- switch
+  RooArgSet poi(*nsig); // <---------- switch
+  // RooFormulaVar* nsig = (RooFormulaVar*)ww->var("nsig");
   RooStats::ModelConfig* mcpdf = new RooStats::ModelConfig();
   mcpdf->SetWorkspace(*ww);
   mcpdf->SetPdf("pdf");
   mcpdf->SetParametersOfInterest(poi);
   mcpdf->SetSnapshot(poi);
 
+  // 
   RooStats::ProfileLikelihoodCalculator* plc = new RooStats::ProfileLikelihoodCalculator();
   plc->SetData(*(ww->data("dsh_ws")));
   plc->SetModel(*mcpdf);
+
+  // ----------> Null hypo test <----------
+
+  RooArgSet* nullParams = (RooArgSet*)poi.snapshot();
+  // nullParams->setRealValue("par10", 0); // <---------- switch
+  nullParams->setRealValue("nsig", 0); // <---------- switch
+  plc->SetNullParameters(*nullParams);
+  RooStats::HypoTestResult* htr = plc->GetHypoTest();
+  std::cout<<"\e[0m"<<"\e[36;1m";
+  std::cout << "-------------------------------------------------" << std::endl;
+  std::cout << "The p-value for the null is " << htr->NullPValue() << std::endl;
+  std::cout << "Corresponding to a significance of " << htr->Significance() << std::endl;
+  std::cout << "-------------------------------------------------" << std::endl;
+
+  // ----------> Likelihood scan <----------
+
   plc->SetConfidenceLevel(0.683);
   RooStats::ConfInterval* interval1 = plc->GetInterval();
   double lowerLimit1 = ((RooStats::LikelihoodInterval*)interval1)->LowerLimit(*par10);
@@ -125,12 +146,9 @@ float runfit(TH1F* h, TH1F* hmcp_a, TH1F* hmcp_b,                         // bin
   std::cout << "-------------------------------------------------\n" << std::endl;
   std::cout<<"\e[0m"<<"\e[36;2m";
 
-  // cll->Divide(2);
-  // cll->cd(1);
   RooStats::LikelihoodIntervalPlot* plotInt = new RooStats::LikelihoodIntervalPlot((RooStats::LikelihoodInterval*)interval1);
   plotInt->SetRange(0, 210);
   plotInt->Draw("tf1");
-  // RooPlot* hplotInt = (RooPlot*)plotInt->GetPlottedObject();
   TH1D* hplotInt = (TH1D*)((TH1D*)plotInt->GetPlottedObject())->Clone("hplotInt");
   for(int i=0;i<hplotInt->GetXaxis()->GetNbins();i++) { hplotInt->SetBinContent(i+1, hplotInt->GetBinContent(i+1)*2); }
   hplotInt->SetTitle(";N_{sig}^{(X3872)};-2log#lambda(N_{sig}^{(X3872)})");
@@ -152,51 +170,9 @@ float runfit(TH1F* h, TH1F* hmcp_a, TH1F* hmcp_b,                         // bin
   xjjroot::drawline(upperLimit2, 0, upperLimit2, 1.96*2, xjjroot::mycolor_middle["red"], 2, 3);
   xjjroot::drawCMSleft("", 0.05, -0.08);
   xjjroot::drawCMSright("1.7 nb^{-1} (2018 PbPb 5.02 TeV)");
-  // RooStats::ModelConfig* bModel = (RooStats::ModelConfig*)mcpdf->Clone();
-  // bModel->SetName("B_only");
-  // double oldval = par10->getVal();
-  // par10->setVal(0);
-  // bModel->SetSnapshot(RooArgSet(*par10));
-  // par10->setVal(oldval);
-
-  // RooArgSet nullParams(*bModel->GetSnapshot());
-  // plc->SetNullParameters(nullParams);
-  // RooArgSet altParams(*mcpdf->GetSnapshot());
-  // plc->SetAltParameters(altParams);
-
-  // cll->cd(2);
-  // RooArgSet* altParams = (RooArgSet*)poi.snapshot();
-  // plc->SetAltParameters(*altParams);
-  RooArgSet* nullParams = (RooArgSet*)poi.snapshot();
-  nullParams->setRealValue("par10", 0);
-  plc->SetNullParameters(*nullParams);
-  RooStats::HypoTestResult* htr = plc->GetHypoTest();
-  // htr->SetPValueIsRightTail(true);
-  // htr->SetBackgroundAsAlt(false);
-  std::cout<<"\e[0m"<<"\e[36;1m";
-  std::cout << "-------------------------------------------------" << std::endl;
-  std::cout << "The p-value for the null is " << htr->NullPValue() << std::endl;
-  std::cout << "Corresponding to a significance of " << htr->Significance() << std::endl;
-  std::cout << "-------------------------------------------------" << std::endl;
-  // htr->Print();
-  RooStats::HypoTestPlot* plothypo = new RooStats::HypoTestPlot(*htr, 100);
-  plothypo->SetXRange(0, 10);
-  // plothypo->SetLogYaxis(true);
-  // plothypo->Draw();
 
   std::string outputname = outputdir + "/cllscan_" + vname + ".pdf";
   xjjroot::mkdir(outputname);
-
-  std::cout<<"\e[0m"<<"\e[36;2m";
-
-  // RooStats::ProfileLikelihoodCalculator plc;
-  // plc.SetData(*(ww->data("dsh_ws")));
-  // RooArgSet* nullParams = (RooArgSet*)poi.snapshot();
-  // nullParams->setRealValue("par10", 0);
-  // plc.SetModel(*mcpdf);
-  // plc.SetNullParameters(*nullParams);
-
-  // RooStats::HypoTestResult* htr = plc.GetHypoTest();
 
   // ww->Print();
 
@@ -223,3 +199,15 @@ float runfit(TH1F* h, TH1F* hmcp_a, TH1F* hmcp_b,                         // bin
 // bModel->SetName("B Model");
 // poi->setVal(0);
 // bModel->SetSnapshot(RooArgSet(*poi));
+
+  // std::cout<<"\e[0m"<<"\e[36;2m";
+
+  // RooStats::ProfileLikelihoodCalculator plc;
+  // plc.SetData(*(ww->data("dsh_ws")));
+  // RooArgSet* nullParams = (RooArgSet*)poi.snapshot();
+  // nullParams->setRealValue("par10", 0);
+  // plc.SetModel(*mcpdf);
+  // plc.SetNullParameters(*nullParams);
+
+  // RooStats::HypoTestResult* htr = plc.GetHypoTest();
+
