@@ -67,7 +67,8 @@ void fitX_drawhist(std::string inputname, std::string output)
   legpbpb->Draw();
   xjjroot::drawtex(0.22+0.01, 0.87-0.01-0.045*2, Form("PbPb (5.02 TeV, CMS)"), 0.035, 13);
   xjjroot::drawtex(0.22+0.01, 0.87-0.01-0.045*3, Form("%s, Cent. %.0f-%.0f%s", fitX::ytag().c_str(), fitX::centmincut, fitX::centmaxcut, "%"), 0.035, 13);
-  xjjroot::drawCMSleft("", 0.05, -0.08);
+  xjjroot::drawCMSleft("#scale[1.25]{#bf{CMS}}", 0.05, -0.08);
+  // xjjroot::drawCMSleft("", 0.05, -0.08); // preliminary
   xjjroot::drawCMSright("1.7 nb^{-1} (2018 PbPb 5.02 TeV)");
   // xjjroot::drawcomment(output.c_str(), "r");
   xjjroot::mkdir(Form("plots/%s/cratio.pdf", output.c_str()));

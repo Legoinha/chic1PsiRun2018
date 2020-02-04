@@ -1,10 +1,8 @@
 #!/bin/bash
 
 ##
-tcounts=(0)
-types=(
-    "pt"     # 0
-)
+type="pt"     # 0
+
 #
 counts=(0 1)
 inputmc=(
@@ -27,23 +25,20 @@ set -x
 [[ $RUN_DRAW -eq 1 || $# == 0 ]] && { g++ eff_draw.cc -I"../includes/" $(root-config --libs --cflags) -g -o eff_draw.exe || { rm *.exe 2>/dev/null ; exit 1; } } 
 set +x
 
-for i in ${tcounts[@]}
-do
-    thisoutput=$output/${types[i]}
-    [[ $RUN_FIT -eq 1 ]] && {
-        ./eff_fit.exe $outputdir/${types[i]}/datamc_fithist.root $thisoutput ${types[i]}
-    }
-done
+thisoutput=$output/$type
+[[ $RUN_FIT -eq 1 ]] && {
+    ./eff_fit.exe $outputdir/$type/datamc_fithist.root $thisoutput $type -1
+}
 
 [[ $RUN_EFF -eq 1 ]] && {
     cut="HLT_HIL3Mu0NHitQ10_L2Mu0_MAXdR3p5_M1to5_v1 && pprimaryVertexFilter && phfCoincFilter2Th4 && pclusterCompatibilityFilter && mvapref"
     cut=${cut}" && BDT > 0.06 && (Bmass-3.096916-Btktkmass) < 0.13"
     cutgen="1"
-    ./eff_eff.exe $outputdir/${types[0]}/eff_fit.root ${inputmc[0]} ${inputmc[1]} "$cut" "$cutgen" $thisoutput 
+    ./eff_eff.exe $outputdir/$type/eff_fit.root ${inputmc[0]} ${inputmc[1]} "$cut" "$cutgen" $thisoutput 
 }
 
 [[ $RUN_DRAW -eq 1 ]] && {
-    ./eff_draw.exe $outputdir/${types[0]}/eff_eff.root  $output
+    ./eff_draw.exe $outputdir/$type/eff_eff.root  $output
 }
 
 rm eff_draw.exe 2>/dev/null

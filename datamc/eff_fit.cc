@@ -15,7 +15,7 @@
 #include "xjjrootuti.h"
 
 void drawkinematics();
-void eff_fit(std::string input, std::string output, std::string type)
+void eff_fit(std::string input, std::string output, std::string type, int param=0)
 {
   std::cout<<"\e[32;1m -- "<<__FUNCTION__<<"\e[0m"<<std::endl;
   TFile* inf = new TFile(input.c_str());
@@ -33,16 +33,6 @@ void eff_fit(std::string input, std::string output, std::string type)
   TH1F* h_b = (TH1F*)hratiodis_b->Clone("h_b");
   TGraphAsymmErrors* g_a = (TGraphAsymmErrors*)gratiodis_a->Clone("g_a");
   TGraphAsymmErrors* g_b = (TGraphAsymmErrors*)gratiodis_b->Clone("g_b");
-  // std::vector<double> gx(nbin), gy(nbin);
-  // for(int i=0; i<nbin; i++) { g_a->GetPoint(i, gx[i], gy[i]); }
-  // std::vector<float> means_a(nbin), means_b(nbin), errs_a(nbin), errs_b(nbin);
-  // for(int k=0; k<nbin; k++) 
-  //   { 
-  //     means_a[k] = hratiodis_a->GetBinContent(k+1);
-  //     means_b[k] = hratiodis_b->GetBinContent(k+1);
-  //     errs_a[k] = hratiodis_a->GetBinError(k+1);
-  //     errs_b[k] = hratiodis_b->GetBinError(k+1);
-  //   }
   float xmin_a = h_a ->GetBinCenter(1)    - h_a ->GetBinWidth(1)/2.;
   float xmax_a = h_a ->GetBinCenter(nbin) + h_a ->GetBinWidth(nbin)/2.;
   float xmin_b = h_b ->GetBinCenter(1)    - h_b ->GetBinWidth(1)/2.;
@@ -109,6 +99,22 @@ void eff_fit(std::string input, std::string output, std::string type)
   xjjroot::mkdir(outputnamec);
   c->SaveAs(outputnamec.c_str());
 
+  std::map<std::string, TF1*> fc_a, fc_b;
+  for(auto& ff : f_a)
+    {
+      TF1* thisf = ff.second;
+      fc_a[ff.first] = (TF1*)thisf->Clone(Form("fc_%s", thisf->GetName()));
+      for(int p=0;p<thisf->GetNpar();p++)
+        fc_a[ff.first]->SetParameter(p, thisf->GetParameter(p)+param*thisf->GetParError(p));
+    }
+  for(auto& ff : f_b)
+    {
+      TF1* thisf = ff.second;
+      fc_b[ff.first] = (TF1*)thisf->Clone(Form("fc_%s", thisf->GetName()));
+      for(int p=0;p<thisf->GetNpar();p++)
+        fc_b[ff.first]->SetParameter(p, thisf->GetParameter(p)+param*thisf->GetParError(p));
+    }
+
   std::vector<TString> par_a(n), par_b(n), fun_a(n), fun_b(n);
   std::string outputname = "rootfiles/"+output+"/eff_fit.root";
   xjjroot::mkdir(outputname);
@@ -119,7 +125,7 @@ void eff_fit(std::string input, std::string output, std::string type)
   ntf->Branch("n", &n);
   do {
     int i=0;
-    for(auto& ff : f_a)
+    for(auto& ff : fc_a)
       {
         par_a[i] = ff.second->GetExpFormula("CLING P");
         fun_a[i] = ff.second->GetExpFormula();
@@ -131,7 +137,7 @@ void eff_fit(std::string input, std::string output, std::string type)
   } while(false);
   do {
     int i=0;
-    for(auto& ff : f_b)
+    for(auto& ff : fc_b)
       {
         par_b[i] = ff.second->GetExpFormula("CLING P");
         fun_b[i] = ff.second->GetExpFormula();
@@ -149,6 +155,7 @@ void eff_fit(std::string input, std::string output, std::string type)
 
 int main(int argc, char* argv[])
 {
+  if(argc==5) { eff_fit(argv[1], argv[2], argv[3], atoi(argv[4])); return 0; }
   if(argc==4) { eff_fit(argv[1], argv[2], argv[3]); return 0; }
   return 1;
 }

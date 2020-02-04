@@ -624,7 +624,8 @@ void fitX::labelsdata(std::string title)
   // xjjroot::drawtex(0.17, 0.84-0.04, title.c_str(), 0.038, 13, 62);
   xjjroot::drawtex(0.17, 0.86, title.c_str(), 0.038, 13, 62);
 
-  xjjroot::drawCMSleft();
+  // xjjroot::drawCMSleft(); //preliminary
+  xjjroot::drawCMSleft("#scale[1.25]{#bf{CMS}}");
   xjjroot::drawCMSright("1.7 nb^{-1} (2018 PbPb 5.02 TeV)");
 }
 
