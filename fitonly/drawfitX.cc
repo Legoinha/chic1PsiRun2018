@@ -7,6 +7,7 @@
 #include <RooDataSet.h>
 // https://root.cern.ch/doc/master/rs102__hypotestwithshapes_8C.html
 // https://root.cern.ch/doc/master/StandardProfileLikelihoodDemo_8C.html
+#include <RooMinuit.h>
 #include <RooStats/ProfileLikelihoodCalculator.h> 
 #include <RooStats/HypoTestResult.h>
 #include <RooStats/HypoTestPlot.h>
@@ -29,6 +30,7 @@ void drawfitX(std::string input, std::string output, std::string fitopt="")
 {
   std::cout<<"\e[32;1m -- "<<__FUNCTION__<<"\e[0m"<<std::endl;
   if(fitopt!="") { output += ("/"+fitopt); }
+  if(xjjc::str_contains(output, "narrow")) { fitX::NBIN = 30; fitX::BIN_MAX = 3.92; }
   TFile* inf = new TFile(input.c_str());
   fitX::init(inf);
   RooWorkspace* ww = (RooWorkspace*)inf->Get("ww");
@@ -55,7 +57,7 @@ void drawfitX(std::string input, std::string output, std::string fitopt="")
   mm = runfit(h, hmcp_a, hmcp_b,
               dsh, dshmcp_a, dshmcp_b,
               fitopt, mm, hyield,
-              "th", Form("#splitline{Inclusive}{%s}", fitopt.c_str()),  Form("plots/%s", output.c_str()));
+              "th", Form("#splitline{Inclusive}{%s}", fitopt.c_str()),  Form("%s", output.c_str()));
 
   // // B-enr --> 
   // mm = runfit(hBenr, hmcp_a, hmcp_b,
@@ -80,8 +82,9 @@ float runfit(TH1F* h, TH1F* hmcp_a, TH1F* hmcp_b,                         // bin
   // ====>
   std::map<std::string, fitX::fitXresult*> result = fitX::fit(h, 0, hmcp_a, hmcp_b, 
                                                               dsh, dshmcp_a, dshmcp_b,
-                                                              outputdir.c_str(), mm, true, "_"+vname, vtitle, fitopt);
+                                                              std::string("plots/"+outputdir).c_str(), mm, true, "_"+vname, vtitle, fitopt);
   // <====
+
   // xjjroot::setgstyle();
   float ysig_a = result["unbinned"]->ysig_a();
   float ysigerr_a = result["unbinned"]->ysigerr_a();
@@ -94,22 +97,64 @@ float runfit(TH1F* h, TH1F* hmcp_a, TH1F* hmcp_b,                         // bin
   hyield->SetBinContent(fitX::ibin_b, ysig_b);
   hyield->SetBinError(fitX::ibin_b, ysigerr_b);
 
-  std::cout<<"\e[36;2m";
+  std::cout<<"\e[36;1m";
 
   RooWorkspace* ww = result["unbinned"]->ww();
   RooRealVar* par10 = ww->var("par10");
-  RooRealVar* fsyst = ww->var("fsyst");
-  // RooArgSet poi(*par10); // <---------- switch
-  RooRealVar* nsig = ww->var("nsig"); // <---------- switch
-  RooArgSet poi(*nsig); // <---------- switch
-  // RooFormulaVar* nsig = (RooFormulaVar*)ww->var("nsig");
+  // RooRealVar* fsyst = ww->var("fsyst"); // <---------- switch
+  // RooGaussian fconssyst("fconssyst", "fconssyst", *fsyst, RooFit::RooConst(1), RooFit::RooConst(0.043)); // <---------- switch
+  RooAddPdf* pdf = (RooAddPdf*)ww->obj("pdf");
+  RooAbsData* data = ww->data("dsh_ws");
+
+  // ----------> Likelihood scan using createNLL <----------
+
+  std::string rootoutputname = "rootfiles/" + outputdir + "/rootnll.root";
+  xjjroot::mkdir(rootoutputname);
+  TFile* outf = new TFile(rootoutputname.c_str(), "recreate");
+
+  xjjroot::setgstyle();
+  TCanvas* cnll = new TCanvas("cnll", "", 600, 600);
+  RooAbsReal* nll = pdf->createNLL(*data); // <---------- switch
+  // RooAbsReal* nll = pdf->createNLL(*data, RooFit::Constrain(fconssyst)); // <---------- switch
+  RooMinuit(*nll).migrad();
+  RooPlot* frame1 = par10->frame(RooFit::Bins(20), RooFit::Range(0., 200.));
+  xjjroot::sethempty(frame1);
+  nll->plotOn(frame1, RooFit::ShiftToZero(), RooFit::LineColor(kBlack), RooFit::LineWidth(4), RooFit::Normalization(2., RooAbsReal::Raw));
+  cnll->cd();
+  frame1->SetMinimum(0);
+  frame1->SetMaximum(20);
+  frame1->GetXaxis()->SetTitle("N_{sig}^{(X3872)}");
+  frame1->GetYaxis()->SetTitle("-2log#lambda");
+  frame1->Draw();
+  xjjroot::drawCMSleft("", 0.05, -0.08);
+  xjjroot::drawCMSright("1.7 nb^{-1} (2018 PbPb 5.02 TeV)");
+  std::string outputnamenll = "plots/" + outputdir + "/cnllscan_" + vname + ".pdf";
+  xjjroot::mkdir(outputnamenll);
+  cnll->SaveAs(outputnamenll.c_str());
+
+  gDirectory->cd("root:/");
+  RooWorkspace* wwnll = new RooWorkspace("wwnll");
+  // wwnll->import(*nll);
+  wwnll->import(*pdf);
+  wwnll->import(*data);
+  wwnll->import(*par10);
+  outf->cd();
+  gDirectory->Add(wwnll);
+  wwnll->Write();
+  wwnll->Print();
+  outf->Close();
+
+  // 
+  std::cout<<"\e[36;2m";
+
+  RooArgSet poi(*par10); // <---------- switch
+  // RooArgSet poi(*par10, *fsyst); // <---------- switch
   RooStats::ModelConfig* mcpdf = new RooStats::ModelConfig();
   mcpdf->SetWorkspace(*ww);
   mcpdf->SetPdf("pdf");
   mcpdf->SetParametersOfInterest(poi);
   mcpdf->SetSnapshot(poi);
 
-  // 
   RooStats::ProfileLikelihoodCalculator* plc = new RooStats::ProfileLikelihoodCalculator();
   plc->SetData(*(ww->data("dsh_ws")));
   plc->SetModel(*mcpdf);
@@ -117,8 +162,8 @@ float runfit(TH1F* h, TH1F* hmcp_a, TH1F* hmcp_b,                         // bin
   // ----------> Null hypo test <----------
 
   RooArgSet* nullParams = (RooArgSet*)poi.snapshot();
-  // nullParams->setRealValue("par10", 0); // <---------- switch
-  nullParams->setRealValue("nsig", 0); // <---------- switch
+  nullParams->setRealValue("par10", 0);
+  // nullParams->setRealValue("fsyst", 1); // <---------- switch
   plc->SetNullParameters(*nullParams);
   RooStats::HypoTestResult* htr = plc->GetHypoTest();
   std::cout<<"\e[0m"<<"\e[36;1m";
@@ -126,6 +171,9 @@ float runfit(TH1F* h, TH1F* hmcp_a, TH1F* hmcp_b,                         // bin
   std::cout << "The p-value for the null is " << htr->NullPValue() << std::endl;
   std::cout << "Corresponding to a significance of " << htr->Significance() << std::endl;
   std::cout << "-------------------------------------------------" << std::endl;
+  std::cout<<"\e[0m";
+
+  return 0;
 
   // ----------> Likelihood scan <----------
 
@@ -133,6 +181,7 @@ float runfit(TH1F* h, TH1F* hmcp_a, TH1F* hmcp_b,                         // bin
   RooStats::ConfInterval* interval1 = plc->GetInterval();
   double lowerLimit1 = ((RooStats::LikelihoodInterval*)interval1)->LowerLimit(*par10);
   double upperLimit1 = ((RooStats::LikelihoodInterval*)interval1)->UpperLimit(*par10);
+
   plc->SetConfidenceLevel(0.95);
   RooStats::ConfInterval* interval2 = plc->GetInterval();
   double lowerLimit2 = ((RooStats::LikelihoodInterval*)interval2)->LowerLimit(*par10);
@@ -154,7 +203,7 @@ float runfit(TH1F* h, TH1F* hmcp_a, TH1F* hmcp_b,                         // bin
   hplotInt->SetTitle(";N_{sig}^{(X3872)};-2log#lambda(N_{sig}^{(X3872)})");
   xjjroot::sethempty(hplotInt, 0, 0);
   hplotInt->SetMinimum(0.);
-  hplotInt->SetMaximum(18.);
+  hplotInt->SetMaximum(20.);
   float hxmin = hplotInt->GetXaxis()->GetXmin();
   float hxmax = hplotInt->GetXaxis()->GetXmax();
   hplotInt->SetLineColor(kBlack);
@@ -171,7 +220,7 @@ float runfit(TH1F* h, TH1F* hmcp_a, TH1F* hmcp_b,                         // bin
   xjjroot::drawCMSleft("", 0.05, -0.08);
   xjjroot::drawCMSright("1.7 nb^{-1} (2018 PbPb 5.02 TeV)");
 
-  std::string outputname = outputdir + "/cllscan_" + vname + ".pdf";
+  std::string outputname = "plots/" + outputdir + "/cllscan_" + vname + ".pdf";
   xjjroot::mkdir(outputname);
 
   // ww->Print();
@@ -200,14 +249,14 @@ float runfit(TH1F* h, TH1F* hmcp_a, TH1F* hmcp_b,                         // bin
 // poi->setVal(0);
 // bModel->SetSnapshot(RooArgSet(*poi));
 
-  // std::cout<<"\e[0m"<<"\e[36;2m";
+// std::cout<<"\e[0m"<<"\e[36;2m";
 
-  // RooStats::ProfileLikelihoodCalculator plc;
-  // plc.SetData(*(ww->data("dsh_ws")));
-  // RooArgSet* nullParams = (RooArgSet*)poi.snapshot();
-  // nullParams->setRealValue("par10", 0);
-  // plc.SetModel(*mcpdf);
-  // plc.SetNullParameters(*nullParams);
+// RooStats::ProfileLikelihoodCalculator plc;
+// plc.SetData(*(ww->data("dsh_ws")));
+// RooArgSet* nullParams = (RooArgSet*)poi.snapshot();
+// nullParams->setRealValue("par10", 0);
+// plc.SetModel(*mcpdf);
+// plc.SetNullParameters(*nullParams);
 
-  // RooStats::HypoTestResult* htr = plc.GetHypoTest();
+// RooStats::HypoTestResult* htr = plc.GetHypoTest();
 
