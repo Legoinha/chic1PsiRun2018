@@ -7,6 +7,8 @@
 #include <TTree.h>
 #include <string>
 
+#include "xjjcuti.h"
+
 namespace xjjroot
 {
   typedef std::vector<TTree*> trlist;
@@ -31,8 +33,10 @@ namespace xjjroot
     TTree* hi;
     TTree* mva;
     TTree* ntgen;
+    TTree* ntmu;
     int fentries;
     bool fgen;
+    bool fmutrg;
   };
 }
 
@@ -44,6 +48,7 @@ void xjjroot::packtree::getentry(int i)
   skim->GetEntry(i);
   mva->GetEntry(i);
   if(fgen) ntgen->GetEntry(i);
+  if(fmutrg) ntmu->GetEntry(i);
 }
 
 xjjroot::packtree::packtree(TFile* inf, std::string treename, std::string type, std::string gentreename)
@@ -51,6 +56,7 @@ xjjroot::packtree::packtree(TFile* inf, std::string treename, std::string type, 
   name = type;
   ntgen = 0; 
   fgen = gentreename!="";
+  fmutrg = xjjc::str_contains(type, "tnp");
 
   nt = (TTree*)inf->Get(treename.c_str());
   fentries = nt->GetEntries();
@@ -76,6 +82,12 @@ xjjroot::packtree::packtree(TFile* inf, std::string treename, std::string type, 
       ntgen->AddFriend(skim);
       ntgen->AddFriend(hi);
     }
+
+  if(fmutrg)
+  {
+    ntmu = (TTree*)inf->Get("muinfo/mu");
+    nt->AddFriend(ntmu);
+  }
 
   fntp = new mytmva::ntuple(nt, ntgen);
 }

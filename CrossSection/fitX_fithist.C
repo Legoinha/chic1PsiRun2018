@@ -173,6 +173,8 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   xjjroot::drawCMS();
   xjjroot::mkdir(Form("plots/%s/cfprompt.pdf", output.c_str()));
   cfprompt->SaveAs(Form("plots/%s/cfprompt.pdf", output.c_str()));
+  std::cout<<"f_prompt(psi') = "<<grfprompt_a->GetEfficiency(fitX::ibin_a)<<" + "<<grfprompt_a->GetEfficiencyErrorUp(fitX::ibin_a)<<" - "<<grfprompt_a->GetEfficiencyErrorLow(fitX::ibin_a)<<std::endl;
+  std::cout<<"f_prompt(X) = "<<grfprompt_b->GetEfficiency(fitX::ibin_b)<<" + "<<grfprompt_b->GetEfficiencyErrorUp(fitX::ibin_b)<<" - "<<grfprompt_b->GetEfficiencyErrorLow(fitX::ibin_b)<<std::endl;
 
   // efficiency
   mceff_a->calceff();

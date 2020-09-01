@@ -69,7 +69,8 @@ namespace fitX
       new br_element<float, MAX_XB>("Btrk2Eta"),
       new br_element<float, MAX_XB>("Bujphi"),
       new br_element<float, MAX_XB>("Bujeta"),
-      new br_element<float, MAX_XB>("pthatweight", false)
+      new br_element<float, MAX_XB>("pthatweight", false),
+      new br_element<float, MAX_XB>("PVz", false)
     };
     std::vector<br_element<int, MAX_XB>*> branchesi = {
       new br_element<int, MAX_XB>("BgencollisionId"),

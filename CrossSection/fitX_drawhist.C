@@ -37,8 +37,9 @@ void fitX_drawhist(std::string inputname, std::string output)
 
   xjjroot::setgstyle(2);
   TCanvas* cratio = new TCanvas("cratio", "", 600, 600);
-  cratio->SetLogy();
-  TH2F* hempty = new TH2F("hempty", ";p_{T};R", 10, 10, 70, 10, 0.01, 100);
+  // cratio->SetLogy();
+  // TH2F* hempty = new TH2F("hempty", ";p_{T};R", 10, 10, 70, 10, 0.01, 100);
+  TH2F* hempty = new TH2F("hempty", ";p_{T};R", 10, 10, 70, 10, 0, 2.5);
   xjjroot::sethempty(hempty, 0, 0);
   hempty->Draw();
   xjjroot::drawline(10, 1, 70, 1, kGray+2, 2, 2);

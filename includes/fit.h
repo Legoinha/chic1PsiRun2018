@@ -89,13 +89,16 @@ namespace fitX
   // ===>
   std::map<std::string, fitX::fitXresult*> fit(TH1F* hh, TH1F* hh_ss, TH1F* hhmc_a, TH1F* hhmc_b, 
                                                RooDataSet* dshh, RooDataSet* dshhmc_a, RooDataSet* dshhmc_b,
-                                               std::string outputdir, float fixmean, bool saveplot, std::string name="", std::string title="", std::string option="default", bool silence=true);
+                                               std::string outputdir, float fixmean, bool saveplot, std::string name="", std::string title="", std::string option="default", bool silence=true,
+                                               std::string cmsleft="#scale[1.25]{#bf{CMS}}", std::string cmsright="1.7 nb^{-1} (2018 PbPb 5.02 TeV)");
   // <===
   void setmasshist(TH1* h, float xoffset=0, float yoffset=0, Color_t pcolor=kBlack);
   void setmasshist(RooPlot* h, float xoffset=0, float yoffset=0, Color_t pcolor=kBlack);
 
   int NBIN = 38, NBIN_L = 50, NBIN_H = 50;
   float BIN_MIN = 3.62, BIN_MAX = 4.0, BIN_MIN_L = 3.64, BIN_MAX_L = 3.74, BIN_MIN_H = 3.82, BIN_MAX_H = 3.92;
+  // int NBIN = 30, NBIN_L = 50, NBIN_H = 50;
+  // float BIN_MIN = 3.62, BIN_MAX = 3.92, BIN_MIN_L = 3.64, BIN_MAX_L = 3.74, BIN_MIN_H = 3.82, BIN_MAX_H = 3.92;
   float BIN_WIDTH = (BIN_MAX-BIN_MIN)/NBIN*1.0, BIN_WIDTH_L = (BIN_MAX_L-BIN_MIN_L)/NBIN_L*1.0, BIN_WIDTH_H = (BIN_MAX_H-BIN_MIN_H)/NBIN_H*1.0;
   const int NMVA_BIN = 30;
   const float MVA_BIN_MIN = 0.06, MVA_BIN_MAX = 0.36;
@@ -110,7 +113,7 @@ namespace fitX
   double getparmax(TF1* f, int ipar) { double parmin, parmax; f->GetParLimits(ipar, parmin, parmax); return parmax; } 
 
   void labelsmc(std::string label, double mean, double sigma1, double sigma2);
-  void labelsdata(std::string label);
+  void labelsdata(std::string label, std::string cmsleft, std::string cmsright);
   void labelsdata_params(double mean_a, double mean_a_err, double yield_a, double yield_a_err,
                          double mean_b, double mean_b_err, double yield_b, double yield_b_err,
                          double chi2prob);
@@ -127,8 +130,12 @@ namespace fitX
 // --->
 std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* hhmc_a, TH1F* hhmc_b, 
                                                    RooDataSet* dshh, RooDataSet* dshhmc_a, RooDataSet* dshhmc_b, 
-                                                   std::string outputdir, float fixmean, bool saveplot, std::string name, std::string title, std::string option, bool silence)
+                                                   std::string outputdir, float fixmean, bool saveplot, std::string name, std::string title, std::string option, bool silence,
+                                                   std::string cmsleft, std::string cmsright)
 {
+  if(option=="range")
+    { NBIN = 30; BIN_MAX = 3.92; }
+
   std::string uniqstr(xjjc::currenttime());
   if(saveplot) gSystem->Exec(Form("mkdir -p %s", outputdir.c_str()));
   if(silence) RooMsgService::instance().setSilentMode(true);
@@ -193,11 +200,13 @@ std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* 
   TCanvas* cmc = new TCanvas("cmc", "", 1200, 600);
   cmc->Divide(2, 1);
   TCanvas* cr = new TCanvas("cr", "", 700, 600);
+  TCanvas* crnofit = new TCanvas("crnofit", "", 700, 600);
   TCanvas* crmc = new TCanvas("crmc", "", 1200, 600);
   crmc->Divide(2, 1);
   
   TString str_bkg = "[0]+[1]*x+[2]*x*x+[3]*x*x*x+[4]*x*x*x*x";
   if(xjjc::str_contains(option,"cheb")) { str_bkg = option; }
+  // if(xjjc::str_contains(option,"cheb")) { str_bkg = Form("[19]*(%s)", option.c_str()); }
   TString str_sig_a = "[5]*( [9]*TMath::Gaus(x, [6], [7])/(TMath::Sqrt(2*3.14159)* [7]) + (1- [9])*( [16]*TMath::Gaus(x,[6], [8])/(TMath::Sqrt(2*3.14159)* [8]) + (1- [16])*TMath::Gaus(x,[6], [15])/(TMath::Sqrt(2*3.14159)*[15])))";
   TString str_sig_b = "[10]*([14]*TMath::Gaus(x,[11],[12])/(TMath::Sqrt(2*3.14159)*[12]) + (1-[14])*([18]*TMath::Gaus(x,[11],[13])/(TMath::Sqrt(2*3.14159)*[13]) + (1-[18])*TMath::Gaus(x,[11],[17])/(TMath::Sqrt(2*3.14159)*[17])))";
 
@@ -228,6 +237,7 @@ std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* 
   f->FixParameter(2, 0);
   f->FixParameter(3, 0);
   f->FixParameter(4, 0);
+  // if(xjjc::str_contains(option,"cheb")) { f->FixParameter(19, 0); f->FixParameter(0, 1);}
 
   std::map<int, RooRealVar*> mcpars;
   // mcpars[5] = new RooRealVar("mcpar5", "", parinit[5], 0, 1.e+5);
@@ -354,17 +364,18 @@ std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* 
   f->ReleaseParameter(2);
   f->ReleaseParameter(3);
   f->ReleaseParameter(4);
+  // if(xjjc::str_contains(option,"cheb")) { f->ReleaseParameter(19); f->FixParameter(0, 1); }
   if(option.back()=='3') { f->FixParameter(4, 0); }
   if(option.back()=='2') { f->FixParameter(4, 0); f->FixParameter(3, 0); }
   if(option.back()=='1') { f->FixParameter(4, 0); f->FixParameter(3, 0); f->FixParameter(2, 0); }
   f->SetParLimits(5, 0, 1.e+5);
   f->SetParLimits(10, 0, 1.e+5);
-  if(xjjc::str_contains(option,"cheb"))
-    {
-      f->SetParLimits(0, 0, 1.e+10);
-      f->SetParameter(0, 0);
-      // !!!
-    }
+  // if(xjjc::str_contains(option,"cheb"))
+  //   {
+  //     f->SetParLimits(0, 0, 1.e+10);
+  //     f->SetParameter(0, 0);
+  //     // !!!
+  //   }
   c->cd();
   h->Draw("pe");
   h->Fit("f","Nq");
@@ -423,8 +434,8 @@ std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* 
   RooRealVar* nbkg = new RooRealVar("nbkg", "", 0, -1.e+6, 1.e+6);
   RooAddPdf* pdf = new RooAddPdf("pdf", "",
                                  RooArgList(*sig_a    , *sig_b     , *bkg),
-                                 // RooArgList(*(pars[5]), *(pars[10]), *nbkg)); // <---------- switch w/ and w/o syst
-                                 RooArgList(*(pars[5]), *nsig, *nbkg));  // <---------- switch w/ and w/o syst
+                                 RooArgList(*(pars[5]), *(pars[10]), *nbkg)); // <---------- switch w/ and w/o syst
+                                 // RooArgList(*(pars[5]), *nsig, *nbkg));  // <---------- switch w/ and w/o syst
   // >>> fix mean
   if(!fixmean)
     {
@@ -463,9 +474,11 @@ std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* 
   std::cout<<std::endl<<"\e[35;2m";
   RooFitResult* fitr;
   RooGaussian fconssyst("fconssyst", "fconssyst", *fsyst, RooFit::RooConst(1), RooFit::RooConst(0.043)); // yield extraction syst
-  fitr = pdf->fitTo(*dsh, RooFit::Save(), RooFit::PrintEvalErrors(-1), RooFit::ExternalConstraints(fconssyst), RooFit::Strategy(0)); // <---------- switch
-  fitr = pdf->fitTo(*dsh, RooFit::Save(), RooFit::PrintEvalErrors(-1), RooFit::ExternalConstraints(fconssyst), RooFit::Strategy(1)); // <---------- switch
-  // fitr = pdf->fitTo(*dsh, RooFit::Save(), RooFit::PrintEvalErrors(-1), RooFit::Strategy(0)); // <---------- switch
+  // fitr = pdf->fitTo(*dsh, RooFit::Save(), RooFit::PrintEvalErrors(-1), RooFit::Constrain(fconssyst), RooFit::Strategy(0)); // <---------- switch
+  // fitr = pdf->fitTo(*dsh, RooFit::Save(), RooFit::PrintEvalErrors(-1), RooFit::Constrain(fconssyst), RooFit::Strategy(1)); // <---------- switch
+  // fitr = pdf->fitTo(*dsh, RooFit::Save(), RooFit::PrintEvalErrors(-1), RooFit::ExternalConstraints(fconssyst), RooFit::Strategy(0)); // <---------- switch
+  // fitr = pdf->fitTo(*dsh, RooFit::Save(), RooFit::PrintEvalErrors(-1), RooFit::ExternalConstraints(fconssyst), RooFit::Strategy(1)); // <---------- switch
+  fitr = pdf->fitTo(*dsh, RooFit::Save(), RooFit::PrintEvalErrors(-1), RooFit::Strategy(0)); // <---------- switch
   // fitr = pdf->fitTo(*dsh, RooFit::Save(), RooFit::PrintEvalErrors(-1), RooFit::Strategy(1)); // <---------- switch
   std::cout<<"\e[0m";
   std::cout<<"\e[35;1m";
@@ -505,12 +518,20 @@ std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* 
       xjjroot::drawbox(fitX::PDG_MASS_PSI2S - fitX::PDG_MASS_PSI2S_ERR, h->GetMinimum(), fitX::PDG_MASS_PSI2S + fitX::PDG_MASS_PSI2S_ERR, h->GetMaximum(), color_a, 0.8, 1001, 0, 0, 0);
       xjjroot::drawbox(fitX::PDG_MASS_X - fitX::PDG_MASS_X_ERR, h->GetMinimum(), fitX::PDG_MASS_X + fitX::PDG_MASS_X_ERR, h->GetMaximum(), color_b, 0.8, 1001, 0, 0, 0);
     }
-  fitX::labelsdata(title);
+  fitX::labelsdata(title, cmsleft, cmsright);
   if(saveplot) c->SaveAs(Form("%s/chmass%s.pdf", outputdir.c_str(), name.c_str()));
   fitX::labelsdata_params(f->GetParameter(6), f->GetParError(6), ysig_a, f->GetParError(5)*ysig_a/f->GetParameter(5),
                           f->GetParameter(11), f->GetParError(11), ysig_b, f->GetParError(10)*ysig_b/f->GetParameter(10),
                           TMath::Prob(f->GetChisquare(), f->GetNDF()));
   if(saveplot) c->SaveAs(Form("%s/chmass%s_params.pdf", outputdir.c_str(), name.c_str()));
+
+  // ---> no fit histogram
+  crnofit->cd();
+  dsh->plotOn(frempty, RooFit::Name("dshist"), RooFit::Binning(fitX::NBIN), RooFit::MarkerSize(0.9), RooFit::MarkerStyle(20), RooFit::LineColor(1), RooFit::LineWidth(1));
+  frempty->Draw();
+  crnofit->RedrawAxis();
+  fitX::labelsdata(title, cmsleft, cmsright);
+  if(saveplot) crnofit->SaveAs(Form("%s/chmassrnofit%s.pdf", outputdir.c_str(), name.c_str()));
 
   // ---> unbinned fit
   cr->cd();
@@ -526,13 +547,15 @@ std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* 
   frf->Draw("same");
   hclone->Draw("same pe");
   int32_t ndof = fitr->floatParsFinal().getSize();
+  RooRealVar rndof("ndof", "", ndof);
   float minNll = fitr->minNll();
+  std::cout<<"\e[32;7m"<<minNll<<"\e[0m"<<std::endl;
   cr->RedrawAxis();
-  fitX::labelsdata(title);
+  fitX::labelsdata(title, cmsleft, cmsright);
   if(saveplot) cr->SaveAs(Form("%s/chmassr%s.pdf", outputdir.c_str(), name.c_str()));
   fitX::labelsdata_params(pars[6]->getVal(), pars[6]->getError(), pars[5]->getVal(), pars[5]->getError(),
-                          // pars[11]->getVal(), pars[11]->getError(), pars[10]->getVal(), pars[10]->getError(), // <---------- switch
-                          pars[11]->getVal(), pars[11]->getError(), pars[10]->getVal()*fsyst->getVal(), pars[10]->getError()*fsyst->getVal(), // <---------- switch
+                          pars[11]->getVal(), pars[11]->getError(), pars[10]->getVal(), pars[10]->getError(), // <---------- switch
+                          // pars[11]->getVal(), pars[11]->getError(), pars[10]->getVal()*fsyst->getVal(), pars[10]->getError()*fsyst->getVal(), // <---------- switch
                           TMath::Prob(frempty->chiSquare("pdf", "dshist", ndof)*ndof, ndof));
   if(saveplot) cr->SaveAs(Form("%s/chmassr%s_params.pdf", outputdir.c_str(), name.c_str()));
 
@@ -551,6 +574,7 @@ std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* 
   // RooStats::SPlot* sData = new RooStats::SPlot("sData", "An SPlot", *dsh, pdf, RooArgList(*(pars[5]), *(nsig), *nbkg));
   ww->import(*dsh, RooFit::Rename(Form("%s_ws", dshh->GetName())), RooFit::Silence());
   ww->import(*pdf, RooFit::Rename(Form("pdf_%s", name.c_str())), RooFit::Silence());
+  ww->import(rndof);
 
   delete cmc;
   delete c;
@@ -616,17 +640,17 @@ void fitX::labelsmc(std::string label, double mean, double sigma1, double sigma2
   xjjroot::drawCMSright();
 }
 
-void fitX::labelsdata(std::string title)
+void fitX::labelsdata(std::string title, std::string cmsleft, std::string cmsright)
 {
   xjjroot::drawtex(0.92, 0.84, Form("%.0f < p_{T} < %.0f GeV/c", fitX::ptmincut, fitX::ptmaxcut), 0.038, 32, 62);
   xjjroot::drawtex(0.92, 0.79, Form("%s|y| < %.1f", (fitX::ymincut?Form("%.1f < ", fitX::ymincut):""), fitX::ymaxcut), 0.038, 32, 62);
   xjjroot::drawtex(0.92, 0.74, Form("Cent. %.0f-%.0f%s", fitX::centmincut, fitX::centmaxcut, "%"), 0.038, 32, 62);
   // xjjroot::drawtex(0.17, 0.84-0.04, title.c_str(), 0.038, 13, 62);
-  xjjroot::drawtex(0.17, 0.86, title.c_str(), 0.038, 13, 62);
+  xjjroot::drawtex(0.17, 0.86, title.c_str(), 0.045, 13, 52);
 
-  // xjjroot::drawCMSleft(); //preliminary
-  xjjroot::drawCMSleft("#scale[1.25]{#bf{CMS}}");
-  xjjroot::drawCMSright("1.7 nb^{-1} (2018 PbPb 5.02 TeV)");
+  xjjroot::drawCMSleft(); //preliminary
+  // xjjroot::drawCMSleft(cmsleft.c_str());
+  xjjroot::drawCMSright(cmsright.c_str());
 }
 
 void fitX::labelsdata_params(double mean_a, double mean_a_err, double yield_a, double yield_a_err,

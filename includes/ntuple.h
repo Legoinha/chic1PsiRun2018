@@ -57,6 +57,7 @@ namespace mytmva
     float  pthatweight;
     float  Ncoll;
     int    hiBin;
+    float  PVz;
     int    HLT_HIL3Mu0NHitQ10_L2Mu0_MAXdR3p5_M1to5_v1;
     int    pprimaryVertexFilter;
     int    phfCoincFilter2Th4;
@@ -147,6 +148,13 @@ namespace mytmva
     bool   Bmu1isAcc[MAX_XB];
     bool   Bmu2isAcc[MAX_XB];
 
+    float  mu1hltL2flt[MAX_XB];
+    float  mu1hltL3flt[MAX_XB];
+    float  mu1hltL2L3lastflt[MAX_XB];
+    float  mu2hltL2flt[MAX_XB];
+    float  mu2hltL3flt[MAX_XB];
+    float  mu2hltL2L3lastflt[MAX_XB];
+
     int    Gsize;
     float  Gy[MAX_GEN];
     float  Gpt[MAX_GEN];
@@ -170,6 +178,7 @@ namespace mytmva
     bool   fhlt;
     bool   fmva;
     bool   fhi;
+    bool   fmutrg;
     void setbranchaddress();
 
   };
@@ -180,7 +189,8 @@ bool mytmva::ntuple::passedpre(int j)
   if(
      // Bpt[j] > 10 && TMath::Abs(Bmumumass[j]-3.096916) < 0.05 && TMath::Abs(Bujeta[j]) < 2.4 &&
      Bpt[j] > 10 && TMath::Abs(Bmumumass[j]-3.096916) < 0.15 && TMath::Abs(Bujeta[j]) < 2.4 &&
-     (Bmu1SoftMuID[j] && Bmu2SoftMuID[j] && Bmu1isAcc[j] && Bmu2isAcc[j] && Bmu1isTriggered[j] && Bmu2isTriggered[j]) &&
+     (Bmu1SoftMuID[j] && Bmu2SoftMuID[j] && Bmu1isAcc[j] && Bmu2isAcc[j]) && 
+     /*Bmu1isTriggered[j] && Bmu2isTriggered[j]) && */
      Btrk1Pt[j] > 0.9 && Btrk2Pt[j] > 0.9 && TMath::Abs(Btrk1Eta[j]) < 2.4 && TMath::Abs(Btrk2Eta[j]) < 2.4 &&
      Btrk1highPurity[j] && Btrk2highPurity[j] && (Btrk1PixelHit[j]+Btrk1StripHit[j]) >= 11 && (Btrk2PixelHit[j]+Btrk2StripHit[j]) >= 11 && TMath::Abs(Btrk1PtErr[j]/Btrk1Pt[j]) < 0.1 && TMath::Abs(Btrk2PtErr[j]/Btrk2Pt[j]) < 0.1 && (Btrk1Chi2ndf[j]/(Btrk1nStripLayer[j]+Btrk1nPixelLayer[j])) < 0.18 && (Btrk2Chi2ndf[j]/(Btrk2nStripLayer[j]+Btrk2nPixelLayer[j])) < 0.18 && 
      TMath::Abs(By[j]) < 2.4 && Bchi2cl[j] > 0.1 &&
@@ -225,6 +235,7 @@ void mytmva::ntuple::setbranchaddress()
   if(!fmva) { std::cout<<__FUNCTION__<<": \e[31mwarning:\e[0m no branch \e[4m"<<"mvapref"<<"\e[0m"
                        <<"."<<std::endl; }
   fhi = fnt->FindBranch("hiBin");
+  fmutrg = fnt->FindBranch("mu1hltL2flt");
   // public:
   if(fweight) 
     { 
@@ -253,7 +264,17 @@ void mytmva::ntuple::setbranchaddress()
     {
       fnt->SetBranchAddress("hiBin", &hiBin);
     }
+  if(fmutrg)
+    {
+      fnt->SetBranchAddress("mu1hltL2flt", mu1hltL2flt);
+      fnt->SetBranchAddress("mu1hltL3flt", mu1hltL3flt);
+      fnt->SetBranchAddress("mu1hltL2L3lastflt", mu1hltL2L3lastflt);
+      fnt->SetBranchAddress("mu2hltL2flt", mu2hltL2flt);
+      fnt->SetBranchAddress("mu2hltL3flt", mu2hltL3flt);
+      fnt->SetBranchAddress("mu2hltL2L3lastflt", mu2hltL2L3lastflt);
+    }
 
+  fnt->SetBranchAddress("PVz", &PVz);
   fnt->SetBranchAddress("Bsize", &Bsize);
   fnt->SetBranchAddress("Bgen", Bgen);
   fnt->SetBranchAddress("Bgenpt", Bgenpt);
