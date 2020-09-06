@@ -44,6 +44,7 @@ namespace mytmva
     bool isweight() { return fweight; }
     bool ishlt() { return fhlt; }
     bool isskim() { return fskim; }
+    bool ismutrg() { return fmutrg; }
 
     // >>>
     bool signalregionl(int j) { return (TMath::Abs(Bmass[j]-MASS_PSI2S) < sigwindowL); }
@@ -190,7 +191,7 @@ bool mytmva::ntuple::passedpre(int j)
      // Bpt[j] > 10 && TMath::Abs(Bmumumass[j]-3.096916) < 0.05 && TMath::Abs(Bujeta[j]) < 2.4 &&
      Bpt[j] > 10 && TMath::Abs(Bmumumass[j]-3.096916) < 0.15 && TMath::Abs(Bujeta[j]) < 2.4 &&
      (Bmu1SoftMuID[j] && Bmu2SoftMuID[j] && Bmu1isAcc[j] && Bmu2isAcc[j]) && 
-     /*Bmu1isTriggered[j] && Bmu2isTriggered[j]) && */
+     Bmu1isTriggered[j] && Bmu2isTriggered[j] &&
      Btrk1Pt[j] > 0.9 && Btrk2Pt[j] > 0.9 && TMath::Abs(Btrk1Eta[j]) < 2.4 && TMath::Abs(Btrk2Eta[j]) < 2.4 &&
      Btrk1highPurity[j] && Btrk2highPurity[j] && (Btrk1PixelHit[j]+Btrk1StripHit[j]) >= 11 && (Btrk2PixelHit[j]+Btrk2StripHit[j]) >= 11 && TMath::Abs(Btrk1PtErr[j]/Btrk1Pt[j]) < 0.1 && TMath::Abs(Btrk2PtErr[j]/Btrk2Pt[j]) < 0.1 && (Btrk1Chi2ndf[j]/(Btrk1nStripLayer[j]+Btrk1nPixelLayer[j])) < 0.18 && (Btrk2Chi2ndf[j]/(Btrk2nStripLayer[j]+Btrk2nPixelLayer[j])) < 0.18 && 
      TMath::Abs(By[j]) < 2.4 && Bchi2cl[j] > 0.1 &&

@@ -9,39 +9,51 @@ ymax=1.6
 
 counts=(0)
 optcuts=(
-    "&& BDT > 0.06 && (Bmass-3.096916-Btktkmass) < 0.13" # nominal
-    "&& BDT > 0.06 && (Bmass-3.096916-Btktkmass) < 0.13" # nominal
-    "&& BDTF > 0.3 && (Bmass-3.096916-Btktkmass) < 0.13"
-    "&& BDTD > 0.11 && (Bmass-3.096916-Btktkmass) < 0.13"
-    "&& BDTG > 0.68 && (Bmass-3.096916-Btktkmass) < 0.13"
+    "&& BDT > 0.06 && (Bmass-3.096916-Btktkmass) < 0.13" # 0: nominal
+    "&& BDT > 0.06 && (Bmass-3.096916-Btktkmass) < 0.13" # 1
+    "&& BDT > 0.06 && (Bmass-3.096916-Btktkmass) < 0.13" # 2
+    "&& BDT > 0.06 && (Bmass-3.096916-Btktkmass) < 0.13" # 3
+    "&& BDT > 0.06 && (Bmass-3.096916-Btktkmass) < 0.13" # 4
+    "&& BDTF > 0.3 && (Bmass-3.096916-Btktkmass) < 0.13" # 5
+    "&& BDTD > 0.11 && (Bmass-3.096916-Btktkmass) < 0.13" # 6
+    "&& BDTG > 0.68 && (Bmass-3.096916-Btktkmass) < 0.13" # 7
     "&& BDT > 0.04"
     ""
 )
 optcutntuples=(
-    "ntp->BDT[j] > 0.06 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13" # nominal
-    "ntp->BDT[j] > 0.06 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13" # nominal
-    "ntp->BDTF[j] > 0.3 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13"
-    "ntp->BDTD[j] > 0.11 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13"
-    "ntp->BDTG[j] > 0.68 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13"
+    "ntp->BDT[j] > 0.06 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13" # 0: nominal
+    "ntp->BDT[j] > 0.06 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13" # 1
+    "ntp->BDT[j] > 0.06 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13" # 2
+    "ntp->BDT[j] > 0.06 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13" # 3
+    "ntp->BDT[j] > 0.06 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13" # 4
+    "ntp->BDTF[j] > 0.3 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13" # 5
+    "ntp->BDTD[j] > 0.11 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13" # 6
+    "ntp->BDTG[j] > 0.68 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13" # 7
     "ntp->BDT[j] > 0.04"
     "true"
 )
+# --> tags including "L2L3" to use correct tnp leg matching <-- see: tnp_converter.cc
+# --> tags including "PVz15" to apply |PVz| < 15
+# --> tags including "newL2L3" to apply correct tnp header
 tags=(
-    "BDTQvalue_PVz15_L2L3" # nominal
-    "BDTQvalue_PVz15" # nominal
-    "BDTFQvalue"
-    "BDTDQvalue"
-    "BDTGQvalue"
+    "BDTQvalue_PVz15_newL2L3"  # 0: nominal
+    "BDTQvalue_PVz15_L2L3"     # 1
+    "BDTQvalue_PVz15"          # 2
+    "BDTQvalue"                # 3
+    "BDTQvalue_wmissingfile"   # 4
+    "BDTFQvalue_PVz15_newL2L3" # 5
+    "BDTDQvalue_PVz15_newL2L3" # 6
+    "BDTGQvalue_PVz15_newL2L3" # 7
     "BDTLoose2S"
     "noBDT"
 )
 
 input=/raid5/data/wangj/BntupleRun2018/mva_output_20190808ptdep/ntmix_20190806_Bfinder_20190513_HIDoubleMuon__PsiPeri__HIRun2018A_04Apr2019_v1_HF_and_MuonJSON_skim_trainX_20190808ptdep_sideband_tktk0p2_BDT_BDTD_BDTG_BDTF_LD_15p0_50p0_0-10-1-2-9_1bin.root
 input_ss=/export/d00/scratch/jwang/BntupleRun2018/mva_output/crab_Bfinder_samesign_20190513_HIDoubleMuonPsi_HIRun2018A_04Apr2019_v1_1033p1_GoldenJSON_327123_327564_skimhltBsize_ntmix_Xpt10_trainX_sideband_tktk0p2_BDT_BDTG_CutsGA_CutsSA_LD_10p0_inf_0-10-1-2-9_oldLH.root
-# inputmc_a_prompt=/raid5/data/wangj/BntupleRun2018/mva_output_20190808ptdep/ntmix_20190808_Bfinder_20190712_Hydjet_Pythia8_PromptPsi2S_1033p1_pt6tkpt0p9dls0_pthatweight_trainX_20190808ptdep_sideband_tktk0p2_BDT_BDTD_BDTG_BDTF_LD_15p0_50p0_0-10-1-2-9_1bin.root
 inputmc_a_prompt=/raid5/data/wangj/BntupleRun2018/mva_output_20190808ptdep/ntmix_mutrg_20190808_20200830rmevt_Bfinder_20190712_Hydjet_Pythia8_PromptPsi2S_pthatweight_trainX_20190808ptdep.root
-# inputmc_b_prompt=/raid5/data/wangj/BntupleRun2018/mva_output_20190808ptdep/ntmix_20190808_Bfinder_20190730_Hydjet_Pythia8_PromptXRho_1033p1_pt6tkpt0p9dls0_pthatweight_trainX_20190808ptdep_sideband_tktk0p2_BDT_BDTD_BDTG_BDTF_LD_15p0_50p0_0-10-1-2-9_1bin.root
+# inputmc_a_prompt=/raid5/data/wangj/BntupleRun2018/mva_output_20190808ptdep/ntmix_20190808_Bfinder_20190712_Hydjet_Pythia8_PromptPsi2S_1033p1_pt6tkpt0p9dls0_pthatweight_trainX_20190808ptdep_sideband_tktk0p2_BDT_BDTD_BDTG_BDTF_LD_15p0_50p0_0-10-1-2-9_1bin.root
 inputmc_b_prompt=/raid5/data/wangj/BntupleRun2018/mva_output_20190808ptdep/ntmix_mutrg_20190808_Bfinder_20190730_Hydjet_Pythia8_PromptXRho_pthatweight_trainX_20190808ptdep.root
+# inputmc_b_prompt=/raid5/data/wangj/BntupleRun2018/mva_output_20190808ptdep/ntmix_20190808_Bfinder_20190730_Hydjet_Pythia8_PromptXRho_1033p1_pt6tkpt0p9dls0_pthatweight_trainX_20190808ptdep_sideband_tktk0p2_BDT_BDTD_BDTG_BDTF_LD_15p0_50p0_0-10-1-2-9_1bin.root
 inputmc_a_nonprompt=/raid5/data/wangj/BntupleRun2018/mva_output_20190808ptdep/ntmix_20190808_Bfinder_20190712_Hydjet_Pythia8_NonPromptPsi2S_1033p1_pt6tkpt0p9dls0_pthatweight_trainX_20190808ptdep_sideband_tktk0p2_BDT_BDTD_BDTG_BDTF_LD_15p0_50p0_0-10-1-2-9_1bin.root
 inputmc_b_nonprompt=/raid5/data/wangj/BntupleRun2018/mva_output_20190808ptdep/ntmix_20190808_Bfinder_20190712_Hydjet_Pythia8_NonPromptXRho_1033p1_pt6tkpt0p9dls0_pthatweight_trainX_20190808ptdep_sideband_tktk0p2_BDT_BDTD_BDTG_BDTF_LD_15p0_50p0_0-10-1-2-9_1bin.root
 
@@ -93,12 +105,14 @@ sed -i "s/__PTBIN_INPUT__/$ptbins/g" tnpcc_tmp.h
 echo
 for count in ${counts[@]}
 do
-    precut="HLT_HIL3Mu0NHitQ10_L2Mu0_MAXdR3p5_M1to5_v1 && pprimaryVertexFilter && phfCoincFilter2Th4 && pclusterCompatibilityFilter && mvapref && fabs(PVz) < 15"
+    precut="HLT_HIL3Mu0NHitQ10_L2Mu0_MAXdR3p5_M1to5_v1 && pprimaryVertexFilter && phfCoincFilter2Th4 && pclusterCompatibilityFilter && mvapref"
+    [[ "${tags[count]}" == *"PVz15"* ]] && { precut="$precut && fabs(PVz) < 15" ; }
     cut="$precut ${optcuts[count]}"
     cutgen="1"
     cutacc="(fabs(Gmu1eta) < 2.4) && ((fabs(Gmu1eta) < 1.2 && Gmu1pt >= 3.5) || (fabs(Gmu1eta) >= 1.2 && fabs(Gmu1eta) < 2.1 && Gmu1pt >= 5.47-1.89*fabs(Gmu1eta)) || (fabs(Gmu1eta) >= 2.1 && Gmu1pt >= 1.5)) && (fabs(Gmu2eta) < 2.4) && ((fabs(Gmu2eta) < 1.2 && Gmu2pt >= 3.5) || (fabs(Gmu2eta) >= 1.2 && fabs(Gmu2eta) < 2.1 && Gmu2pt >= 5.47-1.89*fabs(Gmu2eta)) || (fabs(Gmu2eta) >= 2.1 && Gmu2pt >= 1.5)) && Gtk1pt > 0.9 && Gtk2pt > 0.9 && fabs(Gtk1eta) < 2.4 && fabs(Gtk2eta) < 2.4"
     cp ../tnp/tnp_converter.cc tnp_converter_tmp_${tmp}.cc
     sed -i "s/__CUTINPUT__/${optcutntuples[$count]}/g" tnp_converter_tmp_${tmp}.cc
+    [[ "${tags[count]}" != *"newL2L3"* ]] && { sed -i "s/tnp_weight_lowptPbPb/obsolete\/tnp_weight_lowptPbPb/g" tnp_converter_tmp_${tmp}.cc ; }
     [[ $RUN_CONVERTTNP -eq 1 || $# -eq 0 ]] && {
         g++ tnp_converter_tmp_${tmp}.cc -I"../includes/" $(root-config --libs --cflags) -g -o tnp_converter_${tmp}.exe || { rm tnp_converter_tmp_${tmp}.cc ; continue ; }
     }
@@ -132,4 +146,3 @@ done
 
 rm *_${tmp}.exe 2>/dev/null
 rm tnpcc_tmp.h 2>/dev/null
-

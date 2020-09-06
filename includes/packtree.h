@@ -56,7 +56,7 @@ xjjroot::packtree::packtree(TFile* inf, std::string treename, std::string type, 
   name = type;
   ntgen = 0; 
   fgen = gentreename!="";
-  fmutrg = xjjc::str_contains(type, "tnp");
+  fmutrg = inf->GetListOfKeys()->Contains("muinfo");
 
   nt = (TTree*)inf->Get(treename.c_str());
   fentries = nt->GetEntries();

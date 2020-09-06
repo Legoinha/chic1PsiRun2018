@@ -473,13 +473,13 @@ std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* 
   cr->cd();
   std::cout<<std::endl<<"\e[35;2m";
   RooFitResult* fitr;
-  RooGaussian fconssyst("fconssyst", "fconssyst", *fsyst, RooFit::RooConst(1), RooFit::RooConst(0.043)); // yield extraction syst
+  // RooGaussian fconssyst("fconssyst", "fconssyst", *fsyst, RooFit::RooConst(1), RooFit::RooConst(0.043)); // yield extraction syst
   // fitr = pdf->fitTo(*dsh, RooFit::Save(), RooFit::PrintEvalErrors(-1), RooFit::Constrain(fconssyst), RooFit::Strategy(0)); // <---------- switch
   // fitr = pdf->fitTo(*dsh, RooFit::Save(), RooFit::PrintEvalErrors(-1), RooFit::Constrain(fconssyst), RooFit::Strategy(1)); // <---------- switch
   // fitr = pdf->fitTo(*dsh, RooFit::Save(), RooFit::PrintEvalErrors(-1), RooFit::ExternalConstraints(fconssyst), RooFit::Strategy(0)); // <---------- switch
   // fitr = pdf->fitTo(*dsh, RooFit::Save(), RooFit::PrintEvalErrors(-1), RooFit::ExternalConstraints(fconssyst), RooFit::Strategy(1)); // <---------- switch
   fitr = pdf->fitTo(*dsh, RooFit::Save(), RooFit::PrintEvalErrors(-1), RooFit::Strategy(0)); // <---------- switch
-  // fitr = pdf->fitTo(*dsh, RooFit::Save(), RooFit::PrintEvalErrors(-1), RooFit::Strategy(1)); // <---------- switch
+  fitr = pdf->fitTo(*dsh, RooFit::Save(), RooFit::PrintEvalErrors(-1), RooFit::Strategy(1)); // <---------- switch
   std::cout<<"\e[0m";
   std::cout<<"\e[35;1m";
   fitr->Print("v");

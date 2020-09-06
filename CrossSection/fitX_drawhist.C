@@ -9,7 +9,9 @@
 #include "xjjrootuti.h"
 #include "systematics.h"
 #include "fitX.h"
+#include "results.h"
 
+void print(TFile* inf);
 void fitX_drawhist(std::string inputname, std::string output)
 {
   std::cout<<"\e[32;1m -- "<<__FUNCTION__<<"\e[0m"<<std::endl;
@@ -75,6 +77,9 @@ void fitX_drawhist(std::string inputname, std::string output)
   xjjroot::mkdir(Form("plots/%s/cratio.pdf", output.c_str()));
   cratio->SaveAs(Form("plots/%s/cratio.pdf", output.c_str()));
   std::cout<<std::endl;
+
+  fitX::results rs(inf, output.c_str());
+  rs.print();
 }
 
 int main(int argc, char* argv[])

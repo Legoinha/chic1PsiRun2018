@@ -6,7 +6,16 @@
 
 namespace tnpcc
 {
-  const int filterId = 1; // * filterId = 1: Jpsi L3 filter
+  // const int filterId = 1; // * filterId = 1: Jpsi L3 filter
+  // const int L2filterId = 0;
+  // const int L3filterId = 1;
+
+  std::map<std::string, int> filterId = {
+    std::pair<std::string, int>("jpsiL2", 0),
+    std::pair<std::string, int>("jpsiL3", 1),
+    std::pair<std::string, int>("upsiL2", 2),
+    std::pair<std::string, int>("upsiL3", 3),
+  };
   std::map<int, std::string> idxname = {
     std::pair<int, std::string>(-1, "syst_u"),
     std::pair<int, std::string>(-2, "syst_d"),
@@ -173,4 +182,30 @@ void tnpcc::drawtnp::drawkinematics(float ty)
   xjjroot::drawtex(0.22, ty-0.043*2, fitX::ytag().c_str(), 0.04, 13, 42);
   xjjroot::drawtex(0.22, ty-0.043*3, fitX::centtag().c_str(), 0.04, 13, 42);
 }
+
+// +++++++++++++++++++++++++++++++++++++++
+// - Trigger: (tnp_weight_trg_pbpb)
+//   * filterId = 0: Jpsi L2 filter
+//   * filterId = 1: Jpsi L3 filter
+//   * filterId = 2: Upsi L2 filter
+//   * filterId = 3: Upsi L3 filter
+//   * idx = 0:  nominal
+//   * idx = -1: syst variation, +1 sigma
+//   * idx = -2: syst variation, -1 sigma
+//   * idx = +1: stat variation, +1 sigma
+//   * idx = +2: stat variation, -1 sigma
+// - MuID: (tnp_weight_muid_pbpb)
+//   * idx = 0:  nominal
+//   * idx = -1: syst variation, +1 sigma
+//   * idx = -2: syst variation, -1 sigma
+//   * idx = +1: stat variation, +1 sigma
+//   * idx = +2: stat variation, -1 sigma
+// - Inner tracking: (tnp_weight_trk_pbpb)
+//   * idx = 0:  nominal
+//   * idx = -1: syst variation, +1 sigma
+//   * idx = -2: syst variation, -1 sigma
+//   * idx = +1: stat variation, +1 sigma
+//   * idx = +2: stat variation, -1 sigma
+// +++++++++++++++++++++++++++++++++++++++
+
 

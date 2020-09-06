@@ -14,18 +14,21 @@
 //   * idx = -2: syst variation, -1 sigma
 //   * idx = +1: stat variation, +1 sigma
 //   * idx = +2: stat variation, -1 sigma
+//   * idx = 99: syst variation, tag selection
 // - MuID: (tnp_weight_muid_pbpb)
 //   * idx = 0:  nominal
 //   * idx = -1: syst variation, +1 sigma
 //   * idx = -2: syst variation, -1 sigma
 //   * idx = +1: stat variation, +1 sigma
 //   * idx = +2: stat variation, -1 sigma
+//   * idx = 99: syst variation, tag selection
 // - Inner tracking: (tnp_weight_trk_pbpb)
 //   * idx = 0:  nominal
 //   * idx = -1: syst variation, +1 sigma
 //   * idx = -2: syst variation, -1 sigma
 //   * idx = +1: stat variation, +1 sigma
 //   * idx = +2: stat variation, -1 sigma
+//   * idx = 99: syst variation, tag selection
 // +++++++++++++++++++++++++++++++++++++++
 
 double tnp_weight_muid_pbpb(double pt, double eta, int idx=0);
@@ -39,109 +42,165 @@ double tnp_weight_trg_pbpb(double pt, double eta, int filterId=0,int idx=0);
 double tnp_weight_muid_pbpb(double pt, double eta, int idx) {
   double x = pt;
   double num=1, den=1, syst=0, statUp=0, statDown=0;
-  // SF for 0 < |eta| < 1.2
-  if (fabs(eta) >= 0 && fabs(eta) < 1.2) {
-    if (x >= 3.5 && x <4) {num = 0.946159; den = 0.951487; statUp = 0.0037907; statDown = 0.00389305;}
-    else if (x >= 4 && x <4.5) {num = 0.973653; den = 0.975115; statUp = 0.00284919; statDown = 0.00295999;}
-    else if (x >= 4.5 && x <5) {num = 0.984681; den = 0.983948; statUp = 0.00264355; statDown = 0.00278459;}
-    else if (x >= 5 && x <5.5) {num = 0.985002; den = 0.989214; statUp = 0.00286271; statDown = 0.00302699;}
-    else if (x >= 5.5 && x <6.5) {num = 0.988848; den = 0.990738; statUp = 0.00200687; statDown = 0.00212372;}
-    else if (x >= 6.5 && x <8) {num = 0.991114; den = 0.992378; statUp = 0.00174382; statDown = 0.00186571;}
-    else if (x >= 8 && x <10.5) {num = 0.986281; den = 0.989496; statUp = 0.00215883; statDown = 0.00230715;}
-    else if (x >= 10.5 && x <14) {num = 0.976775; den = 0.968327; statUp = 0.00361383; statDown = 0.00385533;}
-    else if (x >= 14 && x <18) {num = 0.980589; den = 0.977123; statUp = 0.00486848; statDown = 0.00537745;}
-    else {num = 0.984897; den = 0.982298; statUp = 0.00550232; statDown = 0.00622724;}
+  if (idx != 99) {
+    // SF for 0 < |eta| < 1.2
+    if (fabs(eta) >= 0 && fabs(eta) < 1.2) {
+      if (x >= 3.5 && x <4) {num = 0.950063; den = 0.949953; statUp = 0.00533472; statDown = 0.0055493;}
+      else if (x >= 4 && x <4.5) {num = 0.967001; den = 0.974793; statUp = 0.0044534; statDown = 0.00469609;}
+      else if (x >= 4.5 && x <5) {num = 0.985975; den = 0.984666; statUp = 0.00409292; statDown = 0.00441588;}
+      else if (x >= 5 && x <5.5) {num = 0.98654; den = 0.988924; statUp = 0.0042279; statDown = 0.00461031;}
+      else if (x >= 5.5 && x <6.5) {num = 0.9864; den = 0.991143; statUp = 0.00318379; statDown = 0.00343892;}
+      else if (x >= 6.5 && x <8) {num = 0.989987; den = 0.992602; statUp = 0.00284886; statDown = 0.00315788;}
+      else if (x >= 8 && x <10.5) {num = 0.987301; den = 0.988221; statUp = 0.00346155; statDown = 0.00384835;}
+      else if (x >= 10.5 && x <14) {num = 0.975692; den = 0.968807; statUp = 0.00608607; statDown = 0.00679025;}
+      else if (x >= 14 && x <18) {num = 0.982855; den = 0.979757; statUp = 0.00843435; statDown = 0.0101701;}
+      else {num = 0.983936; den = 0.983559; statUp = 0.00986974; statDown = 0.0122188;}
+    }
+    // SF for 1.2 < |eta| < 1.8
+    if (fabs(eta) >= 1.2 && fabs(eta) < 1.8) {
+      if (x >= 2.07 && x <3) {num = 0.984913; den = 0.981057; statUp = 0.009598; statDown = 0.00989626;}
+      else if (x >= 3 && x <3.5) {num = 0.988701; den = 0.984902; statUp = 0.00593884; statDown = 0.00627794;}
+      else if (x >= 3.5 && x <4) {num = 0.977074; den = 0.988051; statUp = 0.00583354; statDown = 0.00624515;}
+      else if (x >= 4 && x <4.5) {num = 0.993705; den = 0.992735; statUp = 0.00425025; statDown = 0.00479705;}
+      else if (x >= 4.5 && x <5) {num = 0.995157; den = 0.990413; statUp = 0.00463177; statDown = 0.00529916;}
+      else if (x >= 5 && x <6) {num = 0.985933; den = 0.994153; statUp = 0.00456591; statDown = 0.00512391;}
+      else if (x >= 6 && x <7.5) {num = 0.991523; den = 0.997056; statUp = 0.00437948; statDown = 0.00503813;}
+      else if (x >= 7.5 && x <10) {num = 0.995197; den = 0.995474; statUp = 0.00380375; statDown = 0.0047413;}
+      else if (x >= 10 && x <15) {num = 0.983951; den = 0.973431; statUp = 0.00832074; statDown = 0.00955641;}
+      else {num = 0.971597; den = 0.983348; statUp = 0.0137801; statDown = 0.0166571;}
+    }
+    // SF for 1.8 < |eta| < 2.1
+    if (fabs(eta) >= 1.8 && fabs(eta) < 2.1) {
+      if (x >= 1.5 && x <2.5) {num = 0.979164; den = 0.947982; statUp = 0.0167706; statDown = 0.0168448;}
+      else if (x >= 2.5 && x <3) {num = 0.995171; den = 0.985696; statUp = 0.00482874; statDown = 0.00808571;}
+      else if (x >= 3 && x <3.5) {num = 0.988273; den = 0.991548; statUp = 0.00658297; statDown = 0.00748573;}
+      else if (x >= 3.5 && x <4) {num = 0.980973; den = 0.996485; statUp = 0.00655784; statDown = 0.00772284;}
+      else if (x >= 4 && x <4.5) {num = 1; den = 0.997746; statUp = 9.19584e-10; statDown = 0.00182312;}
+      else if (x >= 4.5 && x <5.5) {num = 0.996082; den = 0.998014; statUp = 0.00337514; statDown = 0.00443746;}
+      else if (x >= 5.5 && x <7) {num = 1; den = 0.998654; statUp = 2.54058e-09; statDown = 0.00317007;}
+      else if (x >= 7 && x <9) {num = 0.99108; den = 0.999533; statUp = 0.00590722; statDown = 0.00727279;}
+      else if (x >= 9 && x <12) {num = 1; den = 0.997779; statUp = 8.37862e-09; statDown = 0.00331019;}
+      else {num = 1; den = 0.996649; statUp = 4.39015e-10; statDown = 0.00470679;}
+    }
+    // SF for 2.1 < |eta| < 2.4
+    if (fabs(eta) >= 2.1 && fabs(eta) < 2.4) {
+      if (x >= 1.5 && x <2.2) {num = 0.910379; den = 0.905616; statUp = 0.0266485; statDown = 0.0260023;}
+      else if (x >= 2.2 && x <2.7) {num = 0.961502; den = 0.962387; statUp = 0.014631; statDown = 0.015103;}
+      else if (x >= 2.7 && x <3.2) {num = 0.972829; den = 0.976239; statUp = 0.0116492; statDown = 0.0124969;}
+      else if (x >= 3.2 && x <3.7) {num = 0.983185; den = 0.982425; statUp = 0.00885052; statDown = 0;}
+      else if (x >= 3.7 && x <4.7) {num = 0.996796; den = 0.99483; statUp = 0.0032042; statDown = 0.00675329;}
+      else if (x >= 4.7 && x <8) {num = 1; den = 0.997321; statUp = 1.92743e-08; statDown = 0.00395103;}
+      else if (x >= 8 && x <11) {num = 1; den = 0.998724; statUp = 9.48282e-09; statDown = 0.00535409;}
+      else if (x >= 11 && x <14) {num = 1; den = 0.997692; statUp = 7.74356e-09; statDown = 0.0128769;}
+      else {num = 1; den = 0.993497; statUp = 7.83633e-08; statDown = 0.025201;}
+    }
+
+    if (fabs(eta) >= 0 && fabs(eta) < 1.2) {
+      // syst uncertainties
+      if (x >= 3.5 && x < 4) syst = 0.00176394;
+      else if (x >= 4 && x < 4.5) syst = 0.00111834;
+      else if (x >= 4.5 && x < 5) syst = 0.000449398;
+      else if (x >= 5 && x < 5.5) syst = 0.00112726;
+      else if (x >= 5.5 && x < 6.5) syst = 0.000776533;
+      else if (x >= 6.5 && x < 8) syst = 0.000911058;
+      else if (x >= 8 && x < 10.5) syst = 0.00203964;
+      else if (x >= 10.5 && x < 14) syst = 0.00287311;
+      else if (x >= 14 && x < 18) syst = 0.00131869;
+      else syst = 0.00605208;
+    }
+    else if (fabs(eta) >= 1.2 && fabs(eta) < 1.8) {
+      // syst uncertainties
+      if (x >= 2.07 && x < 3) syst = 0.00349676;
+      else if (x >= 3 && x < 3.5) syst = 0.00324231;
+      else if (x >= 3.5 && x < 4) syst = 0.00236393;
+      else if (x >= 4 && x < 4.5) syst = 0.00126545;
+      else if (x >= 4.5 && x < 5) syst = 0.00202288;
+      else if (x >= 5 && x < 6) syst = 0.00109481;
+      else if (x >= 6 && x < 7.5) syst = 0.00247103;
+      else if (x >= 7.5 && x < 10) syst = 0.00118213;
+      else if (x >= 10 && x < 15) syst = 0.00147647;
+      else syst = 0.00512414;
+    }
+    else if (fabs(eta) >= 1.8 && fabs(eta) < 2.1) {
+      // syst uncertainties
+      if (x >= 1.5 && x < 2.5) syst = 0.00490325;
+      else if (x >= 2.5 && x < 3) syst = 0.00204865;
+      else if (x >= 3 && x < 3.5) syst = 0.00032749;
+      else if (x >= 3.5 && x < 4) syst = 0.0048872;
+      else if (x >= 4 && x < 4.5) syst = 2.14126e-08;
+      else if (x >= 4.5 && x < 5.5) syst = 0.000498982;
+      else if (x >= 5.5 && x < 7) syst = 2.61329e-08;
+      else if (x >= 7 && x < 9) syst = 0.00518478;
+      else if (x >= 9 && x < 12) syst = 8.3503e-09;
+      else syst = 7.88309e-09;
+    }
+    else if (fabs(eta) >= 2.1 && fabs(eta) < 2.4) {
+      // syst uncertainties
+      if (x >= 1.5 && x < 2.2) syst = 0.00823075;
+      else if (x >= 2.2 && x < 2.7) syst = 0.0150309;
+      else if (x >= 2.7 && x < 3.2) syst = 0.00542403;
+      else if (x >= 3.2 && x < 3.7) syst = 0.00407213;
+      else if (x >= 3.7 && x < 4.7) syst = 0.00269522;
+      else if (x >= 4.7 && x < 8) syst = 0.0057144;
+      else if (x >= 8 && x < 11) syst = 9.46919e-09;
+      else if (x >= 11 && x < 14) syst = 7.74356e-09;
+      else syst = 7.82098e-08;
+    }
   }
-  // SF for 1.2 < |eta| < 1.8
-  if (fabs(eta) >= 1.2 && fabs(eta) < 1.8) {
-    if (x >= 2.07 && x <3) {num = 0.981569; den = 0.981282; statUp = 0.00677595; statDown = 0.00689087;}
-    else if (x >= 3 && x <3.5) {num = 0.986502; den = 0.985373; statUp = 0.00410813; statDown = 0.00425456;}
-    else if (x >= 3.5 && x <4) {num = 0.98077; den = 0.989287; statUp = 0.00400325; statDown = 0.00400325;}
-    else if (x >= 4 && x <4.5) {num = 0.986286; den = 0.992139; statUp = 0.00359094; statDown = 0.00382453;}
-    else if (x >= 4.5 && x <5) {num = 0.992842; den = 0.992784; statUp = 0.00351371; statDown = 0.00380977;}
-    else if (x >= 5 && x <6) {num = 0.989169; den = 0.995025; statUp = 0.00291819; statDown = 0.00314488;}
-    else if (x >= 6 && x <7.5) {num = 0.994996; den = 0.996835; statUp = 0.00241413; statDown = 0.00267229;}
-    else if (x >= 7.5 && x <10) {num = 0.998548; den = 0.99638; statUp = 0.00145236; statDown = 0.00254248;}
-    else if (x >= 10 && x <15) {num = 0.979249; den = 0.971019; statUp = 0.00526182; statDown = 0.0057076;}
-    else {num = 0.994124; den = 0.98437; statUp = 0.0058759; statDown = 0.007951;}
-  }
-  // SF for 1.8 < |eta| < 2.1
-  if (fabs(eta) >= 1.8 && fabs(eta) < 2.1) {
-    if (x >= 1.5 && x <2.5) {num = 0.970228; den = 0.953223; statUp = 0.0110656; statDown = 0;}
-    else if (x >= 2.5 && x <3) {num = 0.987297; den = 0.983762; statUp = 0.00593338; statDown = 0.00622044;}
-    else if (x >= 3 && x <3.5) {num = 0.991708; den = 0.991014; statUp = 0.00482514; statDown = 0.00446851;}
-    else if (x >= 3.5 && x <4) {num = 0.982788; den = 0.995327; statUp = 0.00481342; statDown = 0.00528113;}
-    else if (x >= 4 && x <4.5) {num = 0.99717; den = 0.997323; statUp = 0.00282996; statDown = 0.00378255;}
-    else if (x >= 4.5 && x <5.5) {num = 0.997013; den = 0.998097; statUp = 0.0022717; statDown = 0;}
-    else if (x >= 5.5 && x <7) {num = 1; den = 0.998592; statUp = 1.50776e-07; statDown = 0.00122323;}
-    else if (x >= 7 && x <9) {num = 0.996501; den = 0.999317; statUp = 0.00297386; statDown = 0.00362572;}
-    else if (x >= 9 && x <12) {num = 0.997501; den = 0.996859; statUp = 0.00249868; statDown = 0.00478656;}
-    else {num = 0.989345; den = 0.997618; statUp = 0.0051521; statDown = 0.00686294;}
-  }
-  // SF for 2.1 < |eta| < 2.4
-  if (fabs(eta) >= 2.1 && fabs(eta) < 2.4) {
-    if (x >= 1.5 && x <2.2) {num = 0.901632; den = 0.910903; statUp = 0.0172668; statDown = 0;}
-    else if (x >= 2.2 && x <2.7) {num = 0.939984; den = 0.964945; statUp = 0.0107612; statDown = 0.0109264;}
-    else if (x >= 2.7 && x <3.2) {num = 0.973211; den = 0.978488; statUp = 0.00846784; statDown = 0.00879021;}
-    else if (x >= 3.2 && x <3.7) {num = 0.977562; den = 0.988794; statUp = 0.006863; statDown = 0.00730481;}
-    else if (x >= 3.7 && x <4.7) {num = 0.996762; den = 0.993708; statUp = 0.00323819; statDown = 0.00498314;}
-    else if (x >= 4.7 && x <8) {num = 0.996858; den = 0.997702; statUp = 0.00255714; statDown = 0.00289927;}
-    else if (x >= 8 && x <11) {num = 1; den = 0.999093; statUp = 3.22096e-09; statDown = 0.00251078;}
-    else if (x >= 11 && x <14) {num = 0.978749; den = 0.997809; statUp = 0.0100421; statDown = 0.0137177;}
-    else {num = 1; den = 0.995974; statUp = 1.46346e-07; statDown = 0.00540197;}
+  else {
+    // SF for 0 < |eta| < 1.2
+    if (fabs(eta) >= 0 && fabs(eta) < 1.2) {
+      if (x >= 3.5 && x <4) {num = 0.925202; den = 0.950687; statUp = 0.00972645; statDown = 0.010175;}
+      else if (x >= 4 && x <4.5) {num = 0.973254; den = 0.975632; statUp = 0.00726942; statDown = 0.00786806;}
+      else if (x >= 4.5 && x <5) {num = 0.982892; den = 0.984034; statUp = 0.0065814; statDown = 0.00735102;}
+      else if (x >= 5 && x <5.5) {num = 0.996676; den = 0.989647; statUp = 0.00332367; statDown = 0.00770647;}
+      else if (x >= 5.5 && x <6.5) {num = 0.991131; den = 0.990874; statUp = 0.00514469; statDown = 0.00597022;}
+      else if (x >= 6.5 && x <8) {num = 0.987993; den = 0.992506; statUp = 0.0053893; statDown = 0.00626197;}
+      else if (x >= 8 && x <10.5) {num = 0.985741; den = 0.988617; statUp = 0.00606416; statDown = 0.00720336;}
+      else if (x >= 10.5 && x <14) {num = 0.967462; den = 0.968527; statUp = 0.0118984; statDown = 0.0140123;}
+      else if (x >= 14 && x <18) {num = 0.971597; den = 0.979222; statUp = 0.0210756; statDown = 0.0263842;}
+      else {num = 0.939779; den = 0.98371; statUp = 0.0358796; statDown = 0.0421902;}
+    }
+    // SF for 1.2 < |eta| < 1.8
+    if (fabs(eta) >= 1.2 && fabs(eta) < 1.8) {
+      if (x >= 2.07 && x <3) {num = 0.984807; den = 0.981567; statUp = 0.0141147; statDown = 0.0144792;}
+      else if (x >= 3 && x <3.5) {num = 0.976516; den = 0.984952; statUp = 0.00931142; statDown = 0.00978553;}
+      else if (x >= 3.5 && x <4) {num = 0.990132; den = 0.989033; statUp = 0.0077507; statDown = 0.00831505;}
+      else if (x >= 4 && x <4.5) {num = 0.979716; den = 0.992265; statUp = 0.00849793; statDown = 0.00934226;}
+      else if (x >= 4.5 && x <5) {num = 1; den = 0.991969; statUp = 1.55101e-10; statDown = 0.00834803;}
+      else if (x >= 5 && x <6) {num = 0.998619; den = 0.995108; statUp = 0.00138079; statDown = 0.00726117;}
+      else if (x >= 6 && x <7.5) {num = 0.994131; den = 0.996947; statUp = 0.00586887; statDown = 0.00788471;}
+      else if (x >= 7.5 && x <10) {num = 1; den = 0.996339; statUp = 7.59031e-08; statDown = 0.00282066;}
+      else if (x >= 10 && x <15) {num = 0.999981; den = 0.972463; statUp = 1.894e-05; statDown = 0.0138268;}
+      else {num = 0.972657; den = 0.985482; statUp = 0.0273431; statDown = 0.0472594;}
+    }
+    // SF for 1.8 < |eta| < 2.1
+    if (fabs(eta) >= 1.8 && fabs(eta) < 2.1) {
+      if (x >= 1.5 && x <2.5) {num = 0.788854; den = 0.953099; statUp = 0.0186173; statDown = 0.0184554;}
+      else if (x >= 2.5 && x <3) {num = 0.983117; den = 0.984468; statUp = 0.011386; statDown = 0.0121255;}
+      else if (x >= 3 && x <3.5) {num = 0.990054; den = 0.991599; statUp = 0.00994628; statDown = 0.0118987;}
+      else if (x >= 3.5 && x <4) {num = 0.99577; den = 0.9958; statUp = 0.00423029; statDown = 0.0102048;}
+      else if (x >= 4 && x <4.5) {num = 0.991044; den = 0.997323; statUp = 0.00702365; statDown = 0.00950553;}
+      else if (x >= 4.5 && x <5.5) {num = 0.995896; den = 0.998046; statUp = 0.00410396; statDown = 0.00665801;}
+      else if (x >= 5.5 && x <7) {num = 1; den = 0.998865; statUp = 2.45315e-07; statDown = 0.00646251;}
+      else if (x >= 7 && x <9) {num = 0.993992; den = 0.999619; statUp = 0.00600798; statDown = 0.0141094;}
+      else if (x >= 9 && x <12) {num = 1; den = 0.997037; statUp = 1.07078e-09; statDown = 0.010506;}
+      else {num = 0.938537; den = 0.997466; statUp = 0.0310024; statDown = 0.0351368;}
+    }
+    // SF for 2.1 < |eta| < 2.4
+    if (fabs(eta) >= 2.1 && fabs(eta) < 2.4) {
+      if (x >= 1.5 && x <2.2) {num = 0.87859; den = 0.906667; statUp = 0.0288182; statDown = 0.0280427;}
+      else if (x >= 2.2 && x <2.7) {num = 0.923374; den = 0.967495; statUp = 0.0204527; statDown = 0.0208072;}
+      else if (x >= 2.7 && x <3.2) {num = 0.981304; den = 0.979751; statUp = 0.0166669; statDown = 0.0174863;}
+      else if (x >= 3.2 && x <3.7) {num = 0.969957; den = 0.987414; statUp = 0.0134843; statDown = 0.0145909;}
+      else if (x >= 3.7 && x <4.7) {num = 0.991971; den = 0.993668; statUp = 0.00802857; statDown = 0.0105704;}
+      else if (x >= 4.7 && x <8) {num = 0.991034; den = 0.997648; statUp = 0.00781413; statDown = 0.00932118;}
+      else if (x >= 8 && x <11) {num = 1; den = 0.998833; statUp = 1.58429e-13; statDown = 0.00513946;}
+      else if (x >= 11 && x <14) {num = 0.956272; den = 0.998051; statUp = 0.0437282; statDown = 0.0631049;}
+      else {num = 1; den = 0.994701; statUp = 1.1911e-07; statDown = 0.0477533;}
+    }
   }
 
-  if (fabs(eta) >= 0 && fabs(eta) < 1.2) {
-    // syst uncertainties
-    if (x >= 3.5 && x < 4) syst = 0.000799144;
-    else if (x >= 4 && x < 4.5) syst = 0.000316587;
-    else if (x >= 4.5 && x < 5) syst = 0.000900099;
-    else if (x >= 5 && x < 5.5) syst = 0.00110215;
-    else if (x >= 5.5 && x < 6.5) syst = 0.000271437;
-    else if (x >= 6.5 && x < 8) syst = 0.000512112;
-    else if (x >= 8 && x < 10.5) syst = 0.00123065;
-    else if (x >= 10.5 && x < 14) syst = 0.00263086;
-    else if (x >= 14 && x < 18) syst = 0.00137269;
-    else syst = 0.00370496;
-  }
-  else if (fabs(eta) >= 1.2 && fabs(eta) < 1.8) {
-    // syst uncertainties
-    if (x >= 2.07 && x < 3) syst = 0.00212907;
-    else if (x >= 3 && x < 3.5) syst = 0.00176869;
-    else if (x >= 3.5 && x < 4) syst = 0.0018028;
-    else if (x >= 4 && x < 4.5) syst = 0.00161887;
-    else if (x >= 4.5 && x < 5) syst = 0.00177587;
-    else if (x >= 5 && x < 6) syst = 0.000768592;
-    else if (x >= 6 && x < 7.5) syst = 0.00104735;
-    else if (x >= 7.5 && x < 10) syst = 0.00121085;
-    else if (x >= 10 && x < 15) syst = 0.00181423;
-    else syst = 0.00257806;
-  }
-  else if (fabs(eta) >= 1.8 && fabs(eta) < 2.1) {
-    // syst uncertainties
-    if (x >= 1.5 && x < 2.5) syst = 0.00334452;
-    else if (x >= 2.5 && x < 3) syst = 0.00116118;
-    else if (x >= 3 && x < 3.5) syst = 0.00483524;
-    else if (x >= 3.5 && x < 4) syst = 0.00108025;
-    else if (x >= 4 && x < 4.5) syst = 0.00282868;
-    else if (x >= 4.5 && x < 5.5) syst = 0.000630971;
-    else if (x >= 5.5 && x < 7) syst = 7.68922e-07;
-    else if (x >= 7 && x < 9) syst = 0.00185991;
-    else if (x >= 9 && x < 12) syst = 0.000838922;
-    else syst = 0.000763013;
-  }
-  else if (fabs(eta) >= 2.1 && fabs(eta) < 2.4) {
-    // syst uncertainties
-    if (x >= 1.5 && x < 2.2) syst = 0.00406598;
-    else if (x >= 2.2 && x < 2.7) syst = 0.00430655;
-    else if (x >= 2.7 && x < 3.2) syst = 0.00328867;
-    else if (x >= 3.2 && x < 3.7) syst = 0.00327706;
-    else if (x >= 3.7 && x < 4.7) syst = 0.0018308;
-    else if (x >= 4.7 && x < 8) syst = 0.00193408;
-    else if (x >= 8 && x < 11) syst = 2.29509e-07;
-    else if (x >= 11 && x < 14) syst = 0.00129097;
-    else syst = 1.46346e-07;
-  }
   double syst_factor = 0; double stat_factor = 0;
   if (idx == -1) syst_factor = syst;
   else if (idx == -2) syst_factor = -1*syst;
@@ -158,435 +217,525 @@ double tnp_weight_trg_pbpb(double pt, double eta, int filterId,int idx) {
   double x = pt;
   double num=1, den=1, syst=0, statUp=0, statDown=0;
   if (filterId==0) { //L2 Jpsi
-    // SF for 0 < |eta| < 1.2
-    if (fabs(eta) >= 0 && fabs(eta) < 1.2) {
-      if (x >= 3.5 && x <4) {num = 0.66246; den = 0.617044; statUp = 0.00759822; statDown = 0.00764213;}
-      else if (x >= 4 && x <4.5) {num = 0.859542; den = 0.838993; statUp = 0.00554625; statDown = 0.00565142;}
-      else if (x >= 4.5 && x <5) {num = 0.916898; den = 0.90054; statUp = 0.00471306; statDown = 0.00485668;}
-      else if (x >= 5 && x <5.5) {num = 0.934879; den = 0.92338; statUp = 0.00458324; statDown = 0.0047695;}
-      else if (x >= 5.5 && x <6.5) {num = 0.947552; den = 0.940172; statUp = 0.00344535; statDown = 0.00357327;}
-      else if (x >= 6.5 && x <8) {num = 0.94982; den = 0.956634; statUp = 0.00341385; statDown = 0.00355042;}
-      else if (x >= 8 && x <10.5) {num = 0.95068; den = 0.962863; statUp = 0.00364888; statDown = 0.00380937;}
-      else if (x >= 10.5 && x <14) {num = 0.947627; den = 0.963749; statUp = 0.00479744; statDown = 0.00506693;}
-      else if (x >= 14 && x <18) {num = 0.939736; den = 0.965572; statUp = 0.00768532; statDown = 0.00828185;}
-      else {num = 0.943; den = 0.957231; statUp = 0.00880706; statDown = 0.00961831;}
-    }
-    // SF for 1.2 < |eta| < 1.8
-    if (fabs(eta) >= 1.2 && fabs(eta) < 1.8) {
-      if (x >= 2.07 && x <3) {num = 0.672197; den = 0.634105; statUp = 0.0116105; statDown = 0.0116585;}
-      else if (x >= 3 && x <3.5) {num = 0.830014; den = 0.793033; statUp = 0.00781546; statDown = 0.00793036;}
-      else if (x >= 3.5 && x <4) {num = 0.901627; den = 0.867368; statUp = 0.00658615; statDown = 0.00658615;}
-      else if (x >= 4 && x <4.5) {num = 0.918707; den = 0.916768; statUp = 0.00628767; statDown = 0.00654209;}
-      else if (x >= 4.5 && x <5) {num = 0.935159; den = 0.935819; statUp = 0.0064133; statDown = 0.00675361;}
-      else if (x >= 5 && x <6) {num = 0.940538; den = 0.949225; statUp = 0.0052386; statDown = 0.00549113;}
-      else if (x >= 6 && x <7.5) {num = 0.943354; den = 0.957099; statUp = 0.00541232; statDown = 0.0057046;}
-      else if (x >= 7.5 && x <10) {num = 0.952833; den = 0.959401; statUp = 0.00555608; statDown = 0.00593069;}
-      else if (x >= 10 && x <15) {num = 0.950014; den = 0.960094; statUp = 0.00676702; statDown = 0.0073103;}
-      else {num = 0.914564; den = 0.953433; statUp = 0.0132629; statDown = 0.0146698;}
-    }
-    // SF for 1.8 < |eta| < 2.1
-    if (fabs(eta) >= 1.8 && fabs(eta) < 2.1) {
-      if (x >= 1.5 && x <2.5) {num = 0.69574; den = 0.673526; statUp = 0.0132158; statDown = 0.0132339;}
-      else if (x >= 2.5 && x <3) {num = 0.881983; den = 0.892382; statUp = 0.0102195; statDown = 0.0104922;}
-      else if (x >= 3 && x <3.5) {num = 0.908943; den = 0.929761; statUp = 0.00966169; statDown = 0.0100646;}
-      else if (x >= 3.5 && x <4) {num = 0.920464; den = 0.94472; statUp = 0.00960848; statDown = 0.0100994;}
-      else if (x >= 4 && x <4.5) {num = 0.907279; den = 0.948185; statUp = 0.0108863; statDown = 0.0115854;}
-      else if (x >= 4.5 && x <5.5) {num = 0.929741; den = 0.951593; statUp = 0.00797835; statDown = 0.00841839;}
-      else if (x >= 5.5 && x <6.5) {num = 0.892463; den = 0.953392; statUp = 0.0118058; statDown = 0.0123937;}
-      else if (x >= 6.5 && x <8) {num = 0.917335; den = 0.947148; statUp = 0.0100574; statDown = 0.0107488;}
-      else if (x >= 8 && x <9.5) {num = 0.912892; den = 0.941109; statUp = 0.0137674; statDown = 0.0149277;}
-      else if (x >= 9.5 && x <13) {num = 0.915007; den = 0.941082; statUp = 0.013898; statDown = 0.0151274;}
-      else {num = 0.904239; den = 0.925954; statUp = 0.0221633; statDown = 0.0243071;}
-    }
-    // SF for 2.1 < |eta| < 2.4
-    if (fabs(eta) >= 2.1 && fabs(eta) < 2.4) {
-      if (x >= 1.5 && x <2.2) {num = 0.749861; den = 0.728213; statUp = 0.01662; statDown = 0.0165872;}
-      else if (x >= 2.2 && x <2.7) {num = 0.854468; den = 0.865648; statUp = 0.0140236; statDown = 0.0142579;}
-      else if (x >= 2.7 && x <3.2) {num = 0.878285; den = 0.893429; statUp = 0.0129941; statDown = 0.0133672;}
-      else if (x >= 3.2 && x <3.7) {num = 0.8799; den = 0.909; statUp = 0.0120868; statDown = 0.0125586;}
-      else if (x >= 3.7 && x <4.7) {num = 0.887508; den = 0.911976; statUp = 0.0108445; statDown = 0.0105222;}
-      else if (x >= 4.7 && x <6.5) {num = 0.913489; den = 0.926877; statUp = 0.00954989; statDown = 0.0100281;}
-      else if (x >= 6.5 && x <8.5) {num = 0.900517; den = 0.922227; statUp = 0.0144257; statDown = 0.0153605;}
-      else if (x >= 8.5 && x <11) {num = 0.868413; den = 0.91872; statUp = 0.0200071; statDown = 0.0215637;}
-      else {num = 0.889934; den = 0.912376; statUp = 0.0231784; statDown = 0.0255139;}
-    }
+    if (idx != 99) {
+      // SF for 0 < |eta| < 1.2
+      if (fabs(eta) >= 0 && fabs(eta) < 1.2) {
+	if (x >= 3.5 && x <4) {num = 0.683516; den = 0.624883; statUp = 0.0108066; statDown = 0.0109176;}
+	else if (x >= 4 && x <4.5) {num = 0.864766; den = 0.844349; statUp = 0.00811031; statDown = 0.00834878;}
+	else if (x >= 4.5 && x <5) {num = 0.93532; den = 0.903951; statUp = 0.00633481; statDown = 0.00667111;}
+	else if (x >= 5 && x <5.5) {num = 0.938106; den = 0.923036; statUp = 0.00664483; statDown = 0.0070676;}
+	else if (x >= 5.5 && x <6.5) {num = 0.961913; den = 0.940699; statUp = 0.00441524; statDown = 0.00471286;}
+	else if (x >= 6.5 && x <8) {num = 0.955209; den = 0.958559; statUp = 0.00486781; statDown = 0.00520504;}
+	else if (x >= 8 && x <10.5) {num = 0.960097; den = 0.96542; statUp = 0.00522745; statDown = 0.00566401;}
+	else if (x >= 10.5 && x <14) {num = 0.953912; den = 0.966812; statUp = 0.00737412; statDown = 0.0081774;}
+	else if (x >= 14 && x <18) {num = 0.958011; den = 0.96975; statUp = 0.0115548; statDown = 0.0135024;}
+	else {num = 0.958729; den = 0.964144; statUp = 0.0126207; statDown = 0.0154877;}
+      }
+      // SF for 1.2 < |eta| < 1.8
+      if (fabs(eta) >= 1.2 && fabs(eta) < 1.8) {
+	if (x >= 2.07 && x <3) {num = 0.69446; den = 0.640187; statUp = 0.0166834; statDown = 0.0168495;}
+	else if (x >= 3 && x <3.5) {num = 0.828672; den = 0.79077; statUp = 0.0116385; statDown = 0.0119271;}
+	else if (x >= 3.5 && x <4) {num = 0.914934; den = 0.865937; statUp = 0.00898234; statDown = 0.00943628;}
+	else if (x >= 4 && x <4.5) {num = 0.926217; den = 0.912889; statUp = 0.00887486; statDown = 0.00942155;}
+	else if (x >= 4.5 && x <5) {num = 0.940711; den = 0.933298; statUp = 0.00888396; statDown = 0.00963798;}
+	else if (x >= 5 && x <6) {num = 0.962868; den = 0.949988; statUp = 0.00656083; statDown = 0.00720576;}
+	else if (x >= 6 && x <7.5) {num = 0.940584; den = 0.959158; statUp = 0.00854681; statDown = 0.00928998;}
+	else if (x >= 7.5 && x <10) {num = 0.950557; den = 0.958603; statUp = 0.00907201; statDown = 0.0101255;}
+	else if (x >= 10 && x <15) {num = 0.958968; den = 0.96132; statUp = 0.0101043; statDown = 0.0116835;}
+	else {num = 0.932633; den = 0.950433; statUp = 0.0169327; statDown = 0.0182775;}
+      }
+      // SF for 1.8 < |eta| < 2.1
+      if (fabs(eta) >= 1.8 && fabs(eta) < 2.1) {
+	if (x >= 1.5 && x <2.5) {num = 0.69714; den = 0.653685; statUp = 0.0201021; statDown = 0.020174;}
+	else if (x >= 2.5 && x <3) {num = 0.906875; den = 0.867753; statUp = 0.0141174; statDown = 0.0148529;}
+	else if (x >= 3 && x <3.5) {num = 0.919454; den = 0.903362; statUp = 0.0134254; statDown = 0.0144224;}
+	else if (x >= 3.5 && x <4) {num = 0.946926; den = 0.922588; statUp = 0.0128289; statDown = 0.0140971;}
+	else if (x >= 4 && x <4.5) {num = 0.904028; den = 0.926253; statUp = 0.0160491; statDown = 0.0175516;}
+	else if (x >= 4.5 && x <5.5) {num = 0.948992; den = 0.939449; statUp = 0.0109821; statDown = 0.0121312;}
+	else if (x >= 5.5 && x <6.5) {num = 0.910994; den = 0.939075; statUp = 0.0180899; statDown = 0.0197981;}
+	else if (x >= 6.5 && x <8) {num = 0.916309; den = 0.939568; statUp = 0.0156774; statDown = 0.017337;}
+	else if (x >= 8 && x <9.5) {num = 0.908937; den = 0.928398; statUp = 0.0221432; statDown = 0.0255568;}
+	else if (x >= 9.5 && x <13) {num = 0.916874; den = 0.932892; statUp = 0.0236424; statDown = 0.0272396;}
+	else {num = 0.901604; den = 0.919504; statUp = 0.0359305; statDown = 0.0435464;}
+      }
+      // SF for 2.1 < |eta| < 2.4
+      if (fabs(eta) >= 2.1 && fabs(eta) < 2.4) {
+	if (x >= 1.5 && x <2.5) {num = 0.784868; den = 0.755554; statUp = 0.0193752; statDown = 0.0193376;}
+	else if (x >= 2.5 && x <3) {num = 0.884159; den = 0.875273; statUp = 0.0181843; statDown = 0.0190031;}
+	else if (x >= 3 && x <4.5) {num = 0.893751; den = 0.899881; statUp = 0.106249; statDown = 0.0119269;}
+	else if (x >= 4.5 && x <6.5) {num = 0.901613; den = 0.917252; statUp = 0.0142685; statDown = 0.0153256;}
+	else if (x >= 6.5 && x <8.5) {num = 0.880979; den = 0.917815; statUp = 0.0250043; statDown = 0.027907;}
+	else if (x >= 8.5 && x <11) {num = 0.864834; den = 0.9055; statUp = 0.0320361; statDown = 0.0373617;}
+	else {num = 0.89517; den = 0.911155; statUp = 0.0490948; statDown = 0.0577133;}
+      }
 
-    if (fabs(eta) >= 0 && fabs(eta) < 1.2) {
-      // syst uncertainties
-      if (x >= 3.5 && x < 4) syst = 0.00124485;
-      else if (x >= 4 && x < 4.5) syst = 0.00103897;
-      else if (x >= 4.5 && x < 5) syst = 0.00129541;
-      else if (x >= 5 && x < 5.5) syst = 0.000789457;
-      else if (x >= 5.5 && x < 6.5) syst = 0.000603473;
-      else if (x >= 6.5 && x < 8) syst = 0.000282966;
-      else if (x >= 8 && x < 10.5) syst = 0.000187072;
-      else if (x >= 10.5 && x < 14) syst = 0.000282897;
-      else if (x >= 14 && x < 18) syst = 0.00120202;
-      else syst = 0.00323389;
+      if (fabs(eta) >= 0 && fabs(eta) < 1.2) {
+	// syst uncertainties
+	if (x >= 3.5 && x < 4) syst = 0.00146411;
+	else if (x >= 4 && x < 4.5) syst = 0.00327651;
+	else if (x >= 4.5 && x < 5) syst = 0.00316198;
+	else if (x >= 5 && x < 5.5) syst = 0.00125837;
+	else if (x >= 5.5 && x < 6.5) syst = 0.000930465;
+	else if (x >= 6.5 && x < 8) syst = 0.0010186;
+	else if (x >= 8 && x < 10.5) syst = 0.00133373;
+	else if (x >= 10.5 && x < 14) syst = 0.00126452;
+	else if (x >= 14 && x < 18) syst = 0.00702329;
+	else syst = 0.00295619;
+      }
+      else if (fabs(eta) >= 1.2 && fabs(eta) < 1.8) {
+	// syst uncertainties
+	if (x >= 2.07 && x < 3) syst = 0.00239623;
+	else if (x >= 3 && x < 3.5) syst = 0.00702354;
+	else if (x >= 3.5 && x < 4) syst = 0.00178215;
+	else if (x >= 4 && x < 4.5) syst = 0.00149079;
+	else if (x >= 4.5 && x < 5) syst = 0.000960333;
+	else if (x >= 5 && x < 6) syst = 0.00137786;
+	else if (x >= 6 && x < 7.5) syst = 0.0024569;
+	else if (x >= 7.5 && x < 10) syst = 0.00125311;
+	else if (x >= 10 && x < 15) syst = 0.00219919;
+	else syst = 0.00398135;
+      }
+      else if (fabs(eta) >= 1.8 && fabs(eta) < 2.1) {
+	// syst uncertainties
+	if (x >= 1.5 && x < 2.5) syst = 0.0111427;
+	else if (x >= 2.5 && x < 3) syst = 0.00378269;
+	else if (x >= 3 && x < 3.5) syst = 0.0037617;
+	else if (x >= 3.5 && x < 4) syst = 0.00990851;
+	else if (x >= 4 && x < 4.5) syst = 0.0108622;
+	else if (x >= 4.5 && x < 5.5) syst = 0.00354057;
+	else if (x >= 5.5 && x < 6.5) syst = 0.00219385;
+	else if (x >= 6.5 && x < 8) syst = 0.00635034;
+	else if (x >= 8 && x < 9.5) syst = 0.0137249;
+	else if (x >= 9.5 && x < 13) syst = 0.0135164;
+	else syst = 0.0181378;
+      }
+      else if (fabs(eta) >= 2.1 && fabs(eta) < 2.4) {
+	// syst uncertainties
+	if (x >= 1.5 && x < 2.5) syst = 0.0035764;
+	else if (x >= 2.5 && x < 3) syst = 0.0201525;
+	else if (x >= 3 && x < 4.5) syst = 0.00258387;
+	else if (x >= 4.5 && x < 6.5) syst = 0.00410559;
+	else if (x >= 6.5 && x < 8.5) syst = 0.00740031;
+	else if (x >= 8.5 && x < 11) syst = 0.00884108;
+	else syst = 0.00848748;
+      }
     }
-    else if (fabs(eta) >= 1.2 && fabs(eta) < 1.8) {
-      // syst uncertainties
-      if (x >= 2.07 && x < 3) syst = 0.0057738;
-      else if (x >= 3 && x < 3.5) syst = 0.00516636;
-      else if (x >= 3.5 && x < 4) syst = 0.00227344;
-      else if (x >= 4 && x < 4.5) syst = 0.00228932;
-      else if (x >= 4.5 && x < 5) syst = 0.00180741;
-      else if (x >= 5 && x < 6) syst = 0.00169068;
-      else if (x >= 6 && x < 7.5) syst = 0.00053155;
-      else if (x >= 7.5 && x < 10) syst = 0.00184744;
-      else if (x >= 10 && x < 15) syst = 0.000513966;
-      else syst = 0.00398062;
-    }
-    else if (fabs(eta) >= 1.8 && fabs(eta) < 2.1) {
-      // syst uncertainties
-      if (x >= 1.5 && x < 2.5) syst = 0.00483512;
-      else if (x >= 2.5 && x < 3) syst = 0.00268291;
-      else if (x >= 3 && x < 3.5) syst = 0.00462034;
-      else if (x >= 3.5 && x < 4) syst = 0.00501381;
-      else if (x >= 4 && x < 4.5) syst = 0.0104532;
-      else if (x >= 4.5 && x < 5.5) syst = 0.00248333;
-      else if (x >= 5.5 && x < 6.5) syst = 0.00505641;
-      else if (x >= 6.5 && x < 8) syst = 0.00309659;
-      else if (x >= 8 && x < 9.5) syst = 0.00373394;
-      else if (x >= 9.5 && x < 13) syst = 0.00272605;
-      else syst = 0.0174777;
-    }
-    else if (fabs(eta) >= 2.1 && fabs(eta) < 2.4) {
-      // syst uncertainties
-      if (x >= 1.5 && x < 2.2) syst = 0.0173906;
-      else if (x >= 2.2 && x < 2.7) syst = 0.00738026;
-      else if (x >= 2.7 && x < 3.2) syst = 0.00966916;
-      else if (x >= 3.2 && x < 3.7) syst = 0.00539735;
-      else if (x >= 3.7 && x < 4.7) syst = 0.0124751;
-      else if (x >= 4.7 && x < 6.5) syst = 0.00722603;
-      else if (x >= 6.5 && x < 8.5) syst = 0.00296615;
-      else if (x >= 8.5 && x < 11) syst = 0.00969476;
-      else syst = 0.0145531;
+    else {
+      // SF for 0 < |eta| < 1.2
+      if (fabs(eta) >= 0 && fabs(eta) < 1.2) {
+	if (x >= 3.5 && x <4) {num = 0.689722; den = 0.619881; statUp = 0.016743; statDown = 0.0169866;}
+	else if (x >= 4 && x <4.5) {num = 0.872807; den = 0.842673; statUp = 0.0124568; statDown = 0.0130601;}
+	else if (x >= 4.5 && x <5) {num = 0.930789; den = 0.903981; statUp = 0.0103367; statDown = 0.0111996;}
+	else if (x >= 5 && x <5.5) {num = 0.941372; den = 0.926556; statUp = 0.0106639; statDown = 0.011868;}
+	else if (x >= 5.5 && x <6.5) {num = 0.964656; den = 0.943467; statUp = 0.00706971; statDown = 0.00795962;}
+	else if (x >= 6.5 && x <8) {num = 0.966201; den = 0.960068; statUp = 0.0072452; statDown = 0.00828099;}
+	else if (x >= 8 && x <10.5) {num = 0.977796; den = 0.966774; statUp = 0.00709911; statDown = 0.00844906;}
+	else if (x >= 10.5 && x <14) {num = 0.978258; den = 0.968852; statUp = 0.00861853; statDown = 0.011233;}
+	else if (x >= 14 && x <18) {num = 0.963944; den = 0.971337; statUp = 0.0176948; statDown = 0.0253773;}
+	else {num = 0.982179; den = 0.965525; statUp = 0.012435; statDown = 0.0239695;}
+      }
+      // SF for 1.2 < |eta| < 1.8
+      if (fabs(eta) >= 1.2 && fabs(eta) < 1.8) {
+	if (x >= 2.07 && x <3) {num = 0.631943; den = 0.63487; statUp = 0.0226865; statDown = 0.0227841;}
+	else if (x >= 3 && x <3.5) {num = 0.819488; den = 0.794265; statUp = 0.0158833; statDown = 0.0163046;}
+	else if (x >= 3.5 && x <4) {num = 0.906768; den = 0.869077; statUp = 0.0123133; statDown = 0.0129632;}
+	else if (x >= 4 && x <4.5) {num = 0.94125; den = 0.918556; statUp = 0.0107543; statDown = 0.0116861;}
+	else if (x >= 4.5 && x <5) {num = 0.93965; den = 0.937335; statUp = 0.012639; statDown = 0.0141481;}
+	else if (x >= 5 && x <6) {num = 0.944663; den = 0.951197; statUp = 0.0107649; statDown = 0.0119937;}
+	else if (x >= 6 && x <7.5) {num = 0.948277; den = 0.959474; statUp = 0.0113867; statDown = 0.0129185;}
+	else if (x >= 7.5 && x <10) {num = 0.974937; den = 0.962066; statUp = 0.0100868; statDown = 0.012745;}
+	else if (x >= 10 && x <15) {num = 0.963242; den = 0.963283; statUp = 0.0156471; statDown = 0.0199175;}
+	else {num = 0.934011; den = 0.95995; statUp = 0.0274838; statDown = 0.0375923;}
+      }
+      // SF for 1.8 < |eta| < 2.1
+      if (fabs(eta) >= 1.8 && fabs(eta) < 2.1) {
+	if (x >= 1.5 && x <2.5) {num = 0.730106; den = 0.674204; statUp = 0.0217864; statDown = 0.0217898;}
+	else if (x >= 2.5 && x <3) {num = 0.898861; den = 0.892813; statUp = 0.0167643; statDown = 0.0175803;}
+	else if (x >= 3 && x <3.5) {num = 0.943188; den = 0.930248; statUp = 0.0158596; statDown = 0.0173418;}
+	else if (x >= 3.5 && x <4) {num = 0.94083; den = 0.94509; statUp = 0.0155189; statDown = 0.0173437;}
+	else if (x >= 4 && x <4.5) {num = 0.9494; den = 0.948955; statUp = 0.0166381; statDown = 0.0196105;}
+	else if (x >= 4.5 && x <5.5) {num = 0.946559; den = 0.952479; statUp = 0.014182; statDown = 0.0160633;}
+	else if (x >= 5.5 && x <6.5) {num = 0.91847; den = 0.953786; statUp = 0.0217287; statDown = 0.0253424;}
+	else if (x >= 6.5 && x <8) {num = 0.912355; den = 0.947923; statUp = 0.022436; statDown = 0.026346;}
+	else if (x >= 8 && x <9.5) {num = 0.891254; den = 0.942256; statUp = 0.0348021; statDown = 0.0415039;}
+	else if (x >= 9.5 && x <13) {num = 0.966718; den = 0.941867; statUp = 0.0190895; statDown = 0.0268122;}
+	else {num = 0.871006; den = 0.927524; statUp = 0.056407; statDown = 0.0696581;}
+      }
+      // SF for 2.1 < |eta| < 2.4
+      if (fabs(eta) >= 2.1 && fabs(eta) < 2.4) {
+	if (x >= 1.5 && x <2.5) {num = 0.76689; den = 0.765747; statUp = 0.0225837; statDown = 0.0225206;}
+	else if (x >= 2.5 && x <3) {num = 0.910616; den = 0.88553; statUp = 0.023169; statDown = 0.0241312;}
+	else if (x >= 3 && x <4.5) {num = 0.900222; den = 0.908224; statUp = 0.0133439; statDown = 0.0139174;}
+	else if (x >= 4.5 && x <6.5) {num = 0.933402; den = 0.9265; statUp = 0.0161214; statDown = 0.0179175;}
+	else if (x >= 6.5 && x <8.5) {num = 0.970163; den = 0.923434; statUp = 0.0264214; statDown = 0.0315982;}
+	else if (x >= 8.5 && x <11) {num = 0.763007; den = 0.920759; statUp = 0.0531122; statDown = 0.0583712;}
+	else {num = 0.909116; den = 0.915605; statUp = 0.0419393; statDown = 0.0588324;}
+      }
+
     }
   }
   else if (filterId==1) { //L3 Jpsi
-    // SF for 0 < |eta| < 1.2
-    if (fabs(eta) >= 0 && fabs(eta) < 1.2) {
-      if (x >= 3.5 && x <4) {num = 0.0977768; den = 0.0718102; statUp = 0.00477386; statDown = 0.00465538;}
-      else if (x >= 4 && x <4.5) {num = 0.310189; den = 0.236612; statUp = 0.00733234; statDown = 0.00727546;}
-      else if (x >= 4.5 && x <5) {num = 0.497824; den = 0.427955; statUp = 0.00854784; statDown = 0.00854347;}
-      else if (x >= 5 && x <5.5) {num = 0.647029; den = 0.570059; statUp = 0.00899919; statDown = 0.00905681;}
-      else if (x >= 5.5 && x <6.5) {num = 0.718238; den = 0.667318; statUp = 0.0069276; statDown = 0.00699004;}
-      else if (x >= 6.5 && x <8) {num = 0.770636; den = 0.738796; statUp = 0.00665117; statDown = 0.00673002;}
-      else if (x >= 8 && x <10.5) {num = 0.791377; den = 0.780799; statUp = 0.0068868; statDown = 0.00698942;}
-      else if (x >= 10.5 && x <14) {num = 0.828454; den = 0.817398; statUp = 0.00832993; statDown = 0.00852906;}
-      else if (x >= 14 && x <18) {num = 0.798313; den = 0.82568; statUp = 0.0132365; statDown = 0.0136444;}
-      else {num = 0.844425; den = 0.840963; statUp = 0.0140504; statDown = 0.0146774;}
-    }
-    // SF for 1.2 < |eta| < 1.8
-    if (fabs(eta) >= 1.2 && fabs(eta) < 1.8) {
-      if (x >= 2.07 && x <3) {num = 0.312297; den = 0.282025; statUp = 0.0108985; statDown = 0.0107675;}
-      else if (x >= 3 && x <3.5) {num = 0.428221; den = 0.427322; statUp = 0.00996613; statDown = 0.00990255;}
-      else if (x >= 3.5 && x <4) {num = 0.545302; den = 0.523792; statUp = 0.0106388; statDown = 0.0106824;}
-      else if (x >= 4 && x <4.5) {num = 0.590907; den = 0.59983; statUp = 0.011421; statDown = 0.0114593;}
-      else if (x >= 4.5 && x <5) {num = 0.642516; den = 0.645172; statUp = 0.0127105; statDown = 0.0128095;}
-      else if (x >= 5 && x <6) {num = 0.67265; den = 0.678719; statUp = 0.0105191; statDown = 0.0106482;}
-      else if (x >= 6 && x <7.5) {num = 0.685196; den = 0.718066; statUp = 0.0110631; statDown = 0.0111844;}
-      else if (x >= 7.5 && x <10) {num = 0.745909; den = 0.754042; statUp = 0.0115011; statDown = 0.0117057;}
-      else if (x >= 10 && x <15) {num = 0.774291; den = 0.802324; statUp = 0.0133219; statDown = 0.0136598;}
-      else {num = 0.766916; den = 0.825355; statUp = 0.0213965; statDown = 0.0220731;}
-    }
-    // SF for 1.8 < |eta| < 2.1
-    if (fabs(eta) >= 1.8 && fabs(eta) < 2.1) {
-      if (x >= 1.5 && x <2.5) {num = 0.127351; den = 0.116205; statUp = 0.00812389; statDown = 0.00790635;}
-      else if (x >= 2.5 && x <3) {num = 0.469654; den = 0.461475; statUp = 0.0151839; statDown = 0.0150975;}
-      else if (x >= 3 && x <3.5) {num = 0.66052; den = 0.657218; statUp = 0.0159007; statDown = 0.0159966;}
-      else if (x >= 3.5 && x <4) {num = 0.711318; den = 0.716352; statUp = 0.0159382; statDown = 0.0161569;}
-      else if (x >= 4 && x <4.5) {num = 0.72707; den = 0.743816; statUp = 0.0174651; statDown = 0.0178183;}
-      else if (x >= 4.5 && x <5.5) {num = 0.760903; den = 0.783352; statUp = 0.0132749; statDown = 0.0135294;}
-      else if (x >= 5.5 && x <6.5) {num = 0.76791; den = 0.818708; statUp = 0.0164832; statDown = 0.0169401;}
-      else if (x >= 6.5 && x <8) {num = 0.810282; den = 0.834464; statUp = 0.0146744; statDown = 0.015183;}
-      else if (x >= 8 && x <9.5) {num = 0.816841; den = 0.841405; statUp = 0.019156; statDown = 0.0201825;}
-      else if (x >= 9.5 && x <13) {num = 0.830536; den = 0.857282; statUp = 0.0191548; statDown = 0.0201111;}
-      else {num = 0.865685; den = 0.871118; statUp = 0.0261773; statDown = 0.0280197;}
-    }
-    // SF for 2.1 < |eta| < 2.4
-    if (fabs(eta) >= 2.1 && fabs(eta) < 2.4) {
-      if (x >= 1.5 && x <2.2) {num = 0.0687152; den = 0.0653009; statUp = 0.00763497; statDown = 0.0073555;}
-      else if (x >= 2.2 && x <2.7) {num = 0.267663; den = 0.247036; statUp = 0.0154354; statDown = 0.0150849;}
-      else if (x >= 2.7 && x <3.2) {num = 0.417871; den = 0.405866; statUp = 0.0183278; statDown = 0.0180847;}
-      else if (x >= 3.2 && x <3.7) {num = 0.491052; den = 0.496108; statUp = 0.0185629; statDown = 0.018464;}
-      else if (x >= 3.7 && x <4.7) {num = 0.57329; den = 0.569608; statUp = 0.0170203; statDown = 0.0170343;}
-      else if (x >= 4.7 && x <6.5) {num = 0.676741; den = 0.652632; statUp = 0.0161595; statDown = 0.0163126;}
-      else if (x >= 6.5 && x <8.5) {num = 0.717631; den = 0.71118; statUp = 0.0218543; statDown = 0.0223093;}
-      else if (x >= 8.5 && x <11) {num = 0.713947; den = 0.744621; statUp = 0.0278094; statDown = 0.0286323;}
-      else {num = 0.748393; den = 0.778517; statUp = 0.0328678; statDown = 0.0342111;}
-    }
+    if (idx != 99) {
+      // SF for 0 < |eta| < 1.2
+      if (fabs(eta) >= 0 && fabs(eta) < 1.2) {
+	if (x >= 3.5 && x <4) {num = 0.0929084; den = 0.0679817; statUp = 0.006841; statDown = 0.0065872;}
+	else if (x >= 4 && x <4.5) {num = 0.297766; den = 0.224427; statUp = 0.0108539; statDown = 0.010713;}
+	else if (x >= 4.5 && x <5) {num = 0.502117; den = 0.417386; statUp = 0.0127763; statDown = 0.0127755;}
+	else if (x >= 5 && x <5.5) {num = 0.635817; den = 0.565377; statUp = 0.0135751; statDown = 0.0136973;}
+	else if (x >= 5.5 && x <6.5) {num = 0.731239; den = 0.670099; statUp = 0.0102029; statDown = 0.0103455;}
+	else if (x >= 6.5 && x <8) {num = 0.770928; den = 0.743473; statUp = 0.0102308; statDown = 0.0104292;}
+	else if (x >= 8 && x <10.5) {num = 0.788012; den = 0.786007; statUp = 0.0111432; statDown = 0.0114151;}
+	else if (x >= 10.5 && x <14) {num = 0.810243; den = 0.820978; statUp = 0.0144525; statDown = 0.0150071;}
+	else if (x >= 14 && x <18) {num = 0.792036; den = 0.829214; statUp = 0.0237166; statDown = 0.0248112;}
+	else {num = 0.863475; den = 0.847132; statUp = 0.0232916; statDown = 0.0255443;}
+      }
+      // SF for 1.2 < |eta| < 1.8
+      if (fabs(eta) >= 1.2 && fabs(eta) < 1.8) {
+	if (x >= 2.07 && x <3) {num = 0.325521; den = 0.282497; statUp = 0.016271; statDown = 0.0160003;}
+	else if (x >= 3 && x <3.5) {num = 0.423453; den = 0.416595; statUp = 0.0149866; statDown = 0.0148893;}
+	else if (x >= 3.5 && x <4) {num = 0.543809; den = 0.511604; statUp = 0.0160433; statDown = 0.0160731;}
+	else if (x >= 4 && x <4.5) {num = 0.584023; den = 0.581042; statUp = 0.0169952; statDown = 0.0170676;}
+	else if (x >= 4.5 && x <5) {num = 0.61728; den = 0.623371; statUp = 0.0187614; statDown = 0.0189572;}
+	else if (x >= 5 && x <6) {num = 0.685606; den = 0.6656; statUp = 0.0162022; statDown = 0.0164562;}
+	else if (x >= 6 && x <7.5) {num = 0.650217; den = 0.708729; statUp = 0.0181033; statDown = 0.0183853;}
+	else if (x >= 7.5 && x <10) {num = 0.73008; den = 0.748535; statUp = 0.0195931; statDown = 0.0201359;}
+	else if (x >= 10 && x <15) {num = 0.773451; den = 0.799811; statUp = 0.0225743; statDown = 0.0234864;}
+	else {num = 0.736842; den = 0.816195; statUp = 0.0351455; statDown = 0.0372627;}
+      }
+      // SF for 1.8 < |eta| < 2.1
+      if (fabs(eta) >= 1.8 && fabs(eta) < 2.1) {
+	if (x >= 1.5 && x <2.5) {num = 0.14084; den = 0.113341; statUp = 0.013025; statDown = 0.0125015;}
+	else if (x >= 2.5 && x <3) {num = 0.476412; den = 0.440149; statUp = 0.0227841; statDown = 0.0226386;}
+	else if (x >= 3 && x <3.5) {num = 0.650759; den = 0.62906; statUp = 0.0232733; statDown = 0.0235646;}
+	else if (x >= 3.5 && x <4) {num = 0.727644; den = 0.698642; statUp = 0.0239828; statDown = 0.0245278;}
+	else if (x >= 4 && x <4.5) {num = 0.727256; den = 0.718312; statUp = 0.0255525; statDown = 0.0262978;}
+	else if (x >= 4.5 && x <5.5) {num = 0.777415; den = 0.768105; statUp = 0.0199169; statDown = 0.0206122;}
+	else if (x >= 5.5 && x <6.5) {num = 0.776885; den = 0.799541; statUp = 0.0261671; statDown = 0.0273015;}
+	else if (x >= 6.5 && x <8) {num = 0.791451; den = 0.821447; statUp = 0.0237416; statDown = 0.0248952;}
+	else if (x >= 8 && x <9.5) {num = 0.786008; den = 0.817606; statUp = 0.0343974; statDown = 0.0367832;}
+	else if (x >= 9.5 && x <13) {num = 0.824864; den = 0.84872; statUp = 0.0335901; statDown = 0.0363048;}
+	else {num = 0.835512; den = 0.867058; statUp = 0.0463296; statDown = 0.0516908;}
+      }
+      // SF for 2.1 < |eta| < 2.4
+      if (fabs(eta) >= 2.1 && fabs(eta) < 2.4) {
+	if (x >= 1.5 && x <2.5) {num = 0.105786; den = 0.105436; statUp = 0.0111179; statDown = 0.0106879;}
+	else if (x >= 2.5 && x <3) {num = 0.39082; den = 0.327966; statUp = 0.0261347; statDown = 0.0256485;}
+	else if (x >= 3 && x <4.5) {num = 0.526405; den = 0.501953; statUp = 0.0184148; statDown = 0.0183235;}
+	else if (x >= 4.5 && x <6.5) {num = 0.659384; den = 0.633247; statUp = 0.0237874; statDown = 0.0241398;}
+	else if (x >= 6.5 && x <8.5) {num = 0.64115; den = 0.701749; statUp = 0.0384833; statDown = 0.0396889;}
+	else if (x >= 8.5 && x <11) {num = 0.657733; den = 0.727318; statUp = 0.0490318; statDown = 0.0516174;}
+	else {num = 0.751588; den = 0.772539; statUp = 0.0686162; statDown = 0.0726347;}
+      }
 
-    if (fabs(eta) >= 0 && fabs(eta) < 1.2) {
-      // syst uncertainties
-      if (x >= 3.5 && x < 4) syst = 0.000736946;
-      else if (x >= 4 && x < 4.5) syst = 0.00117449;
-      else if (x >= 4.5 && x < 5) syst = 0.0031303;
-      else if (x >= 5 && x < 5.5) syst = 0.00296318;
-      else if (x >= 5.5 && x < 6.5) syst = 0.000684434;
-      else if (x >= 6.5 && x < 8) syst = 0.000814384;
-      else if (x >= 8 && x < 10.5) syst = 0.000744841;
-      else if (x >= 10.5 && x < 14) syst = 0.000675376;
-      else if (x >= 14 && x < 18) syst = 0.00210979;
-      else syst = 0.00279935;
+      if (fabs(eta) >= 0 && fabs(eta) < 1.2) {
+	// syst uncertainties
+	if (x >= 3.5 && x < 4) syst = 0.00146036;
+	else if (x >= 4 && x < 4.5) syst = 0.00419698;
+	else if (x >= 4.5 && x < 5) syst = 0.00246527;
+	else if (x >= 5 && x < 5.5) syst = 0.00634417;
+	else if (x >= 5.5 && x < 6.5) syst = 0.00202178;
+	else if (x >= 6.5 && x < 8) syst = 0.000738586;
+	else if (x >= 8 && x < 10.5) syst = 0.00187763;
+	else if (x >= 10.5 && x < 14) syst = 0.00110162;
+	else if (x >= 14 && x < 18) syst = 0.00456042;
+	else syst = 0.00325616;
+      }
+      else if (fabs(eta) >= 1.2 && fabs(eta) < 1.8) {
+	// syst uncertainties
+	if (x >= 2.07 && x < 3) syst = 0.00458779;
+	else if (x >= 3 && x < 3.5) syst = 0.00836596;
+	else if (x >= 3.5 && x < 4) syst = 0.00164349;
+	else if (x >= 4 && x < 4.5) syst = 0.00620377;
+	else if (x >= 4.5 && x < 5) syst = 0.00226104;
+	else if (x >= 5 && x < 6) syst = 0.00425653;
+	else if (x >= 6 && x < 7.5) syst = 0.00333209;
+	else if (x >= 7.5 && x < 10) syst = 0.0010693;
+	else if (x >= 10 && x < 15) syst = 0.00650836;
+	else syst = 0.0138687;
+      }
+      else if (fabs(eta) >= 1.8 && fabs(eta) < 2.1) {
+	// syst uncertainties
+	if (x >= 1.5 && x < 2.5) syst = 0.00814591;
+	else if (x >= 2.5 && x < 3) syst = 0.0115312;
+	else if (x >= 3 && x < 3.5) syst = 0.00634851;
+	else if (x >= 3.5 && x < 4) syst = 0.0175754;
+	else if (x >= 4 && x < 4.5) syst = 0.0146908;
+	else if (x >= 4.5 && x < 5.5) syst = 0.0110682;
+	else if (x >= 5.5 && x < 6.5) syst = 0.00983664;
+	else if (x >= 6.5 && x < 8) syst = 0.00319873;
+	else if (x >= 8 && x < 9.5) syst = 0.027534;
+	else if (x >= 9.5 && x < 13) syst = 0.0177867;
+	else syst = 0.0318172;
+      }
+      else if (fabs(eta) >= 2.1 && fabs(eta) < 2.4) {
+	// syst uncertainties
+	if (x >= 1.5 && x < 2.5) syst = 0.00238882;
+	else if (x >= 2.5 && x < 3) syst = 0.00627081;
+	else if (x >= 3 && x < 4.5) syst = 0.00206241;
+	else if (x >= 4.5 && x < 6.5) syst = 0.0134876;
+	else if (x >= 6.5 && x < 8.5) syst = 0.0175673;
+	else if (x >= 8.5 && x < 11) syst = 0.0140479;
+	else syst = 0.0105411;
+      }
     }
-    else if (fabs(eta) >= 1.2 && fabs(eta) < 1.8) {
-      // syst uncertainties
-      if (x >= 2.07 && x < 3) syst = 0.00304772;
-      else if (x >= 3 && x < 3.5) syst = 0.00425846;
-      else if (x >= 3.5 && x < 4) syst = 0.00447385;
-      else if (x >= 4 && x < 4.5) syst = 0.001133;
-      else if (x >= 4.5 && x < 5) syst = 0.00368832;
-      else if (x >= 5 && x < 6) syst = 0.00158046;
-      else if (x >= 6 && x < 7.5) syst = 0.00182771;
-      else if (x >= 7.5 && x < 10) syst = 0.00308072;
-      else if (x >= 10 && x < 15) syst = 0.00292029;
-      else syst = 0.00529299;
-    }
-    else if (fabs(eta) >= 1.8 && fabs(eta) < 2.1) {
-      // syst uncertainties
-      if (x >= 1.5 && x < 2.5) syst = 0.00136009;
-      else if (x >= 2.5 && x < 3) syst = 0.0038152;
-      else if (x >= 3 && x < 3.5) syst = 0.00207952;
-      else if (x >= 3.5 && x < 4) syst = 0.00964032;
-      else if (x >= 4 && x < 4.5) syst = 0.00613411;
-      else if (x >= 4.5 && x < 5.5) syst = 0.00141201;
-      else if (x >= 5.5 && x < 6.5) syst = 0.00675142;
-      else if (x >= 6.5 && x < 8) syst = 0.00255167;
-      else if (x >= 8 && x < 9.5) syst = 0.00276745;
-      else if (x >= 9.5 && x < 13) syst = 0.00195002;
-      else syst = 0.0272819;
-    }
-    else if (fabs(eta) >= 2.1 && fabs(eta) < 2.4) {
-      // syst uncertainties
-      if (x >= 1.5 && x < 2.2) syst = 0.00249486;
-      else if (x >= 2.2 && x < 2.7) syst = 0.00185886;
-      else if (x >= 2.7 && x < 3.2) syst = 0.0148211;
-      else if (x >= 3.2 && x < 3.7) syst = 0.00395368;
-      else if (x >= 3.7 && x < 4.7) syst = 0.00413762;
-      else if (x >= 4.7 && x < 6.5) syst = 0.0162388;
-      else if (x >= 6.5 && x < 8.5) syst = 0.0037397;
-      else if (x >= 8.5 && x < 11) syst = 0.00190913;
-      else syst = 0.0175906;
+    else {
+      // SF for 0 < |eta| < 1.2
+      if (fabs(eta) >= 0 && fabs(eta) < 1.2) {
+	if (x >= 3.5 && x <4) {num = 0.121625; den = 0.0719616; statUp = 0.0117235; statDown = 0.0111791;}
+	else if (x >= 4 && x <4.5) {num = 0.356478; den = 0.236802; statUp = 0.0180185; statDown = 0.0177502;}
+	else if (x >= 4.5 && x <5) {num = 0.516625; den = 0.42827; statUp = 0.0204454; statDown = 0.0204329;}
+	else if (x >= 5 && x <5.5) {num = 0.673482; den = 0.570623; statUp = 0.0225258; statDown = 0.023002;}
+	else if (x >= 5.5 && x <6.5) {num = 0.747192; den = 0.668258; statUp = 0.0174265; statDown = 0.0179388;}
+	else if (x >= 6.5 && x <8) {num = 0.759122; den = 0.739998; statUp = 0.0181382; statDown = 0.0186968;}
+	else if (x >= 8 && x <10.5) {num = 0.814959; den = 0.782242; statUp = 0.0185864; statDown = 0.0194487;}
+	else if (x >= 10.5 && x <14) {num = 0.841196; den = 0.819894; statUp = 0.0235368; statDown = 0.0254018;}
+	else if (x >= 14 && x <18) {num = 0.835715; den = 0.828248; statUp = 0.0400773; statDown = 0.0456275;}
+	else {num = 0.91265; den = 0.846019; statUp = 0.0385611; statDown = 0.048033;}
+      }
+      // SF for 1.2 < |eta| < 1.8
+      if (fabs(eta) >= 1.2 && fabs(eta) < 1.8) {
+	if (x >= 2.07 && x <3) {num = 0.301749; den = 0.282102; statUp = 0.0206993; statDown = 0.0202013;}
+	else if (x >= 3 && x <3.5) {num = 0.404378; den = 0.427544; statUp = 0.0197939; statDown = 0.0195719;}
+	else if (x >= 3.5 && x <4) {num = 0.550337; den = 0.524241; statUp = 0.0204696; statDown = 0.0204586;}
+	else if (x >= 4 && x <4.5) {num = 0.632661; den = 0.600426; statUp = 0.0221954; statDown = 0.0223902;}
+	else if (x >= 4.5 && x <5) {num = 0.674002; den = 0.645763; statUp = 0.0263881; statDown = 0.0268861;}
+	else if (x >= 5 && x <6) {num = 0.652999; den = 0.679457; statUp = 0.0237329; statDown = 0.02409;}
+	else if (x >= 6 && x <7.5) {num = 0.698863; den = 0.718994; statUp = 0.0251336; statDown = 0.0258871;}
+	else if (x >= 7.5 && x <10) {num = 0.771971; den = 0.75533; statUp = 0.0286891; statDown = 0.030171;}
+	else if (x >= 10 && x <15) {num = 0.753758; den = 0.803949; statUp = 0.0378786; statDown = 0.0403045;}
+	else {num = 0.745996; den = 0.82919; statUp = 0.053815; statDown = 0.0605636;}
+      }
+      // SF for 1.8 < |eta| < 2.1
+      if (fabs(eta) >= 1.8 && fabs(eta) < 2.1) {
+	if (x >= 1.5 && x <2.5) {num = 0.115278; den = 0.116283; statUp = 0.0129321; statDown = 0.0123899;}
+	else if (x >= 2.5 && x <3) {num = 0.461883; den = 0.461492; statUp = 0.0265949; statDown = 0.0263642;}
+	else if (x >= 3 && x <3.5) {num = 0.701404; den = 0.657357; statUp = 0.0304532; statDown = 0.0308107;}
+	else if (x >= 3.5 && x <4) {num = 0.729678; den = 0.716402; statUp = 0.0300697; statDown = 0.0308006;}
+	else if (x >= 4 && x <4.5) {num = 0.772151; den = 0.744289; statUp = 0.0339421; statDown = 0.0357068;}
+	else if (x >= 4.5 && x <5.5) {num = 0.795417; den = 0.78389; statUp = 0.0258355; statDown = 0.027002;}
+	else if (x >= 5.5 && x <6.5) {num = 0.80047; den = 0.818824; statUp = 0.0351114; statDown = 0.037368;}
+	else if (x >= 6.5 && x <8) {num = 0.765323; den = 0.835004; statUp = 0.0372734; statDown = 0.0394468;}
+	else if (x >= 8 && x <9.5) {num = 0.800271; den = 0.842257; statUp = 0.0468732; statDown = 0.0519374;}
+	else if (x >= 9.5 && x <13) {num = 0.83651; den = 0.857865; statUp = 0.0438402; statDown = 0.0500843;}
+	else {num = 0.818935; den = 0.87243; statUp = 0.0689499; statDown = 0.0781992;}
+      }
+      // SF for 2.1 < |eta| < 2.4
+      if (fabs(eta) >= 2.1 && fabs(eta) < 2.4) {
+	if (x >= 1.5 && x <2.5) {num = 0.105672; den = 0.107451; statUp = 0.0127215; statDown = 0.01219;}
+	else if (x >= 2.5 && x <3) {num = 0.328121; den = 0.350297; statUp = 0.0318604; statDown = 0.0308867;}
+	else if (x >= 3 && x <4.5) {num = 0.526157; den = 0.514685; statUp = 0.0212428; statDown = 0.0211059;}
+	else if (x >= 4.5 && x <6.5) {num = 0.71337; den = 0.644854; statUp = 0.0304085; statDown = 0.0308433;}
+	else if (x >= 6.5 && x <8.5) {num = 0.744769; den = 0.711723; statUp = 0.0527876; statDown = 0.0545914;}
+	else if (x >= 8.5 && x <11) {num = 0.57168; den = 0.745813; statUp = 0.0650887; statDown = 0.0654034;}
+	else {num = 0.696756; den = 0.780684; statUp = 0.0832727; statDown = 0.0883945;}
+      }
+
     }
   }
-  else if (filterId==2) { //L2 Upsi
+  else if (filterId==2) { //L2 Jpsi
     // SF for 0 < |eta| < 1.2
     if (fabs(eta) >= 0 && fabs(eta) < 1.2) {
-      if (x >= 3.5 && x <4) {num = 0.687436; den = 0.628026; statUp = 0.00741958; statDown = 0.00747367;}
-      else if (x >= 4 && x <4.5) {num = 0.879668; den = 0.855425; statUp = 0.00516048; statDown = 0.0052745;}
-      else if (x >= 4.5 && x <5) {num = 0.936813; den = 0.91093; statUp = 0.00414716; statDown = 0.00429608;}
-      else if (x >= 5 && x <5.5) {num = 0.948744; den = 0.930006; statUp = 0.00405143; statDown = 0.00424179;}
-      else if (x >= 5.5 && x <6.5) {num = 0.964058; den = 0.95091; statUp = 0.00286448; statDown = 0.00299563;}
-      else if (x >= 6.5 && x <8) {num = 0.967607; den = 0.967695; statUp = 0.0027257; statDown = 0.00286633;}
-      else if (x >= 8 && x <10.5) {num = 0.977261; den = 0.975624; statUp = 0.0024585; statDown = 0.00262625;}
-      else if (x >= 10.5 && x <14) {num = 0.975199; den = 0.979933; statUp = 0.00326164; statDown = 0.00354865;}
-      else if (x >= 14 && x <18) {num = 0.978416; den = 0.983164; statUp = 0.00450526; statDown = 0.00515026;}
-      else {num = 0.986566; den = 0.984365; statUp = 0.00413127; statDown = 0.00501923;}
+      if (x >= 3.5 && x <4) {num = 0.683516; den = 0.624883; statUp = 0.0108066; statDown = 0.0109176;}
+      else if (x >= 4 && x <4.5) {num = 0.864766; den = 0.844349; statUp = 0.00811031; statDown = 0.00834878;}
+      else if (x >= 4.5 && x <5) {num = 0.93532; den = 0.903951; statUp = 0.00633481; statDown = 0.00667111;}
+      else if (x >= 5 && x <5.5) {num = 0.938106; den = 0.923036; statUp = 0.00664483; statDown = 0.0070676;}
+      else if (x >= 5.5 && x <6.5) {num = 0.961913; den = 0.940699; statUp = 0.00441524; statDown = 0.00471286;}
+      else if (x >= 6.5 && x <8) {num = 0.955209; den = 0.958559; statUp = 0.00486781; statDown = 0.00520504;}
+      else if (x >= 8 && x <10.5) {num = 0.960097; den = 0.96542; statUp = 0.00522745; statDown = 0.00566401;}
+      else if (x >= 10.5 && x <14) {num = 0.953912; den = 0.966812; statUp = 0.00737412; statDown = 0.0081774;}
+      else if (x >= 14 && x <18) {num = 0.958011; den = 0.96975; statUp = 0.0115548; statDown = 0.0135024;}
+      else {num = 0.958729; den = 0.964144; statUp = 0.0126207; statDown = 0.0154877;}
     }
     // SF for 1.2 < |eta| < 1.8
     if (fabs(eta) >= 1.2 && fabs(eta) < 1.8) {
-      if (x >= 2.37 && x <3) {num = 0.707798; den = 0.663284; statUp = 0.0115376; statDown = 0.0116219;}
-      else if (x >= 3 && x <3.5) {num = 0.841787; den = 0.79966; statUp = 0.00756481; statDown = 0.00765363;}
-      else if (x >= 3.5 && x <4) {num = 0.915148; den = 0.874984; statUp = 0.0058153; statDown = 0;}
-      else if (x >= 4 && x <4.5) {num = 0.932092; den = 0.925267; statUp = 0.00578591; statDown = 0.0060332;}
-      else if (x >= 4.5 && x <5) {num = 0.95135; den = 0.943497; statUp = 0.005532; statDown = 0.00587852;}
-      else if (x >= 5 && x <6) {num = 0.968164; den = 0.958147; statUp = 0.00392457; statDown = 0.00419381;}
-      else if (x >= 6 && x <7.5) {num = 0.962352; den = 0.96425; statUp = 0.00435955; statDown = 0.00466282;}
-      else if (x >= 7.5 && x <10) {num = 0.979864; den = 0.969778; statUp = 0.00356325; statDown = 0.00395684;}
-      else if (x >= 10 && x <15) {num = 0.983282; den = 0.973169; statUp = 0.00384401; statDown = 0.00442388;}
-      else {num = 0.985422; den = 0.979848; statUp = 0.00507078; statDown = 0.00689321;}
+      if (x >= 2.07 && x <3) {num = 0.69446; den = 0.640187; statUp = 0.0166834; statDown = 0.0168495;}
+      else if (x >= 3 && x <3.5) {num = 0.828672; den = 0.79077; statUp = 0.0116385; statDown = 0.0119271;}
+      else if (x >= 3.5 && x <4) {num = 0.914934; den = 0.865937; statUp = 0.00898234; statDown = 0.00943628;}
+      else if (x >= 4 && x <4.5) {num = 0.926217; den = 0.912889; statUp = 0.00887486; statDown = 0.00942155;}
+      else if (x >= 4.5 && x <5) {num = 0.940711; den = 0.933298; statUp = 0.00888396; statDown = 0.00963798;}
+      else if (x >= 5 && x <6) {num = 0.962868; den = 0.949988; statUp = 0.00656083; statDown = 0.00720576;}
+      else if (x >= 6 && x <7.5) {num = 0.940584; den = 0.959158; statUp = 0.00854681; statDown = 0.00928998;}
+      else if (x >= 7.5 && x <10) {num = 0.950557; den = 0.958603; statUp = 0.00907201; statDown = 0.0101255;}
+      else if (x >= 10 && x <15) {num = 0.958968; den = 0.96132; statUp = 0.0101043; statDown = 0.0116835;}
+      else {num = 0.932633; den = 0.950433; statUp = 0.0169327; statDown = 0.0182775;}
     }
     // SF for 1.8 < |eta| < 2.1
     if (fabs(eta) >= 1.8 && fabs(eta) < 2.1) {
-      if (x >= 1.8 && x <2) {num = 0.651185; den = 0.562127; statUp = 0.0311006; statDown = 0.0309056;}
-      else if (x >= 2 && x <2.5) {num = 0.75568; den = 0.744834; statUp = 0.0139774; statDown = 0.0139217;}
-      else if (x >= 2.5 && x <3) {num = 0.895072; den = 0.898086; statUp = 0.00967712; statDown = 0.00997311;}
-      else if (x >= 3 && x <3.5) {num = 0.911965; den = 0.932775; statUp = 0.0093472; statDown = 0.00978825;}
-      else if (x >= 3.5 && x <4) {num = 0.933577; den = 0.949087; statUp = 0.008866; statDown = 0.00937714;}
-      else if (x >= 4 && x <4.5) {num = 0.92098; den = 0.952348; statUp = 0.0100317; statDown = 0.0107328;}
-      else if (x >= 4.5 && x <5.5) {num = 0.945015; den = 0.959924; statUp = 0.00698531; statDown = 0.00744697;}
-      else if (x >= 5.5 && x <6.5) {num = 0.915225; den = 0.961517; statUp = 0.0105111; statDown = 0.0112266;}
-      else if (x >= 6.5 && x <8) {num = 0.942614; den = 0.958878; statUp = 0.00845552; statDown = 0.00920477;}
-      else if (x >= 8 && x <9.5) {num = 0.943992; den = 0.95865; statUp = 0.0111118; statDown = 0.0123342;}
-      else if (x >= 9.5 && x <13) {num = 0.953176; den = 0.956512; statUp = 0.0100647; statDown = 0.0114277;}
-      else {num = 0.9711; den = 0.959808; statUp = 0.0112001; statDown = 0.0137596;}
+      if (x >= 1.5 && x <2.5) {num = 0.69714; den = 0.653685; statUp = 0.0201021; statDown = 0.020174;}
+      else if (x >= 2.5 && x <3) {num = 0.906875; den = 0.867753; statUp = 0.0141174; statDown = 0.0148529;}
+      else if (x >= 3 && x <3.5) {num = 0.919454; den = 0.903362; statUp = 0.0134254; statDown = 0.0144224;}
+      else if (x >= 3.5 && x <4) {num = 0.946926; den = 0.922588; statUp = 0.0128289; statDown = 0.0140971;}
+      else if (x >= 4 && x <4.5) {num = 0.904028; den = 0.926253; statUp = 0.0160491; statDown = 0.0175516;}
+      else if (x >= 4.5 && x <5.5) {num = 0.948992; den = 0.939449; statUp = 0.0109821; statDown = 0.0121312;}
+      else if (x >= 5.5 && x <6.5) {num = 0.910994; den = 0.939075; statUp = 0.0180899; statDown = 0.0197981;}
+      else if (x >= 6.5 && x <8) {num = 0.916309; den = 0.939568; statUp = 0.0156774; statDown = 0.017337;}
+      else if (x >= 8 && x <9.5) {num = 0.908937; den = 0.928398; statUp = 0.0221432; statDown = 0.0255568;}
+      else if (x >= 9.5 && x <13) {num = 0.916874; den = 0.932892; statUp = 0.0236424; statDown = 0.0272396;}
+      else {num = 0.901604; den = 0.919504; statUp = 0.0359305; statDown = 0.0435464;}
     }
     // SF for 2.1 < |eta| < 2.4
     if (fabs(eta) >= 2.1 && fabs(eta) < 2.4) {
-      if (x >= 1.8 && x <2.2) {num = 0.80688; den = 0.804533; statUp = 0.017851; statDown = 0.0179625;}
-      else if (x >= 2.2 && x <2.7) {num = 0.864384; den = 0.87583; statUp = 0.0134953; statDown = 0.0137959;}
-      else if (x >= 2.7 && x <3.2) {num = 0.892179; den = 0.904052; statUp = 0.0121752; statDown = 0.0125694;}
-      else if (x >= 3.2 && x <3.7) {num = 0.896585; den = 0.926574; statUp = 0.0112721; statDown = 0.0117765;}
-      else if (x >= 3.7 && x <4.7) {num = 0.910998; den = 0.928332; statUp = 0.00974335; statDown = 0.010226;}
-      else if (x >= 4.7 && x <6.5) {num = 0.938687; den = 0.949857; statUp = 0.00795089; statDown = 0.00845509;}
-      else if (x >= 6.5 && x <8.5) {num = 0.941825; den = 0.954442; statUp = 0.0109965; statDown = 0.0143609;}
-      else if (x >= 8.5 && x <11) {num = 0.931535; den = 0.959109; statUp = 0.0136929; statDown = 0.0156881;}
-      else {num = 0.969056; den = 0.967084; statUp = 0.00977435; statDown = 0.0126053;}
+      if (x >= 1.5 && x <2.5) {num = 0.784868; den = 0.755554; statUp = 0.0193752; statDown = 0.0193376;}
+      else if (x >= 2.5 && x <3) {num = 0.884159; den = 0.875273; statUp = 0.0181843; statDown = 0.0190031;}
+      else if (x >= 3 && x <4.5) {num = 0.893751; den = 0.899881; statUp = 0.106249; statDown = 0.0119269;}
+      else if (x >= 4.5 && x <6.5) {num = 0.901613; den = 0.917252; statUp = 0.0142685; statDown = 0.0153256;}
+      else if (x >= 6.5 && x <8.5) {num = 0.880979; den = 0.917815; statUp = 0.0250043; statDown = 0.027907;}
+      else if (x >= 8.5 && x <11) {num = 0.864834; den = 0.9055; statUp = 0.0320361; statDown = 0.0373617;}
+      else {num = 0.89517; den = 0.911155; statUp = 0.0490948; statDown = 0.0577133;}
     }
 
     if (fabs(eta) >= 0 && fabs(eta) < 1.2) {
       // syst uncertainties
-      if (x >= 3.5 && x < 4) syst = 0.00119995;
-      else if (x >= 4 && x < 4.5) syst = 0.000801484;
-      else if (x >= 4.5 && x < 5) syst = 0.00142786;
-      else if (x >= 5 && x < 5.5) syst = 0.000859141;
-      else if (x >= 5.5 && x < 6.5) syst = 0.000855793;
-      else if (x >= 6.5 && x < 8) syst = 0.000338442;
-      else if (x >= 8 && x < 10.5) syst = 0.000905661;
-      else if (x >= 10.5 && x < 14) syst = 0.000193737;
-      else if (x >= 14 && x < 18) syst = 0.000621028;
-      else syst = 0.0029276;
+      if (x >= 3.5 && x < 4) syst = 0.00146411;
+      else if (x >= 4 && x < 4.5) syst = 0.00327651;
+      else if (x >= 4.5 && x < 5) syst = 0.00316198;
+      else if (x >= 5 && x < 5.5) syst = 0.00125837;
+      else if (x >= 5.5 && x < 6.5) syst = 0.000930465;
+      else if (x >= 6.5 && x < 8) syst = 0.0010186;
+      else if (x >= 8 && x < 10.5) syst = 0.00133373;
+      else if (x >= 10.5 && x < 14) syst = 0.00126452;
+      else if (x >= 14 && x < 18) syst = 0.00702329;
+      else syst = 0.00295619;
     }
     else if (fabs(eta) >= 1.2 && fabs(eta) < 1.8) {
       // syst uncertainties
-      if (x >= 2.37 && x < 3) syst = 0.00301699;
-      else if (x >= 3 && x < 3.5) syst = 0.0051637;
-      else if (x >= 3.5 && x < 4) syst = 0.00271564;
-      else if (x >= 4 && x < 4.5) syst = 0.00128082;
-      else if (x >= 4.5 && x < 5) syst = 0.00105614;
-      else if (x >= 5 && x < 6) syst = 0.00120191;
-      else if (x >= 6 && x < 7.5) syst = 0.000729975;
-      else if (x >= 7.5 && x < 10) syst = 0.00139352;
-      else if (x >= 10 && x < 15) syst = 0.00151879;
-      else syst = 0.00138277;
+      if (x >= 2.07 && x < 3) syst = 0.00239623;
+      else if (x >= 3 && x < 3.5) syst = 0.00702354;
+      else if (x >= 3.5 && x < 4) syst = 0.00178215;
+      else if (x >= 4 && x < 4.5) syst = 0.00149079;
+      else if (x >= 4.5 && x < 5) syst = 0.000960333;
+      else if (x >= 5 && x < 6) syst = 0.00137786;
+      else if (x >= 6 && x < 7.5) syst = 0.0024569;
+      else if (x >= 7.5 && x < 10) syst = 0.00125311;
+      else if (x >= 10 && x < 15) syst = 0.00219919;
+      else syst = 0.00398135;
     }
     else if (fabs(eta) >= 1.8 && fabs(eta) < 2.1) {
       // syst uncertainties
-      if (x >= 1.8 && x < 2) syst = 0.0234362;
-      else if (x >= 2 && x < 2.5) syst = 0.00781699;
-      else if (x >= 2.5 && x < 3) syst = 0.0020642;
-      else if (x >= 3 && x < 3.5) syst = 0.00494294;
-      else if (x >= 3.5 && x < 4) syst = 0.00372959;
-      else if (x >= 4 && x < 4.5) syst = 0.0101533;
-      else if (x >= 4.5 && x < 5.5) syst = 0.00248577;
-      else if (x >= 5.5 && x < 6.5) syst = 0.00480156;
-      else if (x >= 6.5 && x < 8) syst = 0.00535204;
-      else if (x >= 8 && x < 9.5) syst = 0.00407749;
-      else if (x >= 9.5 && x < 13) syst = 0.000734987;
-      else syst = 0.0152108;
+      if (x >= 1.5 && x < 2.5) syst = 0.0111427;
+      else if (x >= 2.5 && x < 3) syst = 0.00378269;
+      else if (x >= 3 && x < 3.5) syst = 0.0037617;
+      else if (x >= 3.5 && x < 4) syst = 0.00990851;
+      else if (x >= 4 && x < 4.5) syst = 0.0108622;
+      else if (x >= 4.5 && x < 5.5) syst = 0.00354057;
+      else if (x >= 5.5 && x < 6.5) syst = 0.00219385;
+      else if (x >= 6.5 && x < 8) syst = 0.00635034;
+      else if (x >= 8 && x < 9.5) syst = 0.0137249;
+      else if (x >= 9.5 && x < 13) syst = 0.0135164;
+      else syst = 0.0181378;
     }
     else if (fabs(eta) >= 2.1 && fabs(eta) < 2.4) {
       // syst uncertainties
-      if (x >= 1.8 && x < 2.2) syst = 0.0547508;
-      else if (x >= 2.2 && x < 2.7) syst = 0.0439035;
-      else if (x >= 2.7 && x < 3.2) syst = 0.0100721;
-      else if (x >= 3.2 && x < 3.7) syst = 0.00486924;
-      else if (x >= 3.7 && x < 4.7) syst = 0.0164241;
-      else if (x >= 4.7 && x < 6.5) syst = 0.0045128;
-      else if (x >= 6.5 && x < 8.5) syst = 0.00615735;
-      else if (x >= 8.5 && x < 11) syst = 0.00521994;
-      else syst = 0.00496602;
+      if (x >= 1.5 && x < 2.5) syst = 0.0035764;
+      else if (x >= 2.5 && x < 3) syst = 0.0201525;
+      else if (x >= 3 && x < 4.5) syst = 0.00258387;
+      else if (x >= 4.5 && x < 6.5) syst = 0.00410559;
+      else if (x >= 6.5 && x < 8.5) syst = 0.00740031;
+      else if (x >= 8.5 && x < 11) syst = 0.00884108;
+      else syst = 0.00848748;
     }
   }
-  else if (filterId==3) { //L3 Upsi
+  else if (filterId==3) { //L3 Jpsi
     // SF for 0 < |eta| < 1.2
     if (fabs(eta) >= 0 && fabs(eta) < 1.2) {
-      if (x >= 3.5 && x <4) {num = 0.0981413; den = 0.0714076; statUp = 0.00475984; statDown = 0.00464341;}
-      else if (x >= 4 && x <4.5) {num = 0.309591; den = 0.234967; statUp = 0.00731017; statDown = 0.00724988;}
-      else if (x >= 4.5 && x <5) {num = 0.49696; den = 0.427491; statUp = 0.00850388; statDown = 0.00850324;}
-      else if (x >= 5 && x <5.5) {num = 0.646567; den = 0.569805; statUp = 0.00897182; statDown = 0.00902901;}
-      else if (x >= 5.5 && x <6.5) {num = 0.717727; den = 0.665698; statUp = 0.00690496; statDown = 0.00696443;}
-      else if (x >= 6.5 && x <8) {num = 0.771046; den = 0.736859; statUp = 0.00662127; statDown = 0.00670002;}
-      else if (x >= 8 && x <10.5) {num = 0.792067; den = 0.777534; statUp = 0.00684886; statDown = 0.00695048;}
-      else if (x >= 10.5 && x <14) {num = 0.826589; den = 0.814236; statUp = 0.00832558; statDown = 0.00852162;}
-      else if (x >= 14 && x <18) {num = 0.800339; den = 0.820918; statUp = 0.0131166; statDown = 0.0135246;}
-      else {num = 0.846856; den = 0.837225; statUp = 0.0139208; statDown = 0.0145458;}
+      if (x >= 3.5 && x <4) {num = 0.0929084; den = 0.0679817; statUp = 0.006841; statDown = 0.0065872;}
+      else if (x >= 4 && x <4.5) {num = 0.297766; den = 0.224427; statUp = 0.0108539; statDown = 0.010713;}
+      else if (x >= 4.5 && x <5) {num = 0.502117; den = 0.417386; statUp = 0.0127763; statDown = 0.0127755;}
+      else if (x >= 5 && x <5.5) {num = 0.635817; den = 0.565377; statUp = 0.0135751; statDown = 0.0136973;}
+      else if (x >= 5.5 && x <6.5) {num = 0.731239; den = 0.670099; statUp = 0.0102029; statDown = 0.0103455;}
+      else if (x >= 6.5 && x <8) {num = 0.770928; den = 0.743473; statUp = 0.0102308; statDown = 0.0104292;}
+      else if (x >= 8 && x <10.5) {num = 0.788012; den = 0.786007; statUp = 0.0111432; statDown = 0.0114151;}
+      else if (x >= 10.5 && x <14) {num = 0.810243; den = 0.820978; statUp = 0.0144525; statDown = 0.0150071;}
+      else if (x >= 14 && x <18) {num = 0.792036; den = 0.829214; statUp = 0.0237166; statDown = 0.0248112;}
+      else {num = 0.863475; den = 0.847132; statUp = 0.0232916; statDown = 0.0255443;}
     }
     // SF for 1.2 < |eta| < 1.8
     if (fabs(eta) >= 1.2 && fabs(eta) < 1.8) {
-      if (x >= 2.37 && x <3) {num = 0.307823; den = 0.284114; statUp = 0.0111767; statDown = 0.0110334;}
-      else if (x >= 3 && x <3.5) {num = 0.429139; den = 0.424849; statUp = 0.00992916; statDown = 0.00988034;}
-      else if (x >= 3.5 && x <4) {num = 0.54449; den = 0.527662; statUp = 0.45551; statDown = 0.00969908;}
-      else if (x >= 4 && x <4.5) {num = 0.591156; den = 0.604174; statUp = 0.0113833; statDown = 0.0114203;}
-      else if (x >= 4.5 && x <5) {num = 0.639967; den = 0.645913; statUp = 0.0126515; statDown = 0.0127542;}
-      else if (x >= 5 && x <6) {num = 0.673449; den = 0.679156; statUp = 0.0104608; statDown = 0.010556;}
-      else if (x >= 6 && x <7.5) {num = 0.685635; den = 0.720417; statUp = 0.0109999; statDown = 0.0111263;}
-      else if (x >= 7.5 && x <10) {num = 0.749011; den = 0.754465; statUp = 0.0113948; statDown = 0.0115976;}
-      else if (x >= 10 && x <15) {num = 0.773253; den = 0.801728; statUp = 0.0133331; statDown = 0.0136666;}
-      else {num = 0.773038; den = 0.833024; statUp = 0.0211603; statDown = 0.0220621;}
+      if (x >= 2.07 && x <3) {num = 0.325521; den = 0.282497; statUp = 0.016271; statDown = 0.0160003;}
+      else if (x >= 3 && x <3.5) {num = 0.423453; den = 0.416595; statUp = 0.0149866; statDown = 0.0148893;}
+      else if (x >= 3.5 && x <4) {num = 0.543809; den = 0.511604; statUp = 0.0160433; statDown = 0.0160731;}
+      else if (x >= 4 && x <4.5) {num = 0.584023; den = 0.581042; statUp = 0.0169952; statDown = 0.0170676;}
+      else if (x >= 4.5 && x <5) {num = 0.61728; den = 0.623371; statUp = 0.0187614; statDown = 0.0189572;}
+      else if (x >= 5 && x <6) {num = 0.685606; den = 0.6656; statUp = 0.0162022; statDown = 0.0164562;}
+      else if (x >= 6 && x <7.5) {num = 0.650217; den = 0.708729; statUp = 0.0181033; statDown = 0.0183853;}
+      else if (x >= 7.5 && x <10) {num = 0.73008; den = 0.748535; statUp = 0.0195931; statDown = 0.0201359;}
+      else if (x >= 10 && x <15) {num = 0.773451; den = 0.799811; statUp = 0.0225743; statDown = 0.0234864;}
+      else {num = 0.736842; den = 0.816195; statUp = 0.0351455; statDown = 0.0372627;}
     }
     // SF for 1.8 < |eta| < 2.1
     if (fabs(eta) >= 1.8 && fabs(eta) < 2.1) {
-      if (x >= 1.8 && x <2) {num = 0.00155461; den = 0.000463755; statUp = 0.00211758; statDown = 0.00108585;}
-      else if (x >= 2 && x <2.5) {num = 0.00555387; den = 0.00858885; statUp = 0.00315843; statDown = 0.00555387;}
-      else if (x >= 2.5 && x <3) {num = 0.451703; den = 0.447277; statUp = 0.0150343; statDown = 0.0149314;}
-      else if (x >= 3 && x <3.5) {num = 0.655861; den = 0.650893; statUp = 0.0159254; statDown = 0.0160134;}
-      else if (x >= 3.5 && x <4) {num = 0.706533; den = 0.710335; statUp = 0.0158931; statDown = 0.0161213;}
-      else if (x >= 4 && x <4.5) {num = 0.726282; den = 0.741482; statUp = 0.0174238; statDown = 0.017772;}
-      else if (x >= 4.5 && x <5.5) {num = 0.764391; den = 0.796199; statUp = 0.013155; statDown = 0.0134088;}
-      else if (x >= 5.5 && x <6.5) {num = 0.769821; den = 0.824468; statUp = 0.016319; statDown = 0.0167672;}
-      else if (x >= 6.5 && x <8) {num = 0.811763; den = 0.834174; statUp = 0.0145482; statDown = 0.0150501;}
-      else if (x >= 8 && x <9.5) {num = 0.819571; den = 0.841319; statUp = 0.0190366; statDown = 0.01987;}
-      else if (x >= 9.5 && x <13) {num = 0.829677; den = 0.857122; statUp = 0.0192692; statDown = 0.0202277;}
-      else {num = 0.874981; den = 0.874474; statUp = 0.0258047; statDown = 0.0277093;}
+      if (x >= 1.5 && x <2.5) {num = 0.14084; den = 0.113341; statUp = 0.013025; statDown = 0.0125015;}
+      else if (x >= 2.5 && x <3) {num = 0.476412; den = 0.440149; statUp = 0.0227841; statDown = 0.0226386;}
+      else if (x >= 3 && x <3.5) {num = 0.650759; den = 0.62906; statUp = 0.0232733; statDown = 0.0235646;}
+      else if (x >= 3.5 && x <4) {num = 0.727644; den = 0.698642; statUp = 0.0239828; statDown = 0.0245278;}
+      else if (x >= 4 && x <4.5) {num = 0.727256; den = 0.718312; statUp = 0.0255525; statDown = 0.0262978;}
+      else if (x >= 4.5 && x <5.5) {num = 0.777415; den = 0.768105; statUp = 0.0199169; statDown = 0.0206122;}
+      else if (x >= 5.5 && x <6.5) {num = 0.776885; den = 0.799541; statUp = 0.0261671; statDown = 0.0273015;}
+      else if (x >= 6.5 && x <8) {num = 0.791451; den = 0.821447; statUp = 0.0237416; statDown = 0.0248952;}
+      else if (x >= 8 && x <9.5) {num = 0.786008; den = 0.817606; statUp = 0.0343974; statDown = 0.0367832;}
+      else if (x >= 9.5 && x <13) {num = 0.824864; den = 0.84872; statUp = 0.0335901; statDown = 0.0363048;}
+      else {num = 0.835512; den = 0.867058; statUp = 0.0463296; statDown = 0.0516908;}
     }
     // SF for 2.1 < |eta| < 2.4
     if (fabs(eta) >= 2.1 && fabs(eta) < 2.4) {
-      if (x >= 1.8 && x <2.2) {num = 0.00366548; den = 0.000413051; statUp = 0.00211949; statDown = 0.00167583;}
-      else if (x >= 2.2 && x <2.7) {num = 0.116176; den = 0.109916; statUp = 0.0108872; statDown = 0.0105043;}
-      else if (x >= 2.7 && x <3.2) {num = 0.413123; den = 0.401827; statUp = 0.0181733; statDown = 0.017947;}
-      else if (x >= 3.2 && x <3.7) {num = 0.482035; den = 0.491334; statUp = 0.0184417; statDown = 0.0183373;}
-      else if (x >= 3.7 && x <4.7) {num = 0.568894; den = 0.573223; statUp = 0.0169342; statDown = 0.0169658;}
-      else if (x >= 4.7 && x <6.5) {num = 0.675048; den = 0.651616; statUp = 0.0160907; statDown = 0.0162558;}
-      else if (x >= 6.5 && x <8.5) {num = 0.722882; den = 0.711847; statUp = 0.0215971; statDown = 0.022054;}
-      else if (x >= 8.5 && x <11) {num = 0.714358; den = 0.750096; statUp = 0.0275205; statDown = 0.0283679;}
-      else {num = 0.753355; den = 0.779864; statUp = 0.0323455; statDown = 0.0336041;}
+      if (x >= 1.5 && x <2.5) {num = 0.105786; den = 0.105436; statUp = 0.0111179; statDown = 0.0106879;}
+      else if (x >= 2.5 && x <3) {num = 0.39082; den = 0.327966; statUp = 0.0261347; statDown = 0.0256485;}
+      else if (x >= 3 && x <4.5) {num = 0.526405; den = 0.501953; statUp = 0.0184148; statDown = 0.0183235;}
+      else if (x >= 4.5 && x <6.5) {num = 0.659384; den = 0.633247; statUp = 0.0237874; statDown = 0.0241398;}
+      else if (x >= 6.5 && x <8.5) {num = 0.64115; den = 0.701749; statUp = 0.0384833; statDown = 0.0396889;}
+      else if (x >= 8.5 && x <11) {num = 0.657733; den = 0.727318; statUp = 0.0490318; statDown = 0.0516174;}
+      else {num = 0.751588; den = 0.772539; statUp = 0.0686162; statDown = 0.0726347;}
     }
 
     if (fabs(eta) >= 0 && fabs(eta) < 1.2) {
       // syst uncertainties
-      if (x >= 3.5 && x < 4) syst = 0.000650706;
-      else if (x >= 4 && x < 4.5) syst = 0.0010869;
-      else if (x >= 4.5 && x < 5) syst = 0.00298052;
-      else if (x >= 5 && x < 5.5) syst = 0.00341277;
-      else if (x >= 5.5 && x < 6.5) syst = 0.000613358;
-      else if (x >= 6.5 && x < 8) syst = 0.000658119;
-      else if (x >= 8 && x < 10.5) syst = 0.000756756;
-      else if (x >= 10.5 && x < 14) syst = 0.000662617;
-      else if (x >= 14 && x < 18) syst = 0.00220571;
-      else syst = 0.00215326;
+      if (x >= 3.5 && x < 4) syst = 0.00146036;
+      else if (x >= 4 && x < 4.5) syst = 0.00419698;
+      else if (x >= 4.5 && x < 5) syst = 0.00246527;
+      else if (x >= 5 && x < 5.5) syst = 0.00634417;
+      else if (x >= 5.5 && x < 6.5) syst = 0.00202178;
+      else if (x >= 6.5 && x < 8) syst = 0.000738586;
+      else if (x >= 8 && x < 10.5) syst = 0.00187763;
+      else if (x >= 10.5 && x < 14) syst = 0.00110162;
+      else if (x >= 14 && x < 18) syst = 0.00456042;
+      else syst = 0.00325616;
     }
     else if (fabs(eta) >= 1.2 && fabs(eta) < 1.8) {
       // syst uncertainties
-      if (x >= 2.37 && x < 3) syst = 0.00406324;
-      else if (x >= 3 && x < 3.5) syst = 0.00422745;
-      else if (x >= 3.5 && x < 4) syst = 0.00493964;
-      else if (x >= 4 && x < 4.5) syst = 0.0015019;
-      else if (x >= 4.5 && x < 5) syst = 0.00349953;
-      else if (x >= 5 && x < 6) syst = 0.00165421;
-      else if (x >= 6 && x < 7.5) syst = 0.00195686;
-      else if (x >= 7.5 && x < 10) syst = 0.00305233;
-      else if (x >= 10 && x < 15) syst = 0.00341103;
-      else syst = 0.00425449;
+      if (x >= 2.07 && x < 3) syst = 0.00458779;
+      else if (x >= 3 && x < 3.5) syst = 0.00836596;
+      else if (x >= 3.5 && x < 4) syst = 0.00164349;
+      else if (x >= 4 && x < 4.5) syst = 0.00620377;
+      else if (x >= 4.5 && x < 5) syst = 0.00226104;
+      else if (x >= 5 && x < 6) syst = 0.00425653;
+      else if (x >= 6 && x < 7.5) syst = 0.00333209;
+      else if (x >= 7.5 && x < 10) syst = 0.0010693;
+      else if (x >= 10 && x < 15) syst = 0.00650836;
+      else syst = 0.0138687;
     }
     else if (fabs(eta) >= 1.8 && fabs(eta) < 2.1) {
       // syst uncertainties
-      if (x >= 1.8 && x < 2) syst = 0.00154707;
-      else if (x >= 2 && x < 2.5) syst = 0.00239348;
-      else if (x >= 2.5 && x < 3) syst = 0.00578521;
-      else if (x >= 3 && x < 3.5) syst = 0.0019864;
-      else if (x >= 3.5 && x < 4) syst = 0.00826595;
-      else if (x >= 4 && x < 4.5) syst = 0.00622458;
-      else if (x >= 4.5 && x < 5.5) syst = 0.00155048;
-      else if (x >= 5.5 && x < 6.5) syst = 0.00738518;
-      else if (x >= 6.5 && x < 8) syst = 0.00155169;
-      else if (x >= 8 && x < 9.5) syst = 0.00373986;
-      else if (x >= 9.5 && x < 13) syst = 0.00445251;
-      else syst = 0.028681;
+      if (x >= 1.5 && x < 2.5) syst = 0.00814591;
+      else if (x >= 2.5 && x < 3) syst = 0.0115312;
+      else if (x >= 3 && x < 3.5) syst = 0.00634851;
+      else if (x >= 3.5 && x < 4) syst = 0.0175754;
+      else if (x >= 4 && x < 4.5) syst = 0.0146908;
+      else if (x >= 4.5 && x < 5.5) syst = 0.0110682;
+      else if (x >= 5.5 && x < 6.5) syst = 0.00983664;
+      else if (x >= 6.5 && x < 8) syst = 0.00319873;
+      else if (x >= 8 && x < 9.5) syst = 0.027534;
+      else if (x >= 9.5 && x < 13) syst = 0.0177867;
+      else syst = 0.0318172;
     }
     else if (fabs(eta) >= 2.1 && fabs(eta) < 2.4) {
       // syst uncertainties
-      if (x >= 1.8 && x < 2.2) syst = 0.000519911;
-      else if (x >= 2.2 && x < 2.7) syst = 0.0288676;
-      else if (x >= 2.7 && x < 3.2) syst = 0.013137;
-      else if (x >= 3.2 && x < 3.7) syst = 0.00153582;
-      else if (x >= 3.7 && x < 4.7) syst = 0.00361851;
-      else if (x >= 4.7 && x < 6.5) syst = 0.0155374;
-      else if (x >= 6.5 && x < 8.5) syst = 0.00321391;
-      else if (x >= 8.5 && x < 11) syst = 0.00306389;
-      else syst = 0.0199929;
+      if (x >= 1.5 && x < 2.5) syst = 0.00238882;
+      else if (x >= 2.5 && x < 3) syst = 0.00627081;
+      else if (x >= 3 && x < 4.5) syst = 0.00206241;
+      else if (x >= 4.5 && x < 6.5) syst = 0.0134876;
+      else if (x >= 6.5 && x < 8.5) syst = 0.0175673;
+      else if (x >= 8.5 && x < 11) syst = 0.0140479;
+      else syst = 0.0105411;
     }
   }
   double syst_factor = 0; double stat_factor = 0;
@@ -604,31 +753,47 @@ double tnp_weight_trg_pbpb(double pt, double eta, int filterId,int idx) {
 double tnp_weight_trk_pbpb(double eta, int idx) {
   double x = eta;
   double num=1, den=1, syst=0, statUp=0, statDown=0;
-  //SF in eta bins
-  if (x >= -2.4 && x < -1.6) {num = 0.994498; den = 0.998413; statUp = 0.00287386; statDown = 0.00290888;}
-  if (x >= -1.6 && x < -1.2) {num = 0.973539; den = 0.967322; statUp = 0.00399501; statDown = 0.00407843;}
-  if (x >= -1.2 && x < -0.9) {num = 0.964465; den = 0.970816; statUp = 0.00861188; statDown = 0.00869453;}
-  if (x >= -0.9 && x < -0.6) {num = 0.96081; den = 0.974407; statUp = 0.0223599; statDown = 0.00682405;}
-  if (x >= -0.6 && x < -0.3) {num = 0.964464; den = 0.97802; statUp = 0.00612474; statDown = 0.00621291;}
-  if (x >= -0.3 && x < 0.3) {num = 0.963862; den = 0.966583; statUp = 0.00496914; statDown = 0.00503378;}
-  if (x >= 0.3 && x < 0.6) {num = 0.956897; den = 0.967248; statUp = 0.00672757; statDown = 0.0068202;}
-  if (x >= 0.6 && x < 0.9) {num = 0.964172; den = 0.966882; statUp = 0.00735892; statDown = 0.00754429;}
-  if (x >= 0.9 && x < 1.2) {num = 0.961874; den = 0.955987; statUp = 0.00987473; statDown = 0.0099638;}
-  if (x >= 1.2 && x < 1.6) {num = 0.964754; den = 0.964653; statUp = 0.0042287; statDown = 0.00430601;}
-  if (x >= 1.6 && x < 2.4) {num = 0.999937; den = 0.998771; statUp = 6.33084e-05; statDown = 0.00310832;}
+  if (idx != 99) {
+    //SF in eta bins
+    if (x >= -2.4 && x < -1.6) {num = 0.993926; den = 0.998702; statUp = 0.00419653; statDown = 0.00432197;}
+    if (x >= -1.6 && x < -1.2) {num = 0.976902; den = 0.969637; statUp = 0.00590158; statDown = 0.00615432;}
+    if (x >= -1.2 && x < -0.9) {num = 0.970023; den = 0.975344; statUp = 0.0129736; statDown = 0.013189;}
+    if (x >= -0.9 && x < -0.6) {num = 0.966166; den = 0.975223; statUp = 0.0108924; statDown = 0.011145;}
+    if (x >= -0.6 && x < -0.3) {num = 0.954508; den = 0.978331; statUp = 0.0101589; statDown = 0.0104172;}
+    if (x >= -0.3 && x < 0.3) {num = 0.966412; den = 0.966149; statUp = 0.00796915; statDown = 0.00805333;}
+    if (x >= 0.3 && x < 0.6) {num = 0.96047; den = 0.967223; statUp = 0.0113363; statDown = 0.0115807;}
+    if (x >= 0.6 && x < 0.9) {num = 0.972201; den = 0.967365; statUp = 0.0112951; statDown = 0.0115885;}
+    if (x >= 0.9 && x < 1.2) {num = 0.944248; den = 0.963713; statUp = 0.0161942; statDown = 0.016393;}
+    if (x >= 1.2 && x < 1.6) {num = 0.957924; den = 0.964393; statUp = 0.00660789; statDown = 0.00682015;}
+    if (x >= 1.6 && x < 2.4) {num = 0.9999; den = 0.999137; statUp = 0.000100279; statDown = 0.00556743;}
 
-  // syst uncertainties
-  if (x >= -2.4 && x < -1.6) syst = 0.0015001;
-  else if (x >= -1.6 && x < -1.2) syst = 0.00376932;
-  else if (x >= -1.2 && x < -0.9) syst = 0.00125496;
-  else if (x >= -0.9 && x < -0.6) syst = 0.00190534;
-  else if (x >= -0.6 && x < -0.3) syst = 0.00228604;
-  else if (x >= -0.3 && x < 0.3) syst = 0.00493996;
-  else if (x >= 0.3 && x < 0.6) syst = 0.00527961;
-  else if (x >= 0.6 && x < 0.9) syst = 0.00231575;
-  else if (x >= 0.9 && x < 1.2) syst = 0.012059;
-  else if (x >= 1.2 && x < 1.6) syst = 0.00278996;
-  else syst = 0.000876099;
+    // syst uncertainties
+    if (x >= -2.4 && x < -1.6) syst = 0.00210453;
+    else if (x >= -1.6 && x < -1.2) syst = 0.00690924;
+    else if (x >= -1.2 && x < -0.9) syst = 0.0140428;
+    else if (x >= -0.9 && x < -0.6) syst = 0.00314062;
+    else if (x >= -0.6 && x < -0.3) syst = 0.00433076;
+    else if (x >= -0.3 && x < 0.3) syst = 0.00497976;
+    else if (x >= 0.3 && x < 0.6) syst = 0.0107458;
+    else if (x >= 0.6 && x < 0.9) syst = 0.00145445;
+    else if (x >= 0.9 && x < 1.2) syst = 0.0083856;
+    else if (x >= 1.2 && x < 1.6) syst = 0.0064073;
+    else syst = 0.000546022;
+  }
+  else {
+    //SF in eta bins
+    if (x >= -2.4 && x < -1.6) {num = 0.996699; den = 0.998413; statUp = 0.00330123; statDown = 0.00616931;}
+    if (x >= -1.6 && x < -1.2) {num = 0.971703; den = 0.96732; statUp = 0.00981403; statDown = 0.0102412;}
+    if (x >= -1.2 && x < -0.9) {num = 0.922503; den = 0.970676; statUp = 0.0254956; statDown = 0.0255154;}
+    if (x >= -0.9 && x < -0.6) {num = 0.947585; den = 0.974462; statUp = 0.019426; statDown = 0.019939;}
+    if (x >= -0.6 && x < -0.3) {num = 0.971967; den = 0.978043; statUp = 0.0177538; statDown = 0.0183016;}
+    if (x >= -0.3 && x < 0.3) {num = 0.958389; den = 0.966616; statUp = 0.0155441; statDown = 0.0159405;}
+    if (x >= 0.3 && x < 0.6) {num = 0.952296; den = 0.967543; statUp = 0.0183273; statDown = 0.0190258;}
+    if (x >= 0.6 && x < 0.9) {num = 0.944595; den = 0.966998; statUp = 0.0251166; statDown = 0.0255716;}
+    if (x >= 0.9 && x < 1.2) {num = 1; den = 0.955977; statUp = 5.54593e-09; statDown = 0.0214702;}
+    if (x >= 1.2 && x < 1.6) {num = 0.967736; den = 0.964616; statUp = 0.0100742; statDown = 0.010361;}
+    if (x >= 1.6 && x < 2.4) {num = 0.999971; den = 0.998768; statUp = 2.85144e-05; statDown = 0.0054368;}
+  }
 
   double syst_factor = 0; double stat_factor = 0;
   if (idx == -1) syst_factor = syst;

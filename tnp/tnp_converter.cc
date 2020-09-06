@@ -8,6 +8,7 @@
 #include <TH1D.h>
 #include <TH2F.h>
 #include <TSystem.h>
+#include <TRandom3.h>
 
 #include "fitX.h"
 #include "tnp_weight_lowptPbPb.h"
@@ -56,6 +57,8 @@ void converter(std::string inputname, std::string outputname, std::string name, 
 {
   std::cout<<"\e[32;1m -- "<<__FUNCTION__<<"\e[0m"<<std::endl;
 
+  TRandom3 rnd;
+
   std::cout<<"==> Checking pt weight"<<std::endl;
   std::cout<<ptweight<<std::endl;
   TF1* fptweight = new TF1("fptweight", ptweight.c_str(), fitX::ptmincut, fitX::ptmaxcut);
@@ -102,6 +105,8 @@ void converter(std::string inputname, std::string outputname, std::string name, 
 
       if(!(ntp->hiBin >= fitX::centmincut && ntp->hiBin <= fitX::centmaxcut)) continue;
       if(!ntp->passedevtfil()) continue;
+      if(xjjc::str_contains(outputname, "PVz15") && fabs(ntp->PVz)>=15) continue;
+
       for(int j=0; j<ntp->Bsize; j++)
         {
           if(!ntp->mvapref[j]) continue;
@@ -117,13 +122,34 @@ void converter(std::string inputname, std::string outputname, std::string name, 
           int ietamu1 = xjjc::findibin(tnpcc::muetabins, fabs(ntp->Bmu1eta[j]));
           int ietamu2 = xjjc::findibin(tnpcc::muetabins, fabs(ntp->Bmu2eta[j]));
 
+          // find which leg
+          int ifilterIdmu1 = tnpcc::filterId["jpsiL3"], ifilterIdmu2 = tnpcc::filterId["jpsiL3"];
+          if(xjjc::str_contains(outputname, "L2L3"))
+            {
+              if(!ntp->ismutrg()) { std::cout<<__FUNCTION__<<": \e[31;1merror:\e[0m no muon trigger filter info in ntuple."<<std::endl; }
+              else
+                {
+                  if(ntp->mu1hltL3flt[j] >= 0) ifilterIdmu1 = tnpcc::filterId["jpsiL3"];
+                  else if(ntp->mu1hltL2flt[j] >= 0) ifilterIdmu1 = tnpcc::filterId["jpsiL2"];
+                  if(ntp->mu2hltL3flt[j] >= 0) ifilterIdmu2 = tnpcc::filterId["jpsiL3"];
+                  else if(ntp->mu2hltL2flt[j] >= 0) ifilterIdmu2 = tnpcc::filterId["jpsiL2"];
+
+                  if(ifilterIdmu1 == tnpcc::filterId["jpsiL3"] && ifilterIdmu2 == tnpcc::filterId["jpsiL3"])
+                    {
+                      UInt_t rr = rnd.Integer(2); // [ 0, imax-1 ]
+                      if(rr) { ifilterIdmu1 = tnpcc::filterId["jpsiL2"]; }
+                      else { ifilterIdmu2 = tnpcc::filterId["jpsiL2"]; }
+                    }
+                }
+            }
+
           // ==>
           for(auto& idxk : tnpcc::idxname)
             {
               scales["nominal"][idxk.second] = 1.;
               scales["muid"][idxk.second] = tnp_weight_muid_pbpb(ntp->Bmu1pt[j], ntp->Bmu1eta[j], idxk.first)                 * tnp_weight_muid_pbpb(ntp->Bmu2pt[j], ntp->Bmu2eta[j], idxk.first); 
               scales["trk"][idxk.second]  = tnp_weight_trk_pbpb(ntp->Bmu1eta[j], idxk.first)                                  * tnp_weight_trk_pbpb(ntp->Bmu2eta[j], idxk.first); 
-              scales["trg"][idxk.second]  = tnp_weight_trg_pbpb(ntp->Bmu1pt[j], ntp->Bmu1eta[j], tnpcc::filterId, idxk.first) * tnp_weight_trg_pbpb(ntp->Bmu2pt[j], ntp->Bmu2eta[j], tnpcc::filterId, idxk.first); 
+              scales["trg"][idxk.second]  = tnp_weight_trg_pbpb(ntp->Bmu1pt[j], ntp->Bmu1eta[j], ifilterIdmu1, idxk.first) * tnp_weight_trg_pbpb(ntp->Bmu2pt[j], ntp->Bmu2eta[j], ifilterIdmu2, idxk.first); 
               scales["total"][idxk.second] = scales["muid"][idxk.second] * scales["trk"][idxk.second] * scales["trg"][idxk.second];
               //
               for(auto& tt : tnpcc::types)
