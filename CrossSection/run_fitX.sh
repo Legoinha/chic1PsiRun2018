@@ -17,8 +17,18 @@ optcuts=(
     "&& BDTF > 0.3 && (Bmass-3.096916-Btktkmass) < 0.13" # 5
     "&& BDTD > 0.11 && (Bmass-3.096916-Btktkmass) < 0.13" # 6
     "&& BDTG > 0.68 && (Bmass-3.096916-Btktkmass) < 0.13" # 7
-    "&& BDT > 0.04"
-    ""
+    "&& BDT > 0.04" # 8
+    "" # 9
+    "&& BDT > 0.04 && (Bmass-3.096916-Btktkmass) < 0.13" # 10
+    "&& BDT > 0.05 && (Bmass-3.096916-Btktkmass) < 0.13" # 11
+    "&& BDT > 0.06 && (Bmass-3.096916-Btktkmass) < 0.13" # 12
+    "&& BDT > 0.07 && (Bmass-3.096916-Btktkmass) < 0.13" # 13
+    "&& BDT > 0.08 && (Bmass-3.096916-Btktkmass) < 0.13" # 14
+    "&& BDT > 0.09 && (Bmass-3.096916-Btktkmass) < 0.13" # 15
+    "&& BDT > 0.10 && (Bmass-3.096916-Btktkmass) < 0.13" # 16
+    "&& BDT > 0.11 && (Bmass-3.096916-Btktkmass) < 0.13" # 17
+    "&& BDT > 0.12 && (Bmass-3.096916-Btktkmass) < 0.13" # 18
+    "&& BDT > 0.06 && (Bmass-3.096916-Btktkmass) < 0.13" # 19: background range
 )
 optcutntuples=(
     "ntp->BDT[j] > 0.06 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13" # 0: nominal
@@ -29,23 +39,43 @@ optcutntuples=(
     "ntp->BDTF[j] > 0.3 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13" # 5
     "ntp->BDTD[j] > 0.11 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13" # 6
     "ntp->BDTG[j] > 0.68 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13" # 7
-    "ntp->BDT[j] > 0.04"
-    "true"
+    "ntp->BDT[j] > 0.04" # 8
+    "true" # 9
+    "ntp->BDT[j] > 0.04 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13" # 10
+    "ntp->BDT[j] > 0.05 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13" # 11
+    "ntp->BDT[j] > 0.06 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13" # 12
+    "ntp->BDT[j] > 0.07 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13" # 13
+    "ntp->BDT[j] > 0.08 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13" # 14
+    "ntp->BDT[j] > 0.09 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13" # 15
+    "ntp->BDT[j] > 0.10 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13" # 16
+    "ntp->BDT[j] > 0.11 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13" # 17
+    "ntp->BDT[j] > 0.12 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13" # 18
+    "ntp->BDT[j] > 0.06 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13" # 19
 )
 # --> tags including "L2L3" to use correct tnp leg matching <-- see: tnp_converter.cc
 # --> tags including "PVz15" to apply |PVz| < 15
 # --> tags including "newL2L3" to apply correct tnp header
 tags=(
-    "BDTQvalue_PVz15_newL2L3"  # 0: nominal
-    "BDTQvalue_PVz15_L2L3"     # 1
-    "BDTQvalue_PVz15"          # 2
-    "BDTQvalue"                # 3
-    "BDTQvalue_wmissingfile"   # 4
-    "BDTFQvalue_PVz15_newL2L3" # 5
-    "BDTDQvalue_PVz15_newL2L3" # 6
-    "BDTGQvalue_PVz15_newL2L3" # 7
-    "BDTLoose2S"
-    "noBDT"
+    "BDTQvalue_PVz15_newL2L3"       # 0: nominal
+    "BDTQvalue_PVz15_L2L3"          # 1
+    "BDTQvalue_PVz15"               # 2
+    "BDTQvalue"                     # 3
+    "BDTQvalue_wmissingfile"        # 4
+    "BDTFQvalue_PVz15_newL2L3"      # 5
+    "BDTDQvalue_PVz15_newL2L3"      # 6
+    "BDTGQvalue_PVz15_newL2L3"      # 7
+    "BDTLoose2S"                    # 8
+    "noBDT"                         # 9
+    "BDTQvalue0p04_PVz15_newL2L3"   # 10
+    "BDTQvalue0p05_PVz15_newL2L3"   # 11
+    "BDTQvalue0p06_PVz15_newL2L3"   # 12
+    "BDTQvalue0p07_PVz15_newL2L3"   # 13
+    "BDTQvalue0p08_PVz15_newL2L3"   # 14
+    "BDTQvalue0p09_PVz15_newL2L3"   # 15
+    "BDTQvalue0p10_PVz15_newL2L3"   # 16
+    "BDTQvalue0p11_PVz15_newL2L3"   # 17
+    "BDTQvalue0p12_PVz15_newL2L3"   # 18
+    "BDTQvalue_PVz15_newL2L3_range" # 19
 )
 
 input=/raid5/data/wangj/BntupleRun2018/mva_output_20190808ptdep/ntmix_20190806_Bfinder_20190513_HIDoubleMuon__PsiPeri__HIRun2018A_04Apr2019_v1_HF_and_MuonJSON_skim_trainX_20190808ptdep_sideband_tktk0p2_BDT_BDTD_BDTG_BDTF_LD_15p0_50p0_0-10-1-2-9_1bin.root
@@ -83,6 +113,8 @@ sed -i "s/__PTBIN_INPUT__/$ptbins/g" tnpcc_tmp.h
 [[ $RUN_FITHIST -eq 1 || $# -eq 0 ]] && {
     echo " -- "draw_tnp.cc
     g++ draw_tnp.cc -I"../includes/" $(root-config --libs --cflags) -g -o draw_tnp_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; } 
+    echo " -- "draw_tnp_ratio.cc
+    g++ draw_tnp_ratio.cc -I"../includes/" $(root-config --libs --cflags) -g -o draw_tnp_ratio_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; } 
     echo " -- "fitX_fithist.C
     g++ fitX_fithist.C -I"../includes/" $(root-config --libs --cflags) -lRooFit -lRooFitCore -lRooStats -g -o fitX_fithist_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; }
 }
@@ -138,6 +170,7 @@ do
     [[ $RUN_FITHIST -eq 1 ]] && {
         ./draw_tnp_${tmp}.exe "$rootdir/tnp_a.root" $name "_a"
         ./draw_tnp_${tmp}.exe "$rootdir/tnp_b.root" $name "_b"
+        ./draw_tnp_ratio_${tmp}.exe "$rootdir/drawtnp_a.root" "$rootdir/drawtnp_b.root" $name
         ./fitX_fithist_${tmp}.exe "$rootdir/fitX_savehist.root" $name
     }
     [[ $RUN_DRAWHIST -eq 1 ]] && ./fitX_drawhist_${tmp}.exe "$rootdir/fitX_fithist.root" "$name$kinematic"
