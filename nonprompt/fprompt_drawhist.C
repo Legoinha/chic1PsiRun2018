@@ -11,10 +11,10 @@
 #include "fitX.h"
 
 std::vector<std::string> lxyvars = {"lxy", "lxyz"};
-float fprompt_a = 0.420654, errfprompt_a = 0.0742122;
-// float fprompt_a = 0.388871, errfprompt_a = 0.0778267;
-float fprompt_b = 0.79613, errfprompt_b = 0.0827859;
-// float fprompt_b = 0.785552, errfprompt_b = 0.0860397;
+// float fprompt_a = 0.420654, errfprompt_a = 0.0742122; // by fit, replaced in Sep 2020
+// float fprompt_b = 0.79613, errfprompt_b = 0.0827859; // by fit, replaced in Sep 2020
+float fprompt_a = 0.464735, errfprompt_a = 0.0701226;
+float fprompt_b = 0.818859, errfprompt_b = 0.0702701;
 void fprompt_drawhist(std::string output)
 {
   std::cout<<"\e[32;1m -- "<<__FUNCTION__<<"\e[0m"<<std::endl;

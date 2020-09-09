@@ -50,7 +50,7 @@ void fprompt_fithist(std::string input, std::string output, std::string lxyvar="
 
   std::map<std::string, fitX::fitXresult*> resulth = fitX::fit(h, 0, hmcp_a, hmcp_b, 
                                                                dsh, dshmcp_a, dshmcp_b,
-                                                               Form("plots/%s", output.c_str()), 0, true, "th", 
+                                                               Form("plots/%s/didx", output.c_str()), 0, true, "th", 
                                                                "Inclusive");
   hyield_a->SetBinContent(fitX::ibin_a, resulth["unbinned"]->ysig_a());
   hyield_a->SetBinError(fitX::ibin_a, resulth["unbinned"]->ysigerr_a());
@@ -65,7 +65,7 @@ void fprompt_fithist(std::string input, std::string output, std::string lxyvar="
     {
       std::map<std::string, fitX::fitXresult*> resulthBenr = fitX::fit(hBenr[i], 0, hmcp_a, hmcp_b, 
                                                                        dshBenr[i], dshmcp_a, dshmcp_b,
-                                                                       Form("plots/%s", output.c_str()), resulth["unbinned"]->msig_b(), true, Form("thBenr-%d",i), 
+                                                                       Form("plots/%s/didx", output.c_str()), resulth["unbinned"]->msig_b(), true, Form("thBenr-%d",i), 
                                                                        Form("B-enr (%s > %s)", lxydis::vars[lxyvar].c_str(), xjjc::number_remove_zero(lxydis::lxycut[lxyvar][i]).c_str()));
       hBenryield_a[i]->SetBinContent(fitX::ibin_a, resulthBenr["unbinned"]->ysig_a());
       hBenryield_a[i]->SetBinError(fitX::ibin_a, resulthBenr["unbinned"]->ysigerr_a());

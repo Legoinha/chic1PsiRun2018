@@ -20,8 +20,7 @@
 #include "xjjrootuti.h"
 
 void drawkinematics();
-int nsmear = 10;
-void lxyfit_fithist(std::string input, std::string output, std::string type)
+void lxyfit_fithist(std::string input, std::string output, std::string type, int nsmear)
 {
   std::cout<<"\e[32;1m -- "<<__FUNCTION__<<"\e[0m"<<std::endl;
 
@@ -245,7 +244,7 @@ void lxyfit_fithist(std::string input, std::string output, std::string type)
 
 int main(int argc, char* argv[])
 {
-  if(argc==4) { lxyfit_fithist(argv[1], argv[2], argv[3]); return 0; }
+  if(argc==5) { lxyfit_fithist(argv[1], argv[2], argv[3], atoi(argv[4])); return 0; }
   return 1;
 }
 

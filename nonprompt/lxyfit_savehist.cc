@@ -16,9 +16,8 @@
 #include "xjjcuti.h"
 #include "xjjrootuti.h"
 
-int nsmear = 10;
 void lxyfit_savehist(std::string input, std::string inputmcp_a, std::string inputmcp_b, std::string inputmcnp_a, std::string inputmcnp_b,
-                     std::string cut, std::string type, std::string output)
+                     std::string cut, std::string type, std::string output, int nsmear, float dsmear)
 {
   std::cout<<"\e[32;1m -- "<<__FUNCTION__<<"\e[0m"<<std::endl;
   std::cout<<cut<<std::endl;
@@ -128,7 +127,7 @@ void lxyfit_savehist(std::string input, std::string inputmcp_a, std::string inpu
   ww->import(*dshmcp_a);
   for(int i=0; i<nsmear; i++) 
     {
-      ntmixmcp_a->Project(hmcpdis_a[i]->GetName(), Form("%s*%f", vv->formula().c_str(), 1.0+0.04*i), TCut(mcweight_a.c_str())*TCut(cutmcreco.c_str()));
+      ntmixmcp_a->Project(hmcpdis_a[i]->GetName(), Form("%s*%f", vv->formula().c_str(), 1.0+dsmear*i), TCut(mcweight_a.c_str())*TCut(cutmcreco.c_str()));
       xjjroot::printhist(hmcpdis_a[i], 13);
     }
 
@@ -141,21 +140,21 @@ void lxyfit_savehist(std::string input, std::string inputmcp_a, std::string inpu
   ww->import(*dshmcp_b);
   for(int i=0; i<nsmear; i++) 
     {
-      ntmixmcp_b->Project(hmcpdis_b[i]->GetName(), Form("%s*%f", vv->formula().c_str(), 1.0+0.04*i), TCut(mcweight_b.c_str())*TCut(cutmcreco.c_str()));
+      ntmixmcp_b->Project(hmcpdis_b[i]->GetName(), Form("%s*%f", vv->formula().c_str(), 1.0+dsmear*i), TCut(mcweight_b.c_str())*TCut(cutmcreco.c_str()));
       xjjroot::printhist(hmcpdis_b[i], 13);
     }
 
   std::cout<<" == mcnp_a ==>"<<std::endl;
   for(int i=0; i<nsmear; i++) 
     {
-      ntmixmcnp_a->Project(hmcnpdis_a[i]->GetName(), Form("%s*%f", vv->formula().c_str(), 1.0+0.04*i), TCut(mcweight_a.c_str())*TCut(cutmcreco.c_str()));
+      ntmixmcnp_a->Project(hmcnpdis_a[i]->GetName(), Form("%s*%f", vv->formula().c_str(), 1.0+dsmear*i), TCut(mcweight_a.c_str())*TCut(cutmcreco.c_str()));
       xjjroot::printhist(hmcnpdis_a[i], 13);
     }
 
   std::cout<<" == mcnp_b ==>"<<std::endl;
   for(int i=0; i<nsmear; i++) 
     {
-      ntmixmcnp_b->Project(hmcnpdis_b[i]->GetName(), Form("%s*%f", vv->formula().c_str(), 1.0+0.04*i), TCut(mcweight_b.c_str())*TCut(cutmcreco.c_str()));
+      ntmixmcnp_b->Project(hmcnpdis_b[i]->GetName(), Form("%s*%f", vv->formula().c_str(), 1.0+dsmear*i), TCut(mcweight_b.c_str())*TCut(cutmcreco.c_str()));
       xjjroot::printhist(hmcnpdis_b[i], 13);
     }
 
@@ -195,10 +194,10 @@ void lxyfit_savehist(std::string input, std::string inputmcp_a, std::string inpu
 
 int main(int argc, char* argv[])
 {
-  if(argc==15)
+  if(argc==17)
     {
-      fitX::init(atof(argv[9]), atof(argv[10]), atof(argv[11]), atof(argv[12]), atof(argv[13]), atof(argv[14]));
-      lxyfit_savehist(argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7], argv[8]);
+      fitX::init(atof(argv[11]), atof(argv[12]), atof(argv[13]), atof(argv[14]), atof(argv[15]), atof(argv[16]));
+      lxyfit_savehist(argv[1], argv[2], argv[3], argv[4], argv[5], argv[6], argv[7], argv[8], atoi(argv[9]), atof(argv[10]));
       return 0;
     }
   return 1;
