@@ -309,12 +309,12 @@ std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* 
   f->SetParLimits(7, f->GetParameter(7)-f->GetParError(7), f->GetParameter(7)+f->GetParError(7));
   f->SetParLimits(8, f->GetParameter(8)-f->GetParError(8), f->GetParameter(8)+f->GetParError(8));
   f->SetParLimits(15, f->GetParameter(15)-f->GetParError(15), f->GetParameter(15)+f->GetParError(15));
-  if(option != "floatwidth")
-    {
+  // if(option != "floatwidth")
+  //   {
       f->FixParameter(7, f->GetParameter(7));
       f->FixParameter(8, f->GetParameter(8));
       f->FixParameter(15, f->GetParameter(15));
-    }
+    // }
   f->FixParameter(9, f->GetParameter(9));
   f->FixParameter(16, f->GetParameter(16));
   f->ReleaseParameter(10);
@@ -338,12 +338,12 @@ std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* 
   f->SetParLimits(12, f->GetParameter(12)-f->GetParError(12), f->GetParameter(12)+f->GetParError(12));
   f->SetParLimits(13, f->GetParameter(13)-f->GetParError(13), f->GetParameter(13)+f->GetParError(13));
   f->SetParLimits(17, f->GetParameter(17)-f->GetParError(17), f->GetParameter(17)+f->GetParError(17));
-  if(option != "floatwidth")
-    {
+  // if(option != "floatwidth")
+  //   {
       f->FixParameter(12, f->GetParameter(12));
       f->FixParameter(13, f->GetParameter(13));
       f->FixParameter(17, f->GetParameter(17));
-    }
+    // }
   f->FixParameter(14, f->GetParameter(14));
   f->FixParameter(18, f->GetParameter(18));
   f->ReleaseParameter(5);

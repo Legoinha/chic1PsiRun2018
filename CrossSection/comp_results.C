@@ -63,22 +63,64 @@ void comp_results()
   xjjroot::setthgrstyle(hdev["yieldpromptCorr_a"], xjjroot::mycolor_satmiddle["azure"], 20, 1.1, xjjroot::mycolor_satmiddle["azure"], 1, 1);
   xjjroot::setthgrstyle(hdev["yieldpromptCorr_b"], xjjroot::mycolor_satmiddle["green"], 20, 1.1, xjjroot::mycolor_satmiddle["green"], 1, 1);
   xjjroot::setthgrstyle(hdev["ratio"], xjjroot::mycolor_satmiddle["red"], 21, 1.1, xjjroot::mycolor_satmiddle["red"], 1, 1);
-  TLegend* leg = new TLegend(0.20, 0.85-0.04*3, 0.50, 0.85);
+  xjjroot::setthgrstyle(hdev["yield_a"], xjjroot::mycolor_satmiddle["azure"], 20, 1.1, xjjroot::mycolor_satmiddle["azure"], 1, 1);
+  xjjroot::setthgrstyle(hdev["yield_b"], xjjroot::mycolor_satmiddle["green"], 20, 1.1, xjjroot::mycolor_satmiddle["green"], 1, 1);
+  xjjroot::setthgrstyle(hdev["Benryield_a"], xjjroot::mycolor_satmiddle["azure"], 21, 1.1, xjjroot::mycolor_satmiddle["azure"], 1, 1);
+  xjjroot::setthgrstyle(hdev["Benryield_b"], xjjroot::mycolor_satmiddle["green"], 21, 1.1, xjjroot::mycolor_satmiddle["green"], 1, 1);
+  xjjroot::setthgrstyle(hdev["eff_a"], xjjroot::mycolor_satmiddle["azure"], 47, 1.1, xjjroot::mycolor_satmiddle["azure"], 1, 1);
+  xjjroot::setthgrstyle(hdev["eff_b"], xjjroot::mycolor_satmiddle["green"], 47, 1.1, xjjroot::mycolor_satmiddle["green"], 1, 1);
+  xjjroot::setthgrstyle(hdev["tnp_a"], xjjroot::mycolor_satmiddle["azure"], 29, 1.1, xjjroot::mycolor_satmiddle["azure"], 1, 1);
+  xjjroot::setthgrstyle(hdev["tnp_b"], xjjroot::mycolor_satmiddle["green"], 29, 1.1, xjjroot::mycolor_satmiddle["green"], 1, 1);
+  TLegend* leg = new TLegend(0.20, 0.85-0.04, 0.50, 0.85);
   xjjroot::setleg(leg, 0.035);
-  leg->AddEntry(hdev["yieldpromptCorr_a"], Form("%s %s", rs0.leg("yieldpromptCorr").c_str(), fitX::title_a.c_str()), "p");
-  leg->AddEntry(hdev["yieldpromptCorr_b"], Form("%s %s", rs0.leg("yieldpromptCorr").c_str(), fitX::title_b.c_str()), "p");
   leg->AddEntry(hdev["ratio"], Form("%s", rs0.leg("ratio").c_str(), fitX::title_a.c_str()), "p");
+  TLegend* leg1 = new TLegend(0.20, 0.85-0.04*3, 0.50, 0.85);
+  xjjroot::setleg(leg1, 0.035);
+  leg1->AddEntry(hdev["yieldpromptCorr_a"], Form("%s %s", rs0.leg("yieldpromptCorr").c_str(), fitX::title_a.c_str()), "p");
+  leg1->AddEntry(hdev["yieldpromptCorr_b"], Form("%s %s", rs0.leg("yieldpromptCorr").c_str(), fitX::title_b.c_str()), "p");
+  leg1->AddEntry(hdev["ratio"], Form("%s", rs0.leg("ratio").c_str(), fitX::title_a.c_str()), "p");
+  TLegend* leg2 = new TLegend(0.20, 0.85-0.03*8, 0.50, 0.85);
+  xjjroot::setleg(leg2, 0.03);
+  leg2->AddEntry(hdev["yield_a"], Form("%s %s", rs0.leg("yield").c_str(), fitX::title_a.c_str()), "p");
+  leg2->AddEntry(hdev["yield_b"], Form("%s %s", rs0.leg("yield").c_str(), fitX::title_b.c_str()), "p");
+  leg2->AddEntry(hdev["Benryield_a"], Form("%s %s", rs0.leg("Benryield").c_str(), fitX::title_a.c_str()), "p");
+  leg2->AddEntry(hdev["Benryield_b"], Form("%s %s", rs0.leg("Benryield").c_str(), fitX::title_b.c_str()), "p");
+  leg2->AddEntry(hdev["eff_a"], Form("%s %s", rs0.leg("eff").c_str(), fitX::title_a.c_str()), "p");
+  leg2->AddEntry(hdev["eff_b"], Form("%s %s", rs0.leg("eff").c_str(), fitX::title_b.c_str()), "p");
+  leg2->AddEntry(hdev["tnp_a"], Form("%s %s", rs0.leg("tnp").c_str(), fitX::title_a.c_str()), "p");
+  leg2->AddEntry(hdev["tnp_b"], Form("%s %s", rs0.leg("tnp").c_str(), fitX::title_b.c_str()), "p");
 
   xjjroot::setgstyle(1);
   gStyle->SetPaintTextFormat("1.3f");
   TCanvas* c = new TCanvas("c", "", 600, 600);
-  hdev["yieldpromptCorr_a"]->Draw("hist pl text0");
-  hdev["yieldpromptCorr_b"]->Draw("hist pl text0 same");
   hdev["ratio"]->Draw("hist pl text0 same");
   leg->Draw();
   xjjroot::drawCMS();
   xjjroot::mkdir("plots/comp_results/x");
-  c->SaveAs("plots/comp_results/cyieldpromptCorr.pdf");
+  c->SaveAs("plots/comp_results/cratio.pdf");
+
+  TCanvas* c1 = new TCanvas("c1", "", 600, 600);
+  hdev["yieldpromptCorr_a"]->Draw("hist pl text0");
+  hdev["yieldpromptCorr_b"]->Draw("hist pl text0 same");
+  hdev["ratio"]->Draw("hist pl text0 same");
+  leg1->Draw();
+  xjjroot::drawCMS();
+  xjjroot::mkdir("plots/comp_results/x");
+  c1->SaveAs("plots/comp_results/cyieldpromptCorr.pdf");
+
+  TCanvas* c2 = new TCanvas("c2", "", 600, 600);
+  hdev["yield_a"]->Draw("hist pl text0");
+  hdev["yield_b"]->Draw("hist pl text0 same");
+  hdev["Benryield_a"]->Draw("hist pl text0 same");
+  hdev["Benryield_b"]->Draw("hist pl text0 same");
+  hdev["eff_a"]->Draw("hist pl text0 same");
+  hdev["eff_b"]->Draw("hist pl text0 same");
+  hdev["tnp_a"]->Draw("hist pl text0 same");
+  hdev["tnp_b"]->Draw("hist pl text0 same");
+  leg2->Draw();
+  xjjroot::drawCMS();
+  xjjroot::mkdir("plots/comp_results/x");
+  c2->SaveAs("plots/comp_results/cyield.pdf");
 }
 
 int main()
