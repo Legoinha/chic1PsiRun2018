@@ -32,7 +32,7 @@ void comp_results()
       hdev[r+"_a"] = new TH1F(Form("h%s_a", r.c_str()), ";;Change w.r.t. PAS", options.size(), 0, options.size());
       hdev[r+"_b"] = new TH1F(Form("h%s_b", r.c_str()), ";;Change w.r.t. PAS", options.size(), 0, options.size());
     }
-  hdev["ratio"] = new TH1F("hratio", ";;Change w.r.t PAS (%)", options.size(), 0, options.size());
+  hdev["ratio"] = new TH1F("hratio", ";;Change w.r.t. PAS", options.size(), 0, options.size());
   for(int j=0; j<options_sort.size(); j++)
     {
       for(auto& r : rs0.vars())

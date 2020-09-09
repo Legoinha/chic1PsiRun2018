@@ -38,7 +38,7 @@ namespace fitX
         std::pair<std::string, std::string>("tnp", "TnP"),
         std::pair<std::string, std::string>("fprompt", "f_{prompt}"),
         std::pair<std::string, std::string>("yieldpromptCorr", "Corrected N_{prompt}"),
-        std::pair<std::string, std::string>("ratio", "R ratio"),
+        std::pair<std::string, std::string>("ratio", "X(3872)/#psi(2S) ratio"),
       };
   };
 }

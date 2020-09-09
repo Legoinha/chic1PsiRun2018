@@ -37,12 +37,14 @@ void fitX_drawhist(std::string inputname, std::string output)
   gsyst->SetName("gr_ratio_syst");
   xjjroot::setthgrstyle(gsyst, kBlack, 21, 1.2, 0, 0, 0, kGray+1, 0.5, 1001);
 
+  TH2F* hempty = new TH2F("hempty", ";p_{T};R", 10, 10, 70, 10, 0.01, 100);
+  TH2F* hemptylinear = new TH2F("hemptylinear", ";p_{T};R", 10, 10, 70, 10, 0, 2.5);
+  xjjroot::sethempty(hempty, 0, 0);
+  xjjroot::sethempty(hemptylinear, 0, 0);
+
   xjjroot::setgstyle(2);
   TCanvas* cratio = new TCanvas("cratio", "", 600, 600);
-  // cratio->SetLogy();
-  // TH2F* hempty = new TH2F("hempty", ";p_{T};R", 10, 10, 70, 10, 0.01, 100);
-  TH2F* hempty = new TH2F("hempty", ";p_{T};R", 10, 10, 70, 10, 0, 2.5);
-  xjjroot::sethempty(hempty, 0, 0);
+  cratio->SetLogy();
   hempty->Draw();
   xjjroot::drawline(10, 1, 70, 1, kGray+2, 2, 2);
   ppref::CMS_2013_R();
@@ -74,9 +76,35 @@ void fitX_drawhist(std::string inputname, std::string output)
   // xjjroot::drawCMSleft("", 0.05, -0.08); // preliminary
   xjjroot::drawCMSright("1.7 nb^{-1} (2018 PbPb 5.02 TeV)");
   // xjjroot::drawcomment(output.c_str(), "r");
-  xjjroot::mkdir(Form("plots/%s/cratio.pdf", output.c_str()));
-  cratio->SaveAs(Form("plots/%s/cratio.pdf", output.c_str()));
+  xjjroot::mkdir(Form("plots/%s/cratiolog.pdf", output.c_str()));
+  cratio->SaveAs(Form("plots/%s/cratiolog.pdf", output.c_str()));
   std::cout<<std::endl;
+
+  cratio = new TCanvas("cratiolinear", "", 600, 600);
+  // cratio->SetLogy();
+  hemptylinear->Draw();
+  xjjroot::drawline(10, 1, 70, 1, kGray+2, 2, 2);
+  ppref::CMS_2013_R();
+  pprefATLAS.Draw();
+  gsyst->Draw("same 5");
+  hratio->Draw("same ple");
+  legpp->Draw();
+  xjjroot::drawtex(0.63+0.01, 0.87-0.01, "pp (7 TeV, CMS)", 0.035, 13);
+  xjjroot::drawtex(0.63+0.01, 0.87-0.01-0.045, "|y| < 1.2", 0.035, 13);
+  xjjroot::drawtex(0.63+0.01, 0.87-0.01-0.045*3, "pp (8 TeV, ATLAS)", 0.035, 13);
+  xjjroot::drawtex(0.63+0.01, 0.87-0.01-0.045*4, "|y| < 0.75", 0.035, 13);
+  legpbpb->Draw();
+  xjjroot::drawtex(0.22+0.01, 0.87-0.01-0.045*2, Form("PbPb (5.02 TeV, CMS)"), 0.035, 13);
+  xjjroot::drawtex(0.22+0.01, 0.87-0.01-0.045*3, Form("%s, Cent. %.0f-%.0f%s", fitX::ytag().c_str(), fitX::centmincut, fitX::centmaxcut, "%"), 0.035, 13);
+  xjjroot::drawCMSleft("#scale[1.25]{#bf{CMS}}", 0.05, -0.08);
+  // xjjroot::drawCMSleft("", 0.05, -0.08); // preliminary
+  xjjroot::drawCMSright("1.7 nb^{-1} (2018 PbPb 5.02 TeV)");
+  // xjjroot::drawcomment(output.c_str(), "r");
+  xjjroot::mkdir(Form("plots/%s/cratiolinear.pdf", output.c_str()));
+  cratio->SaveAs(Form("plots/%s/cratiolinear.pdf", output.c_str()));
+  std::cout<<std::endl;
+
+
 
   fitX::results rs(inf, output.c_str());
   rs.print();
