@@ -6,8 +6,10 @@ type="pt"     # 0
 #
 counts=(0 1)
 inputmc=(
-    /raid5/data/wangj/BntupleRun2018/mva_output_20190808ptdep/ntmix_20190808_Bfinder_20190712_Hydjet_Pythia8_PromptPsi2S_1033p1_pt6tkpt0p9dls0_pthatweight_trainX_20190808ptdep_sideband_tktk0p2_BDT_BDTD_BDTG_BDTF_LD_15p0_50p0_0-10-1-2-9_1bin.root
-    /raid5/data/wangj/BntupleRun2018/mva_output_20190808ptdep/ntmix_20190808_Bfinder_20190730_Hydjet_Pythia8_PromptXRho_1033p1_pt6tkpt0p9dls0_pthatweight_trainX_20190808ptdep_sideband_tktk0p2_BDT_BDTD_BDTG_BDTF_LD_15p0_50p0_0-10-1-2-9_1bin.root
+    /raid5/data/wangj/BntupleRun2018/mva_output_20190808ptdep/ntmix_mutrg_20190808_20200830rmevt_Bfinder_20190712_Hydjet_Pythia8_PromptPsi2S_pthatweight_trainX_20190808ptdep.root
+    # /raid5/data/wangj/BntupleRun2018/mva_output_20190808ptdep/ntmix_20190808_Bfinder_20190712_Hydjet_Pythia8_PromptPsi2S_1033p1_pt6tkpt0p9dls0_pthatweight_trainX_20190808ptdep_sideband_tktk0p2_BDT_BDTD_BDTG_BDTF_LD_15p0_50p0_0-10-1-2-9_1bin.root
+    /raid5/data/wangj/BntupleRun2018/mva_output_20190808ptdep/ntmix_mutrg_20190808_Bfinder_20190730_Hydjet_Pythia8_PromptXRho_pthatweight_trainX_20190808ptdep.root
+    # /raid5/data/wangj/BntupleRun2018/mva_output_20190808ptdep/ntmix_20190808_Bfinder_20190730_Hydjet_Pythia8_PromptXRho_1033p1_pt6tkpt0p9dls0_pthatweight_trainX_20190808ptdep_sideband_tktk0p2_BDT_BDTD_BDTG_BDTF_LD_15p0_50p0_0-10-1-2-9_1bin.root
 )
 inputtags=("a" "b")
 
@@ -31,7 +33,7 @@ thisoutput=$output/$type
 }
 
 [[ $RUN_EFF -eq 1 ]] && {
-    cut="HLT_HIL3Mu0NHitQ10_L2Mu0_MAXdR3p5_M1to5_v1 && pprimaryVertexFilter && phfCoincFilter2Th4 && pclusterCompatibilityFilter && mvapref"
+    cut="HLT_HIL3Mu0NHitQ10_L2Mu0_MAXdR3p5_M1to5_v1 && pprimaryVertexFilter && phfCoincFilter2Th4 && pclusterCompatibilityFilter && fabs(PVz) < 15 && mvapref"
     cut=${cut}" && BDT > 0.06 && (Bmass-3.096916-Btktkmass) < 0.13"
     cutgen="1"
     ./eff_eff.exe $outputdir/$type/eff_fit.root ${inputmc[0]} ${inputmc[1]} "$cut" "$cutgen" $thisoutput 

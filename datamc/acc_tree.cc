@@ -46,6 +46,7 @@ void acc_tree(std::string input, std::string output="")
       ptr->getentry(i);
 
       if(!(nt->hiBin >= fitX::centmincut && nt->hiBin < fitX::centmaxcut)) continue;
+      if(!(nt->passedevtfil() && fabs(nt->PVz)<15)) continue;
 
       branchesf["weight"]->value = nt->pthatweight * nt->Ncoll;
       for(int j=0; j<nt->Gsize; j++)
