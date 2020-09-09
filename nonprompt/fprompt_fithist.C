@@ -232,7 +232,7 @@ void fprompt_fithist(std::string input, std::string output, std::string lxyvar="
       if(TMath::Abs(iy - nominal_b)/nominal_b > per_b) { per_b = TMath::Abs(iy - nominal_b)/nominal_b; }
     }
   float per_ab = TMath::Sqrt(per_a*per_a + per_b*per_b);
-  std::cout<<"Prompt Fraction & "<<Form("%.1f", per_a*1.e+2)<<"\\% & "<<Form("%.1f", per_b*1.e+2)<<"\\% & "<<Form("%.1f", per_ab*1.e+2)<<"\\% \\\\"<<std::endl;
+  // std::cout<<"Prompt Fraction & "<<Form("%.1f", per_a*1.e+2)<<"\\% & "<<Form("%.1f", per_b*1.e+2)<<"\\% & "<<Form("%.1f", per_ab*1.e+2)<<"\\% \\\\"<<std::endl;
 
 }
 

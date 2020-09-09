@@ -170,7 +170,7 @@ bool datamc::var::init()
   else if(ftype=="lxy")
     {
       fformula = "10*Blxy*Bmass/Bpt";
-      fvars = std::vector<double>({-0.1, -0.04, 0, 0.04, 0.14, 0.3, 0.5, 0.7, 1.1, 1.5});
+      fvars = std::vector<double>({-0.1, -0.04, 0, 0.04, 0.14, 0.3, 0.5, 0.7, 1.1});
       fgt = true;
       ftitle = "l_{xy}";
       funit = "(mm)";
