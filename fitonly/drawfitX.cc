@@ -30,7 +30,7 @@ void drawfitX(std::string input, std::string output, std::string fitopt="")
 {
   std::cout<<"\e[32;1m -- "<<__FUNCTION__<<"\e[0m"<<std::endl;
   if(fitopt!="") { output += ("/"+fitopt); }
-  if(xjjc::str_contains(output, "narrow")) { fitX::NBIN = 30; fitX::BIN_MAX = 3.92; }
+  if(fitopt=="range") { fitX::NBIN = 30; fitX::BIN_MAX = 3.92; }
   TFile* inf = new TFile(input.c_str());
   fitX::init(inf);
   RooWorkspace* ww = (RooWorkspace*)inf->Get("ww");
@@ -101,54 +101,47 @@ float runfit(TH1F* h, TH1F* hmcp_a, TH1F* hmcp_b,                         // bin
 
   RooWorkspace* ww = result["unbinned"]->ww();
   RooRealVar* par10 = ww->var("par10");
-  // RooRealVar* fsyst = ww->var("fsyst"); // <---------- switch
-  // RooGaussian fconssyst("fconssyst", "fconssyst", *fsyst, RooFit::RooConst(1), RooFit::RooConst(0.043)); // <---------- switch
   RooAddPdf* pdf = (RooAddPdf*)ww->obj("pdf");
   RooAbsData* data = ww->data("dsh_ws");
-
-  // ----------> Likelihood scan using createNLL <----------
+  RooRealVar* ndof = ww->var("ndof");
 
   std::string rootoutputname = "rootfiles/" + outputdir + "/rootnll.root";
   xjjroot::mkdir(rootoutputname);
   TFile* outf = new TFile(rootoutputname.c_str(), "recreate");
+  outf->cd();
 
-  xjjroot::setgstyle();
-  TCanvas* cnll = new TCanvas("cnll", "", 600, 600);
-  RooAbsReal* nll = pdf->createNLL(*data); // <---------- switch
-  // RooAbsReal* nll = pdf->createNLL(*data, RooFit::Constrain(fconssyst)); // <---------- switch
-  RooMinuit(*nll).migrad();
-  RooPlot* frame1 = par10->frame(RooFit::Bins(20), RooFit::Range(0., 200.));
-  xjjroot::sethempty(frame1);
-  nll->plotOn(frame1, RooFit::ShiftToZero(), RooFit::LineColor(kBlack), RooFit::LineWidth(4), RooFit::Normalization(2., RooAbsReal::Raw));
-  cnll->cd();
-  frame1->SetMinimum(0);
-  frame1->SetMaximum(20);
-  frame1->GetXaxis()->SetTitle("N_{sig}^{(X3872)}");
-  frame1->GetYaxis()->SetTitle("-2log#lambda");
-  frame1->Draw();
-  xjjroot::drawCMSleft("", 0.05, -0.08);
-  xjjroot::drawCMSright("1.7 nb^{-1} (2018 PbPb 5.02 TeV)");
-  std::string outputnamenll = "plots/" + outputdir + "/cnllscan_" + vname + ".pdf";
-  xjjroot::mkdir(outputnamenll);
-  cnll->SaveAs(outputnamenll.c_str());
+  // xjjroot::setgstyle();
+  // TCanvas* cnll = new TCanvas("cnll", "", 600, 600);
+  // RooAbsReal* nll = pdf->createNLL(*data); // <---------- switch
+  // RooAbsReal* pll = nll->createProfile(*par10);
+
+  // RooPlot* frame1 = par10->frame(RooFit::Bins(20), RooFit::Range(0., 200.));
+  // xjjroot::sethempty(frame1);
+  // nll->plotOn(frame1, RooFit::ShiftToZero(), RooFit::LineColor(kBlack), RooFit::LineWidth(4), RooFit::Normalization(2., RooAbsReal::Raw));
+  // cnll->cd();
+  // frame1->SetMinimum(0);
+  // frame1->SetMaximum(20);
+  // frame1->GetXaxis()->SetTitle("N_{sig}^{(X3872)}");
+  // frame1->GetYaxis()->SetTitle("-2log#lambda");
+  // frame1->Draw();
+  // xjjroot::drawCMSleft("", 0.05, -0.08);
+  // xjjroot::drawCMSright("1.7 nb^{-1} (2018 PbPb 5.02 TeV)");
+  // std::string outputnamenll = "plots/" + outputdir + "/cnllscan_" + vname + ".pdf";
+  // xjjroot::mkdir(outputnamenll);
+  // cnll->SaveAs(outputnamenll.c_str());
 
   gDirectory->cd("root:/");
   RooWorkspace* wwnll = new RooWorkspace("wwnll");
-  // wwnll->import(*nll);
   wwnll->import(*pdf);
   wwnll->import(*data);
   wwnll->import(*par10);
-  outf->cd();
-  gDirectory->Add(wwnll);
-  wwnll->Write();
-  wwnll->Print();
-  outf->Close();
+  wwnll->import(*ndof);
 
+  // ----------> Likelihood scan using createNLL <----------
   // 
   std::cout<<"\e[36;2m";
 
   RooArgSet poi(*par10); // <---------- switch
-  // RooArgSet poi(*par10, *fsyst); // <---------- switch
   RooStats::ModelConfig* mcpdf = new RooStats::ModelConfig();
   mcpdf->SetWorkspace(*ww);
   mcpdf->SetPdf("pdf");
@@ -163,7 +156,6 @@ float runfit(TH1F* h, TH1F* hmcp_a, TH1F* hmcp_b,                         // bin
 
   RooArgSet* nullParams = (RooArgSet*)poi.snapshot();
   nullParams->setRealValue("par10", 0);
-  // nullParams->setRealValue("fsyst", 1); // <---------- switch
   plc->SetNullParameters(*nullParams);
   RooStats::HypoTestResult* htr = plc->GetHypoTest();
   std::cout<<"\e[0m"<<"\e[36;1m";
@@ -173,62 +165,71 @@ float runfit(TH1F* h, TH1F* hmcp_a, TH1F* hmcp_b,                         // bin
   std::cout << "-------------------------------------------------" << std::endl;
   std::cout<<"\e[0m";
 
+  RooRealVar nullpvalue("nullpvalue", "", htr->NullPValue());
+  RooRealVar nullsig("nullsig", "", htr->Significance());
+  wwnll->import(nullpvalue);
+  wwnll->import(nullsig);
+  gDirectory->Add(wwnll);
+  wwnll->Write();
+  wwnll->Print();
+  outf->Close();
+
   return 0;
 
   // ----------> Likelihood scan <----------
 
-  plc->SetConfidenceLevel(0.683);
-  RooStats::ConfInterval* interval1 = plc->GetInterval();
-  double lowerLimit1 = ((RooStats::LikelihoodInterval*)interval1)->LowerLimit(*par10);
-  double upperLimit1 = ((RooStats::LikelihoodInterval*)interval1)->UpperLimit(*par10);
+  // plc->SetConfidenceLevel(0.683);
+  // RooStats::ConfInterval* interval1 = plc->GetInterval();
+  // double lowerLimit1 = ((RooStats::LikelihoodInterval*)interval1)->LowerLimit(*par10);
+  // double upperLimit1 = ((RooStats::LikelihoodInterval*)interval1)->UpperLimit(*par10);
 
-  plc->SetConfidenceLevel(0.95);
-  RooStats::ConfInterval* interval2 = plc->GetInterval();
-  double lowerLimit2 = ((RooStats::LikelihoodInterval*)interval2)->LowerLimit(*par10);
-  double upperLimit2 = ((RooStats::LikelihoodInterval*)interval2)->UpperLimit(*par10);
-  std::cout<<"\e[0m"<<"\e[36;1m";
-  std::cout << "-------------------------------------------------" << std::endl;
-  std::cout << "Profile lower limit (68%) on nsig = " << lowerLimit1 << std::endl;
-  std::cout << "Profile upper limit (68%) on nsig = " << upperLimit1 << std::endl;
-  std::cout << "Profile lower limit (95%) on nsig = " << lowerLimit2 << std::endl;
-  std::cout << "Profile upper limit (95%) on nsig = " << upperLimit2 << std::endl;
-  std::cout << "-------------------------------------------------\n" << std::endl;
-  std::cout<<"\e[0m"<<"\e[36;2m";
+  // plc->SetConfidenceLevel(0.95);
+  // RooStats::ConfInterval* interval2 = plc->GetInterval();
+  // double lowerLimit2 = ((RooStats::LikelihoodInterval*)interval2)->LowerLimit(*par10);
+  // double upperLimit2 = ((RooStats::LikelihoodInterval*)interval2)->UpperLimit(*par10);
+  // std::cout<<"\e[0m"<<"\e[36;1m";
+  // std::cout << "-------------------------------------------------" << std::endl;
+  // std::cout << "Profile lower limit (68%) on nsig = " << lowerLimit1 << std::endl;
+  // std::cout << "Profile upper limit (68%) on nsig = " << upperLimit1 << std::endl;
+  // std::cout << "Profile lower limit (95%) on nsig = " << lowerLimit2 << std::endl;
+  // std::cout << "Profile upper limit (95%) on nsig = " << upperLimit2 << std::endl;
+  // std::cout << "-------------------------------------------------\n" << std::endl;
+  // std::cout<<"\e[0m"<<"\e[36;2m";
 
-  RooStats::LikelihoodIntervalPlot* plotInt = new RooStats::LikelihoodIntervalPlot((RooStats::LikelihoodInterval*)interval1);
-  plotInt->SetRange(0, 210);
-  plotInt->Draw("tf1");
-  TH1D* hplotInt = (TH1D*)((TH1D*)plotInt->GetPlottedObject())->Clone("hplotInt");
-  for(int i=0;i<hplotInt->GetXaxis()->GetNbins();i++) { hplotInt->SetBinContent(i+1, hplotInt->GetBinContent(i+1)*2); }
-  hplotInt->SetTitle(";N_{sig}^{(X3872)};-2log#lambda(N_{sig}^{(X3872)})");
-  xjjroot::sethempty(hplotInt, 0, 0);
-  hplotInt->SetMinimum(0.);
-  hplotInt->SetMaximum(20.);
-  float hxmin = hplotInt->GetXaxis()->GetXmin();
-  float hxmax = hplotInt->GetXaxis()->GetXmax();
-  hplotInt->SetLineColor(kBlack);
-  hplotInt->SetLineWidth(3);
-  xjjroot::setgstyle();
-  TCanvas* cll = new TCanvas("cll", "", 600, 600);
-  hplotInt->Draw("L");
-  xjjroot::drawline(hxmin, 0.50*2, hxmax, 0.50*2, xjjroot::mycolor_middle["red"], 2, 3);
-  xjjroot::drawline(hxmin, 1.96*2, hxmax, 1.96*2, xjjroot::mycolor_middle["red"], 2, 3);
-  xjjroot::drawline(lowerLimit1, 0, lowerLimit1, 0.50*2, xjjroot::mycolor_middle["red"], 2, 3);
-  xjjroot::drawline(upperLimit1, 0, upperLimit1, 0.50*2, xjjroot::mycolor_middle["red"], 2, 3);
-  xjjroot::drawline(lowerLimit2, 0, lowerLimit2, 1.96*2, xjjroot::mycolor_middle["red"], 2, 3);
-  xjjroot::drawline(upperLimit2, 0, upperLimit2, 1.96*2, xjjroot::mycolor_middle["red"], 2, 3);
-  xjjroot::drawCMSleft("", 0.05, -0.08);
-  xjjroot::drawCMSright("1.7 nb^{-1} (2018 PbPb 5.02 TeV)");
+  // RooStats::LikelihoodIntervalPlot* plotInt = new RooStats::LikelihoodIntervalPlot((RooStats::LikelihoodInterval*)interval1);
+  // plotInt->SetRange(0, 210);
+  // plotInt->Draw("tf1");
+  // TH1D* hplotInt = (TH1D*)((TH1D*)plotInt->GetPlottedObject())->Clone("hplotInt");
+  // for(int i=0;i<hplotInt->GetXaxis()->GetNbins();i++) { hplotInt->SetBinContent(i+1, hplotInt->GetBinContent(i+1)*2); }
+  // hplotInt->SetTitle(";N_{sig}^{(X3872)};-2log#lambda(N_{sig}^{(X3872)})");
+  // xjjroot::sethempty(hplotInt, 0, 0);
+  // hplotInt->SetMinimum(0.);
+  // hplotInt->SetMaximum(20.);
+  // float hxmin = hplotInt->GetXaxis()->GetXmin();
+  // float hxmax = hplotInt->GetXaxis()->GetXmax();
+  // hplotInt->SetLineColor(kBlack);
+  // hplotInt->SetLineWidth(3);
+  // xjjroot::setgstyle();
+  // TCanvas* cll = new TCanvas("cll", "", 600, 600);
+  // hplotInt->Draw("L");
+  // xjjroot::drawline(hxmin, 0.50*2, hxmax, 0.50*2, xjjroot::mycolor_middle["red"], 2, 3);
+  // xjjroot::drawline(hxmin, 1.96*2, hxmax, 1.96*2, xjjroot::mycolor_middle["red"], 2, 3);
+  // xjjroot::drawline(lowerLimit1, 0, lowerLimit1, 0.50*2, xjjroot::mycolor_middle["red"], 2, 3);
+  // xjjroot::drawline(upperLimit1, 0, upperLimit1, 0.50*2, xjjroot::mycolor_middle["red"], 2, 3);
+  // xjjroot::drawline(lowerLimit2, 0, lowerLimit2, 1.96*2, xjjroot::mycolor_middle["red"], 2, 3);
+  // xjjroot::drawline(upperLimit2, 0, upperLimit2, 1.96*2, xjjroot::mycolor_middle["red"], 2, 3);
+  // xjjroot::drawCMSleft("", 0.05, -0.08);
+  // xjjroot::drawCMSright("1.7 nb^{-1} (2018 PbPb 5.02 TeV)");
 
-  std::string outputname = "plots/" + outputdir + "/cllscan_" + vname + ".pdf";
-  xjjroot::mkdir(outputname);
+  // std::string outputname = "plots/" + outputdir + "/cllscan_" + vname + ".pdf";
+  // xjjroot::mkdir(outputname);
 
-  // ww->Print();
+  // // ww->Print();
 
-  std::cout<<"\e[0m"<<std::endl;
-  cll->SaveAs(outputname.c_str());
-  std::cout<<std::endl;
-  return result["unbinned"]->msig_b();
+  // std::cout<<"\e[0m"<<std::endl;
+  // cll->SaveAs(outputname.c_str());
+  // std::cout<<std::endl;
+  // return result["unbinned"]->msig_b();
 }
 
 
