@@ -7,18 +7,13 @@ centmax=90
 ymin=0
 ymax=1.6
 
-tags="BDTQvalue"
+tags="BDTQvalue_PVz15_newL2L3"
 
 fitopt=(
-    # "poly4"
-    # "poly3"
-    "poly2"
-    "poly1"
-    # "floatwidth"
-    # "3gaus"
-    # "cheb4"
-    # "cheb3"
-    # "cheb2"
+    "poly4"
+    "poly3"
+    "floatwidth"
+    "3gaus"
 )
 
 RUN_FITHIST=${1:-0}

@@ -22,7 +22,7 @@ rm getfname_${tmp}.exe
 }
 
 ##
-name=trainX_20190808ptdep_sideband_tktk0p2_15p0_50p0_0-10-1-2-9__ALGO_
+name=trainX_20190808ptdep_sideband_tktk0p2_15p0_50p0_0-10-1-2-9__ALGO__PVz15_newL2L3
 
 echo -e "----------------------------------------"
 echo -e "==> File directory: \e[4m$name\e[0m"
