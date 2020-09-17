@@ -3,6 +3,7 @@
 #include <TH2F.h>
 #include <TGraphAsymmErrors.h>
 #include <TCanvas.h>
+#include "ppref/HEPData-ins1219950-v1/CMS_2013_Rprompt.h"
 #include "ppref/HEPData-ins1219950-v1/CMS_2013_R.h"
 #include "ppref/HEPData-ins1495026-v1/ppATLAS.h"
 
@@ -18,8 +19,10 @@ void fitX_drawhist(std::string inputname, std::string output)
   TFile* inf = TFile::Open(inputname.c_str());
   fitX::init(inf);
   TH1F* hratio = (TH1F*)inf->Get("hratio");
-  xjjroot::setthgrstyle(hratio, kBlack, 21, 1.2, kBlack, 1, 1);
+  xjjroot::setthgrstyle(hratio, xjjroot::mycolor_satmiddle["red"], 21, 1.2, xjjroot::mycolor_satmiddle["red"], 1, 1);
   ppref::ppATLAS pprefATLAS("ppref/HEPData-ins1495026-v1");
+  ppref::CMS_2013_R pprefCMS;
+  ppref::CMS_2013_Rprompt pprefCMSprompt;
 
   std::vector<float> xx, yy, xel, xeh, yel, yeh;
   for(int i=0; i<hratio->GetNbinsX(); i++)
@@ -35,77 +38,128 @@ void fitX_drawhist(std::string inputname, std::string output)
     }
   TGraphAsymmErrors* gsyst = new TGraphAsymmErrors(hratio->GetNbinsX(), xx.data(), yy.data(), xel.data(), xeh.data(), yel.data(), yeh.data());
   gsyst->SetName("gr_ratio_syst");
-  xjjroot::setthgrstyle(gsyst, kBlack, 21, 1.2, 0, 0, 0, kGray+1, 0.5, 1001);
+  xjjroot::setthgrstyle(gsyst, xjjroot::mycolor_satmiddle["red"], 21, 1.2, 0, 0, 0, xjjroot::mycolor_middle["red"], 0.5, 1001);
 
-  TH2F* hempty = new TH2F("hempty", ";p_{T};R", 10, 10, 70, 10, 0.01, 100);
-  TH2F* hemptylinear = new TH2F("hemptylinear", ";p_{T};R", 10, 10, 70, 10, 0, 2.5);
-  xjjroot::sethempty(hempty, 0, 0);
+  TH2F* hemptypaperlog = new TH2F("hemptypaperlog", ";p_{T};R = #frac{N^{X(3872)#rightarrowJ/#psi#pi#pi}}{N^{#psi(2S)#rightarrowJ/#psi#pi#pi}}", 10, 10, 70, 10, 0.04, 20);
+  xjjroot::sethempty(hemptypaperlog, 0, 0);
+  TH2F* hemptylog = new TH2F("hemptylog", ";p_{T};R = #frac{N^{X(3872)#rightarrowJ/#psi#pi#pi}}{N^{#psi(2S)#rightarrowJ/#psi#pi#pi}}", 10, 10, 70, 10, 0.02, 50);
+  xjjroot::sethempty(hemptylog, 0, 0);
+  TH2F* hemptylinear = new TH2F("hemptylinear", ";p_{T};R = #frac{N^{X(3872)#rightarrowJ/#psi#pi#pi}}{N^{#psi(2S)#rightarrowJ/#psi#pi#pi}}", 10, 10, 70, 10, 0, 2.5);
   xjjroot::sethempty(hemptylinear, 0, 0);
 
+  // --> paper leg <--
+  float linesp = 0.045, textsp = 0.035;
+  TLegend* legpaper_pp = new TLegend(0.57, 0.82-4*linesp, 0.57+0.30, 0.82);
+  xjjroot::setleg(legpaper_pp, textsp);
+  legpaper_pp->AddEntry(pprefCMSprompt.grae_syst(), "#bf{pp} (7 TeV)", "pf");
+  legpaper_pp->AddEntry((TObject*)0, "|y| < 1.2 (CMS)", NULL);
+  legpaper_pp->AddEntry(pprefATLAS.gg["promptRatio"]["syst"], "#bf{pp} (8 TeV)", "pf");
+  legpaper_pp->AddEntry((TObject*)0, "|y| < 0.75 (ATLAS)", NULL);
+  TLegend* legpaper_pbpb = new TLegend(0.22, 0.82-4*linesp, 0.22+0.30, 0.82);
+  xjjroot::setleg(legpaper_pbpb, textsp);
+  legpaper_pbpb->AddEntry((TObject*)0, "", NULL);
+  legpaper_pbpb->AddEntry((TObject*)0, "", NULL);
+  legpaper_pbpb->AddEntry(gsyst, "#bf{PbPb} (5.02 TeV)", "pf");
+  legpaper_pbpb->AddEntry((TObject*)0, "|y| < 1.6, 0-90\%", NULL);
+
+  // --> paper canvas <--
   xjjroot::setgstyle(2);
-  TCanvas* cratio = new TCanvas("cratio", "", 600, 600);
+  TCanvas* cratio = new TCanvas("cratiolog", "", 600, 600);
   cratio->SetLogy();
-  hempty->Draw();
+  hemptypaperlog->Draw();
   xjjroot::drawline(10, 1, 70, 1, kGray+2, 2, 2);
-  ppref::CMS_2013_R();
-  pprefATLAS.Draw();
+  pprefCMSprompt.Draw();
+  pprefATLAS.Draw("prompt");
   gsyst->Draw("same 5");
   hratio->Draw("same ple");
-  TLegend* legpp = new TLegend(0.63, 0.87-7*0.045, 0.63+0.30, 0.87-0.045);
-  xjjroot::setleg(legpp, 0.035);
-  legpp->AddEntry((TObject*)0, "", NULL);
-  legpp->AddEntry(ppref::grae_syst, "Inclusive", "pf");
-  legpp->AddEntry((TObject*)0, "", NULL);
-  legpp->AddEntry((TObject*)0, "", NULL);
-  legpp->AddEntry(pprefATLAS.gg["promptRatio"]["syst"], "Prompt", "pf");
-  legpp->AddEntry(pprefATLAS.gg["nonpromptRatio"]["syst"], "Nonprompt", "pf");
-  legpp->Draw();
-  xjjroot::drawtex(0.63+0.01, 0.87-0.01, "pp (7 TeV, CMS)", 0.035, 13);
-  xjjroot::drawtex(0.63+0.01, 0.87-0.01-0.045, "|y| < 1.2", 0.035, 13);
-  xjjroot::drawtex(0.63+0.01, 0.87-0.01-0.045*3, "pp (8 TeV, ATLAS)", 0.035, 13);
-  xjjroot::drawtex(0.63+0.01, 0.87-0.01-0.045*4, "|y| < 0.75", 0.035, 13);
-  TLegend* legpbpb = new TLegend(0.22, 0.87-5*0.045, 0.22+0.30, 0.87-2*0.045);
-  xjjroot::setleg(legpbpb, 0.035);
-  legpbpb->AddEntry((TObject*)0, "", NULL);
-  legpbpb->AddEntry((TObject*)0, "", NULL);
-  legpbpb->AddEntry(gsyst, "Prompt", "pf");
-  legpbpb->Draw();
-  xjjroot::drawtex(0.22+0.01, 0.87-0.01-0.045*2, Form("PbPb (5.02 TeV, CMS)"), 0.035, 13);
-  xjjroot::drawtex(0.22+0.01, 0.87-0.01-0.045*3, Form("%s, Cent. %.0f-%.0f%s", fitX::ytag().c_str(), fitX::centmincut, fitX::centmaxcut, "%"), 0.035, 13);
+  legpaper_pp->Draw();
+  legpaper_pbpb->Draw();
   xjjroot::drawCMSleft("#scale[1.25]{#bf{CMS}}", 0.05, -0.08);
-  // xjjroot::drawCMSleft("", 0.05, -0.08); // preliminary
-  xjjroot::drawCMSright("1.7 nb^{-1} (2018 PbPb 5.02 TeV)");
-  // xjjroot::drawcomment(output.c_str(), "r");
+  xjjroot::drawCMSleft("#it{Prompt}", 0.05, -0.13);
+  xjjroot::drawCMSright("1.7 nb^{-1} (PbPb 5.02 TeV)");
   xjjroot::mkdir(Form("plots/%s/cratiolog.pdf", output.c_str()));
   cratio->SaveAs(Form("plots/%s/cratiolog.pdf", output.c_str()));
-  std::cout<<std::endl;
 
   cratio = new TCanvas("cratiolinear", "", 600, 600);
-  // cratio->SetLogy();
   hemptylinear->Draw();
   xjjroot::drawline(10, 1, 70, 1, kGray+2, 2, 2);
-  ppref::CMS_2013_R();
+  pprefCMSprompt.Draw();
+  pprefATLAS.Draw("prompt");
+  gsyst->Draw("same 5");
+  hratio->Draw("same ple");
+  legpaper_pp->Draw();
+  legpaper_pbpb->Draw();
+  xjjroot::drawCMSleft("#scale[1.25]{#bf{CMS}}", 0.05, -0.08);
+  xjjroot::drawCMSleft("#it{Prompt}", 0.05, -0.13);
+  xjjroot::drawCMSright("1.7 nb^{-1} (PbPb 5.02 TeV)");
+  xjjroot::mkdir(Form("plots/%s/cratiolinear.pdf", output.c_str()));
+  cratio->SaveAs(Form("plots/%s/cratiolinear.pdf", output.c_str()));
+
+  // --> supp leg <--
+  float linesuppsp = 0.042, textsuppsp = 0.033;
+  TLegend* legsupp_pp = new TLegend(0.62, 0.88-8*linesuppsp, 0.62+0.30, 0.88);
+  xjjroot::setleg(legsupp_pp, textsuppsp);
+  legsupp_pp->AddEntry((TObject*)0, "", NULL);
+  legsupp_pp->AddEntry((TObject*)0, "", NULL);
+  legsupp_pp->AddEntry(pprefCMSprompt.grae_syst(), "Prompt", "pf");
+  legsupp_pp->AddEntry(pprefCMS.grae_syst(), "Inclusive", "pf");
+  legsupp_pp->AddEntry((TObject*)0, "", NULL);
+  legsupp_pp->AddEntry((TObject*)0, "", NULL);
+  legsupp_pp->AddEntry(pprefATLAS.gg["promptRatio"]["syst"], "Prompt", "pf");
+  legsupp_pp->AddEntry(pprefATLAS.gg["nonpromptRatio"]["syst"], "Nonprompt", "pf");
+  TLegend* legsupp_pbpb = new TLegend(0.22, 0.88-5*linesuppsp, 0.22+0.30, 0.88-2*linesuppsp);
+  xjjroot::setleg(legsupp_pbpb, textsuppsp);
+  legsupp_pbpb->AddEntry((TObject*)0, "", NULL);
+  legsupp_pbpb->AddEntry((TObject*)0, "", NULL);
+  legsupp_pbpb->AddEntry(gsyst, "Prompt", "pf");
+
+  auto legsupp = [](float linesuppsp, float textsuppsp) // define lambda: like function inside function
+  {
+    xjjroot::drawtex(0.63+0.01, 0.88-0.01, "#bf{pp} (7 TeV, CMS)", textsuppsp, 13);
+    xjjroot::drawtex(0.63+0.01, 0.88-0.01-linesuppsp, "|y| < 1.2", textsuppsp, 13);
+    xjjroot::drawtex(0.63+0.01, 0.88-0.01-linesuppsp*4, "#bf{pp} (8 TeV, ATLAS)", textsuppsp, 13);
+    xjjroot::drawtex(0.63+0.01, 0.88-0.01-linesuppsp*5, "|y| < 0.75", textsuppsp, 13);
+    xjjroot::drawtex(0.22+0.01, 0.88-0.01-linesuppsp*2, Form("#bf{PbPb} (5.02 TeV, CMS)"), textsuppsp, 13);
+    xjjroot::drawtex(0.22+0.01, 0.88-0.01-linesuppsp*3, Form("%s, %.0f-%.0f%s", fitX::ytag().c_str(), fitX::centmincut, fitX::centmaxcut, "%"), textsuppsp, 13);
+  };
+
+  // --> supp canvas <--
+  cratio = new TCanvas("cratiosupplog", "", 600, 600);
+  cratio->SetLogy();
+  hemptylog->Draw();
+  xjjroot::drawline(10, 1, 70, 1, kGray+2, 2, 2);
+  pprefCMSprompt.Draw();
+  pprefCMS.Draw();
   pprefATLAS.Draw();
   gsyst->Draw("same 5");
   hratio->Draw("same ple");
-  legpp->Draw();
-  xjjroot::drawtex(0.63+0.01, 0.87-0.01, "pp (7 TeV, CMS)", 0.035, 13);
-  xjjroot::drawtex(0.63+0.01, 0.87-0.01-0.045, "|y| < 1.2", 0.035, 13);
-  xjjroot::drawtex(0.63+0.01, 0.87-0.01-0.045*3, "pp (8 TeV, ATLAS)", 0.035, 13);
-  xjjroot::drawtex(0.63+0.01, 0.87-0.01-0.045*4, "|y| < 0.75", 0.035, 13);
-  legpbpb->Draw();
-  xjjroot::drawtex(0.22+0.01, 0.87-0.01-0.045*2, Form("PbPb (5.02 TeV, CMS)"), 0.035, 13);
-  xjjroot::drawtex(0.22+0.01, 0.87-0.01-0.045*3, Form("%s, Cent. %.0f-%.0f%s", fitX::ytag().c_str(), fitX::centmincut, fitX::centmaxcut, "%"), 0.035, 13);
+  legsupp_pp->Draw();
+  legsupp_pbpb->Draw();
+  legsupp(linesuppsp, textsuppsp);
   xjjroot::drawCMSleft("#scale[1.25]{#bf{CMS}}", 0.05, -0.08);
-  // xjjroot::drawCMSleft("", 0.05, -0.08); // preliminary
-  xjjroot::drawCMSright("1.7 nb^{-1} (2018 PbPb 5.02 TeV)");
-  // xjjroot::drawcomment(output.c_str(), "r");
-  xjjroot::mkdir(Form("plots/%s/cratiolinear.pdf", output.c_str()));
-  cratio->SaveAs(Form("plots/%s/cratiolinear.pdf", output.c_str()));
+  xjjroot::drawCMSleft("#it{Supplementary}", 0.16, -0.08); // preliminary
+  xjjroot::drawCMSright("1.7 nb^{-1} (PbPb 5.02 TeV)");
+  xjjroot::mkdir(Form("plots/%s/cratiosupplog.pdf", output.c_str()));
+  cratio->SaveAs(Form("plots/%s/cratiosupplog.pdf", output.c_str()));
+
+  cratio = new TCanvas("cratiosupplinear", "", 600, 600);
+  hemptylinear->Draw();
+  xjjroot::drawline(10, 1, 70, 1, kGray+2, 2, 2);
+  pprefCMSprompt.Draw();
+  pprefCMS.Draw();
+  pprefATLAS.Draw();
+  gsyst->Draw("same 5");
+  hratio->Draw("same ple");
+  legsupp_pp->Draw();
+  legsupp_pbpb->Draw();
+  legsupp(linesuppsp, textsuppsp);
+  xjjroot::drawCMSleft("#scale[1.25]{#bf{CMS}}", 0.05, -0.08);
+  xjjroot::drawCMSleft("#it{Supplementary}", 0.16, -0.08); // preliminary
+  xjjroot::drawCMSright("1.7 nb^{-1} (PbPb 5.02 TeV)");
+  xjjroot::mkdir(Form("plots/%s/cratiosupplinear.pdf", output.c_str()));
+  cratio->SaveAs(Form("plots/%s/cratiosupplinear.pdf", output.c_str()));
+
   std::cout<<std::endl;
-
-
-
   fitX::results rs(inf, output.c_str());
   rs.print();
 }

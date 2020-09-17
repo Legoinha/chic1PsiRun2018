@@ -38,7 +38,7 @@ namespace ppref
       std::pair<std::string, std::string>("promptX", "(0.000003+TMath::Exp(-2.326617-0.289528*x+4.143284/x))/(0.000000+TMath::Exp(-9.265172-0.131857*x+87.146198/x-184.762029/(x*x)))"),
       std::pair<std::string, std::string>("nonpromptX", "(0.000001+TMath::Exp(-3.713476-0.267920*x+8.699709/x))/(0.000000+TMath::Exp(-9.995278-0.098159*x+74.733928/x-176.118111/(x*x)))"),
     };
-    void Draw();
+    void Draw(std::string opt="all");
   private:
     const float ycut = 0.75;
     std::string fdir;
@@ -108,15 +108,27 @@ float ppref::ppATLAS::getweight(float pt, std::string type)
   else { return ff[type]->Eval(pt); }
 }
 
-void ppref::ppATLAS::Draw()
+void ppref::ppATLAS::Draw(std::string opt)
 {
-  xjjroot::setthgrstyle(gg["promptRatio"]["syst"], xjjroot::mycolor_middle["azure"], 20, 1.2, 0, 1, 1, xjjroot::mycolor_middle["azure"], 0.3, 1001);
-  xjjroot::setthgrstyle(gg["promptRatio"]["stat"], xjjroot::mycolor_middle["azure"], 20, 1.2, xjjroot::mycolor_middle["azure"], 1, 1, xjjroot::mycolor_middle["azure"], 0.3, 1001);
-  xjjroot::setthgrstyle(gg["nonpromptRatio"]["syst"], xjjroot::mycolor_middle["azure"], 24, 1.2, 0, 1, 1, xjjroot::mycolor_middle["azure"], 0.3, 1001);
-  xjjroot::setthgrstyle(gg["nonpromptRatio"]["stat"], xjjroot::mycolor_middle["azure"], 24, 1.2, xjjroot::mycolor_middle["azure"], 1, 1, xjjroot::mycolor_middle["azure"], 0.3, 1001);
-
-  gg["promptRatio"]["syst"]->Draw("2same");
-  gg["promptRatio"]["stat"]->Draw("pesame");
-  gg["nonpromptRatio"]["syst"]->Draw("2same");
-  gg["nonpromptRatio"]["stat"]->Draw("pesame");
+  xjjroot::setthgrstyle(gg["promptRatio"]["syst"], kGray+1, 21, 1.2, 0, 1, 1, kGray+1, 0.3, 1001);
+  xjjroot::setthgrstyle(gg["promptRatio"]["stat"], kGray+1, 21, 1.2, kGray+1, 1, 1, kGray+1, 0.3, 1001);
+  xjjroot::setthgrstyle(gg["nonpromptRatio"]["syst"], kGray+1, 25, 1.2, 0, 1, 1, kGray+1, 0.3, 1001);
+  xjjroot::setthgrstyle(gg["nonpromptRatio"]["stat"], kGray+1, 25, 1.2, kGray+1, 1, 1, kGray+1, 0.3, 1001);
+  if(opt=="prompt")
+    {
+      gg["promptRatio"]["syst"]->Draw("2same");
+      gg["promptRatio"]["stat"]->Draw("pesame");
+    }
+  if(opt=="nonprompt")
+    {
+      gg["nonpromptRatio"]["syst"]->Draw("2same");
+      gg["nonpromptRatio"]["stat"]->Draw("pesame");
+    }
+  if(opt=="all")
+    {
+      gg["promptRatio"]["syst"]->Draw("2same");
+      gg["promptRatio"]["stat"]->Draw("pesame");
+      gg["nonpromptRatio"]["syst"]->Draw("2same");
+      gg["nonpromptRatio"]["stat"]->Draw("pesame");
+    }
 }
