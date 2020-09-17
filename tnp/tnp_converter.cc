@@ -196,9 +196,10 @@ void converter(std::string inputname, std::string outputname, std::string name, 
   std::cout<<std::endl;
 
   gROOT->cd();
-  for(auto& ht : hh)
-    { for(auto& hk : ht.second) { delete hk.second; } }
+  for(auto& ht : hh) { for(auto& hk : ht.second) { delete hk.second; } }
   delete hptweight;
+  for(auto& h : hmupt) { delete h; }
+  for(auto& ht : hmuscale) { for(auto& hmu : ht.second) { delete hmu; } }
 }
 
 int main(int argc, char* argv[])
