@@ -22,7 +22,7 @@ RUN_FIT=${2:-0}
 RUN_ACC=${3:-0}
 RUN_DRAW=${4:-0}
 
-outputdir=rootfiles/trainX_20190808ptdep_sideband_tktk0p2_15p0_50p0_0-10-1-2-9_pt15-50_cent090_y0p0-1p6
+outputdir=rootfiles/trainX_20190808ptdep_sideband_tktk0p2_15p0_50p0_0-10-1-2-9_BDTQvalue_PVz15_newL2L3_pt15-50_cent090_y0p0-1p6
 output=${outputdir##*/}
 
 set -x

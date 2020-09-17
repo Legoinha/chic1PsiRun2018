@@ -77,7 +77,7 @@ for count in ${counts[@]}
 do
     cut="HLT_HIL3Mu0NHitQ10_L2Mu0_MAXdR3p5_M1to5_v1 && pprimaryVertexFilter && phfCoincFilter2Th4 && pclusterCompatibilityFilter && fabs(PVz) < 15"
     cut="$cut && mvapref ${precuts[count]}"
-    name=trainX_20190808ptdep_sideband_tktk0p2_15p0_50p0_0-10-1-2-9
+    name=trainX_20190808ptdep_sideband_tktk0p2_15p0_50p0_0-10-1-2-9_BDTQvalue_PVz15_newL2L3
     rootdir=rootfiles/$name$kinematic/${types[count]}/
     echo -e "----------------------------------------"
     echo -e "==> File directory: \e[4m$rootdir\e[0m"
