@@ -10,9 +10,8 @@
 
 #include "xjjrootuti.h"
 #include "fit.h"
-#include "smear.h"
 
-const int nn = 600; //
+const int nn = 1000; // 600
 
 void toymc(std::string input, std::string output)
 {
@@ -30,24 +29,33 @@ void toymc(std::string input, std::string output)
   TH1F* hmcp_b = (TH1F*)inf->Get("hmcp_b");
   hmcp_b->Scale(hmcp_b->GetEntries()/hmcp_b->Integral());
 
+  std::string outputname = Form("rootfiles/%s/toymc.root", output.c_str());
+  xjjroot::mkdir(outputname.c_str());
+  TFile* outf = new TFile(outputname.c_str(), "recreate");
+  TTree* nt = new TTree("nt", "");
+  float ysig_a; nt->Branch("ysig_a", &ysig_a, "ysig_a/F");
+  float ysigerr_a; nt->Branch("ysigerr_a", &ysigerr_a, "ysigerr_a/F");
+  float ysig_b; nt->Branch("ysig_b", &ysig_b, "ysig_b/F");
+  float ysigerr_b; nt->Branch("ysigerr_b", &ysigerr_b, "ysigerr_b/F");
+  float msig_a; nt->Branch("msig_a", &msig_a, "msig_a/F");
+  float msigerr_a; nt->Branch("msigerr_a", &msigerr_a, "msigerr_a/F");
+  float msig_b; nt->Branch("msig_b", &msig_b, "msig_b/F");
+  float msigerr_b; nt->Branch("msigerr_b", &msigerr_b, "msigerr_b/F");
+  float minNll; nt->Branch("minNll", &minNll, "minNll/F");
+
   std::map<std::string, fitX::fitXresult*> result = fitX::fit(h, 0, hmcp_a, hmcp_b,
                                                               dsh, dshmcp_a, dshmcp_b,
                                                               Form("plots/%s/idx", output.c_str()), 0, true, "nominal", "default", "real-data", true); // fix mean = false
-  float ysig_a = result["unbinned"]->ysig_a();
-  float ysigerr_a = result["unbinned"]->ysigerr_a();
-  float ysig_b = result["unbinned"]->ysig_b();
-  float ysigerr_b = result["unbinned"]->ysigerr_b();
-  float msig_a = result["unbinned"]->msig_a();
-  float msigerr_a = result["unbinned"]->msigerr_a();
-  float msig_b = result["unbinned"]->msig_b();
-  float msigerr_b = result["unbinned"]->msigerr_b();
-  float minNll = result["unbinned"]->minNll();
-
-  TH1F* hysig_a = new TH1F("hysig_a", "", 40, ysig_a - ysigerr_a*5, ysig_a + ysigerr_a*5);
-  TH1F* hysig_b = new TH1F("hysig_b", "", 40, ysig_b - ysigerr_b*5, ysig_b + ysigerr_b*5);
-  TH1F* hmsig_a = new TH1F("hmsig_a", "", 40, msig_a - msigerr_a*5, msig_a + msigerr_a*5);
-  TH1F* hmsig_b = new TH1F("hmsig_b", "", 40, msig_b - msigerr_b*5, msig_b + msigerr_b*5);
-  TH1F* hminNll = new TH1F("hminNll", "", 40, minNll - 100        , minNll + 100); //
+  ysig_a = result["unbinned"]->ysig_a();
+  ysigerr_a = result["unbinned"]->ysigerr_a();
+  ysig_b = result["unbinned"]->ysig_b();
+  ysigerr_b = result["unbinned"]->ysigerr_b();
+  msig_a = result["unbinned"]->msig_a();
+  msigerr_a = result["unbinned"]->msigerr_a();
+  msig_b = result["unbinned"]->msig_b();
+  msigerr_b = result["unbinned"]->msigerr_b();
+  minNll = result["unbinned"]->minNll();
+  nt->Fill();
 
   RooRealVar* mass = new RooRealVar("Bmass", "Bmass", fitX::BIN_MIN, fitX::BIN_MAX);
   RooWorkspace* wo = new RooWorkspace("wo");
@@ -73,28 +81,31 @@ void toymc(std::string input, std::string output)
       std::map<std::string, fitX::fitXresult*> rt = fitX::fit(hh[i], 0, hmcp_a, hmcp_b,
                                                               dshh[i], dshmcp_a, dshmcp_b,
                                                               Form("plots/%s/idx", output.c_str()), 0, i%100==0, Form("-%d",i), "default", Form("pseudo-data (%d)", i), true); // fix mean = false
-      hysig_a->Fill(rt["unbinned"]->ysig_a());
-      hysig_b->Fill(rt["unbinned"]->ysig_b());
-      hmsig_a->Fill(rt["unbinned"]->msig_a());
-      hmsig_b->Fill(rt["unbinned"]->msig_b());
-      hminNll->Fill(rt["unbinned"]->minNll());
+      ysig_a = rt["unbinned"]->ysig_a();
+      ysigerr_a = rt["unbinned"]->ysigerr_a();
+      ysig_b = rt["unbinned"]->ysig_b();
+      ysigerr_b = rt["unbinned"]->ysigerr_b();
+      msig_a = rt["unbinned"]->msig_a();
+      msigerr_a = rt["unbinned"]->msigerr_a();
+      msig_b = rt["unbinned"]->msig_b();
+      msigerr_b = rt["unbinned"]->msigerr_b();
+      minNll = rt["unbinned"]->minNll();
+      nt->Fill();
     }
+  outf->cd();
+  nt->Write();
 
-  std::string outputname = Form("rootfiles/%s/toymc.root", output.c_str());
-  xjjroot::mkdir(outputname.c_str());
-  TFile* outf = new TFile(outputname.c_str(), "recreate");
-  outf->cd();
-  for(auto& ih : hh) { ih->Write(); }
-  outf->cd();
-  gDirectory->Add(wo);
-  wo->Write();
-  wo->Print();
-  outf->cd();
-  hysig_a->Write();
-  hysig_b->Write();
-  hmsig_a->Write();
-  hmsig_b->Write();
-  hminNll->Write();
+  // for(auto& ih : hh) { ih->Write(); }
+  // outf->cd();
+  // gDirectory->Add(wo);
+  // wo->Write();
+  // wo->Print();
+  // outf->cd();
+  // hysig_a->Write();
+  // hysig_b->Write();
+  // hmsig_a->Write();
+  // hmsig_b->Write();
+  // hminNll->Write();
   outf->Close();
 
 }

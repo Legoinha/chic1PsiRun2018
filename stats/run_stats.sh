@@ -1,14 +1,7 @@
 #!/bin/bash
-counts=(6)
+counts=(0)
 inputs=(
-    "../CrossSection/rootfiles/trainX_20190808ptdep_sideband_tktk0p2_15p0_50p0_0-10-1-2-9_BDTDQvalue_pt15-50_cent090_y0p0-1p6/fitX_savehist.root trainX_20190808ptdep_sideband_tktk0p2_15p0_50p0_0-10-1-2-9_BDTDQvalue_pt15-50_cent090_y0p0-1p6" # 0
-    "../CrossSection/rootfiles/trainX_20190808ptdep_sideband_tktk0p2_15p0_50p0_0-10-1-2-9_BDTDQvalue_pt20-50_cent090_y0p0-1p6/fitX_savehist.root trainX_20190808ptdep_sideband_tktk0p2_15p0_50p0_0-10-1-2-9_BDTDQvalue_pt20-50_cent090_y0p0-1p6"
-    "../CrossSection/rootfiles/trainX_20190808ptdep_sideband_tktk0p2_15p0_50p0_0-10-1-2-9_BDTFQvalue_pt15-50_cent090_y0p0-1p6/fitX_savehist.root trainX_20190808ptdep_sideband_tktk0p2_15p0_50p0_0-10-1-2-9_BDTFQvalue_pt15-50_cent090_y0p0-1p6" # 2
-    "../CrossSection/rootfiles/trainX_20190808ptdep_sideband_tktk0p2_15p0_50p0_0-10-1-2-9_BDTFQvalue_pt20-50_cent090_y0p0-1p6/fitX_savehist.root trainX_20190808ptdep_sideband_tktk0p2_15p0_50p0_0-10-1-2-9_BDTFQvalue_pt20-50_cent090_y0p0-1p6"
-    "../CrossSection/rootfiles/trainX_20190808ptdep_sideband_tktk0p2_15p0_50p0_0-10-1-2-9_BDTGQvalue_pt15-50_cent090_y0p0-1p6/fitX_savehist.root trainX_20190808ptdep_sideband_tktk0p2_15p0_50p0_0-10-1-2-9_BDTGQvalue_pt15-50_cent090_y0p0-1p6" # 4
-    "../CrossSection/rootfiles/trainX_20190808ptdep_sideband_tktk0p2_15p0_50p0_0-10-1-2-9_BDTGQvalue_pt20-50_cent090_y0p0-1p6/fitX_savehist.root trainX_20190808ptdep_sideband_tktk0p2_15p0_50p0_0-10-1-2-9_BDTGQvalue_pt20-50_cent090_y0p0-1p6"
-    "../CrossSection/rootfiles/trainX_20190808ptdep_sideband_tktk0p2_15p0_50p0_0-10-1-2-9_BDTQvalue_pt15-50_cent090_y0p0-1p6/fitX_savehist.root trainX_20190808ptdep_sideband_tktk0p2_15p0_50p0_0-10-1-2-9_BDTQvalue_pt15-50_cent090_y0p0-1p6" # 6
-    "../CrossSection/rootfiles/trainX_20190808ptdep_sideband_tktk0p2_15p0_50p0_0-10-1-2-9_BDTQvalue_pt20-50_cent090_y0p0-1p6/fitX_savehist.root trainX_20190808ptdep_sideband_tktk0p2_15p0_50p0_0-10-1-2-9_BDTQvalue_pt20-50_cent090_y0p0-1p6"
+    "../CrossSection/rootfiles/trainX_20190808ptdep_sideband_tktk0p2_15p0_50p0_0-10-1-2-9_BDTQvalue_PVz15_newL2L3_pt15-50_cent090_y0p0-1p6/fitX_savehist.root trainX_20190808ptdep_sideband_tktk0p2_15p0_50p0_0-10-1-2-9_BDTQvalue_PVz15_newL2L3_pt15-50_cent090_y0p0-1p6" # 0
 )
 
 ##
