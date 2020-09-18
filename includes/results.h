@@ -14,7 +14,7 @@ namespace fitX
     results(TFile* inf, std::string name = "");
     results() { ; }
     ~results() { ; }
-    void print();
+    void print(float syst_a = -1, float syst_b = -1, float syst_r = -1);
     float val(std::string opt) { return fval[opt]; }
     float err(std::string opt) { return ferr[opt]; }
     std::vector<std::string> vars() { return fvars; }
@@ -107,9 +107,9 @@ fitX::results::results(TFile* inf, std::string name) : finf(inf), fname(name)
   ferr["ratio"] = fhratio->GetBinError(1);
 }
 
-void fitX::results::print()
+void fitX::results::print(float syst_a, float syst_b, float syst_r)
 {
-  int stdwid = 22;
+  int stdwid = 28;
   std::cout << std::left << "\e[33;1m --> [ \e[33;7m" << fname << "\e[0m\e[33;1m ]" << std::endl << std::string(stdwid*3+1, '-') << std::endl
             << std::setw(stdwid) << "| Var" << std::setw(stdwid) << "| psi(2S)" << std::setw(stdwid) << "| X(3872)" << "|" << std::endl 
             << std::string(stdwid*3+1, '-') << std::endl;
@@ -120,8 +120,29 @@ void fitX::results::print()
   print_item("fprompt", 2, stdwid);
   print_item("yieldpromptCorr", 0, stdwid);
   std::cout << std::setw(stdwid) << "| hratio" << std::setw(stdwid*2) << Form("| %.4f +- %.4f", fval["ratio"], ferr["ratio"]) << "|" << std::endl 
-            << std::string(stdwid*3+1, '-') << std::endl
-            << "\e[0m" << std::endl;
+            << std::string(stdwid*3+1, '-') << std::endl;
+  std::cout << "\e[0m\e[33m";
+  if(syst_a > 0)
+    {
+      std::cout << std::string(stdwid*3+1, '-') << std::endl
+                << std::setw(stdwid*3) << Form(" N_{\\psitwoS} &= %.0f \\pm %.0f\\;\\mathrm{(stat.)} \\:\\pm %.0f\\;\\mathrm{(syst.)} \\\\", fval["yieldpromptCorr_a"], ferr["yieldpromptCorr_a"], fval["yieldpromptCorr_a"]*syst_a) << std::endl;
+    }
+  if(syst_b > 0)
+    {
+      std::cout << std::string(stdwid*3+1, '-') << std::endl
+                << std::setw(stdwid*3) << Form(" N_{\\xthree} &= %.0f \\pm %.0f\\;\\mathrm{(stat.)} \\:\\pm %.0f\\;\\mathrm{(syst.)} \\\\", fval["yieldpromptCorr_b"], ferr["yieldpromptCorr_b"], fval["yieldpromptCorr_b"]*syst_b) << std::endl;
+    }
+  if(syst_r > 0)
+    {
+      std::cout << std::string(stdwid*3+1, '-') << std::endl
+                << std::setw(stdwid*3) << Form(" R = %.2f \\pm %.2f\\;\\mathrm{(stat.)} \\:\\pm %.2f\\;\\mathrm{(syst.)}", fval["ratio"], ferr["ratio"], fval["ratio"]*syst_r) << std::endl;
+    }
+  if(syst_a > 0 && syst_b > 0 && syst_r > 0)
+    {
+      std::cout << std::string(stdwid*3+1, '-') << std::endl
+                << std::setw(stdwid*3) << Form(" Total            & %.1f\\\% & %.1f\\\% & %.1f\\\% \\\\", syst_a*1.e+2, syst_b*1.e+2, syst_r*1.e+2) << std::endl;
+    }
+  std::cout << std::string(stdwid*3+1, '-') << "\e[0m" << std::endl;
 }
 
 void fitX::results::print_item(std::string var_, uint32_t precision, int stdwid, float scale)
