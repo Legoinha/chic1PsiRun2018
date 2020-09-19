@@ -100,6 +100,7 @@ void drawdatamc(std::string input, std::string output, std::string type)
   xjjroot::drawtexgroup(0.89, 0.86, tt, 1, 0.5, 0.038, 33, 62, cc);
   xjjroot::drawtex(0.24, 0.84, fitX::title_a.c_str(), 0.038, 12, 62, kBlack);
   xjjroot::drawCMS();
+  xjjroot::drawcomment(output);
   c_a->cd(2);
   hmcdis_a->Draw("hist e");
   hbkgdis_a->Draw("hist e same");
@@ -128,6 +129,7 @@ void drawdatamc(std::string input, std::string output, std::string type)
   xjjroot::drawtexgroup(0.89, 0.86, tt, 1, 0.5, 0.038, 33, 62, cc);
   xjjroot::drawtex(0.24, 0.84, fitX::title_b.c_str(), 0.038, 12, 62, kBlack);
   xjjroot::drawCMS();
+  xjjroot::drawcomment(output);
   c_b->cd(2);
   hmcdis_b->Draw("hist e");
   hbkgdis_b->Draw("hist e same");
