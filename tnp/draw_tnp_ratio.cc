@@ -13,6 +13,7 @@
 
 void draw_tnp_ratio(std::string inputname_a, std::string inputname_b, std::string output)
 {
+  std::cout<<"\e[32;1m -- "<<__FUNCTION__<<"\e[0m"<<std::endl;
   if(xjjc::str_contains(inputname_b, "_a") && xjjc::str_contains(inputname_a, "_b")) std::swap(inputname_a, inputname_b);
   TFile* inf_a = TFile::Open(inputname_a.c_str());
   fitX::init(inf_a);

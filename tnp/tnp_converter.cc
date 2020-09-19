@@ -1,9 +1,12 @@
+// Instruction: https://twiki.cern.ch/twiki/pub/CMS/HIMuonTagProbe/TnpHeaderFile.pdf
+
 #ifndef __OPTCUT__
 #define __OPTCUT__ __CUTINPUT__ //ntp->BDTG[j]>0.7
 
 #include <iostream>
 #include <map>
 #include <string>
+#include <cmath>
 #include <TFile.h>
 #include <TH1D.h>
 #include <TH2F.h>
@@ -147,17 +150,39 @@ void converter(std::string inputname, std::string outputname, std::string name, 
           for(auto& idxk : tnpcc::idxname)
             {
               scales["nominal"][idxk.second] = 1.;
-              scales["muid"][idxk.second] = tnp_weight_muid_pbpb(ntp->Bmu1pt[j], ntp->Bmu1eta[j], idxk.first)                 * tnp_weight_muid_pbpb(ntp->Bmu2pt[j], ntp->Bmu2eta[j], idxk.first); 
-              scales["trk"][idxk.second]  = tnp_weight_trk_pbpb(ntp->Bmu1eta[j], idxk.first)                                  * tnp_weight_trk_pbpb(ntp->Bmu2eta[j], idxk.first); 
+              scales["muid"][idxk.second] = tnp_weight_muid_pbpb(ntp->Bmu1pt[j], ntp->Bmu1eta[j], idxk.first)              * tnp_weight_muid_pbpb(ntp->Bmu2pt[j], ntp->Bmu2eta[j], idxk.first); 
+              scales["trk"][idxk.second]  = tnp_weight_trk_pbpb(ntp->Bmu1eta[j], idxk.first)                               * tnp_weight_trk_pbpb(ntp->Bmu2eta[j], idxk.first); 
               scales["trg"][idxk.second]  = tnp_weight_trg_pbpb(ntp->Bmu1pt[j], ntp->Bmu1eta[j], ifilterIdmu1, idxk.first) * tnp_weight_trg_pbpb(ntp->Bmu2pt[j], ntp->Bmu2eta[j], ifilterIdmu2, idxk.first); 
-              scales["total"][idxk.second] = scales["muid"][idxk.second] * scales["trk"][idxk.second] * scales["trg"][idxk.second];
-              //
+            }
+          scales["total"]["nominal"] = scales["muid"]["nominal"] * scales["trk"]["nominal"] * scales["trg"]["nominal"];
+          float muid_stat = std::max(fabs(scales["muid"]["stat_u"]-scales["muid"]["nominal"]), fabs(scales["muid"]["stat_d"]-scales["muid"]["nominal"]));
+          float trk_stat = std::max(fabs(scales["trk"]["stat_u"]-scales["trk"]["nominal"]), fabs(scales["trk"]["stat_d"]-scales["trk"]["nominal"]));
+          float trg_stat = std::max(fabs(scales["trg"]["stat_u"]-scales["trg"]["nominal"]), fabs(scales["trg"]["stat_d"]-scales["trg"]["nominal"]));
+          scales["total"]["stat_u"] = scales["total"]["nominal"] * (1 + sqrt(muid_stat*muid_stat/(scales["muid"]["nominal"]*scales["muid"]["nominal"]) +
+                                                                             trk_stat*trk_stat/(scales["trk"]["nominal"]*scales["trk"]["nominal"]) +
+                                                                             trg_stat*trg_stat/(scales["trg"]["nominal"]*scales["trg"]["nominal"])));
+          scales["total"]["stat_d"] = scales["total"]["nominal"] * (1 - sqrt(muid_stat*muid_stat/(scales["muid"]["nominal"]*scales["muid"]["nominal"]) +
+                                                                             trk_stat*trk_stat/(scales["trk"]["nominal"]*scales["trk"]["nominal"]) +
+                                                                             trg_stat*trg_stat/(scales["trg"]["nominal"]*scales["trg"]["nominal"])));
+          float muid_syst = std::max(fabs(scales["muid"]["syst_u"]-scales["muid"]["nominal"]), fabs(scales["muid"]["syst_d"]-scales["muid"]["nominal"]));
+          float trk_syst = std::max(fabs(scales["trk"]["syst_u"]-scales["trk"]["nominal"]), fabs(scales["trk"]["syst_d"]-scales["trk"]["nominal"]));
+          float trg_syst = std::max(fabs(scales["trg"]["syst_u"]-scales["trg"]["nominal"]), fabs(scales["trg"]["syst_d"]-scales["trg"]["nominal"]));
+          scales["total"]["syst_u"] = scales["total"]["nominal"] * (1 + sqrt(muid_syst*muid_syst/(scales["muid"]["nominal"]*scales["muid"]["nominal"]) +
+                                                                             trk_syst*trk_syst/(scales["trk"]["nominal"]*scales["trk"]["nominal"]) +
+                                                                             trg_syst*trg_syst/(scales["trg"]["nominal"]*scales["trg"]["nominal"])));
+          scales["total"]["syst_d"] = scales["total"]["nominal"] * (1 - sqrt(muid_syst*muid_syst/(scales["muid"]["nominal"]*scales["muid"]["nominal"]) +
+                                                                             trk_syst*trk_syst/(scales["trk"]["nominal"]*scales["trk"]["nominal"]) +
+                                                                             trg_syst*trg_syst/(scales["trg"]["nominal"]*scales["trg"]["nominal"])));
+          // <==
+          for(auto& idxk : tnpcc::idxname)
+            {
               for(auto& tt : tnpcc::types)
                 {
                   hh[tt][idxk.second]->Fill(ntp->Bpt[j], weight*scales[tt][idxk.second]*wptweight);
                 }
             }
-          // <==
+
+          // --> some checks, not core
           if(ietamu1 >= 0) 
             {
               hmupt[ietamu1]->Fill(ntp->Bmu1pt[j], weight);
@@ -170,6 +195,7 @@ void converter(std::string inputname, std::string outputname, std::string name, 
               for(auto& tt : tnpcc::types)
                 hmuscale[tt][ietamu2]->Fill(ntp->Bmu2pt[j], scales[tt]["nominal"], weight);
             }
+          // <--
         }
     }
   xjjc::progressbar_summary(nentries);
