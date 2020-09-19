@@ -121,7 +121,7 @@ void readfitX(std::string outputdir, std::string fitopts="default")
       // xjjroot::drawline(xnlls[i]->x95_d(), 0, xnlls[i]->x95_d(), 1.96*2, xjjroot::mycolor_middle["red"], 2, 3);
       // xjjroot::drawline(xnlls[i]->x95_u(), 0, xnlls[i]->x95_u(), 1.96*2, xjjroot::mycolor_middle["red"], 2, 3);
       xjjroot::drawCMSleft("", 0.05, -0.08);
-      xjjroot::drawCMSright("1.7 nb^{-1} (2018 PbPb 5.02 TeV)");
+      xjjroot::drawCMSright("1.7 nb^{-1} (PbPb 5.02 TeV)");
       std::string outputnamenpll = "plots/" + outputdir + "/" + options[i] + "/cnpllscan.pdf";
       xjjroot::mkdir(outputnamenpll);
       cnpll->SaveAs(outputnamenpll.c_str());
@@ -166,37 +166,19 @@ void readfitX(std::string outputdir, std::string fitopts="default")
   drawnll(hnllscorr1, "corr1", ymincorr1, ymaxcorr1, outputdir);
   drawnll(hnllscorr2, "corr2", ymincorr2, ymaxcorr2, outputdir);
 
-  std::cout<<"\e[36;1m"<<std::endl;
-  UInt_t stdwid = 15;
-  std::cout<<std::string(stdwid*4+1, '-')<<std::endl;
-  std::cout<<std::left<<std::setw(stdwid)<<"| Title"<<std::setw(stdwid)<<"| Sig (PLL)"<<std::setw(stdwid)<<"| Sig (Null)"<<std::setw(stdwid)<<"| Yield"<<"|"<<std::endl;
-  std::cout<<std::string(stdwid*4+1, '-')<<std::endl;
   for(int i=0; i<nopt; i++)
     {
-      std::cout<<std::left<<std::setw(stdwid)<<Form("| %s", options[i].c_str())<<std::setw(stdwid)<<Form("| %.4f", xnlls[i]->sig())<<std::setw(stdwid)<<Form("| %.4f", xnlls[i]->nullsig())<<std::setw(stdwid)<<Form("| %.1f", xnlls[i]->xmean_pll())<<"|"<<std::endl;
-      std::cout<<std::string(stdwid*4+1, '-')<<std::endl;      
+      std::string output = "rootfiles/" + outputdir + "/" + options[i] + "/paramnll.root";
+      TFile* outf = new TFile(output.c_str(), "recreate");
+      TTree* param = new TTree("param", "");
+      float pllsig; param->Branch("pllsig", &pllsig, "pllsig/F"); pllsig = xnlls[i]->sig();
+      float nullsig; param->Branch("nullsig", &nullsig, "nullsig/F"); nullsig = xnlls[i]->nullsig();
+      float nullpvalue; param->Branch("nullpvalue", &nullpvalue, "nullpvalue/F"); nullpvalue = xnlls[i]->nullpvalue();
+      float xmeanpll; param->Branch("xmeanpll", &xmeanpll, "xmeanpll/F"); xmeanpll = xnlls[i]->xmean_pll();
+      param->Fill();
+      param->Write();
+      outf->Close();
     }
-  std::cout<<"\e[0m"<<std::endl;
-
-  // fit
-  // RooPlot* frempty = mass->frame(RooFit::Title(""));
-  // xjjroot::sethempty(frempty);
-  // frempty->SetXTitle("m_{#mu#mu#pi#pi} (GeV/c^{2})");
-  // frempty->SetYTitle(Form("Entries / (%.0f MeV/c^{2})", fitX::BIN_WIDTH*1.e+3));
-  // frempty->SetMinimum(50);
-  // frempty->SetMaximum(450);
-  // TCanvas* cmass = new TCanvas("cmass", "", 700, 600);
-  // data->plotOn(frempty, RooFit::Name("dshist"), RooFit::Binning(fitX::NBIN), RooFit::MarkerSize(0.9), RooFit::MarkerStyle(20), RooFit::LineColor(1), RooFit::LineWidth(1));
-  // for(int i=0; i<nopt; i++)
-  //   {
-  //     pdfs[i]->plotOn(frempty, RooFit::Name("bkg"), RooFit::Components(*(bkgs[i])), RooFit::Precision(1e-6), RooFit::DrawOption("L"), RooFit::LineStyle(7), RooFit::LineColor(xjjroot::colorlist_middle[i]), RooFit::LineWidth(2));
-  //     pdfs[i]->plotOn(frempty, RooFit::Name("pdf"), RooFit::Precision(1e-6), RooFit::Normalization(1.0, RooAbsReal::RelativeExpected), RooFit::DrawOption("L"), RooFit::LineStyle(1), RooFit::LineColor(xjjroot::colorlist_middle[i]), RooFit::LineWidth(2));
-  //   }
-  // data->plotOn(frempty, RooFit::Name("dshist"), RooFit::Binning(fitX::NBIN), RooFit::MarkerSize(0.9), RooFit::MarkerStyle(20), RooFit::LineColor(1), RooFit::LineWidth(1));
-  // frempty->Draw();
-  // std::string outputnamemass = "plots/" + outputdir + "/cmassscan_fitopt.pdf";
-  // xjjroot::mkdir(outputnamemass);
-  // cmass->SaveAs(outputnamemass.c_str());
 }
 
 int main(int argc, char* argv[])
@@ -220,7 +202,7 @@ void drawnll(std::vector<TH1F*> hnlls, std::string name, float ymin, float ymax,
       hnlls[i]->Draw("c same");
     }
   xjjroot::drawCMSleft("", 0.05, -0.08);
-  xjjroot::drawCMSright("1.7 nb^{-1} (2018 PbPb 5.02 TeV)");
+  xjjroot::drawCMSright("1.7 nb^{-1} (PbPb 5.02 TeV)");
   leg->Draw();
   std::string outputnamenll = "plots/" + outputdir + "/cnllscanNpar_fitopt" + name + ".pdf";
   xjjroot::mkdir(outputnamenll);

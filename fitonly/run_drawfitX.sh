@@ -6,6 +6,7 @@ subdir_range=trainX_20190808ptdep_sideband_tktk0p2_15p0_50p0_0-10-1-2-9_BDTQvalu
 
 [[ ${1:-0} == 0 ]] || { g++ drawfitX.cc -I"../includes" $(root-config --libs --cflags) -lRooFit -lRooFitCore -lRooStats -g -o drawfitX.exe || exit 1 ; }
 [[ ${2:-0} == 0 ]] || { g++ readfitX.cc -I"../includes" $(root-config --libs --cflags) -lRooFit -lRooFitCore -lRooStats -g -o readfitX.exe || exit 1 ; }
+[[ ${3:-0} == 0 ]] || { g++ printfitX.cc -I"../includes" $(root-config --libs --cflags) -lRooFit -lRooFitCore -lRooStats -g -o printfitX.exe || exit 1 ; }
 
 [[ ${1:-0} -eq 1 ]] && { ./drawfitX.exe ../CrossSection/rootfiles/$subdir/fitX_savehist.root $subdir ; }
 
@@ -21,6 +22,9 @@ subdir_range=trainX_20190808ptdep_sideband_tktk0p2_15p0_50p0_0-10-1-2-9_BDTQvalu
 [[ ${2:-0} -eq 1 ]] && { ./readfitX.exe $subdir "pol4,pol3,3gaus,floatwidth,range" ; }
 # [[ ${2:-0} -eq 1 ]] && { ./readfitX.exe $subdir "pol4" ; }
 
-rm readfitX.exe
-rm drawfitX.exe
+[[ ${3:-0} -eq 1 ]] && { ./printfitX.exe $subdir "pol4,pol3,3gaus,floatwidth,range" ; }
+
+[[ -f printfitX.exe ]] && rm printfitX.exe
+[[ -f readfitX.exe ]] && rm readfitX.exe
+[[ -f drawfitX.exe ]] && rm drawfitX.exe
 

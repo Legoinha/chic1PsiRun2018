@@ -158,6 +158,8 @@ float runfit(TH1F* h, TH1F* hmcp_a, TH1F* hmcp_b,                         // bin
   nullParams->setRealValue("par10", 0);
   plc->SetNullParameters(*nullParams);
   RooStats::HypoTestResult* htr = plc->GetHypoTest();
+  // float nullpvalue = htr->NullPValue();
+  // float significance = htr->Significance();
   std::cout<<"\e[0m"<<"\e[36;1m";
   std::cout << "-------------------------------------------------" << std::endl;
   std::cout << "The p-value for the null is " << htr->NullPValue() << std::endl;
