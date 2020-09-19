@@ -27,14 +27,14 @@ void fitX_drawhist(std::string inputname, std::string output)
   std::vector<float> xx, yy, xel, xeh, yel, yeh;
   for(int i=0; i<hratio->GetNbinsX(); i++)
     {
-      std::cout<<hratio->GetBinCenter(i+1)<<" "<<hratio->GetBinContent(i+1)<<std::endl;
+      // std::cout<<hratio->GetBinCenter(i+1)<<" "<<hratio->GetBinContent(i+1)<<std::endl;
       xx.push_back(hratio->GetBinCenter(i+1));
       xel.push_back(1.);
       xeh.push_back(1.);
       yy.push_back(hratio->GetBinContent(i+1));
       yel.push_back(syst::getsyst(2, "d")*hratio->GetBinContent(i+1));
       yeh.push_back(syst::getsyst(2, "u")*hratio->GetBinContent(i+1));
-      std::cout<<i<<" "<<xx[i]<<" "<<hratio->GetBinWidth(i+1)/2.<<" "<<yy[i]<<" "<<hratio->GetBinError(i+1)<<" "<<yel[i]<<" "<<yeh[i]<<std::endl;
+      // std::cout<<i<<" "<<xx[i]<<" "<<hratio->GetBinWidth(i+1)/2.<<" "<<yy[i]<<" "<<hratio->GetBinError(i+1)<<" "<<yel[i]<<" "<<yeh[i]<<std::endl;
     }
   TGraphAsymmErrors* gsyst = new TGraphAsymmErrors(hratio->GetNbinsX(), xx.data(), yy.data(), xel.data(), xeh.data(), yel.data(), yeh.data());
   gsyst->SetName("gr_ratio_syst");
@@ -161,7 +161,7 @@ void fitX_drawhist(std::string inputname, std::string output)
 
   std::cout<<std::endl;
   fitX::results rs(inf, output.c_str());
-  rs.print();
+  rs.print(syst::getsyst(0, "u", "q"), syst::getsyst(1, "u", "q"), syst::getsyst(2, "u", "q"));
 }
 
 int main(int argc, char* argv[])

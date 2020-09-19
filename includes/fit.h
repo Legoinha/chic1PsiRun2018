@@ -386,6 +386,7 @@ std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* 
   // ---> unbinned fit
   std::map<int, RooRealVar*> pars;
   pars[5] = new RooRealVar("par5", "", f->GetParameter(5)/fitX::BIN_WIDTH, -1.e+4, 1.e+4); // !!
+  // pars[5] = new RooRealVar("par5", "", f->GetParameter(5)/fitX::BIN_WIDTH, 0, 1.e+4); // !!
   pars[6] = new RooRealVar("par6", "", mcpars[6]->getVal(), mcpars[6]->getVal(), mcpars[6]->getVal());
   pars[7] = new RooRealVar("par7", "", mcpars[7]->getVal(), mcpars[7]->getVal()-mcpars[7]->getError(), mcpars[7]->getVal()+mcpars[7]->getError()); if(option!="floatwidth") { pars[7]->setConstant(); }
   pars[8] = new RooRealVar("par8", "", mcpars[8]->getVal(), mcpars[8]->getVal()-mcpars[8]->getError(), mcpars[8]->getVal()+mcpars[8]->getError()); if(option!="floatwidth") { pars[8]->setConstant(); }
@@ -396,7 +397,8 @@ std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* 
   RooGaussian sig_a2("sig_a2", "", *mass, *(pars[6]), *(pars[8]));
   RooGaussian sig_a3("sig_a3", "", *mass, *(pars[6]), *(pars[15]));
   RooAddPdf* sig_a = new RooAddPdf("sig_a", "", RooArgList(sig_a1, sig_a2, sig_a3), RooArgList(*(pars[9]), *(pars[16])), true);
-  pars[10] = new RooRealVar("par10", "", f->GetParameter(10)/fitX::BIN_WIDTH, -1.e+4, 1.e+4); // !
+  pars[10] = new RooRealVar("par10", "", f->GetParameter(10)/fitX::BIN_WIDTH, -1.e+4, 1.e+4); // !!
+  // pars[10] = new RooRealVar("par10", "", f->GetParameter(10)/fitX::BIN_WIDTH, 0, 1.e+4); // !!
   RooRealVar* fsyst = new RooRealVar("fsyst", "", 1, 0, 2); // !
   RooFormulaVar* nsig = new RooFormulaVar("nsig", "@0*@1", RooArgList(*(pars[10]), *fsyst)); // <---------- include systematics
   pars[11] = new RooRealVar("par11", "", fitX::FIT_MASS_X, fitX::FIT_MASS_X - fitX::FIT_MASS_X_WIN, fitX::FIT_MASS_X + fitX::FIT_MASS_X_WIN);
@@ -646,7 +648,7 @@ void fitX::labelsdata(std::string title, std::string cmsleft, std::string cmsrig
   xjjroot::drawtex(0.92, 0.79, Form("%s|y| < %.1f", (fitX::ymincut?Form("%.1f < ", fitX::ymincut):""), fitX::ymaxcut), 0.038, 32, 62);
   xjjroot::drawtex(0.92, 0.74, Form("Cent. %.0f-%.0f%s", fitX::centmincut, fitX::centmaxcut, "%"), 0.038, 32, 62);
   // xjjroot::drawtex(0.17, 0.84-0.04, title.c_str(), 0.038, 13, 62);
-  xjjroot::drawtex(0.17, 0.86, title.c_str(), 0.045, 13, 52);
+  xjjroot::drawtex(0.17, 0.86, title.c_str(), 0.042, 13, 52);
 
   xjjroot::drawCMSleft(); //preliminary
   // xjjroot::drawCMSleft(cmsleft.c_str());
@@ -662,7 +664,7 @@ void fitX::labelsdata_params(double mean_a, double mean_a_err, double yield_a, d
   xjjroot::drawtex(0.32, 0.26, Form("#bar{m}_{X(3872)} = %.4f #pm %.4f GeV", mean_b, mean_b_err), 0.03, 12, 62, color_b);
   xjjroot::drawtex(0.32, 0.21, Form("N_{X(3872)} = %.0f #pm %.0f", yield_b, yield_b_err), 0.03, 12, 62, color_b);
 
-  xjjroot::drawtex(0.17, 0.84-0.04*2, Form("#chi^{2} Prob = %.1f%s", chi2prob*100., "%"), 0.042, 12);
+  xjjroot::drawtex(0.17, 0.84-0.04*2-0.02, Form("#chi^{2} Prob = %.1f%s", chi2prob*100., "%"), 0.038, 12);
 }
 
 void fitX::printfit(TF1* f, RooAbsPdf* pdf)

@@ -52,7 +52,7 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   std::vector<TH1F*> vhyield_a = {hyield_a, hBenryield_a};
   std::vector<TH1F*> vhyield_b = {hyield_b, hBenryield_b};
   std::vector<std::string> vname = {"th", "thBenr"};
-  std::vector<std::string> vtitle = {Form("#splitline{Inclusive}{%s}", fitopt.c_str()), Form("#splitline{B-enriched (l_{xy} > 0.1 mm)}{%s}", fitopt.c_str())};
+  std::vector<std::string> vtitle = {Form("#splitline{Inclusive}{%s}", fitopt.c_str()), Form("#splitline{B-enriched (l#scale[0.60]{xy} > 0.1 mm)}{%s}", fitopt.c_str())};
   std::vector<Style_t> mstyle = {20, 24};
 
   float mm = 0;
