@@ -4,6 +4,8 @@
 #include <vector>
 #include <string>
 #include <cmath>
+#include <TString.h>
+#include "xjjcuti.h"
 
 int getCMSRprompt()
 {
@@ -21,7 +23,7 @@ int getCMSRprompt()
       getdata_psip_fprompt >> ptmax >> center >> stat >> syst;
       psip_fprompt_ptmin.push_back(ptmin);
       psip_fprompt_ptmax.push_back(ptmax);
-      psip_fprompt_center.push_back(center);
+      psip_fprompt_center.push_back(1-center);
       psip_fprompt_stat.push_back(stat);
       psip_fprompt_syst.push_back(syst);
     }
@@ -46,7 +48,7 @@ int getCMSRprompt()
     {
       float Np_i = psip_xsec_center[i]*(psip_xsec_ptmax[i]-psip_xsec_ptmin[i]);
       rebin_fprompt_num += Np_i;
-      rebin_fprompt_den += Np_i/psip_fprompt_center[i];
+      rebin_fprompt_den += Np_i/(psip_fprompt_center[i]);
       rebin_stat_num += pow(Np_i, 2) * pow(psip_fprompt_stat[i], 2) / pow(psip_fprompt_center[i], 4);
       rebin_syst_num += pow(Np_i, 2) * pow(psip_fprompt_syst[i], 2) / pow(psip_fprompt_center[i], 4);
     }
@@ -60,7 +62,7 @@ int getCMSRprompt()
         {
           psip_fpromptrebin_ptmin.push_back(rebin_ptmin);          
           psip_fpromptrebin_ptmax.push_back(rebin_ptmax);          
-          psip_fpromptrebin_center.push_back(1-rebin_center);          
+          psip_fpromptrebin_center.push_back(rebin_center);          
           psip_fpromptrebin_stat.push_back(rebin_stat);          
           psip_fpromptrebin_syst.push_back(rebin_syst);          
         }
@@ -68,21 +70,10 @@ int getCMSRprompt()
         {
           psip_fpromptrebin_ptmin.push_back(psip_fprompt_ptmin[i]);
           psip_fpromptrebin_ptmax.push_back(psip_fprompt_ptmax[i]);
-          psip_fpromptrebin_center.push_back(1-psip_fprompt_center[i]);
+          psip_fpromptrebin_center.push_back(psip_fprompt_center[i]);
           psip_fpromptrebin_stat.push_back(psip_fprompt_stat[i]);
           psip_fpromptrebin_syst.push_back(psip_fprompt_syst[i]);
         }
-    }
-
-  for(int i=0; i<psip_fpromptrebin_ptmin.size(); i++)
-    {
-      std::cout << std::left 
-                << std::setw(10) << psip_fpromptrebin_ptmin[i]
-                << std::setw(10) << psip_fpromptrebin_ptmax[i]
-                << std::setw(10) << psip_fpromptrebin_center[i]
-                << std::setw(10) << psip_fpromptrebin_stat[i]
-                << std::setw(10) << psip_fpromptrebin_syst[i]
-                << std::endl;
     }
 
   std::ifstream getdata_xp_fprompt("CMSX3872pp7TeV/fNonprompt_X.dat");
@@ -130,22 +121,63 @@ int getCMSRprompt()
                                      pow(psip_fpromptrebin_syst[i]/psip_fpromptrebin_center[i], 2)) * xp_Rprompt_center[i]);      
     }
 
-  std::cout<<std::endl;
-  for(int i=0; i<xp_Rprompt_ptmin.size(); i++)
+  // print
+  std::cout << "\e[36;1m" << std::endl; 
+  int stdwid = 17;
+  std::cout << std::string(stdwid*7+1, '-') << std::endl;
+  std::cout << std::left 
+            << std::setw(stdwid) << "| pT bins"
+            << std::setw(stdwid) << "| R"
+            << std::setw(stdwid) << "| fprompt(X)"
+            << std::setw(stdwid) << "| fprompt(psi')"
+            << std::setw(stdwid) << "| xsec(psi')"
+            << std::setw(stdwid) << "| fp(psi') rebin"
+            << std::setw(stdwid) << "| Rprompt"
+            << "|" << std::endl;
+  std::cout << std::string(stdwid*7+1, '-') << std::endl;
+  for(int i=0; i<psip_fprompt_ptmin.size(); i++)
     {
-      std::cout << std::left << std::setprecision(4)
-                << std::setw(10) << xp_Rprompt_ptmin[i]
-                << std::setw(10) << xp_Rprompt_ptmax[i]
-                << std::setw(10) << xp_Rprompt_center[i]
-                << std::setw(10) << xp_Rprompt_stat[i]
-                << std::setw(10) << xp_Rprompt_syst[i]
-                << std::setw(10) << xp_R_center[i]
-                << std::setw(10) << xp_R_stat[i]
-                << std::setw(10) << xp_R_syst[i]
-                << std::endl;
+      if(i < 2)
+        {
+          std::cout << std::left 
+                    << std::setw(stdwid) << Form("| %s - %s", xjjc::number_remove_zero(psip_fprompt_ptmin[i]).c_str(), xjjc::number_remove_zero(psip_fprompt_ptmax[i]).c_str())
+                    << std::setw(stdwid) << "| "
+                    << std::setw(stdwid) << "| "
+                    << std::setw(stdwid) << Form("| %.3f", psip_fprompt_center[i])
+                    << std::setw(stdwid) << Form("| %.3f", psip_xsec_center[i]*(psip_xsec_ptmax[i]-psip_xsec_ptmin[i]))
+                    << std::setw(stdwid) << "| "
+                    << std::setw(stdwid) << "| "
+                    << "|" << std::endl;
+          std::cout << std::left << std::string(stdwid, '-') << std::setw(stdwid*2) << "" << std::string(stdwid*2, '-') << std::setw(stdwid*2+1) << "" << std::endl;
+        }
+      else
+        {
+          std::cout << std::left 
+                    << std::setw(stdwid) << Form("| %s - %s", xjjc::number_remove_zero(psip_fprompt_ptmin[i]).c_str(), xjjc::number_remove_zero(psip_fprompt_ptmax[i]).c_str())
+                    << std::setw(stdwid) << Form("| %.3f", xp_R_center[i-2])
+                    << std::setw(stdwid) << Form("| %.3f", xp_fprompt_center[i-2])
+                    << std::setw(stdwid) << Form("| %.3f", psip_fprompt_center[i])
+                    << std::setw(stdwid) << Form("| %.3f", psip_xsec_center[i]*(psip_xsec_ptmax[i]-psip_xsec_ptmin[i]))
+                    << std::setw(stdwid) << Form("| %.3f", psip_fpromptrebin_center[i-2])
+                    << std::setw(stdwid) << Form("| %.3f", xp_Rprompt_center[i-2])
+                    << "|" << std::endl;
+          std::cout << std::string(stdwid*7+1, '-') << std::endl;
+        }
     }
-
-
+  std::cout << "\e[0m" <<std::endl;
+  // for(int i=0; i<xp_Rprompt_ptmin.size(); i++)
+  //   {
+  //     std::cout << std::left << std::setprecision(4)
+  //               << std::setw(10) << xp_Rprompt_ptmin[i]
+  //               << std::setw(10) << xp_Rprompt_ptmax[i]
+  //               << std::setw(10) << xp_Rprompt_center[i]
+  //               << std::setw(10) << xp_Rprompt_stat[i]
+  //               << std::setw(10) << xp_Rprompt_syst[i]
+  //               << std::setw(10) << xp_R_center[i]
+  //               << std::setw(10) << xp_R_stat[i]
+  //               << std::setw(10) << xp_R_syst[i]
+  //               << std::endl;
+  //   }
 
   return 0;
 }
