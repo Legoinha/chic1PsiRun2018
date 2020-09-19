@@ -7,13 +7,14 @@ centmax=90
 ymin=0
 ymax=1.6
 
-tags="BDTQvalue_PVz15_newL2L3"
-
 fitopt=(
-    "poly4"
-    "poly3"
-    "floatwidth"
-    "3gaus"
+    "poly4 trainX_20190808ptdep_sideband_tktk0p2_15p0_50p0_0-10-1-2-9_BDTQvalue_PVz15_newL2L3 BDTQvalue_PVz15_newL2L3"
+    "poly3 trainX_20190808ptdep_sideband_tktk0p2_15p0_50p0_0-10-1-2-9_BDTQvalue_PVz15_newL2L3 BDTQvalue_PVz15_newL2L3"
+    "floatwidth trainX_20190808ptdep_sideband_tktk0p2_15p0_50p0_0-10-1-2-9_BDTQvalue_PVz15_newL2L3 BDTQvalue_PVz15_newL2L3"
+    "3gaus trainX_20190808ptdep_sideband_tktk0p2_15p0_50p0_0-10-1-2-9_BDTQvalue_PVz15_newL2L3 BDTQvalue_PVz15_newL2L3"
+    "range trainX_20190808ptdep_sideband_tktk0p2_15p0_50p0_0-10-1-2-9_BDTQvalue_PVz15_newL2L3_range BDTQvalue_PVz15_newL2L3"
+    "poly2 trainX_20190808ptdep_sideband_tktk0p2_15p0_50p0_0-10-1-2-9_BDTQvalue_PVz15_newL2L3 BDTQvalue_PVz15_newL2L3"
+    "poly1 trainX_20190808ptdep_sideband_tktk0p2_15p0_50p0_0-10-1-2-9_BDTQvalue_PVz15_newL2L3 BDTQvalue_PVz15_newL2L3"
 )
 
 RUN_FITHIST=${1:-0}
@@ -36,15 +37,18 @@ rm getfname_${tmp}.exe
 }
 
 ##
-for ff in ${fitopt[@]}
+for fff in "${fitopt[@]}"
 do
+    IFS=' ' read -r -a sff <<< "$fff"
+    ff=${sff[0]}
+    input=${sff[1]}
+    name=trainX_20190808ptdep_sideband_tktk0p2_15p0_50p0_0-10-1-2-9_${sff[2]}
+    rootdir=rootfiles/$input$kinematic/
 
-    name=trainX_20190808ptdep_sideband_tktk0p2_15p0_50p0_0-10-1-2-9_${tags}
     echo -e "----------------------------------------"
-    echo -e "==> File directory: \e[4m$name/$ff\e[0m"
+    echo -e "==> Output directory: \e[4m$name/$ff\e[0m"
+    echo -e "==> Input directory: \e[4m$rootdir\e[0m"
     echo -e "----------------------------------------"
-
-    rootdir=rootfiles/$name$kinematic/
 
     [[ $RUN_FITHIST -eq 1 ]] && {
         ./fitX_fithist_${tmp}.exe "$rootdir/fitX_savehist.root" "$name" $ff
