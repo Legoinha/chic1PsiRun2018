@@ -7,178 +7,76 @@
 #include <TString.h>
 #include "xjjcuti.h"
 
+#include "getdata.h"
+
 int getCMSRprompt()
 {
-  std::ifstream getdata_psip_fprompt("CMSpsi2Spp7TeV/fNonprompt_Psi2S.dat");
-  std::ifstream getdata_psip_xsec("CMSpsi2Spp7TeV/xSection_promptPsi2S.dat");
-  std::vector<float> psip_fprompt_ptmin, psip_fprompt_ptmax, psip_fprompt_center, psip_fprompt_stat, psip_fprompt_syst;
-  std::vector<float> psip_xsec_ptmin, psip_xsec_ptmax, psip_xsec_center, psip_xsec_stat, psip_xsec_syst, psi_xsec_syst_lumi;
-  std::vector<float> psip_fpromptrebin_ptmin, psip_fpromptrebin_ptmax, psip_fpromptrebin_center, psip_fpromptrebin_stat, psip_fpromptrebin_syst, psi_fpromptrebin_syst_lumi;
+  ppref::getdata g_fprompt_X("CMSX3872pp7TeV/fNonprompt_X.dat", true);
+  ppref::getdata g_R("CMSX3872pp7TeV/R.dat", false);
+  ppref::getdata g_fprompt_Psi2S("CMSpsi2Spp7TeV/fNonprompt_Psi2S.dat", true);
+  ppref::getdata g_xsec_promptPsi2S("CMSpsi2Spp7TeV/xsec_promptPsi2S.dat", false, 2.4); // |y| < 1.2
 
-  while(true)
-    {
-      float ptmin, ptmax, center, stat, syst;
-      getdata_psip_fprompt >> ptmin;
-      if(getdata_psip_fprompt.eof()) break;
-      getdata_psip_fprompt >> ptmax >> center >> stat >> syst;
-      psip_fprompt_ptmin.push_back(ptmin);
-      psip_fprompt_ptmax.push_back(ptmax);
-      psip_fprompt_center.push_back(1-center);
-      psip_fprompt_stat.push_back(stat);
-      psip_fprompt_syst.push_back(syst);
-    }
+  ppref::getdata g_xsec_promptX("CMSX3872pp7TeV/xsec_promptX.dat", false);
+  float BRjpsipipi = 0.34, BRee = 7.82e-3;
+  float relerrBRjpsipipi = 0.004/BRjpsipipi, relerrBRee = 0.17e-3/BRee;
 
-  while(true)
-    {
-      float ptmin, ptmax, center, stat, syst, syst_lumi;
-      getdata_psip_xsec >> ptmin;
-      if(getdata_psip_xsec.eof()) break;
-      getdata_psip_xsec >> ptmax >> center >> stat >> syst >> syst_lumi;
-      psip_xsec_ptmin.push_back(ptmin);
-      psip_xsec_ptmax.push_back(ptmax);
-      psip_xsec_center.push_back(center);
-      psip_xsec_stat.push_back(stat);
-      psip_xsec_syst.push_back(syst);
-      psip_xsec_syst.push_back(syst_lumi);
-    }
+  std::cout<<std::endl;
 
-  float rebin_ptmin = 10., rebin_ptmax = 13.5;
-  float rebin_fprompt_num = 0, rebin_fprompt_den = 0, rebin_stat_num = 0, rebin_syst_num = 0;
-  for(int i=0; i<3; i++)
-    {
-      float Np_i = psip_xsec_center[i]*(psip_xsec_ptmax[i]-psip_xsec_ptmin[i]);
-      rebin_fprompt_num += Np_i;
-      rebin_fprompt_den += Np_i/(psip_fprompt_center[i]);
-      rebin_stat_num += pow(Np_i, 2) * pow(psip_fprompt_stat[i], 2) / pow(psip_fprompt_center[i], 4);
-      rebin_syst_num += pow(Np_i, 2) * pow(psip_fprompt_syst[i], 2) / pow(psip_fprompt_center[i], 4);
-    }
-  float rebin_center = rebin_fprompt_num / rebin_fprompt_den;
-  float rebin_stat = rebin_center * sqrt(rebin_stat_num) / rebin_fprompt_den;
-  float rebin_syst = rebin_center * sqrt(rebin_syst_num) / rebin_fprompt_den;
-  for(int i=0; i<psip_fprompt_ptmin.size(); i++)
-    {
-      if(i==1 || i==2) continue;
-      if(i==0)
-        {
-          psip_fpromptrebin_ptmin.push_back(rebin_ptmin);          
-          psip_fpromptrebin_ptmax.push_back(rebin_ptmax);          
-          psip_fpromptrebin_center.push_back(rebin_center);          
-          psip_fpromptrebin_stat.push_back(rebin_stat);          
-          psip_fpromptrebin_syst.push_back(rebin_syst);          
-        }
-      else
-        {
-          psip_fpromptrebin_ptmin.push_back(psip_fprompt_ptmin[i]);
-          psip_fpromptrebin_ptmax.push_back(psip_fprompt_ptmax[i]);
-          psip_fpromptrebin_center.push_back(psip_fprompt_center[i]);
-          psip_fpromptrebin_stat.push_back(psip_fprompt_stat[i]);
-          psip_fpromptrebin_syst.push_back(psip_fprompt_syst[i]);
-        }
-    }
+  int n = g_R.n();
+  std::map<std::string, std::vector<float>> Rprompt, xsec_promptX_my;
 
-  std::ifstream getdata_xp_fprompt("CMSX3872pp7TeV/fNonprompt_X.dat");
-  std::ifstream getdata_xp_R("CMSX3872pp7TeV/R.dat");
-  std::vector<float> xp_fprompt_ptmin, xp_fprompt_ptmax, xp_fprompt_center, xp_fprompt_stat, xp_fprompt_syst;
-  std::vector<float> xp_R_ptmin, xp_R_ptmax, xp_R_center, xp_R_stat, xp_R_syst;
-  std::vector<float> xp_Rprompt_ptmin, xp_Rprompt_ptmax, xp_Rprompt_center, xp_Rprompt_stat, xp_Rprompt_syst;
-
-  while(true)
+  for(int i=0; i<n; i++)
     {
-      float ptmin, ptmax, center, stat, syst;
-      getdata_xp_fprompt >> ptmin;
-      if(getdata_xp_fprompt.eof()) break;
-      getdata_xp_fprompt >> ptmax >> center >> stat >> syst;
-      xp_fprompt_ptmin.push_back(ptmin);
-      xp_fprompt_ptmax.push_back(ptmax);
-      xp_fprompt_center.push_back(1-center);
-      xp_fprompt_stat.push_back(stat);
-      xp_fprompt_syst.push_back(syst);
-    }
+      xsec_promptX_my["ptmin"].push_back(g_R["ptmin"][i]);
+      xsec_promptX_my["ptmax"].push_back(g_R["ptmax"][i]);
+      Rprompt["ptmin"].push_back(g_R["ptmin"][i]);
+      Rprompt["ptmax"].push_back(g_R["ptmax"][i]);
 
-  while(true)
-    {
-      float ptmin, ptmax, center, stat, syst;
-      getdata_xp_R >> ptmin;
-      if(getdata_xp_R.eof()) break;
-      getdata_xp_R >> ptmax >> center >> stat >> syst;
-      xp_R_ptmin.push_back(ptmin);
-      xp_R_ptmax.push_back(ptmax);
-      xp_R_center.push_back(center);
-      xp_R_stat.push_back(stat);
-      xp_R_syst.push_back(syst);
-    }
+      // Rprompt
+      float center = (g_fprompt_X["center"][i] / g_fprompt_Psi2S["center"][i]) * g_R["center"][i];
+      Rprompt["center"].push_back(center);
 
-  for(int i=0; i<psip_fpromptrebin_ptmin.size(); i++)
-    {
-      xp_Rprompt_ptmin.push_back(xp_R_ptmin[i]);
-      xp_Rprompt_ptmax.push_back(xp_R_ptmax[i]);
-      xp_Rprompt_center.push_back(xp_R_center[i]*xp_fprompt_center[i]/psip_fpromptrebin_center[i]);
-      xp_Rprompt_stat.push_back(sqrt(pow(xp_R_stat[i]/xp_R_center[i], 2) + 
-                                     pow(xp_fprompt_stat[i]/xp_fprompt_center[i], 2) + 
-                                     pow(psip_fpromptrebin_stat[i]/psip_fpromptrebin_center[i], 2)) * xp_Rprompt_center[i]);
-      xp_Rprompt_syst.push_back(sqrt(pow(xp_R_syst[i]/xp_R_center[i], 2) + 
-                                     pow(xp_fprompt_syst[i]/xp_fprompt_center[i], 2) + 
-                                     pow(psip_fpromptrebin_syst[i]/psip_fpromptrebin_center[i], 2)) * xp_Rprompt_center[i]);      
+      float rel_stat_sq = 
+        pow(g_fprompt_X["stat_rel"][i], 2) +
+        pow(g_R["stat_rel"][i], 2) +
+        pow(g_fprompt_Psi2S["stat_rel"][i], 2);
+      float stat = sqrt(rel_stat_sq) * center;
+      Rprompt["stat"].push_back(stat);
+
+      float rel_syst_sq = 
+        pow(g_fprompt_X["syst_rel"][i], 2) +
+        pow(g_R["syst_rel"][i], 2) +
+        pow(g_fprompt_Psi2S["syst_rel"][i], 2);
+      float syst = sqrt(rel_syst_sq) * center;
+      Rprompt["syst"].push_back(syst);
+
+      // prompt X xsec
+      center = center * g_xsec_promptPsi2S["center"][i] * BRjpsipipi / BRee;
+      xsec_promptX_my["center"].push_back(center);
+
+      rel_stat_sq += pow(g_xsec_promptPsi2S["stat_rel"][i], 2); //
+      stat = sqrt(rel_stat_sq) * center;
+      xsec_promptX_my["stat"].push_back(stat);
+
+      rel_syst_sq = rel_syst_sq + 
+        pow(g_xsec_promptPsi2S["syst_rel"][i], 2) + //
+        pow(relerrBRjpsipipi, 2) +
+        pow(relerrBRee, 2);
+      syst = sqrt(rel_syst_sq) * center;
+      xsec_promptX_my["syst"].push_back(syst);
+
     }
+  ppref::getdata g_xsec_promptX_my(xsec_promptX_my, n, "xsec_promptX_my");
+  ppref::getdata g_Rprompt(Rprompt, n, "Rprompt");
 
   // print
-  std::cout << "\e[36;1m" << std::endl; 
-  int stdwid = 17;
-  std::cout << std::string(stdwid*7+1, '-') << std::endl;
-  std::cout << std::left 
-            << std::setw(stdwid) << "| pT bins"
-            << std::setw(stdwid) << "| R"
-            << std::setw(stdwid) << "| fprompt(X)"
-            << std::setw(stdwid) << "| fprompt(psi')"
-            << std::setw(stdwid) << "| xsec(psi')"
-            << std::setw(stdwid) << "| fp(psi') rebin"
-            << std::setw(stdwid) << "| Rprompt"
-            << "|" << std::endl;
-  std::cout << std::string(stdwid*7+1, '-') << std::endl;
-  for(int i=0; i<psip_fprompt_ptmin.size(); i++)
-    {
-      if(i < 2)
-        {
-          std::cout << std::left 
-                    << std::setw(stdwid) << Form("| %s - %s", xjjc::number_remove_zero(psip_fprompt_ptmin[i]).c_str(), xjjc::number_remove_zero(psip_fprompt_ptmax[i]).c_str())
-                    << std::setw(stdwid) << "| "
-                    << std::setw(stdwid) << "| "
-                    << std::setw(stdwid) << Form("| %.3f", psip_fprompt_center[i])
-                    << std::setw(stdwid) << Form("| %.3f", psip_xsec_center[i]*(psip_xsec_ptmax[i]-psip_xsec_ptmin[i]))
-                    << std::setw(stdwid) << "| "
-                    << std::setw(stdwid) << "| "
-                    << "|" << std::endl;
-          std::cout << std::left << std::string(stdwid, '-') << std::setw(stdwid*2) << "" << std::string(stdwid*2, '-') << std::setw(stdwid*2+1) << "" << std::endl;
-        }
-      else
-        {
-          std::cout << std::left 
-                    << std::setw(stdwid) << Form("| %s - %s", xjjc::number_remove_zero(psip_fprompt_ptmin[i]).c_str(), xjjc::number_remove_zero(psip_fprompt_ptmax[i]).c_str())
-                    << std::setw(stdwid) << Form("| %.3f", xp_R_center[i-2])
-                    << std::setw(stdwid) << Form("| %.3f", xp_fprompt_center[i-2])
-                    << std::setw(stdwid) << Form("| %.3f", psip_fprompt_center[i])
-                    << std::setw(stdwid) << Form("| %.3f", psip_xsec_center[i]*(psip_xsec_ptmax[i]-psip_xsec_ptmin[i]))
-                    << std::setw(stdwid) << Form("| %.3f", psip_fpromptrebin_center[i-2])
-                    << std::setw(stdwid) << Form("| %.3f", xp_Rprompt_center[i-2])
-                    << "|" << std::endl;
-          std::cout << std::string(stdwid*7+1, '-') << std::endl;
-        }
-    }
-  std::cout << "\e[0m" <<std::endl;
-  // for(int i=0; i<xp_Rprompt_ptmin.size(); i++)
-  //   {
-  //     std::cout << std::left << std::setprecision(4)
-  //               << std::setw(10) << xp_Rprompt_ptmin[i]
-  //               << std::setw(10) << xp_Rprompt_ptmax[i]
-  //               << std::setw(10) << xp_Rprompt_center[i]
-  //               << std::setw(10) << xp_Rprompt_stat[i]
-  //               << std::setw(10) << xp_Rprompt_syst[i]
-  //               << std::setw(10) << xp_R_center[i]
-  //               << std::setw(10) << xp_R_stat[i]
-  //               << std::setw(10) << xp_R_syst[i]
-  //               << std::endl;
-  //   }
-
+  std::cout<<"\e[36;1m"; g_fprompt_X.print(); std::cout<<"\e[0m"<<std::endl;
+  std::cout<<"\e[36;1m"; g_fprompt_Psi2S.print(); std::cout<<"\e[0m"<<std::endl;
+  std::cout<<"\e[36;1m"; g_R.print(); std::cout<<"\e[0m"<<std::endl;
+  std::cout<<"\e[36;1m"; g_xsec_promptPsi2S.print(); std::cout<<"\e[0m"<<std::endl;
+  std::cout<<"\e[33;1m"; g_xsec_promptX_my.print(); std::cout<<"\e[0m"<<std::endl;
+  std::cout<<"\e[32;1m"; g_xsec_promptX.print(); std::cout<<"\e[0m"<<std::endl;
+  std::cout<<"\e[33;1m"; g_Rprompt.print(); std::cout<<"\e[0m"<<std::endl;
   return 0;
 }
 
