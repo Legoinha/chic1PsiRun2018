@@ -23,7 +23,7 @@ int getCMSRprompt()
   std::cout<<std::endl;
 
   int n = g_R.n();
-  std::map<std::string, std::vector<float>> Rprompt, xsec_promptX_my;
+  std::map<std::string, std::vector<float>> Rprompt, xsec_promptX_my, xsec_promptX_mycorr;
 
   for(int i=0; i<n; i++)
     {
@@ -31,6 +31,8 @@ int getCMSRprompt()
       xsec_promptX_my["ptmax"].push_back(g_R["ptmax"][i]);
       Rprompt["ptmin"].push_back(g_R["ptmin"][i]);
       Rprompt["ptmax"].push_back(g_R["ptmax"][i]);
+      xsec_promptX_mycorr["ptmin"].push_back(g_R["ptmin"][i]);
+      xsec_promptX_mycorr["ptmax"].push_back(g_R["ptmax"][i]);
 
       // Rprompt
       float center = (g_fprompt_X["center"][i] / g_fprompt_Psi2S["center"][i]) * g_R["center"][i];
@@ -53,6 +55,10 @@ int getCMSRprompt()
       // prompt X xsec
       center = center * g_xsec_promptPsi2S["center"][i] * BRjpsipipi / BRee;
       xsec_promptX_my["center"].push_back(center);
+      xsec_promptX_mycorr["center"].push_back(center);
+
+      float rel_stat_sq_corr = rel_stat_sq - 2*pow(g_fprompt_Psi2S["stat_rel"][i], 2); 
+      float rel_syst_sq_corr = rel_syst_sq - 2*pow(g_fprompt_Psi2S["syst_rel"][i], 2); 
 
       rel_stat_sq += pow(g_xsec_promptPsi2S["stat_rel"][i], 2); //
       stat = sqrt(rel_stat_sq) * center;
@@ -65,8 +71,20 @@ int getCMSRprompt()
       syst = sqrt(rel_syst_sq) * center;
       xsec_promptX_my["syst"].push_back(syst);
 
+      rel_stat_sq_corr += pow(g_xsec_promptPsi2S["stat_rel"][i], 2); //
+      stat = sqrt(rel_stat_sq_corr) * center;
+      xsec_promptX_mycorr["stat"].push_back(stat);
+
+      rel_syst_sq_corr = rel_syst_sq_corr + 
+        pow(g_xsec_promptPsi2S["syst_rel"][i], 2) + //
+        pow(relerrBRjpsipipi, 2) +
+        pow(relerrBRee, 2);
+      syst = sqrt(rel_syst_sq_corr) * center;
+      xsec_promptX_mycorr["syst"].push_back(syst);
+
     }
   ppref::getdata g_xsec_promptX_my(xsec_promptX_my, n, "xsec_promptX_my");
+  ppref::getdata g_xsec_promptX_mycorr(xsec_promptX_mycorr, n, "xsec_promptX_mycorr");
   ppref::getdata g_Rprompt(Rprompt, n, "Rprompt");
 
   // print
@@ -76,6 +94,7 @@ int getCMSRprompt()
   std::cout<<"\e[36;1m"; g_xsec_promptPsi2S.print(); std::cout<<"\e[0m"<<std::endl;
   std::cout<<"\e[33;1m"; g_xsec_promptX_my.print(); std::cout<<"\e[0m"<<std::endl;
   std::cout<<"\e[32;1m"; g_xsec_promptX.print(); std::cout<<"\e[0m"<<std::endl;
+  std::cout<<"\e[33;1m"; g_xsec_promptX_mycorr.print(); std::cout<<"\e[0m"<<std::endl;
   std::cout<<"\e[33;1m"; g_Rprompt.print(); std::cout<<"\e[0m"<<std::endl;
   return 0;
 }
