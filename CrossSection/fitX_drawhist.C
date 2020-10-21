@@ -101,8 +101,9 @@ void fitX_drawhist(std::string inputname, std::string output)
   xjjroot::setleg(legsupp_pp, textsuppsp);
   legsupp_pp->AddEntry((TObject*)0, "", NULL);
   legsupp_pp->AddEntry((TObject*)0, "", NULL);
-  legsupp_pp->AddEntry(pprefCMSprompt.grae_syst(), "Prompt", "pf");
+  // legsupp_pp->AddEntry(pprefCMSprompt.grae_syst(), "Prompt", "pf");
   legsupp_pp->AddEntry(pprefCMS.grae_syst(), "Inclusive", "pf");
+  legsupp_pp->AddEntry((TObject*)0, "", NULL);
   legsupp_pp->AddEntry((TObject*)0, "", NULL);
   legsupp_pp->AddEntry((TObject*)0, "", NULL);
   legsupp_pp->AddEntry(pprefATLAS.gg["promptRatio"]["syst"], "Prompt", "pf");
@@ -128,7 +129,7 @@ void fitX_drawhist(std::string inputname, std::string output)
   cratio->SetLogy();
   hemptylog->Draw();
   xjjroot::drawline(10, 1, 70, 1, kGray+2, 2, 2);
-  pprefCMSprompt.Draw();
+  // pprefCMSprompt.Draw();
   pprefCMS.Draw();
   pprefATLAS.Draw();
   gsyst->Draw("same 5");
@@ -145,7 +146,7 @@ void fitX_drawhist(std::string inputname, std::string output)
   cratio = new TCanvas("cratiosupplinear", "", 600, 600);
   hemptylinear->Draw();
   xjjroot::drawline(10, 1, 70, 1, kGray+2, 2, 2);
-  pprefCMSprompt.Draw();
+  // pprefCMSprompt.Draw();
   pprefCMS.Draw();
   pprefATLAS.Draw();
   gsyst->Draw("same 5");

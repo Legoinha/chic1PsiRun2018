@@ -72,19 +72,20 @@ namespace fitX
     TF1* fsig_a() { return ffsig_a; }
     TF1* fsig_b() { return ffsig_b; }
     TF1* fbkg() { return ffbkg; }
-    float minNll() { return fminNll; }
     TH2F* hcorr() { return fhcorr; }
     RooWorkspace* ww() { return fww; }
     void setf(TF1* f, TF1* fsig_a, TF1* fsig_b, TF1* fbkg) { ff = f; ffsig_a = fsig_a; ffsig_b = fsig_b; ffbkg = fbkg; }
-    void setw(RooWorkspace* w, float minNll, TH2F* hcorr) { fww = w; fminNll = minNll; fhcorr = hcorr; }
+    void setw(RooWorkspace* w, TH2F* hcorr) { fww = w; fhcorr = hcorr; }
+    void set(std::string tag, float rs) { fresult[tag] = rs; }
+    float get(std::string tag) { return fresult[tag]; } // minNll, maxy
 
   private:
     float fysig_a, fysig_b, fysigerr_a, fysigerr_b;
     float fmsig_a, fmsig_b, fmsigerr_a, fmsigerr_b;
-    float fminNll;
     TF1 *ff, *ffsig_a, *ffsig_b, *ffbkg;
     RooWorkspace* fww;
     TH2F* fhcorr;
+    std::map<std::string, float> fresult;
   };
   // ===>
   std::map<std::string, fitX::fitXresult*> fit(TH1F* hh, TH1F* hh_ss, TH1F* hhmc_a, TH1F* hhmc_b, 
@@ -173,11 +174,12 @@ std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* 
   std::vector<TF1*> funs;
   xjjroot::setgstyle(2);
   gStyle->SetPadLeftMargin(gStyle->GetPadLeftMargin()*0.7);
+  gStyle->SetPadRightMargin(gStyle->GetPadRightMargin()*1.4);
 
   fitX::setmasshist(h, 0, -0.2);
   h->SetMinimum(0);
   fitX::setmasshist(frempty, 0, -0.2);
-  frempty->SetMinimum();
+  frempty->SetMinimum(0);
   if(h_ss) fitX::setmasshist(h_ss, 0, -0.2, color_ss);
   fitX::setmasshist(hmc_a, 0, 0.05);
   hmc_a->SetMaximum(hmc_a->GetMaximum()*1.2);
@@ -575,7 +577,8 @@ std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* 
   RooStats::SPlot* sData = new RooStats::SPlot("sData", "An SPlot", *dsh, pdf, RooArgList(*(pars[5]), *(pars[10]), *nbkg));
   // RooStats::SPlot* sData = new RooStats::SPlot("sData", "An SPlot", *dsh, pdf, RooArgList(*(pars[5]), *(nsig), *nbkg));
   ww->import(*dsh, RooFit::Rename(Form("%s_ws", dshh->GetName())), RooFit::Silence());
-  ww->import(*pdf, RooFit::Rename(Form("pdf_%s", name.c_str())), RooFit::Silence());
+  ww->import(*pdf, RooFit::Rename(Form("pdf%s", name.c_str())), RooFit::Silence());
+  ww->import(*bkg, RooFit::Rename(Form("bkg%s", name.c_str())), RooFit::Silence());
   ww->import(rndof);
 
   delete cmc;
@@ -586,11 +589,16 @@ std::map<std::string, fitX::fitXresult*> fitX::fit(TH1F* hh, TH1F* hh_ss, TH1F* 
   fitresult["binned"] = new fitX::fitXresult(ysig_a, ysig_b, f->GetParError(5)*ysig_a/f->GetParameter(5), f->GetParError(10)*ysig_a/f->GetParameter(10), 
                                              f->GetParameter(6), f->GetParameter(11), f->GetParError(6), f->GetParError(11));
   fitresult["binned"]->setf(fs["f"], fs["fsig_a"], fs["fsig_b"], fs["fbkg"]);
-  fitresult["binned"]->setw(0, 0, new TH2F(Form("hcorr-binned-%s", name.c_str()), ";;", 1, 0, 1, 1, 0, 1));
+  fitresult["binned"]->setw(0, new TH2F(Form("hcorr-binned-%s", name.c_str()), ";;", 1, 0, 1, 1, 0, 1));
+  fitresult["binned"]->set("minNll", 0);
+  fitresult["binned"]->set("maxy", maxy*maxscale);
+
   fitresult["unbinned"] = new fitX::fitXresult(pars[5]->getVal(), pars[10]->getVal()*fsyst->getVal(), pars[5]->getError(), pars[10]->getError()*fsyst->getVal(),
                                                pars[6]->getVal(), pars[11]->getVal(), pars[6]->getError(), pars[11]->getError());
   fitresult["unbinned"]->setf(fr["f"], fr["fsig_a"], fr["fsig_b"], fr["fbkg"]);
-  fitresult["unbinned"]->setw(ww, minNll, (TH2F*)fitr->correlationHist(Form("hcorr-unbinned-%s", name.c_str())));
+  fitresult["unbinned"]->setw(ww, (TH2F*)fitr->correlationHist(Form("hcorr-unbinned-%s", name.c_str())));
+  fitresult["unbinned"]->set("minNll", minNll);
+  fitresult["unbinned"]->set("maxy", maxy*maxscale);
 
   return fitresult;
 }
@@ -625,8 +633,9 @@ void fitX::drawpull(TH1* hmc, TF1* f, Color_t color)
     }
   xjjroot::drawline(binmin, hmc->GetMaximum()/2., binmax, hmc->GetMaximum()/2., kGray, 2, 2, 0.5);
   xjjroot::drawaxis(binmax, 0, binmax, hmc->GetMaximum(), -4, 4, color, 1, 2, "+L");
-  xjjroot::drawtex(0.93, 0.51, "Pull", 0.04, 33, 62, color);
-  xjjroot::drawtex(1.00, 0.53, "#sigma", 0.04, 33, 62, color);
+  // xjjroot::drawtex(0.93, 0.51, "Pull", 0.04, 33, 62, color);
+  // xjjroot::drawtex(1.00, 0.53, "#sigma", 0.04, 33, 62, color);
+  xjjroot::drawtex(0.997, 0.53, "Pull", 0.04, 33, 62, color, 270);
 }
 
 void fitX::labelsmc(std::string label, double mean, double sigma1, double sigma2)
@@ -644,14 +653,14 @@ void fitX::labelsmc(std::string label, double mean, double sigma1, double sigma2
 
 void fitX::labelsdata(std::string title, std::string cmsleft, std::string cmsright)
 {
-  xjjroot::drawtex(0.92, 0.84, Form("%.0f < p_{T} < %.0f GeV/c", fitX::ptmincut, fitX::ptmaxcut), 0.038, 32, 62);
-  xjjroot::drawtex(0.92, 0.79, Form("%s|y| < %.1f", (fitX::ymincut?Form("%.1f < ", fitX::ymincut):""), fitX::ymaxcut), 0.038, 32, 62);
-  xjjroot::drawtex(0.92, 0.74, Form("Cent. %.0f-%.0f%s", fitX::centmincut, fitX::centmaxcut, "%"), 0.038, 32, 62);
+  xjjroot::drawtex(0.90, 0.84, Form("%.0f < p_{T} < %.0f GeV/c", fitX::ptmincut, fitX::ptmaxcut), 0.038, 32, 62);
+  xjjroot::drawtex(0.90, 0.79, Form("%s|y| < %.1f", (fitX::ymincut?Form("%.1f < ", fitX::ymincut):""), fitX::ymaxcut), 0.038, 32, 62);
+  xjjroot::drawtex(0.90, 0.74, Form("Cent. %.0f-%.0f%s", fitX::centmincut, fitX::centmaxcut, "%"), 0.038, 32, 62);
   // xjjroot::drawtex(0.17, 0.84-0.04, title.c_str(), 0.038, 13, 62);
-  xjjroot::drawtex(0.17, 0.86, title.c_str(), 0.042, 13, 52);
+  xjjroot::drawtex(0.175, 0.86-0.05, title.c_str(), 0.042, 13, 52);
 
-  xjjroot::drawCMSleft(); //preliminary
-  // xjjroot::drawCMSleft(cmsleft.c_str());
+  // xjjroot::drawCMSleft(); //preliminary
+  xjjroot::drawCMSleft(cmsleft.c_str(), 0.045, -0.09);
   xjjroot::drawCMSright(cmsright.c_str());
 }
 

@@ -54,7 +54,7 @@ void toymc(std::string input, std::string output)
   msigerr_a = result["unbinned"]->msigerr_a();
   msig_b = result["unbinned"]->msig_b();
   msigerr_b = result["unbinned"]->msigerr_b();
-  minNll = result["unbinned"]->minNll();
+  minNll = result["unbinned"]->get("minNll");
   nt->Fill();
 
   RooRealVar* mass = new RooRealVar("Bmass", "Bmass", fitX::BIN_MIN, fitX::BIN_MAX);
@@ -89,7 +89,7 @@ void toymc(std::string input, std::string output)
       msigerr_a = rt["unbinned"]->msigerr_a();
       msig_b = rt["unbinned"]->msig_b();
       msigerr_b = rt["unbinned"]->msigerr_b();
-      minNll = rt["unbinned"]->minNll();
+      minNll = rt["unbinned"]->get("minNll");
       nt->Fill();
     }
   outf->cd();

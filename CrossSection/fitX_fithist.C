@@ -55,8 +55,10 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   std::vector<std::string> vtitle = {Form("#splitline{Inclusive}{%s}", fitopt.c_str()), Form("#splitline{B-enriched (l#scale[0.60]{xy} > 0.1 mm)}{%s}", fitopt.c_str())};
   std::vector<Style_t> mstyle = {20, 24};
 
-  float mm = 0;
+  float mm = 0, maxy = 0;
   xjjroot::setgstyle();
+  std::vector<RooAbsPdf*> pdf(2, 0), bkg(2, 0);
+  std::vector<TF1*> frf(2, 0);
   TCanvas* cy = new TCanvas("cy", "", 1200, 600);
   cy->Divide(2, 1);
   for(int l=0; l<2; l++)
@@ -73,6 +75,15 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
       float ysig_b = result["unbinned"]->ysig_b();
       float ysigerr_b = result["unbinned"]->ysigerr_b();
       mm = result["unbinned"]->msig_b();
+      RooWorkspace* wwr = result["unbinned"]->ww();
+      pdf[l] = wwr->pdf("pdf");
+      bkg[l] = wwr->pdf("bkg");
+      TString str_bkg = "[0]+[1]*x+[2]*x*x+[3]*x*x*x+[4]*x*x*x*x";
+      TString str_sig_a = "[5]*( [9]*TMath::Gaus(x, [6], [7])/(TMath::Sqrt(2*3.14159)* [7]) + (1- [9])*( [16]*TMath::Gaus(x,[6], [8])/(TMath::Sqrt(2*3.14159)* [8]) + (1- [16])*TMath::Gaus(x,[6], [15])/(TMath::Sqrt(2*3.14159)*[15])))";
+      TString str_sig_b = "[10]*([14]*TMath::Gaus(x,[11],[12])/(TMath::Sqrt(2*3.14159)*[12]) + (1-[14])*([18]*TMath::Gaus(x,[11],[13])/(TMath::Sqrt(2*3.14159)*[13]) + (1-[18])*TMath::Gaus(x,[11],[17])/(TMath::Sqrt(2*3.14159)*[17])))";
+      TF1* f = new TF1("f", str_bkg+"+"+str_sig_a+"+"+str_sig_b, fitX::BIN_MIN, fitX::BIN_MAX);
+      frf[l] = fitX::astf(pdf[l], f, "fr");
+      if(!l) maxy = result["unbinned"]->get("maxy");
 
       // yield
       xjjroot::setthgrstyle(vhyield_a[l], fitX::color_a, mstyle[l], 1.2, fitX::color_a, 2, 3, fitX::color_a, 0.1, 1001);
@@ -431,6 +442,33 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   hratio_b->SetBinError(1, hyieldpromptCorr_b->GetBinError(fitX::ibin_b));
   TH1F* hratio = (TH1F*)hratio_b->Clone("hratio");
   hratio->Divide(hratio_a);
+
+  // merge inclusive + B-enr
+  xjjroot::setgstyle(2);
+  gStyle->SetPadLeftMargin(gStyle->GetPadLeftMargin()*0.7);
+  gStyle->SetPadRightMargin(gStyle->GetPadRightMargin()*1.4);  
+  TCanvas* cr = new TCanvas("cr", "", 700, 600);
+  RooRealVar* mass = new RooRealVar("Bmass", "Bmass", fitX::BIN_MIN, fitX::BIN_MAX);
+  RooPlot* frempty = mass->frame(RooFit::Title(""));
+  frempty->SetXTitle("m_{#mu#mu#pi#pi} (GeV/c^{2})");
+  frempty->SetYTitle(Form("Entries / (%.0f MeV/c^{2})", fitX::BIN_WIDTH*1.e+3));
+  fitX::setmasshist(frempty, 0, -0.2);
+  // frempty->SetTitle("");
+  vdsh[0]->plotOn(frempty, RooFit::Name("dshist"), RooFit::Binning(fitX::NBIN), RooFit::MarkerSize(0.9), RooFit::MarkerStyle(20), RooFit::LineColor(1), RooFit::LineWidth(1));
+  pdf[0]->plotOn(frempty, RooFit::Name("bkg"), RooFit::Components(*(bkg[0])), RooFit::Precision(1e-6), RooFit::DrawOption("L"), RooFit::LineStyle(7), RooFit::LineColor(fitX::color_data), RooFit::LineWidth(3));
+  pdf[0]->plotOn(frempty, RooFit::Name("pdf"), RooFit::Precision(1e-6), RooFit::Normalization(1.0, RooAbsReal::RelativeExpected), RooFit::DrawOption("L"), RooFit::LineStyle(1), RooFit::LineColor(fitX::color_data), RooFit::LineWidth(3));
+  vdsh[0]->plotOn(frempty, RooFit::Name("dshist"), RooFit::Binning(fitX::NBIN), RooFit::MarkerSize(0.9), RooFit::MarkerStyle(20), RooFit::LineColor(1), RooFit::LineWidth(1));
+  vdsh[1]->plotOn(frempty, RooFit::Name("dshist_Benr"), RooFit::Binning(fitX::NBIN), RooFit::MarkerSize(0.9), RooFit::MarkerStyle(20), RooFit::LineColor(1), RooFit::LineWidth(1));
+  pdf[1]->plotOn(frempty, RooFit::Name("bkg_Benr"), RooFit::Components(*(bkg[1])), RooFit::Precision(1e-6), RooFit::DrawOption("L"), RooFit::LineStyle(7), RooFit::LineColor(fitX::color_data), RooFit::LineWidth(3));
+  pdf[1]->plotOn(frempty, RooFit::Name("pdf_Benr"), RooFit::Precision(1e-6), RooFit::Normalization(1.0, RooAbsReal::RelativeExpected), RooFit::DrawOption("L"), RooFit::LineStyle(1), RooFit::LineColor(fitX::color_data), RooFit::LineWidth(3));
+  vdsh[1]->plotOn(frempty, RooFit::Name("dshist_Benr"), RooFit::Binning(fitX::NBIN), RooFit::MarkerSize(0.9), RooFit::MarkerStyle(20), RooFit::LineColor(1), RooFit::LineWidth(1));
+  frempty->SetMinimum(0);
+  frempty->SetMaximum(maxy);
+  h->SetMaximum(maxy);
+  frempty->Draw();
+  fitX::drawpull(h, frf[0], fitX::color_data);
+  fitX::labelsdata("", "#scale[1.25]{#bf{CMS}}", "1.7 nb^{-1} (2018 PbPb 5.02 TeV)");
+  cr->SaveAs(Form("plots/%s/chmassr_both.pdf", output.c_str()));
 
   // write
   std::string outputname(Form("rootfiles/%s/fitX_fithist.root", output.c_str()));
