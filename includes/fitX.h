@@ -33,7 +33,7 @@ namespace fitX
   template<class T> void printhist(T* hh) { std::cout<<"\e[2m"<<hh->GetName()<<"\e[0m\e[36;1m ("<<hh->GetEntries()<<")\e[0m"<<std::endl; }
   template<class T> void setaxis(T* hh);
 
-  Color_t color_data = kRed-3, color_a = kAzure+4, color_b = kGreen-1, color_ss = kGray+1, color_bkg = color_data;
+  Color_t color_data = kRed-3, color_a = kAzure+4, color_b = kGreen-1, color_ss = kGray+1, color_bkg = color_data, color_data2 = xjjroot::mycolor_satmiddle["blue"];
   int ibin_a = 2, ibin_b = 4, nbin = 5;
   std::string title_a = "#psi(2S)", title_b = "X(3872)";
 }

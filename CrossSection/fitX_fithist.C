@@ -1,10 +1,13 @@
 #include <TFile.h>
 #include <TH1F.h>
 #include <TH2F.h>
+#include <TCanvas.h>
+#include <TPad.h>
 
 #include <RooWorkspace.h>
 #include <RooRealVar.h>
 #include <RooDataSet.h>
+#include <RooDataHist.h>
 
 #include <string>
 
@@ -55,10 +58,11 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   std::vector<std::string> vtitle = {Form("#splitline{Inclusive}{%s}", fitopt.c_str()), Form("#splitline{B-enriched (l#scale[0.60]{xy} > 0.1 mm)}{%s}", fitopt.c_str())};
   std::vector<Style_t> mstyle = {20, 24};
 
-  float mm = 0, maxy = 0;
+  float mm = 0;
   xjjroot::setgstyle();
   std::vector<RooAbsPdf*> pdf(2, 0), bkg(2, 0);
   std::vector<TF1*> frf(2, 0);
+  std::vector<float> maxy(2, 0);
   TCanvas* cy = new TCanvas("cy", "", 1200, 600);
   cy->Divide(2, 1);
   for(int l=0; l<2; l++)
@@ -83,7 +87,7 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
       TString str_sig_b = "[10]*([14]*TMath::Gaus(x,[11],[12])/(TMath::Sqrt(2*3.14159)*[12]) + (1-[14])*([18]*TMath::Gaus(x,[11],[13])/(TMath::Sqrt(2*3.14159)*[13]) + (1-[18])*TMath::Gaus(x,[11],[17])/(TMath::Sqrt(2*3.14159)*[17])))";
       TF1* f = new TF1("f", str_bkg+"+"+str_sig_a+"+"+str_sig_b, fitX::BIN_MIN, fitX::BIN_MAX);
       frf[l] = fitX::astf(pdf[l], f, "fr");
-      if(!l) maxy = result["unbinned"]->get("maxy");
+      maxy[l] = result["unbinned"]->get("maxy");
 
       // yield
       xjjroot::setthgrstyle(vhyield_a[l], fitX::color_a, mstyle[l], 1.2, fitX::color_a, 2, 3, fitX::color_a, 0.1, 1001);
@@ -444,6 +448,16 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   hratio->Divide(hratio_a);
 
   // merge inclusive + B-enr
+  TF1 *f_dump_incl = new TF1(), *bkg_dump_incl = new TF1(), *f_dump_Benr = new TF1(), *bkg_dump_Benr = new TF1();
+  TH1F* h_dump = new TH1F("h_dump", "", 1, 0, 1);
+  xjjroot::setthgrstyle(h_dump, kBlack, 20, 0.9, kBlack, 1, 1);
+  xjjroot::settfstyle(f_dump_incl, fitX::color_data, 1, 2);
+  xjjroot::settfstyle(f_dump_Benr, fitX::color_data2, 1, 2);
+  xjjroot::settfstyle(bkg_dump_incl, fitX::color_data, 7, 2);
+  xjjroot::settfstyle(bkg_dump_Benr, fitX::color_data2, 7, 2);
+  h->SetBinErrorOption(TH1::kPoisson);
+  hBenr->SetBinErrorOption(TH1::kPoisson);
+  // TH1F* h_create = (TH1F*)vdsh[0]->createHistogram("h_create", );
   xjjroot::setgstyle(2);
   gStyle->SetPadLeftMargin(gStyle->GetPadLeftMargin()*0.7);
   gStyle->SetPadRightMargin(gStyle->GetPadRightMargin()*1.4);  
@@ -454,21 +468,97 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   frempty->SetYTitle(Form("Entries / (%.0f MeV/c^{2})", fitX::BIN_WIDTH*1.e+3));
   fitX::setmasshist(frempty, 0, -0.2);
   // frempty->SetTitle("");
-  vdsh[0]->plotOn(frempty, RooFit::Name("dshist"), RooFit::Binning(fitX::NBIN), RooFit::MarkerSize(0.9), RooFit::MarkerStyle(20), RooFit::LineColor(1), RooFit::LineWidth(1));
+  vdsh[0]->plotOn(frempty, RooFit::Name("dshist"), RooFit::Binning(fitX::NBIN), RooFit::MarkerSize(h_dump->GetMarkerSize()), RooFit::MarkerStyle(h_dump->GetMarkerStyle()), RooFit::LineColor(h_dump->GetLineColor()), RooFit::LineWidth(h_dump->GetLineWidth()));
   pdf[0]->plotOn(frempty, RooFit::Name("bkg"), RooFit::Components(*(bkg[0])), RooFit::Precision(1e-6), RooFit::DrawOption("L"), RooFit::LineStyle(7), RooFit::LineColor(fitX::color_data), RooFit::LineWidth(3));
   pdf[0]->plotOn(frempty, RooFit::Name("pdf"), RooFit::Precision(1e-6), RooFit::Normalization(1.0, RooAbsReal::RelativeExpected), RooFit::DrawOption("L"), RooFit::LineStyle(1), RooFit::LineColor(fitX::color_data), RooFit::LineWidth(3));
-  vdsh[0]->plotOn(frempty, RooFit::Name("dshist"), RooFit::Binning(fitX::NBIN), RooFit::MarkerSize(0.9), RooFit::MarkerStyle(20), RooFit::LineColor(1), RooFit::LineWidth(1));
-  vdsh[1]->plotOn(frempty, RooFit::Name("dshist_Benr"), RooFit::Binning(fitX::NBIN), RooFit::MarkerSize(0.9), RooFit::MarkerStyle(20), RooFit::LineColor(1), RooFit::LineWidth(1));
-  pdf[1]->plotOn(frempty, RooFit::Name("bkg_Benr"), RooFit::Components(*(bkg[1])), RooFit::Precision(1e-6), RooFit::DrawOption("L"), RooFit::LineStyle(7), RooFit::LineColor(fitX::color_data), RooFit::LineWidth(3));
-  pdf[1]->plotOn(frempty, RooFit::Name("pdf_Benr"), RooFit::Precision(1e-6), RooFit::Normalization(1.0, RooAbsReal::RelativeExpected), RooFit::DrawOption("L"), RooFit::LineStyle(1), RooFit::LineColor(fitX::color_data), RooFit::LineWidth(3));
-  vdsh[1]->plotOn(frempty, RooFit::Name("dshist_Benr"), RooFit::Binning(fitX::NBIN), RooFit::MarkerSize(0.9), RooFit::MarkerStyle(20), RooFit::LineColor(1), RooFit::LineWidth(1));
-  frempty->SetMinimum(0);
-  frempty->SetMaximum(maxy);
-  h->SetMaximum(maxy);
+  vdsh[0]->plotOn(frempty, RooFit::Name("dshist"), RooFit::Binning(fitX::NBIN), RooFit::MarkerSize(h_dump->GetMarkerSize()), RooFit::MarkerStyle(h_dump->GetMarkerStyle()), RooFit::LineColor(h_dump->GetLineColor()), RooFit::LineWidth(h_dump->GetLineWidth()));
+  vdsh[1]->plotOn(frempty, RooFit::Name("dshist_Benr"), RooFit::Binning(fitX::NBIN), RooFit::MarkerSize(h_dump->GetMarkerSize()), RooFit::MarkerStyle(h_dump->GetMarkerStyle()), RooFit::LineColor(h_dump->GetLineColor()), RooFit::LineWidth(h_dump->GetLineWidth()));
+  pdf[1]->plotOn(frempty, RooFit::Name("bkg_Benr"), RooFit::Components(*(bkg[1])), RooFit::Precision(1e-6), RooFit::DrawOption("L"), RooFit::LineStyle(7), RooFit::LineColor(fitX::color_data2), RooFit::LineWidth(3));
+  pdf[1]->plotOn(frempty, RooFit::Name("pdf_Benr"), RooFit::Precision(1e-6), RooFit::Normalization(1.0, RooAbsReal::RelativeExpected), RooFit::DrawOption("L"), RooFit::LineStyle(1), RooFit::LineColor(fitX::color_data2), RooFit::LineWidth(3));
+  vdsh[1]->plotOn(frempty, RooFit::Name("dshist_Benr"), RooFit::Binning(fitX::NBIN), RooFit::MarkerSize(h_dump->GetMarkerSize()), RooFit::MarkerStyle(h_dump->GetMarkerStyle()), RooFit::LineColor(h_dump->GetLineColor()), RooFit::LineWidth(h_dump->GetLineWidth()));
+  frempty->SetMinimum(0); h->SetMinimum(0);
+  frempty->SetMaximum(maxy[0]); h->SetMaximum(maxy[0]);
   frempty->Draw();
-  fitX::drawpull(h, frf[0], fitX::color_data);
-  fitX::labelsdata("", "#scale[1.25]{#bf{CMS}}", "1.7 nb^{-1} (2018 PbPb 5.02 TeV)");
+  // fitX::drawpull(h, frf[0], fitX::color_data);
+  xjjroot::drawtex(0.24, 0.41, fitX::title_a.c_str(), 0.038);
+  xjjroot::drawtex(0.61, 0.52, fitX::title_b.c_str(), 0.038);
+  xjjroot::drawtex(0.93, 0.46, "Inclusive", 0.035, 32, 42, fitX::color_data);
+  xjjroot::drawtex(0.93, 0.23, "b-enriched", 0.035, 32, 42, fitX::color_data2);
+  fitX::labelsdata("", "#scale[1.25]{#bf{CMS}}", "1.7 nb^{-1} (PbPb 5.02 TeV)");
   cr->SaveAs(Form("plots/%s/chmassr_both.pdf", output.c_str()));
+  delete cr;
+
+  xjjroot::setgstyle(2);
+  float yincl = 0.5, ybenr = 1-yincl;
+  RooPlot* frempty_incl = mass->frame(RooFit::Title(""));
+  frempty_incl->SetXTitle("m_{#mu#mu#pi#pi} (GeV/c^{2})");
+  frempty_incl->SetYTitle(Form("Entries / (%.0f MeV/c^{2})", fitX::BIN_WIDTH*1.e+3));
+  fitX::setmasshist(frempty_incl, 0, -0.6);
+  frempty_incl->GetXaxis()->SetTitleSize(frempty_incl->GetXaxis()->GetTitleSize()*1.2);
+  frempty_incl->GetYaxis()->SetTitleSize(frempty_incl->GetYaxis()->GetTitleSize()*1.2);
+  frempty_incl->GetXaxis()->SetLabelSize(frempty_incl->GetXaxis()->GetLabelSize()*1.2);
+  frempty_incl->GetYaxis()->SetLabelSize(frempty_incl->GetYaxis()->GetLabelSize()*1.2); h->GetYaxis()->SetLabelSize(frempty_incl->GetYaxis()->GetLabelSize());
+  RooPlot* frempty_benr = mass->frame(RooFit::Title(""));
+  frempty_benr->SetXTitle("m_{#mu#mu#pi#pi} (GeV/c^{2})");
+  frempty_benr->SetYTitle(Form("Entries / (%.0f MeV/c^{2})", fitX::BIN_WIDTH*1.e+3));
+  fitX::setmasshist(frempty_benr, 0, -0.6);
+  frempty_benr->GetXaxis()->SetTitleSize(frempty_benr->GetXaxis()->GetTitleSize()*1.2);
+  frempty_benr->GetYaxis()->SetTitleSize(frempty_benr->GetYaxis()->GetTitleSize()*1.2);
+  frempty_benr->GetXaxis()->SetLabelSize(frempty_benr->GetXaxis()->GetLabelSize()*1.2);
+  frempty_benr->GetYaxis()->SetLabelSize(frempty_benr->GetYaxis()->GetLabelSize()*1.2); hBenr->GetYaxis()->SetLabelSize(frempty_benr->GetYaxis()->GetLabelSize());
+  TLegend* leg_both = new TLegend(0.70, 0.95-0.06*3, 0.95, 0.95);
+  xjjroot::setleg(leg_both, 0.055);
+  leg_both->SetNColumns(2);
+  leg_both->AddEntry((TObject*)0, "", NULL);
+  leg_both->AddEntry(h_dump, "data", "pe");
+  leg_both->AddEntry(f_dump_incl, "", "l");
+  leg_both->AddEntry(f_dump_Benr, "total fit", "l");
+  leg_both->AddEntry(bkg_dump_incl, "", "l");
+  leg_both->AddEntry(bkg_dump_Benr, "background", "l");
+  cr = new TCanvas("cr", "", 700, 700);
+  TPad* pincl = new TPad("pincl", "", 0, 1-yincl, 1, 1);
+  pincl->SetMargin(xjjroot::margin_pad_left*0.5, xjjroot::margin_pad_right*1.5, 0, xjjroot::margin_pad_top*1.3);
+  pincl->Draw();
+  pincl->cd();
+  vdsh[0]->plotOn(frempty_incl, RooFit::Name("dshist"), RooFit::Binning(fitX::NBIN), RooFit::MarkerSize(h_dump->GetMarkerSize()), RooFit::MarkerStyle(h_dump->GetMarkerStyle()), RooFit::LineColor(h_dump->GetLineColor()), RooFit::LineWidth(h_dump->GetLineWidth()), RooFit::XErrorSize(0));
+  pdf[0]->plotOn(frempty_incl, RooFit::Name("bkg"), RooFit::Components(*(bkg[0])), RooFit::Precision(1e-6), RooFit::DrawOption("L"), RooFit::LineStyle(bkg_dump_incl->GetLineStyle()), RooFit::LineColor(bkg_dump_incl->GetLineColor()), RooFit::LineWidth(bkg_dump_incl->GetLineWidth()));
+  pdf[0]->plotOn(frempty_incl, RooFit::Name("pdf"), RooFit::Precision(1e-6), RooFit::Normalization(1.0, RooAbsReal::RelativeExpected), RooFit::DrawOption("L"), RooFit::LineStyle(f_dump_incl->GetLineStyle()), RooFit::LineColor(f_dump_incl->GetLineColor()), RooFit::LineWidth(f_dump_incl->GetLineWidth()));
+  vdsh[0]->plotOn(frempty_incl, RooFit::Name("dshist"), RooFit::Binning(fitX::NBIN), RooFit::MarkerSize(h_dump->GetMarkerSize()), RooFit::MarkerStyle(h_dump->GetMarkerStyle()), RooFit::LineColor(h_dump->GetLineColor()), RooFit::LineWidth(h_dump->GetLineWidth()), RooFit::XErrorSize(0));
+  frempty_incl->SetMinimum(130);
+  frempty_incl->SetMaximum(440);
+  frempty_incl->Draw();
+  TH1F* hforpull_incl = fitX::createhistforpull(frempty_incl, "dshist", frf[0]);
+  fitX::drawpull(hforpull_incl, frf[0], fitX::color_data);
+  xjjroot::drawbox(4.02, h->GetMinimum(), 5, h->GetMaximum(), kWhite, 1);
+  xjjroot::drawtex(0.99, 0.39, "Pull", frempty_incl->GetYaxis()->GetTitleSize(), 33, 42, fitX::color_data, 270);
+  xjjroot::drawtex(0.89, 0.79, Form("%.0f < p_{T} < %.0f GeV/c", fitX::ptmincut, fitX::ptmaxcut), 0.05, 32, 62);
+  xjjroot::drawtex(0.89, 0.79-0.06, Form("%s|y| < %.1f", (fitX::ymincut?Form("%.1f < ", fitX::ymincut):""), fitX::ymaxcut), 0.05, 32, 62);
+  xjjroot::drawtex(0.89, 0.79-0.06*2, Form("Cent. %.0f-%.0f%s", fitX::centmincut, fitX::centmaxcut, "%"), 0.05, 32, 62);
+  xjjroot::drawtex(0.21, 0.12, fitX::title_a.c_str(), 0.055);
+  xjjroot::drawtex(0.60, 0.31, fitX::title_b.c_str(), 0.055);
+  xjjroot::drawtex(0.14, 0.79, "#scale[1.25]{#bf{CMS}}", 0.06, 12);
+  xjjroot::drawtex(0.93, 0.92, "1.7 nb^{-1} (PbPb 5.02 TeV)", 0.055, 32);
+  xjjroot::drawtex(0.14, 0.70, "Inclusive", 0.06, 12, 52, kBlack);
+  cr->cd();
+  TPad* pbenr = new TPad("pbenr", "", 0, 0, 1, ybenr);
+  pbenr->SetMargin(xjjroot::margin_pad_left*0.5, xjjroot::margin_pad_right*1.5, xjjroot::margin_pad_bottom, 0);
+  pbenr->Draw();
+  pbenr->cd();
+  vdsh[1]->plotOn(frempty_benr, RooFit::Name("dshist"), RooFit::Binning(fitX::NBIN), RooFit::MarkerSize(h_dump->GetMarkerSize()), RooFit::MarkerStyle(h_dump->GetMarkerStyle()), RooFit::LineColor(h_dump->GetLineColor()), RooFit::LineWidth(h_dump->GetLineWidth()), RooFit::XErrorSize(0));
+  pdf[1]->plotOn(frempty_benr, RooFit::Name("bkg"), RooFit::Components(*(bkg[1])), RooFit::Precision(1e-6), RooFit::DrawOption("L"), RooFit::LineStyle(bkg_dump_Benr->GetLineStyle()), RooFit::LineColor(bkg_dump_Benr->GetLineColor()), RooFit::LineWidth(bkg_dump_Benr->GetLineWidth()));
+  pdf[1]->plotOn(frempty_benr, RooFit::Name("pdf"), RooFit::Precision(1e-6), RooFit::Normalization(1.0, RooAbsReal::RelativeExpected), RooFit::DrawOption("L"), RooFit::LineStyle(f_dump_Benr->GetLineStyle()), RooFit::LineColor(f_dump_Benr->GetLineColor()), RooFit::LineWidth(f_dump_Benr->GetLineWidth()));
+  vdsh[1]->plotOn(frempty_benr, RooFit::Name("dshist"), RooFit::Binning(fitX::NBIN), RooFit::MarkerSize(h_dump->GetMarkerSize()), RooFit::MarkerStyle(h_dump->GetMarkerStyle()), RooFit::LineColor(h_dump->GetLineColor()), RooFit::LineWidth(h_dump->GetLineWidth()), RooFit::XErrorSize(0));
+  frempty_benr->SetMinimum(0); hBenr->SetMinimum(0);
+  frempty_benr->SetMaximum(75); hBenr->SetMaximum(75); // maxy[1]
+  frempty_benr->Draw();
+  leg_both->Draw();
+  TH1F* hforpull_benr = fitX::createhistforpull(frempty_benr, "dshist", frf[1]);
+  fitX::drawpull(hforpull_benr, frf[1], fitX::color_data2);
+  // fitX::drawpull(hBenr, frf[1], fitX::color_data2);
+  xjjroot::drawbox(4.02, hBenr->GetMinimum(), 5, hBenr->GetMaximum(), kWhite, 1);
+  xjjroot::drawtex(0.99, 0.53, "Pull", frempty_incl->GetYaxis()->GetTitleSize(), 33, 42, fitX::color_data2, 270);
+  xjjroot::drawtex(0.14, 0.90, "B-enriched (l#scale[0.8]{xy} > 0.1 mm)", 0.06, 12, 52, kBlack);
+  cr->SaveAs(Form("plots/%s/chmassr_both_2p.pdf", output.c_str()));
 
   // write
   std::string outputname(Form("rootfiles/%s/fitX_fithist.root", output.c_str()));

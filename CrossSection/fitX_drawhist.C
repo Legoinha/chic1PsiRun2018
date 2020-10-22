@@ -40,11 +40,12 @@ void fitX_drawhist(std::string inputname, std::string output)
   gsyst->SetName("gr_ratio_syst");
   xjjroot::setthgrstyle(gsyst, xjjroot::mycolor_satmiddle["red"], 21, 1.2, 0, 0, 0, xjjroot::mycolor_middle["red"], 0.5, 1001);
 
-  TH2F* hemptypaperlog = new TH2F("hemptypaperlog", ";p_{T};R = #frac{N^{X(3872)#rightarrowJ/#psi#pi#pi}}{N^{#psi(2S)#rightarrowJ/#psi#pi#pi}}", 10, 10, 70, 10, 0.04, 20);
+  std::string hemptytitle = ";#it{p}_{T} (GeV/c);#it{R} = #frac{#it{N}^{X(3872)#rightarrowJ/#psi#pi#pi}}{#it{N}^{#psi(2S)#rightarrowJ/#psi#pi#pi}}";
+  TH2F* hemptypaperlog = new TH2F("hemptypaperlog", hemptytitle.c_str(), 10, 10, 70, 10, 0.04, 20);
   xjjroot::sethempty(hemptypaperlog, 0, 0);
-  TH2F* hemptylog = new TH2F("hemptylog", ";p_{T};R = #frac{N^{X(3872)#rightarrowJ/#psi#pi#pi}}{N^{#psi(2S)#rightarrowJ/#psi#pi#pi}}", 10, 10, 70, 10, 0.02, 50);
+  TH2F* hemptylog = new TH2F("hemptylog", hemptytitle.c_str(), 10, 10, 70, 10, 0.02, 50);
   xjjroot::sethempty(hemptylog, 0, 0);
-  TH2F* hemptylinear = new TH2F("hemptylinear", ";p_{T};R = #frac{N^{X(3872)#rightarrowJ/#psi#pi#pi}}{N^{#psi(2S)#rightarrowJ/#psi#pi#pi}}", 10, 10, 70, 10, 0, 2.5);
+  TH2F* hemptylinear = new TH2F("hemptylinear", hemptytitle.c_str(), 10, 10, 70, 10, 0, 2.5);
   xjjroot::sethempty(hemptylinear, 0, 0);
 
   // --> paper leg <--

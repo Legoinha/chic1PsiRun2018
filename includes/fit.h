@@ -125,6 +125,8 @@ namespace fitX
   TF1* astfsig(RooAbsPdf* pdf, TF1* f, std::string name, float norm, std::vector<int> pars);
 
   void printfit(TF1* f, RooAbsPdf* pdf);
+  TH1F* createhistforpull(RooHist* gr, TF1* f);
+  TH1F* createhistforpull(RooPlot* fr, std::string name, TF1* f);
 }
 
 
@@ -625,17 +627,20 @@ void fitX::drawpull(TH1* hmc, TF1* f, Color_t color)
   int nbin = hmc->GetXaxis()->GetNbins();
   float binmin = hmc->GetBinCenter(1) - hmc->GetBinWidth(1)/2.;
   float binmax = hmc->GetBinCenter(nbin) + hmc->GetBinWidth(nbin)/2.;
+  float end = 3.9;
   for(int bb=0; bb<nbin; bb++)
     { 
       float realval = hmc->GetBinError(bb+1)==0?0:(hmc->GetBinContent(bb+1)-f->Eval(hmc->GetBinCenter(bb+1)))/hmc->GetBinError(bb+1);
-      float fillval = ((realval+4)/(4*2))*hmc->GetMaximum();
-      xjjroot::drawbox(hmc->GetBinCenter(bb+1)-hmc->GetBinWidth(bb+1)/2., hmc->GetMaximum()/2., hmc->GetBinCenter(bb+1)+hmc->GetBinWidth(bb+1)/2., fillval, color, 0.1, 1001);
+      float fillval = hmc->GetMinimum()+((realval+end)/(end*2))*(hmc->GetMaximum()-hmc->GetMinimum());
+      xjjroot::drawbox(hmc->GetBinCenter(bb+1)-hmc->GetBinWidth(bb+1)/2., 
+                       hmc->GetMinimum()+(hmc->GetMaximum()-hmc->GetMinimum())/2., 
+                       hmc->GetBinCenter(bb+1)+hmc->GetBinWidth(bb+1)/2., 
+                       fillval, color, 0.2, 1001);
     }
-  xjjroot::drawline(binmin, hmc->GetMaximum()/2., binmax, hmc->GetMaximum()/2., kGray, 2, 2, 0.5);
-  xjjroot::drawaxis(binmax, 0, binmax, hmc->GetMaximum(), -4, 4, color, 1, 2, "+L");
-  // xjjroot::drawtex(0.93, 0.51, "Pull", 0.04, 33, 62, color);
-  // xjjroot::drawtex(1.00, 0.53, "#sigma", 0.04, 33, 62, color);
-  xjjroot::drawtex(0.997, 0.53, "Pull", 0.04, 33, 62, color, 270);
+  xjjroot::drawline(binmin, hmc->GetMinimum()+(hmc->GetMaximum()-hmc->GetMinimum())/2., binmax, hmc->GetMinimum()+(hmc->GetMaximum()-hmc->GetMinimum())/2., kGray, 2, 2, 0.5);
+  xjjroot::drawaxis(binmax, hmc->GetMinimum(), binmax, hmc->GetMaximum(), 0-end, end, color, 1, gStyle->GetLineWidth(), "+L", hmc->GetYaxis()->GetLabelSize(), hmc->GetYaxis()->GetLabelFont());
+  // xjjroot::drawtex(0.997, 0.53, "Pull", 0.04, 33, 62, color, 270);
+  xjjroot::drawtex(1-gStyle->GetPadRightMargin()+hmc->GetYaxis()->GetLabelSize()+0.01, 0.50, "Pull", 0.04, 33, 42, color, 270);
 }
 
 void fitX::labelsmc(std::string label, double mean, double sigma1, double sigma2)
@@ -787,6 +792,35 @@ TF1* fitX::astfsig(RooAbsPdf* pdf, TF1* f, std::string name, float norm, std::ve
   // std::cout<<frf->GetExpFormula("P CLING")<<std::endl;
   // std::cout<<"\e[0m";
   return frf;
+}
+
+TH1F* fitX::createhistforpull(RooHist* gr, TF1* f)
+{
+  TH1F* h = new TH1F(Form("hcreatehist_%s", gr->GetName()), "", fitX::NBIN, fitX::BIN_MIN, fitX::BIN_MAX);
+  int n = gr->GetN();
+  for(int i=0; i<n; i++)
+    {
+      float yf = f->Eval(h->GetBinCenter(i+1));
+      double x,y;
+      gr->GetPoint(i, x, y);
+      float yerr = y>yf?gr->GetErrorYlow(i):gr->GetErrorYhigh(i);
+      h->SetBinContent(i+1, y);
+      h->SetBinError(i+1, yerr);
+    }
+  return h;
+}
+
+TH1F* fitX::createhistforpull(RooPlot* fr, std::string name, TF1* f)
+{
+  RooHist* gr = fr->getHist(name.c_str());
+  TH1F* h = createhistforpull(gr, f);
+  h->SetMaximum(fr->GetMaximum());
+  h->SetMinimum(fr->GetMinimum());
+  h->GetXaxis()->SetLabelSize(fr->GetXaxis()->GetLabelSize());
+  h->GetYaxis()->SetLabelSize(fr->GetYaxis()->GetLabelSize());
+  h->GetXaxis()->SetTitleSize(fr->GetXaxis()->GetTitleSize());
+  h->GetYaxis()->SetTitleSize(fr->GetYaxis()->GetTitleSize());
+  return h;
 }
 
 #endif
