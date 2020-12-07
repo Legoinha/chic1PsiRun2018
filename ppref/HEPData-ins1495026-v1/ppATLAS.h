@@ -41,6 +41,9 @@ namespace ppref
     void Draw(std::string opt="all");
   private:
     const float ycut = 0.75;
+    // int cc = kGray+1;
+    int cc = kAzure-8, lwidth = 3;
+    float msize = 1.6;
     std::string fdir;
     void init();
     std::map<std::string, TF1*> ff;
@@ -110,10 +113,10 @@ float ppref::ppATLAS::getweight(float pt, std::string type)
 
 void ppref::ppATLAS::Draw(std::string opt)
 {
-  xjjroot::setthgrstyle(gg["promptRatio"]["syst"], kGray+1, 21, 1.2, 0, 1, 1, kGray+1, 0.3, 1001);
-  xjjroot::setthgrstyle(gg["promptRatio"]["stat"], kGray+1, 21, 1.2, kGray+1, 1, 1, kGray+1, 0.3, 1001);
-  xjjroot::setthgrstyle(gg["nonpromptRatio"]["syst"], kGray+1, 25, 1.2, 0, 1, 1, kGray+1, 0.3, 1001);
-  xjjroot::setthgrstyle(gg["nonpromptRatio"]["stat"], kGray+1, 25, 1.2, kGray+1, 1, 1, kGray+1, 0.3, 1001);
+  xjjroot::setthgrstyle(gg["promptRatio"]["syst"], cc, 21, msize, 0, 1, lwidth, cc, 0.3, 1001);
+  xjjroot::setthgrstyle(gg["promptRatio"]["stat"], cc, 21, msize, cc, 1, lwidth, cc, 0.3, 1001);
+  xjjroot::setthgrstyle(gg["nonpromptRatio"]["syst"], cc, 25, msize, 0, 1, lwidth, cc, 0.3, 1001);
+  xjjroot::setthgrstyle(gg["nonpromptRatio"]["stat"], cc, 25, msize, cc, 1, lwidth, cc, 0.3, 1001);
   if(opt=="prompt")
     {
       gg["promptRatio"]["syst"]->Draw("2same");

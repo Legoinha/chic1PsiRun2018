@@ -15,6 +15,9 @@ namespace ppref
   private:
     TGraphAsymmErrors* fgrae_stat;
     TGraphAsymmErrors* fgrae_syst;
+    // int cc = kGray+3;
+    int cc = kAzure-6, lwidth = 3;
+    float msize = 1.6;
   };
 }
 
@@ -94,8 +97,8 @@ ppref::CMS_2013_Rprompt::CMS_2013_Rprompt()
   fgrae_syst->SetName("grae_syst_prompt");
   fgrae_syst->SetTitle("doi:10.17182/hepdata.60421.v1/t1");
 
-  xjjroot::setthgrstyle(fgrae_syst, kGray+3, 21, 1.2, 0, 1, 1, kGray+3, 0.3, 1001);
-  xjjroot::setthgrstyle(fgrae_stat, kGray+3, 21, 1.2, kGray+3, 1, 1, kGray+3, 0.3, 1001);
+  xjjroot::setthgrstyle(fgrae_syst, cc, 21, msize, 0, 1, lwidth, cc, 0.3, 1001);
+  xjjroot::setthgrstyle(fgrae_stat, cc, 21, msize, cc, 1, lwidth, cc, 0.3, 1001);
 }
 
 void ppref::CMS_2013_Rprompt::Draw()

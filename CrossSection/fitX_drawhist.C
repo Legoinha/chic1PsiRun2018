@@ -19,7 +19,10 @@ void fitX_drawhist(std::string inputname, std::string output)
   TFile* inf = TFile::Open(inputname.c_str());
   fitX::init(inf);
   TH1F* hratio = (TH1F*)inf->Get("hratio");
-  xjjroot::setthgrstyle(hratio, xjjroot::mycolor_satmiddle["red"], 21, 1.2, xjjroot::mycolor_satmiddle["red"], 1, 1);
+  // int cc = xjjroot::mycolor_satmiddle["red"];
+  int cc = kRed-3, lwidth = 3;
+  float msize = 1.6;
+  xjjroot::setthgrstyle(hratio, cc, 21, msize, cc, 1, lwidth);
   ppref::ppATLAS pprefATLAS("ppref/HEPData-ins1495026-v1");
   ppref::CMS_2013_R pprefCMS;
   ppref::CMS_2013_Rprompt pprefCMSprompt;
@@ -38,9 +41,9 @@ void fitX_drawhist(std::string inputname, std::string output)
     }
   TGraphAsymmErrors* gsyst = new TGraphAsymmErrors(hratio->GetNbinsX(), xx.data(), yy.data(), xel.data(), xeh.data(), yel.data(), yeh.data());
   gsyst->SetName("gr_ratio_syst");
-  xjjroot::setthgrstyle(gsyst, xjjroot::mycolor_satmiddle["red"], 21, 1.2, 0, 0, 0, xjjroot::mycolor_middle["red"], 0.5, 1001);
+  xjjroot::setthgrstyle(gsyst, cc, 21, msize, 0, 0, 0, cc, 0.2, 1001);
 
-  std::string hemptytitle = ";#it{p}_{T} (GeV/c);#it{R} = #frac{#it{N}^{X(3872)#rightarrowJ/#psi#pi#pi}}{#it{N}^{#psi(2S)#rightarrowJ/#psi#pi#pi}}";
+  std::string hemptytitle = ";#it{p}_{T} (GeV/c);#it{R}^{pp,PbPb} = #frac{#it{N}^{X(3872)#rightarrowJ/#psi#pi#pi}}{#it{N}^{#psi(2S)#rightarrowJ/#psi#pi#pi}}";
   TH2F* hemptypaperlog = new TH2F("hemptypaperlog", hemptytitle.c_str(), 10, 10, 70, 10, 0.04, 20);
   xjjroot::sethempty(hemptypaperlog, 0, 0);
   TH2F* hemptylog = new TH2F("hemptylog", hemptytitle.c_str(), 10, 10, 70, 10, 0.02, 50);
