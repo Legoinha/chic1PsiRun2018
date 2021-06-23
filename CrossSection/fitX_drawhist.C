@@ -30,36 +30,37 @@ void fitX_drawhist(std::string inputname, std::string output)
   std::vector<float> xx, yy, xel, xeh, yel, yeh;
   for(int i=0; i<hratio->GetNbinsX(); i++)
     {
-      // std::cout<<hratio->GetBinCenter(i+1)<<" "<<hratio->GetBinContent(i+1)<<std::endl;
       xx.push_back(hratio->GetBinCenter(i+1));
       xel.push_back(1.);
       xeh.push_back(1.);
       yy.push_back(hratio->GetBinContent(i+1));
       yel.push_back(syst::getsyst(2, "d")*hratio->GetBinContent(i+1));
       yeh.push_back(syst::getsyst(2, "u")*hratio->GetBinContent(i+1));
-      // std::cout<<i<<" "<<xx[i]<<" "<<hratio->GetBinWidth(i+1)/2.<<" "<<yy[i]<<" "<<hratio->GetBinError(i+1)<<" "<<yel[i]<<" "<<yeh[i]<<std::endl;
     }
   TGraphAsymmErrors* gsyst = new TGraphAsymmErrors(hratio->GetNbinsX(), xx.data(), yy.data(), xel.data(), xeh.data(), yel.data(), yeh.data());
   gsyst->SetName("gr_ratio_syst");
   xjjroot::setthgrstyle(gsyst, cc, 21, msize, 0, 0, 0, cc, 0.2, 1001);
 
-  std::string hemptytitle = ";#it{p}_{T} (GeV/c);#it{R}^{pp,PbPb} = #frac{#it{N}^{X(3872)#rightarrowJ/#psi#pi#pi}}{#it{N}^{#psi(2S)#rightarrowJ/#psi#pi#pi}}";
+  std::string hemptytitle = ";#it{p}_{T} (GeV/c);#rho^{pp,PbPb} = #frac{#it{N}^{X(3872)#scale[0.5]{ }#rightarrow#scale[0.5]{ }J/#psi#scale[0.5]{ }#pi#scale[0.5]{ }#pi}}{#it{N}^{#psi(2S)#scale[0.5]{ }#rightarrow#scale[0.5]{ }J/#psi#scale[0.5]{ }#pi#scale[0.5]{ }#pi}}";
   TH2F* hemptypaperlog = new TH2F("hemptypaperlog", hemptytitle.c_str(), 10, 10, 70, 10, 0.04, 20);
   xjjroot::sethempty(hemptypaperlog, 0, 0);
   TH2F* hemptylog = new TH2F("hemptylog", hemptytitle.c_str(), 10, 10, 70, 10, 0.02, 50);
   xjjroot::sethempty(hemptylog, 0, 0);
-  TH2F* hemptylinear = new TH2F("hemptylinear", hemptytitle.c_str(), 10, 10, 70, 10, 0, 2.5);
+  // TH2F* hemptylinear = new TH2F("hemptylinear", hemptytitle.c_str(), 10, 10, 70, 10, 0, 2.5); // v19
+  TH2F* hemptylinear = new TH2F("hemptylinear", hemptytitle.c_str(), 10, 10, 70, 10, 0, 1.8);
   xjjroot::sethempty(hemptylinear, 0, 0);
 
   // --> paper leg <--
   float linesp = 0.045, textsp = 0.035;
-  TLegend* legpaper_pp = new TLegend(0.57, 0.82-4*linesp, 0.57+0.30, 0.82);
+  // TLegend* legpaper_pp = new TLegend(0.57, 0.82-4*linesp, 0.57+0.30, 0.82); // v19
+  TLegend* legpaper_pp = new TLegend(0.57, 0.50-4.6*linesp, 0.57+0.30, 0.50);
   xjjroot::setleg(legpaper_pp, textsp);
   legpaper_pp->AddEntry(pprefCMSprompt.grae_syst(), "#bf{pp} (7 TeV)", "pf");
   legpaper_pp->AddEntry((TObject*)0, "|y| < 1.2 (CMS)", NULL);
   legpaper_pp->AddEntry(pprefATLAS.gg["promptRatio"]["syst"], "#bf{pp} (8 TeV)", "pf");
   legpaper_pp->AddEntry((TObject*)0, "|y| < 0.75 (ATLAS)", NULL);
-  TLegend* legpaper_pbpb = new TLegend(0.22, 0.82-4*linesp, 0.22+0.30, 0.82);
+  // TLegend* legpaper_pbpb = new TLegend(0.22, 0.82-4*linesp, 0.22+0.30, 0.82); // v19
+  TLegend* legpaper_pbpb = new TLegend(0.57, 0.87-4*linesp, 0.57+0.30, 0.87);
   xjjroot::setleg(legpaper_pbpb, textsp);
   legpaper_pbpb->AddEntry((TObject*)0, "", NULL);
   legpaper_pbpb->AddEntry((TObject*)0, "", NULL);
@@ -71,7 +72,7 @@ void fitX_drawhist(std::string inputname, std::string output)
   TCanvas* cratio = new TCanvas("cratiolog", "", 600, 600);
   cratio->SetLogy();
   hemptypaperlog->Draw();
-  xjjroot::drawline(10, 1, 70, 1, kGray+2, 2, 2);
+  // xjjroot::drawline(10, 1, 70, 1, kGray+2, 2, 2);
   pprefCMSprompt.Draw();
   pprefATLAS.Draw("prompt");
   gsyst->Draw("same 5");
@@ -86,7 +87,7 @@ void fitX_drawhist(std::string inputname, std::string output)
 
   cratio = new TCanvas("cratiolinear", "", 600, 600);
   hemptylinear->Draw();
-  xjjroot::drawline(10, 1, 70, 1, kGray+2, 2, 2);
+  // xjjroot::drawline(10, 1, 70, 1, kGray+2, 2, 2);
   pprefCMSprompt.Draw();
   pprefATLAS.Draw("prompt");
   gsyst->Draw("same 5");
@@ -132,7 +133,7 @@ void fitX_drawhist(std::string inputname, std::string output)
   cratio = new TCanvas("cratiosupplog", "", 600, 600);
   cratio->SetLogy();
   hemptylog->Draw();
-  xjjroot::drawline(10, 1, 70, 1, kGray+2, 2, 2);
+  // xjjroot::drawline(10, 1, 70, 1, kGray+2, 2, 2);
   // pprefCMSprompt.Draw();
   pprefCMS.Draw();
   pprefATLAS.Draw();
@@ -149,7 +150,7 @@ void fitX_drawhist(std::string inputname, std::string output)
 
   cratio = new TCanvas("cratiosupplinear", "", 600, 600);
   hemptylinear->Draw();
-  xjjroot::drawline(10, 1, 70, 1, kGray+2, 2, 2);
+  // xjjroot::drawline(10, 1, 70, 1, kGray+2, 2, 2);
   // pprefCMSprompt.Draw();
   pprefCMS.Draw();
   pprefATLAS.Draw();

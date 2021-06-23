@@ -55,7 +55,7 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   std::vector<TH1F*> vhyield_a = {hyield_a, hBenryield_a};
   std::vector<TH1F*> vhyield_b = {hyield_b, hBenryield_b};
   std::vector<std::string> vname = {"th", "thBenr"};
-  std::vector<std::string> vtitle = {Form("#splitline{Inclusive}{%s}", fitopt.c_str()), Form("#splitline{B-enriched (l#scale[0.60]{xy} > 0.1 mm)}{%s}", fitopt.c_str())};
+  std::vector<std::string> vtitle = {Form("#splitline{Inclusive}{%s}", fitopt.c_str()), Form("#splitline{b-enriched (l#scale[0.60]{xy} > 0.1 mm)}{%s}", fitopt.c_str())};
   std::vector<Style_t> mstyle = {20, 24};
 
   float mm = 0;
@@ -447,7 +447,7 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   TH1F* hratio = (TH1F*)hratio_b->Clone("hratio");
   hratio->Divide(hratio_a);
 
-  // merge inclusive + B-enr
+  // merge inclusive + b-enr
   TF1 *f_dump_incl = new TF1(), *bkg_dump_incl = new TF1(), *f_dump_Benr = new TF1(), *bkg_dump_Benr = new TF1();
   TH1F* h_dump = new TH1F("h_dump", "", 1, 0, 1);
   xjjroot::setthgrstyle(h_dump, kBlack, 20, 0.9, kBlack, 1, 1);
@@ -488,26 +488,34 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   cr->SaveAs(Form("plots/%s/chmassr_both.pdf", output.c_str()));
   delete cr;
 
+
+  /***************************************************
+    Paper figure
+  ***************************************************/
+
   xjjroot::setgstyle(2);
-  float yincl = 0.5, ybenr = 1-yincl;
+  float yincl = 0.49, ybenr = 1-yincl;
+  Size_t tsize = 0.07; // 0.05
+  float axissize = 1.7;
   RooPlot* frempty_incl = mass->frame(RooFit::Title(""));
-  frempty_incl->SetXTitle("m_{#mu#mu#pi#pi} (GeV/c^{2})");
+  // frempty_incl->SetXTitle("m#scale[0.7]{#mu#mu#pi#pi} (GeV/c^{2})");
   frempty_incl->SetYTitle(Form("Entries / (%.0f MeV/c^{2})", fitX::BIN_WIDTH*1.e+3));
-  fitX::setmasshist(frempty_incl, 0, -0.6);
-  frempty_incl->GetXaxis()->SetTitleSize(frempty_incl->GetXaxis()->GetTitleSize()*1.2);
-  frempty_incl->GetYaxis()->SetTitleSize(frempty_incl->GetYaxis()->GetTitleSize()*1.2);
-  frempty_incl->GetXaxis()->SetLabelSize(frempty_incl->GetXaxis()->GetLabelSize()*1.2);
-  frempty_incl->GetYaxis()->SetLabelSize(frempty_incl->GetYaxis()->GetLabelSize()*1.2); h->GetYaxis()->SetLabelSize(frempty_incl->GetYaxis()->GetLabelSize());
+  fitX::setmasshist(frempty_incl, 0, -0.65);
+  frempty_incl->GetXaxis()->SetTitleSize(frempty_incl->GetXaxis()->GetTitleSize()*axissize);
+  frempty_incl->GetYaxis()->SetTitleSize(frempty_incl->GetYaxis()->GetTitleSize()*axissize);
+  frempty_incl->GetXaxis()->SetLabelSize(frempty_incl->GetXaxis()->GetLabelSize()*axissize);
+  frempty_incl->GetYaxis()->SetLabelSize(frempty_incl->GetYaxis()->GetLabelSize()*axissize); h->GetYaxis()->SetLabelSize(frempty_incl->GetYaxis()->GetLabelSize());
   RooPlot* frempty_benr = mass->frame(RooFit::Title(""));
-  frempty_benr->SetXTitle("m_{#mu#mu#pi#pi} (GeV/c^{2})");
+  // frempty_benr->SetXTitle("m_{#mu#mu#pi#pi} (GeV/c^{2})");
+  frempty_benr->SetXTitle("m#scale[0.7]{#mu#mu#pi#pi} (GeV/c^{2})");
   frempty_benr->SetYTitle(Form("Entries / (%.0f MeV/c^{2})", fitX::BIN_WIDTH*1.e+3));
-  fitX::setmasshist(frempty_benr, 0, -0.6);
-  frempty_benr->GetXaxis()->SetTitleSize(frempty_benr->GetXaxis()->GetTitleSize()*1.2);
-  frempty_benr->GetYaxis()->SetTitleSize(frempty_benr->GetYaxis()->GetTitleSize()*1.2);
-  frempty_benr->GetXaxis()->SetLabelSize(frempty_benr->GetXaxis()->GetLabelSize()*1.2);
-  frempty_benr->GetYaxis()->SetLabelSize(frempty_benr->GetYaxis()->GetLabelSize()*1.2); hBenr->GetYaxis()->SetLabelSize(frempty_benr->GetYaxis()->GetLabelSize());
-  TLegend* leg_both = new TLegend(0.70, 0.95-0.06*3, 0.95, 0.95);
-  xjjroot::setleg(leg_both, 0.055);
+  fitX::setmasshist(frempty_benr, -0.2/*0*/, -0.65);
+  frempty_benr->GetXaxis()->SetTitleSize(frempty_benr->GetXaxis()->GetTitleSize()*axissize*1.1);
+  frempty_benr->GetYaxis()->SetTitleSize(frempty_benr->GetYaxis()->GetTitleSize()*axissize);
+  frempty_benr->GetXaxis()->SetLabelSize(frempty_benr->GetXaxis()->GetLabelSize()*axissize);
+  frempty_benr->GetYaxis()->SetLabelSize(frempty_benr->GetYaxis()->GetLabelSize()*axissize); hBenr->GetYaxis()->SetLabelSize(frempty_benr->GetYaxis()->GetLabelSize());
+  TLegend* leg_both = new TLegend(0.66/*0.70*/, 0.95-0.072/*0.06*/*3, 0.91/*0.95*/, 0.95);
+  xjjroot::setleg(leg_both, tsize); // 0.055
   leg_both->SetNColumns(2);
   leg_both->AddEntry((TObject*)0, "", NULL);
   leg_both->AddEntry(h_dump, "data", "pe");
@@ -517,7 +525,7 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   leg_both->AddEntry(bkg_dump_Benr, "background", "l");
   cr = new TCanvas("cr", "", 700, 700);
   TPad* pincl = new TPad("pincl", "", 0, 1-yincl, 1, 1);
-  pincl->SetMargin(xjjroot::margin_pad_left*0.5, xjjroot::margin_pad_right*1.5, 0, xjjroot::margin_pad_top*1.3);
+  pincl->SetMargin(xjjroot::margin_pad_left*0.62/*0.5*/, xjjroot::margin_pad_right*1.8/*1.5*/, 0, xjjroot::margin_pad_top*1.3);
   pincl->Draw();
   pincl->cd();
   vdsh[0]->plotOn(frempty_incl, RooFit::Name("dshist"), RooFit::Binning(fitX::NBIN), RooFit::MarkerSize(h_dump->GetMarkerSize()), RooFit::MarkerStyle(h_dump->GetMarkerStyle()), RooFit::LineColor(h_dump->GetLineColor()), RooFit::LineWidth(h_dump->GetLineWidth()), RooFit::XErrorSize(0));
@@ -527,21 +535,21 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   frempty_incl->SetMinimum(130);
   frempty_incl->SetMaximum(440);
   frempty_incl->Draw();
-  TH1F* hforpull_incl = fitX::createhistforpull(frempty_incl, "dshist", frf[0]);
+  TH1F* hforpull_incl = fitX::createhistforpull(frempty_incl, "dshist", frf[0], "_incl");
   fitX::drawpull(hforpull_incl, frf[0], fitX::color_data);
   xjjroot::drawbox(4.02, h->GetMinimum(), 5, h->GetMaximum(), kWhite, 1);
   xjjroot::drawtex(0.99, 0.39, "Pull", frempty_incl->GetYaxis()->GetTitleSize(), 33, 42, fitX::color_data, 270);
-  xjjroot::drawtex(0.89, 0.79, Form("%.0f < p_{T} < %.0f GeV/c", fitX::ptmincut, fitX::ptmaxcut), 0.05, 32, 62);
-  xjjroot::drawtex(0.89, 0.79-0.06, Form("%s|y| < %.1f", (fitX::ymincut?Form("%.1f < ", fitX::ymincut):""), fitX::ymaxcut), 0.05, 32, 62);
-  xjjroot::drawtex(0.89, 0.79-0.06*2, Form("Cent. %.0f-%.0f%s", fitX::centmincut, fitX::centmaxcut, "%"), 0.05, 32, 62);
-  xjjroot::drawtex(0.21, 0.12, fitX::title_a.c_str(), 0.055);
-  xjjroot::drawtex(0.60, 0.31, fitX::title_b.c_str(), 0.055);
-  xjjroot::drawtex(0.14, 0.79, "#scale[1.25]{#bf{CMS}}", 0.06, 12);
-  xjjroot::drawtex(0.93, 0.92, "1.7 nb^{-1} (PbPb 5.02 TeV)", 0.055, 32);
-  xjjroot::drawtex(0.14, 0.70, "Inclusive", 0.06, 12, 52, kBlack);
+  xjjroot::drawtex(0.88, 0.78/*0.79*/, Form("%.0f < p_{T} < %.0f GeV/c", fitX::ptmincut, fitX::ptmaxcut), tsize, 32, 42/*62*/);
+  xjjroot::drawtex(0.88, 0.78-0.072 /*0.06*/, Form("%s|y| < %.1f", (fitX::ymincut?Form("%.1f < ", fitX::ymincut):""), fitX::ymaxcut), tsize, 32, 42);
+  xjjroot::drawtex(0.88, 0.78-0.072*2, Form("Cent. %.0f-%.0f%s", fitX::centmincut, fitX::centmaxcut, "%"), tsize, 32, 42);
+  xjjroot::drawtex(0.22, 0.13, fitX::title_a.c_str(), tsize);
+  xjjroot::drawtex(0.59, 0.32, fitX::title_b.c_str(), tsize);
+  xjjroot::drawtex(0.15/*0.14*/, 0.79, "#scale[1.25]{#bf{CMS}}", tsize, 12); // 0.06
+  xjjroot::drawtex(0.92, 0.92, "1.7 nb^{-1} (PbPb 5.02 TeV)", tsize, 32); // 0.055
+  xjjroot::drawtex(0.15, 0.70, "Inclusive", tsize, 12, 52, kBlack);
   cr->cd();
   TPad* pbenr = new TPad("pbenr", "", 0, 0, 1, ybenr);
-  pbenr->SetMargin(xjjroot::margin_pad_left*0.5, xjjroot::margin_pad_right*1.5, xjjroot::margin_pad_bottom, 0);
+  pbenr->SetMargin(xjjroot::margin_pad_left*0.62/*0.5*/, xjjroot::margin_pad_right*1.8/*1.5*/, xjjroot::margin_pad_bottom*1.3/*1*/, 0);
   pbenr->Draw();
   pbenr->cd();
   vdsh[1]->plotOn(frempty_benr, RooFit::Name("dshist"), RooFit::Binning(fitX::NBIN), RooFit::MarkerSize(h_dump->GetMarkerSize()), RooFit::MarkerStyle(h_dump->GetMarkerStyle()), RooFit::LineColor(h_dump->GetLineColor()), RooFit::LineWidth(h_dump->GetLineWidth()), RooFit::XErrorSize(0));
@@ -552,12 +560,13 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   frempty_benr->SetMaximum(75); hBenr->SetMaximum(75); // maxy[1]
   frempty_benr->Draw();
   leg_both->Draw();
-  TH1F* hforpull_benr = fitX::createhistforpull(frempty_benr, "dshist", frf[1]);
+  TH1F* hforpull_benr = fitX::createhistforpull(frempty_benr, "dshist", frf[1], "_benr");
+  // hforpull_benr->GetXaxis()->SetTitle("m#scale[0.8]{#mu#mu#pi#pi}");
   fitX::drawpull(hforpull_benr, frf[1], fitX::color_data2);
   // fitX::drawpull(hBenr, frf[1], fitX::color_data2);
   xjjroot::drawbox(4.02, hBenr->GetMinimum(), 5, hBenr->GetMaximum(), kWhite, 1);
   xjjroot::drawtex(0.99, 0.53, "Pull", frempty_incl->GetYaxis()->GetTitleSize(), 33, 42, fitX::color_data2, 270);
-  xjjroot::drawtex(0.14, 0.90, "B-enriched (l#scale[0.8]{xy} > 0.1 mm)", 0.06, 12, 52, kBlack);
+  xjjroot::drawtex(0.15, 0.90, "b-enriched (l#scale[0.8]{xy} > 0.1 mm)", tsize, 12, 52, kBlack);
   cr->SaveAs(Form("plots/%s/chmassr_both_2p.pdf", output.c_str()));
 
   // write

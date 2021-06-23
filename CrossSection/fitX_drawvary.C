@@ -74,7 +74,7 @@ void fitX_drawvary(std::string inputname, std::string output)
                     fitX::color_b, 2, 3, 0.5);
   gyieldpromptCorr_a->Draw("pe same");
   gyieldpromptCorr_b->Draw("pe same");
-  xjjroot::drawCMS("Preliminary");
+  xjjroot::drawCMS("Internal");
   xjjroot::drawtex(0.24, 0.84, fitX::title_a.c_str(), 0.038, 12, 62, fitX::color_a);
   xjjroot::drawtex(0.24, 0.84-0.04, fitX::title_b.c_str(), 0.038, 12, 62, fitX::color_b);
   fitX::drawkinematics();
@@ -85,7 +85,7 @@ void fitX_drawvary(std::string inputname, std::string output)
   xjjroot::drawline(hempty_r->GetXaxis()->GetXmin(), ref_hratio_ab, hempty_r->GetXaxis()->GetXmax(), ref_hratio_ab,
                     kGray+2, 2, 3, 0.5);
   gratio_ab->Draw("pe same");
-  xjjroot::drawCMS("Preliminary");
+  xjjroot::drawCMS("Internal");
   fitX::drawkinematics();
 
   std::string outputname = "plots/"+output+"/cmvavary_BDT.pdf";
