@@ -81,13 +81,13 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
       float ysigerr_b = result["unbinned"]->ysigerr_b();
       mm = result["unbinned"]->msig_b();
       RooWorkspace* wwr = result["unbinned"]->ww();
-      pdf[l] = wwr->pdf("pdf");
-      bkg[l] = wwr->pdf("bkg");
+      pdf[l] = wwr->pdf(Form("pdf%s", result["unbinned"]->getname().c_str()));
+      bkg[l] = wwr->pdf(Form("bkg%s", result["unbinned"]->getname().c_str()));
       TString str_bkg = "[0]+[1]*x+[2]*x*x+[3]*x*x*x+[4]*x*x*x*x";
       TString str_sig_a = "[5]*( [9]*TMath::Gaus(x, [6], [7])/(TMath::Sqrt(2*3.14159)* [7]) + (1- [9])*( [16]*TMath::Gaus(x,[6], [8])/(TMath::Sqrt(2*3.14159)* [8]) + (1- [16])*TMath::Gaus(x,[6], [15])/(TMath::Sqrt(2*3.14159)*[15])))";
       TString str_sig_b = "[10]*([14]*TMath::Gaus(x,[11],[12])/(TMath::Sqrt(2*3.14159)*[12]) + (1-[14])*([18]*TMath::Gaus(x,[11],[13])/(TMath::Sqrt(2*3.14159)*[13]) + (1-[18])*TMath::Gaus(x,[11],[17])/(TMath::Sqrt(2*3.14159)*[17])))";
       TF1* f = new TF1("f", str_bkg+"+"+str_sig_a+"+"+str_sig_b, fitX::BIN_MIN, fitX::BIN_MAX);
-      frf[l] = fitX::astf(pdf[l], f, "fr");
+      frf[l] = fitX::astf(pdf[l], f, "fr"+result["unbinned"]->getname(), result["unbinned"]->getname());
       maxy[l] = result["unbinned"]->get("maxy");
 
       // yield
@@ -115,6 +115,13 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
     }
   xjjroot::mkdir(Form("plots/%s/cyield.pdf", output.c_str()));
   cy->SaveAs(Form("plots/%s/cyield.pdf", output.c_str()));
+
+  RooWorkspace* wfit = new RooWorkspace("wfit");
+  for(auto& h : vdsh) wfit->import(*h);
+  wfit->import(*(pdf[0]));
+  wfit->import(*(pdf[1]));
+  wfit->import(*(bkg[0]));
+  wfit->import(*(bkg[1]));
 
   // fprompt
   hlxymcnp_a->GetYaxis()->SetTitle("Events");
@@ -579,6 +586,7 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   outf->cd();
   h->Write();
   hBenr->Write();
+  for(auto& ff : frf) ff->Write();
   hmcp_a->Write();
   hmcp_b->Write();
   hyield_a->Write();
@@ -603,6 +611,11 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   hscale_htnp_total_nominal_a->Write();
   hscale_htnp_total_nominal_b->Write();
   hratio->Write();
+  outf->cd();
+  gDirectory->Add(wfit);
+  wfit->Write();
+  wfit->Print();
+  outf->cd();
   fitX::write();
   outf->Close();
   std::cout<<"output: "<<outputname<<std::endl;

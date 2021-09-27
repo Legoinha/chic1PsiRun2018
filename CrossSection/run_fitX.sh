@@ -1,5 +1,13 @@
 #!/bin/bash
 
+RUN_SAVEHIST=${1:-0}
+RUN_CONVERTTNP=${2:-0}
+RUN_FITHIST=${3:-0}
+RUN_DRAWFIT=${4:-0}
+RUN_DRAWHIST=${5:-0}
+
+##
+
 ptmin=15
 ptmax=50
 centmin=0
@@ -96,11 +104,6 @@ inputmc_b_nonprompt=/raid5/data/wangj/BntupleRun2018/mva_output_20190808ptdep/nt
 
 ##
 
-RUN_SAVEHIST=${1:-0}
-RUN_CONVERTTNP=${2:-0}
-RUN_FITHIST=${3:-0}
-RUN_DRAWHIST=${4:-0}
-
 tmp=$(date +%y%m%d%H%M%S)
 
 ##
@@ -124,6 +127,10 @@ sed -i "s/__PTBIN_INPUT__/$ptbins/g" tnpcc_tmp.h
     g++ draw_tnp_ratio.cc -I"../includes/" $(root-config --libs --cflags) -g -o draw_tnp_ratio_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; } 
     echo " -- "fitX_fithist.C
     g++ fitX_fithist.C -I"../includes/" $(root-config --libs --cflags) -lRooFit -lRooFitCore -lRooStats -g -o fitX_fithist_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; }
+}
+[[ $RUN_DRAWFIT -eq 1 || $# -eq 0 ]] && {
+    echo " -- "fitX_drawfit.C
+    g++ fitX_drawfit.C -I"../includes/" $(root-config --libs --cflags) -lRooFit -lRooFitCore -lRooStats -g -o fitX_drawfit_${tmp}.exe || { rm *_${tmp}.exe 2> /dev/null ; exit 1 ; }
 }
 [[ $RUN_DRAWHIST -eq 1 || $# -eq 0 ]] && {
     echo " -- "fitX_drawhist.C
@@ -180,6 +187,9 @@ do
         ./draw_tnp_ratio_${tmp}.exe "$rootdir/drawtnp_a.root" "$rootdir/drawtnp_b.root" $name
         ./fitX_fithist_${tmp}.exe "$rootdir/fitX_savehist.root" $name
     }
+
+    [[ $RUN_DRAWFIT -eq 1 ]] && ./fitX_drawfit_${tmp}.exe "$rootdir/fitX_fithist.root" "$name$kinematic"
+
     [[ $RUN_DRAWHIST -eq 1 ]] && ./fitX_drawhist_${tmp}.exe "$rootdir/fitX_fithist.root" "$name$kinematic"
 
 done
