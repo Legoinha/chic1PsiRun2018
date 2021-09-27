@@ -96,9 +96,9 @@ namespace fitX
   void setmasshist(TH1* h, float xoffset=0, float yoffset=0, Color_t pcolor=kBlack);
   void setmasshist(RooPlot* h, float xoffset=0, float yoffset=0, Color_t pcolor=kBlack);
 
-  int NBIN = 38, NBIN_L = 50, NBIN_H = 50;
+  int NBIN = 76, NBIN_L = 50, NBIN_H = 50;
+  // int NBIN = 38, NBIN_L = 50, NBIN_H = 50;
   float BIN_MIN = 3.62, BIN_MAX = 4.0, BIN_MIN_L = 3.64, BIN_MAX_L = 3.74, BIN_MIN_H = 3.82, BIN_MAX_H = 3.92;
-  // int NBIN = 30, NBIN_L = 50, NBIN_H = 50;
   // float BIN_MIN = 3.62, BIN_MAX = 3.92, BIN_MIN_L = 3.64, BIN_MAX_L = 3.74, BIN_MIN_H = 3.82, BIN_MAX_H = 3.92;
   float BIN_WIDTH = (BIN_MAX-BIN_MIN)/NBIN*1.0, BIN_WIDTH_L = (BIN_MAX_L-BIN_MIN_L)/NBIN_L*1.0, BIN_WIDTH_H = (BIN_MAX_H-BIN_MIN_H)/NBIN_H*1.0;
   const int NMVA_BIN = 30;
@@ -125,8 +125,8 @@ namespace fitX
   TF1* astfsig(RooAbsPdf* pdf, TF1* f, std::string name, float norm, std::vector<int> pars);
 
   void printfit(TF1* f, RooAbsPdf* pdf);
-  TH1F* createhistforpull(RooHist* gr, TF1* f);
-  TH1F* createhistforpull(RooPlot* fr, std::string name, TF1* f);
+  TH1F* createhistforpull(RooHist* gr, TF1* f, std::string newname="");
+  TH1F* createhistforpull(RooPlot* fr, std::string name, TF1* f, std::string newname="");
 }
 
 
@@ -617,9 +617,9 @@ void fitX::setmasshist(TH1* h, float xoffset/*=0*/, float yoffset/*=0*/, Color_t
 
 void fitX::setmasshist(RooPlot* h, float xoffset/*=0*/, float yoffset/*=0*/, Color_t pcolor/*=kBlack*/)
 {
-  xjjroot::sethempty(h, xoffset, yoffset);
+  xjjroot::sethempty(h, xoffset, yoffset, 0.045);
   h->SetTitle("");
-  h->SetXTitle("m_{#mu#mu#pi#pi} (GeV/c^{2})");
+  h->SetXTitle("m_{J/#psi#pi#pi} (GeV/c^{2})");
 }
 
 void fitX::drawpull(TH1* hmc, TF1* f, Color_t color)
@@ -652,7 +652,8 @@ void fitX::labelsmc(std::string label, double mean, double sigma1, double sigma2
   xjjroot::drawtex(0.65, 0.86, Form("#bar{m} = %.4f GeV", mean), 0.038);
   xjjroot::drawtex(0.65, 0.86-0.05, Form("#sigma_{1} = %.4f GeV", std::min(sigma1, sigma2)), 0.038);
   xjjroot::drawtex(0.65, 0.86-0.05*2, Form("#sigma_{2} = %.4f GeV", std::max(sigma1, sigma2)), 0.038);
-  xjjroot::drawCMSleft("#scale[1.25]{#bf{CMS}} #it{Simulation}");
+  // xjjroot::drawCMSleft("#scale[1.25]{#bf{CMS}} #it{Simulation}");
+  xjjroot::drawCMSleft("#scale[1.25]{#bf{CMS}} #it{Internal}");
   xjjroot::drawCMSright();
 }
 
@@ -673,10 +674,13 @@ void fitX::labelsdata_params(double mean_a, double mean_a_err, double yield_a, d
                              double mean_b, double mean_b_err, double yield_b, double yield_b_err,
                              double chi2prob)
 {
-  xjjroot::drawtex(0.32, 0.36, Form("#bar{m}_{#psi(2S)} = %.4f #pm %.4f GeV", mean_a, mean_a_err), 0.03, 12, 62, color_a);
-  xjjroot::drawtex(0.32, 0.31, Form("N_{#psi(2S)} = %.0f #pm %.0f", yield_a, yield_a_err), 0.03, 12, 62, color_a);
-  xjjroot::drawtex(0.32, 0.26, Form("#bar{m}_{X(3872)} = %.4f #pm %.4f GeV", mean_b, mean_b_err), 0.03, 12, 62, color_b);
-  xjjroot::drawtex(0.32, 0.21, Form("N_{X(3872)} = %.0f #pm %.0f", yield_b, yield_b_err), 0.03, 12, 62, color_b);
+  // xjjroot::drawtex(0.32, 0.36, Form("#bar{m}_{#psi(2S)} = %.4f #pm %.4f GeV", mean_a, mean_a_err), 0.03, 12, 62, color_a);
+  // xjjroot::drawtex(0.32, 0.31, Form("N_{#psi(2S)} = %.0f #pm %.0f", yield_a, yield_a_err), 0.03, 12, 62, color_a);
+  // xjjroot::drawtex(0.32, 0.26, Form("#bar{m}_{X(3872)} = %.4f #pm %.4f GeV", mean_b, mean_b_err), 0.03, 12, 62, color_b);
+  // xjjroot::drawtex(0.32, 0.21, Form("N_{X(3872)} = %.0f #pm %.0f", yield_b, yield_b_err), 0.03, 12, 62, color_b);
+
+  xjjroot::drawtex(0.32, 0.36, Form("N_{#psi(2S)} = %.0f #pm %.0f", yield_a, yield_a_err), 0.03, 12, 62, color_a);
+  xjjroot::drawtex(0.32, 0.31, Form("N_{X(3872)} = %.0f #pm %.0f", yield_b, yield_b_err), 0.03, 12, 62, color_b);
 
   xjjroot::drawtex(0.17, 0.84-0.04*2-0.02, Form("#chi^{2} Prob = %.1f%s", chi2prob*100., "%"), 0.038, 12);
 }
@@ -794,9 +798,9 @@ TF1* fitX::astfsig(RooAbsPdf* pdf, TF1* f, std::string name, float norm, std::ve
   return frf;
 }
 
-TH1F* fitX::createhistforpull(RooHist* gr, TF1* f)
+TH1F* fitX::createhistforpull(RooHist* gr, TF1* f, std::string newname)
 {
-  TH1F* h = new TH1F(Form("hcreatehist_%s", gr->GetName()), "", fitX::NBIN, fitX::BIN_MIN, fitX::BIN_MAX);
+  TH1F* h = new TH1F(Form("hcreatehist_%s%s", gr->GetName(), newname.c_str()), "", fitX::NBIN, fitX::BIN_MIN, fitX::BIN_MAX);
   int n = gr->GetN();
   for(int i=0; i<n; i++)
     {
@@ -810,10 +814,10 @@ TH1F* fitX::createhistforpull(RooHist* gr, TF1* f)
   return h;
 }
 
-TH1F* fitX::createhistforpull(RooPlot* fr, std::string name, TF1* f)
+TH1F* fitX::createhistforpull(RooPlot* fr, std::string name, TF1* f, std::string newname)
 {
   RooHist* gr = fr->getHist(name.c_str());
-  TH1F* h = createhistforpull(gr, f);
+  TH1F* h = createhistforpull(gr, f, newname);
   h->SetMaximum(fr->GetMaximum());
   h->SetMinimum(fr->GetMinimum());
   h->GetXaxis()->SetLabelSize(fr->GetXaxis()->GetLabelSize());
