@@ -47,7 +47,7 @@ namespace fitXvary
     xjjroot::setgstyle(1);
     xjjroot::drawtex(0.90, 0.85, title.c_str(), 0.04, 33, 62, kBlack);
     xjjroot::drawtex(0.70-0.08, 0.78, mvas->type().c_str(), 0.03, 12, 62, kBlack);
-    xjjroot::drawCMS();
+    xjjroot::drawCMS("Internal");
   }
 
 }

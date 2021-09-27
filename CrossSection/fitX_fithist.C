@@ -20,7 +20,7 @@
 
 void drawkinematic();
 void drawlabels();
-void drawval(TEfficiency* greff_a, TEfficiency* greff_b, float ymax);
+void drawval(TEfficiency* greff_a, TEfficiency* greff_b, float ymax, int power=2);
 void fitX_fithist(std::string input, std::string output, std::string inputtnp_a, std::string inputtnp_b, std::string fitopt="")
 {
   std::cout<<"\e[32;1m -- "<<__FUNCTION__<<"\e[0m"<<std::endl;
@@ -70,7 +70,8 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
       // ====>
       std::map<std::string, fitX::fitXresult*> result = fitX::fit(vh[l], 0, hmcp_a, hmcp_b, 
                                                                   vdsh[l], dshmcp_a, dshmcp_b,
-                                                                  Form("plots/%s", output.c_str()), mm, true, "_"+vname[l], vtitle[l], fitopt);
+                                                                  Form("plots/%s", output.c_str()), mm, true, "_"+vname[l], vtitle[l], fitopt, true,
+                                                                  "#scale[1.25]{#bf{CMS}} #it{Internal}");
       cy->cd(l+1);
       xjjroot::setgstyle();
       // <====
@@ -110,7 +111,7 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
       xjjroot::drawtex(0.72, ysig_b/ymax*(1-gStyle->GetPadBottomMargin()-gStyle->GetPadTopMargin()) + gStyle->GetPadBottomMargin() + 0.1, Form("%.0f #pm %.0f", ysig_b, ysigerr_b), 0.042, 22, 62, fitX::color_b);
       drawkinematic();
       xjjroot::drawtex(0.22, 0.84, vtitle[l].c_str(), 0.042, 12, 62);
-      xjjroot::drawCMS();
+      xjjroot::drawCMS("Internal");
     }
   xjjroot::mkdir(Form("plots/%s/cyield.pdf", output.c_str()));
   cy->SaveAs(Form("plots/%s/cyield.pdf", output.c_str()));
@@ -183,6 +184,7 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   xjjroot::drawline(0, 1, 5, 1, kGray+1, 9, 2);
   grfprompt_a->Draw("same");
   grfprompt_b->Draw("same");
+  drawval(grfprompt_a, grfprompt_b, hemptyfprompt->GetYaxis()->GetXmax());
   drawkinematic();
   xjjroot::drawcomment(output.c_str(), "r");
   xjjroot::drawCMS();
@@ -233,7 +235,7 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   legeff->Draw();
   xjjroot::drawtex(0.23, 0.84, "PYTHIA8 + HYDJET", 0.042, 12, 62);
   xjjroot::drawtex(0.23, 0.77, "Prompt", 0.042, 12, 62);
-  xjjroot::drawCMSleft("#scale[1.25]{#bf{CMS}} #it{Simulation}");
+  xjjroot::drawCMSleft("#scale[1.25]{#bf{CMS}} #it{Internal}");
   xjjroot::drawCMSright();
   xjjroot::drawtex(0.92, 0.84, fitX::ytag().c_str(), 0.04, 32, 42);
   xjjroot::drawtex(0.92, 0.79, fitX::centtag().c_str(), 0.04, 32, 42);
@@ -251,7 +253,7 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   xjjroot::drawtex(0.23, 0.84, "PYTHIA8 + HYDJET", 0.042, 12, 62);
   xjjroot::drawtex(0.23, 0.77, "Prompt", 0.042, 12, 62);
   drawkinematic();
-  xjjroot::drawCMSleft("#scale[1.25]{#bf{CMS}} #it{Simulation}");
+  xjjroot::drawCMSleft("#scale[1.25]{#bf{CMS}} #it{Internal}");
   xjjroot::drawCMSright();
   xjjroot::mkdir(Form("plots/%s/ceff.pdf", output.c_str()));
   ceff->SaveAs(Form("plots/%s/ceff.pdf", output.c_str()));
@@ -415,7 +417,7 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   float yyieldpromptCorr_b = hyieldpromptCorr_b->GetBinContent(fitX::ibin_b);
   float yerryieldpromptCorr_b = hyieldpromptCorr_b->GetBinError(fitX::ibin_b);
   xjjroot::drawtex(0.72, yyieldpromptCorr_b/ymaxyieldpromptCorr*(1-gStyle->GetPadBottomMargin()-gStyle->GetPadTopMargin()) + gStyle->GetPadBottomMargin() + 0.2, Form("%.0f #pm %.0f", yyieldpromptCorr_b, yerryieldpromptCorr_b), 0.042, 22, 62, fitX::color_b);
-  xjjroot::drawCMS();
+  xjjroot::drawCMS("Internal");
   drawkinematic();
   xjjroot::drawcomment(output.c_str(), "r");
   xjjroot::mkdir(Form("plots/%s/cyieldpromptCorr.pdf", output.c_str()));
@@ -484,7 +486,7 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   xjjroot::drawtex(0.61, 0.52, fitX::title_b.c_str(), 0.038);
   xjjroot::drawtex(0.93, 0.46, "Inclusive", 0.035, 32, 42, fitX::color_data);
   xjjroot::drawtex(0.93, 0.23, "b-enriched", 0.035, 32, 42, fitX::color_data2);
-  fitX::labelsdata("", "#scale[1.25]{#bf{CMS}}", "1.7 nb^{-1} (PbPb 5.02 TeV)");
+  fitX::labelsdata("", "Internal", "1.7 nb^{-1} (PbPb 5.02 TeV)");
   cr->SaveAs(Form("plots/%s/chmassr_both.pdf", output.c_str()));
   delete cr;
 
@@ -532,8 +534,8 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   pdf[0]->plotOn(frempty_incl, RooFit::Name("bkg"), RooFit::Components(*(bkg[0])), RooFit::Precision(1e-6), RooFit::DrawOption("L"), RooFit::LineStyle(bkg_dump_incl->GetLineStyle()), RooFit::LineColor(bkg_dump_incl->GetLineColor()), RooFit::LineWidth(bkg_dump_incl->GetLineWidth()));
   pdf[0]->plotOn(frempty_incl, RooFit::Name("pdf"), RooFit::Precision(1e-6), RooFit::Normalization(1.0, RooAbsReal::RelativeExpected), RooFit::DrawOption("L"), RooFit::LineStyle(f_dump_incl->GetLineStyle()), RooFit::LineColor(f_dump_incl->GetLineColor()), RooFit::LineWidth(f_dump_incl->GetLineWidth()));
   vdsh[0]->plotOn(frempty_incl, RooFit::Name("dshist"), RooFit::Binning(fitX::NBIN), RooFit::MarkerSize(h_dump->GetMarkerSize()), RooFit::MarkerStyle(h_dump->GetMarkerStyle()), RooFit::LineColor(h_dump->GetLineColor()), RooFit::LineWidth(h_dump->GetLineWidth()), RooFit::XErrorSize(0));
-  frempty_incl->SetMinimum(130);
-  frempty_incl->SetMaximum(440);
+  frempty_incl->SetMinimum(130./fitX::NBIN*38.);
+  frempty_incl->SetMaximum(440./fitX::NBIN*38.);
   frempty_incl->Draw();
   TH1F* hforpull_incl = fitX::createhistforpull(frempty_incl, "dshist", frf[0], "_incl");
   fitX::drawpull(hforpull_incl, frf[0], fitX::color_data);
@@ -544,7 +546,8 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   xjjroot::drawtex(0.88, 0.78-0.072*2, Form("Cent. %.0f-%.0f%s", fitX::centmincut, fitX::centmaxcut, "%"), tsize, 32, 42);
   xjjroot::drawtex(0.22, 0.13, fitX::title_a.c_str(), tsize);
   xjjroot::drawtex(0.59, 0.32, fitX::title_b.c_str(), tsize);
-  xjjroot::drawtex(0.15/*0.14*/, 0.79, "#scale[1.25]{#bf{CMS}}", tsize, 12); // 0.06
+  xjjroot::drawtex(0.15/*0.14*/, 0.79, "#scale[1.25]{#bf{CMS}} #it{Internal}", tsize, 12); // 0.06
+  // xjjroot::drawtex(0.15/*0.14*/, 0.79, "#scale[1.25]{#bf{CMS}}", tsize, 12); // 0.06
   xjjroot::drawtex(0.92, 0.92, "1.7 nb^{-1} (PbPb 5.02 TeV)", tsize, 32); // 0.055
   xjjroot::drawtex(0.15, 0.70, "Inclusive", tsize, 12, 52, kBlack);
   cr->cd();
@@ -557,7 +560,7 @@ void fitX_fithist(std::string input, std::string output, std::string inputtnp_a,
   pdf[1]->plotOn(frempty_benr, RooFit::Name("pdf"), RooFit::Precision(1e-6), RooFit::Normalization(1.0, RooAbsReal::RelativeExpected), RooFit::DrawOption("L"), RooFit::LineStyle(f_dump_Benr->GetLineStyle()), RooFit::LineColor(f_dump_Benr->GetLineColor()), RooFit::LineWidth(f_dump_Benr->GetLineWidth()));
   vdsh[1]->plotOn(frempty_benr, RooFit::Name("dshist"), RooFit::Binning(fitX::NBIN), RooFit::MarkerSize(h_dump->GetMarkerSize()), RooFit::MarkerStyle(h_dump->GetMarkerStyle()), RooFit::LineColor(h_dump->GetLineColor()), RooFit::LineWidth(h_dump->GetLineWidth()), RooFit::XErrorSize(0));
   frempty_benr->SetMinimum(0); hBenr->SetMinimum(0);
-  frempty_benr->SetMaximum(75); hBenr->SetMaximum(75); // maxy[1]
+  frempty_benr->SetMaximum(75./fitX::NBIN*38.); hBenr->SetMaximum(75./fitX::NBIN*38.); // maxy[1]
   frempty_benr->Draw();
   leg_both->Draw();
   TH1F* hforpull_benr = fitX::createhistforpull(frempty_benr, "dshist", frf[1], "_benr");
@@ -628,16 +631,17 @@ void drawlabels()
 {
   xjjroot::drawtex(0.23, 0.84, "PYTHIA8 + HYDJET", 0.042, 12, 62);
   xjjroot::drawtex(0.23, 0.77, "Prompt", 0.042, 12, 62);
-  xjjroot::drawCMSleft("#scale[1.25]{#bf{CMS}} #it{Simulation}");
+  xjjroot::drawCMSleft("#scale[1.25]{#bf{CMS}} #it{Internal}");
   xjjroot::drawCMSright();
 }
 
-void drawval(TEfficiency* greff_a, TEfficiency* greff_b, float ymax)
+void drawval(TEfficiency* greff_a, TEfficiency* greff_b, float ymax, int power)
 {
   float effval_a = greff_a->GetEfficiency(fitX::ibin_a);
   xjjroot::drawtex(0.42, effval_a/ymax*(1-gStyle->GetPadBottomMargin()-gStyle->GetPadTopMargin()) + gStyle->GetPadBottomMargin() + 0.1,
-                   Form("%.1f {}^{+ %.1f}_{-  %.1f} #times 10^{-2}", greff_a->GetEfficiency(fitX::ibin_a)*1.e+2, greff_a->GetEfficiencyErrorUp(fitX::ibin_a)*1.e+2, greff_a->GetEfficiencyErrorLow(fitX::ibin_a)*1.e+2), 0.042, 22, 62, fitX::color_a);
+                   Form("%.1f {}^{+ %.1f}_{-  %.1f} #times 10^{%.0f}", greff_a->GetEfficiency(fitX::ibin_a)*std::pow(10, power), greff_a->GetEfficiencyErrorUp(fitX::ibin_a)*std::pow(10, power), greff_a->GetEfficiencyErrorLow(fitX::ibin_a)*std::pow(10, power), 0-power), 0.042, 22, 62, fitX::color_a);
   float effval_b = greff_b->GetEfficiency(fitX::ibin_b);
   xjjroot::drawtex(0.72, effval_b/ymax*(1-gStyle->GetPadBottomMargin()-gStyle->GetPadTopMargin()) + gStyle->GetPadBottomMargin() + 0.1,
-                   Form("%.1f {}^{+ %.1f}_{-  %.1f} #times 10^{-2}", greff_b->GetEfficiency(fitX::ibin_b)*1.e+2, greff_b->GetEfficiencyErrorUp(fitX::ibin_b)*1.e+2, greff_b->GetEfficiencyErrorLow(fitX::ibin_b)*1.e+2), 0.042, 22, 62, fitX::color_b);
+                   Form("%.1f {}^{+ %.1f}_{-  %.1f} #times 10^{%.0f}", greff_b->GetEfficiency(fitX::ibin_b)*std::pow(10, power), greff_b->GetEfficiencyErrorUp(fitX::ibin_b)*std::pow(10, power), greff_b->GetEfficiencyErrorLow(fitX::ibin_b)*std::pow(10, power), 0-power), 0.042, 22, 62, fitX::color_b);
 }
+

@@ -329,13 +329,25 @@ int fitX::varycut::produceeff()
 
 void drawalltext()
 {
-  xjjroot::drawCMSleft();
+  xjjroot::drawCMSleft("Internal");
   xjjroot::drawCMSright();
   xjjroot::drawtex(0.24, 0.84, "#psi(2S)", 0.038, 12, 62, fitX::color_a);
   xjjroot::drawtex(0.24, 0.84-0.04, "X(3872)", 0.038, 12, 62, fitX::color_b);
   xjjroot::drawtex(0.90, 0.84, fitX::pttag().c_str(), 0.038, 32, 62);
   xjjroot::drawtex(0.90, 0.84-0.04, fitX::ytag().c_str(), 0.038, 32, 62);
   xjjroot::drawtex(0.90, 0.84-0.04*2, fitX::centtag().c_str(), 0.038, 32, 62);
+}
+
+void drawvline(TH2F* hempty)
+{
+  xjjroot::drawline(0.06, hempty->GetYaxis()->GetXmin(), 0.06, hempty->GetYaxis()->GetXmax(), kGray+1, 2, 2);
+  xjjroot::drawline(0.04, hempty->GetYaxis()->GetXmin(), 0.04, hempty->GetYaxis()->GetXmax(), kGray+1, 2, 2);
+}
+
+void drawvlineonly(TH2F* hempty)
+{
+  xjjroot::drawline(0.06, hempty->GetYaxis()->GetXmin(), 0.06, hempty->GetYaxis()->GetXmax(), kGray+1, 2, 2);
+  // xjjroot::drawline(0.04, hempty->GetYaxis()->GetXmin(), 0.04, hempty->GetYaxis()->GetXmax(), kGray+1, 2, 2);
 }
 
 fitX::varymva* fitX::initvarycut(std::string type)

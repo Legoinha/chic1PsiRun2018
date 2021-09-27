@@ -28,7 +28,10 @@ optcuts=(
     "&& BDT > 0.10 && (Bmass-3.096916-Btktkmass) < 0.13" # 16
     "&& BDT > 0.11 && (Bmass-3.096916-Btktkmass) < 0.13" # 17
     "&& BDT > 0.12 && (Bmass-3.096916-Btktkmass) < 0.13" # 18
-    "&& BDT > 0.06 && (Bmass-3.096916-Btktkmass) < 0.13" # 19: background range
+    "&& BDT > 0.13 && (Bmass-3.096916-Btktkmass) < 0.13" # 19
+    "&& BDT > 0.14 && (Bmass-3.096916-Btktkmass) < 0.13" # 20
+    "&& BDT > 0.06 && (Bmass-3.096916-Btktkmass) < 0.13" # 21: background range
+    "&& BDT > 0.06 && (Bmass-3.096916-Btktkmass) < 0.13" # 22: finer bins
 )
 optcutntuples=(
     "ntp->BDT[j] > 0.06 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13" # 0: nominal
@@ -50,7 +53,9 @@ optcutntuples=(
     "ntp->BDT[j] > 0.10 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13" # 16
     "ntp->BDT[j] > 0.11 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13" # 17
     "ntp->BDT[j] > 0.12 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13" # 18
-    "ntp->BDT[j] > 0.06 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13" # 19
+    "ntp->BDT[j] > 0.13 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13" # 19
+    "ntp->BDT[j] > 0.06 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13" # 20
+    "ntp->BDT[j] > 0.06 \&\& (ntp->Bmass[j]-3.096916-ntp->Btktkmass[j]) < 0.13" # 21: finer bins
 )
 # --> tags including "L2L3" to use correct tnp leg matching <-- see: tnp_converter.cc
 # --> tags including "PVz15" to apply |PVz| < 15
@@ -75,7 +80,9 @@ tags=(
     "BDTQvalue0p10_PVz15_newL2L3"   # 16
     "BDTQvalue0p11_PVz15_newL2L3"   # 17
     "BDTQvalue0p12_PVz15_newL2L3"   # 18
-    "BDTQvalue_PVz15_newL2L3_range" # 19
+    "BDTQvalue0p13_PVz15_newL2L3"   # 19
+    "BDTQvalue_PVz15_newL2L3_range" # 20
+    "BDTQvalue_PVz15_newL2L3_finerbins"       # 21
 )
 
 input=/raid5/data/wangj/BntupleRun2018/mva_output_20190808ptdep/ntmix_20190806_Bfinder_20190513_HIDoubleMuon__PsiPeri__HIRun2018A_04Apr2019_v1_HF_and_MuonJSON_skim_trainX_20190808ptdep_sideband_tktk0p2_BDT_BDTD_BDTG_BDTF_LD_15p0_50p0_0-10-1-2-9_1bin.root

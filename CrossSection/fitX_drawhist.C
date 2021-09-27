@@ -47,8 +47,8 @@ void fitX_drawhist(std::string inputname, std::string output)
   TH2F* hemptylog = new TH2F("hemptylog", hemptytitle.c_str(), 10, 10, 70, 10, 0.02, 50);
   xjjroot::sethempty(hemptylog, 0, 0);
   // TH2F* hemptylinear = new TH2F("hemptylinear", hemptytitle.c_str(), 10, 10, 70, 10, 0, 2.5); // v19
-  TH2F* hemptylinear = new TH2F("hemptylinear", hemptytitle.c_str(), 10, 10, 70, 10, 0, 1.8);
-  xjjroot::sethempty(hemptylinear, 0, 0);
+  TH2F* hemptylinear = new TH2F("hemptylinear", hemptytitle.c_str(), 10, 8, 70, 10, 0, 1.8);
+  xjjroot::sethempty(hemptylinear, 0.2, 0);
 
   // --> paper leg <--
   float linesp = 0.045, textsp = 0.035;

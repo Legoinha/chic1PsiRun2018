@@ -71,19 +71,19 @@ void pdf_drawhist(std::string output)
   drawpercent(hhyieldpromptCorr_a, 0.60);
   fitX::drawkinematics();
   xjjroot::drawtex(0.24, 0.81, fitX::title_a.c_str(), 0.042, 0.12, 62);
-  xjjroot::drawCMS();
+  xjjroot::drawCMS("Internal");
   c->cd(2);
   hhyieldpromptCorr_b->Draw("pe");
   drawpercent(hhyieldpromptCorr_b, 0.60);
   fitX::drawkinematics();
   xjjroot::drawtex(0.24, 0.81, fitX::title_b.c_str(), 0.042, 0.12, 62);
-  xjjroot::drawCMS();
+  xjjroot::drawCMS("Internal");
 
   c->cd(3);
   hhratio->Draw("pe");
   drawpercent(hhratio, 0.60);
   fitX::drawkinematics();
-  xjjroot::drawCMS();
+  xjjroot::drawCMS("Internal");
 
   std::string outputname("plots/"+output+"/pdfvar/cpdfvar.pdf");
   xjjroot::mkdir(outputname);

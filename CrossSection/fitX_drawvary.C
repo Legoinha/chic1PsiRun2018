@@ -21,6 +21,8 @@ void fitX_drawvary(std::string inputname, std::string output)
   xjjroot::sethempty(hyieldpromptCorr_b, 0, 0);
   TH1F* hratio_ab = new TH1F("hratio_ab", ";BDT >;", nbins, minbin, maxbin);
   xjjroot::sethempty(hratio_ab, 0, 0);
+  TH1F* hratio_ab_0err = new TH1F("hratio_ab_0err", ";BDT >;", nbins, minbin, maxbin);
+  xjjroot::sethempty(hratio_ab_0err, 0, 0);
   for(int i=0; i<nbins; i++)
     {
       float mvaval = minbin + divbin*i;
@@ -33,6 +35,8 @@ void fitX_drawvary(std::string inputname, std::string output)
       hyieldpromptCorr_b->SetBinError(i+1, hyieldpromptCorr->GetBinError(fitX::ibin_b));
       hratio_ab->SetBinContent(i+1, hratio->GetBinContent(1));
       hratio_ab->SetBinError(i+1, hratio->GetBinError(1));
+      hratio_ab_0err->SetBinContent(i+1, hratio->GetBinContent(1));
+      hratio_ab_0err->SetBinError(i+1, 0);
       delete hyieldpromptCorr;
       delete hratio;
     }
@@ -47,13 +51,15 @@ void fitX_drawvary(std::string inputname, std::string output)
   float errref_hratio_ab = correrr(hratio_ab, valref), ref_hratio_ab = hratio_ab->GetBinContent(ibinref);
   TGraphErrors* gratio_ab = xjjroot::shifthistcenter(hratio_ab, "gratio_ab");
   xjjroot::setthgrstyle(gratio_ab, kBlack, 47, 1.4, kBlack, 1, 2);
+  TGraphErrors* gratio_ab_0err = xjjroot::shifthistcenter(hratio_ab_0err, "gratio_ab_0err");
+  xjjroot::setthgrstyle(gratio_ab_0err, kBlack, 47, 1.4, kBlack, 1, 2);
 
   TH2F* hempty = new TH2F("hempty", ";BDT >;N_{signal} #times f_{prompt} / (#alpha #times #epsilon )_{prompt}", 
                           nbins+1, minbin-divbin, maxbin, 
                           10, 0, std::max(hyieldpromptCorr_a->GetMaximum(), hyieldpromptCorr_b->GetMaximum())*1.5);
   hempty->GetXaxis()->SetNdivisions(505);
   xjjroot::sethempty(hempty, 0, 0.3);
-  TH2F* hempty_r = new TH2F("hempty_r", ";BDT >;R", 
+  TH2F* hempty_r = new TH2F("hempty_r", ";BDT >;#rho", 
                             nbins+1, minbin-divbin, maxbin, 
                             10, 0, 2);
   hempty_r->GetXaxis()->SetNdivisions(505);
@@ -83,7 +89,9 @@ void fitX_drawvary(std::string inputname, std::string output)
   xjjroot::drawbox(hempty_r->GetXaxis()->GetXmin(), ref_hratio_ab-errref_hratio_ab, hempty_r->GetXaxis()->GetXmax(), ref_hratio_ab+errref_hratio_ab, 
                    kGray+2, 0.1, 1001);
   xjjroot::drawline(hempty_r->GetXaxis()->GetXmin(), ref_hratio_ab, hempty_r->GetXaxis()->GetXmax(), ref_hratio_ab,
-                    kGray+2, 2, 3, 0.5);
+                    kGray+2, 2, 2);
+  xjjroot::drawline(hempty_r->GetXaxis()->GetXmin(), hratio_ab->GetBinContent(hratio_ab->FindBin(0.04)), hempty_r->GetXaxis()->GetXmax(), hratio_ab->GetBinContent(hratio_ab->FindBin(0.04)),
+                    kGray+2, 2, 2);
   gratio_ab->Draw("pe same");
   xjjroot::drawCMS("Internal");
   fitX::drawkinematics();
@@ -91,6 +99,24 @@ void fitX_drawvary(std::string inputname, std::string output)
   std::string outputname = "plots/"+output+"/cmvavary_BDT.pdf";
   xjjroot::mkdir(outputname);
   c->SaveAs(outputname.c_str());
+  delete c;
+
+  c = new TCanvas("c", "", 600, 600);
+  hempty_r->Draw();
+  xjjroot::drawbox(hempty_r->GetXaxis()->GetXmin(), ref_hratio_ab-errref_hratio_ab, hempty_r->GetXaxis()->GetXmax(), ref_hratio_ab+errref_hratio_ab, 
+                   kGray+2, 0.1, 1001);
+  xjjroot::drawline(hempty_r->GetXaxis()->GetXmin(), ref_hratio_ab, hempty_r->GetXaxis()->GetXmax(), ref_hratio_ab,
+                    kGray+2, 2, 2);
+  xjjroot::drawline(hempty_r->GetXaxis()->GetXmin(), hratio_ab->GetBinContent(hratio_ab->FindBin(0.04)), hempty_r->GetXaxis()->GetXmax(), hratio_ab->GetBinContent(hratio_ab->FindBin(0.04)),
+                    kGray+2, 2, 2);
+  gratio_ab_0err->Draw("pe same");
+  xjjroot::drawCMS("Internal");
+  fitX::drawkinematics();
+  outputname = "plots/"+output+"/cmvavary_BDT_right.png";
+  xjjroot::mkdir(outputname);
+  c->SaveAs(outputname.c_str());
+
+  //
 
   float dmax_a = 0, dmax_b = 0, dmax_r = 0;
   for(int i=0; i<nbins; i++)
