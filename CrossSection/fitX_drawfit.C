@@ -26,6 +26,7 @@ void fitX_drawfit(std::string input, std::string output)
 {
   TFile* inf = new TFile(input.c_str());
   fitX::init(inf);
+  fitX::resetbins(output);
 
   RooWorkspace* ww = (RooWorkspace*)inf->Get("wfit");
   RooDataSet* dsh = (RooDataSet*)ww->data("dsh");
@@ -45,18 +46,19 @@ void fitX_drawfit(std::string input, std::string output)
   ***************************************************/
   xjjroot::mkdir("plots/"+output+"/paper/x");
   float yincl = 0.49, ybenr = 1-yincl;
-  Size_t tsize = 0.07; // 0.05
+  Size_t tsize = 0.065; // 0.05
   float axissize = 1.7;
   RooPlot* frempty_incl = mass->frame(RooFit::Title(""));
-  frempty_incl->SetYTitle(Form("Entries / (%.0f MeV/c^{2})", fitX::BIN_WIDTH*1.e+3));
+  frempty_incl->SetYTitle(Form("Entries / (%.0f MeV/c^{2})", fitX::BIN_WIDTH()*1.e+3));
   fitX::setmasshist(frempty_incl, 0, -0.65);
   frempty_incl->GetXaxis()->SetTitleSize(frempty_incl->GetXaxis()->GetTitleSize()*axissize);
   frempty_incl->GetYaxis()->SetTitleSize(frempty_incl->GetYaxis()->GetTitleSize()*axissize);
   frempty_incl->GetXaxis()->SetLabelSize(frempty_incl->GetXaxis()->GetLabelSize()*axissize);
   frempty_incl->GetYaxis()->SetLabelSize(frempty_incl->GetYaxis()->GetLabelSize()*axissize); // h->GetYaxis()->SetLabelSize(frempty_incl->GetYaxis()->GetLabelSize());
+  frempty_incl->GetYaxis()->SetNdivisions(508);
   RooPlot* frempty_benr = mass->frame(RooFit::Title(""));
   frempty_benr->SetXTitle("m#scale[0.7]{#mu#mu#pi#pi} (GeV/c^{2})");
-  frempty_benr->SetYTitle(Form("Entries / (%.0f MeV/c^{2})", fitX::BIN_WIDTH*1.e+3));
+  frempty_benr->SetYTitle(Form("Entries / (%.0f MeV/c^{2})", fitX::BIN_WIDTH()*1.e+3));
   fitX::setmasshist(frempty_benr, -0.2, -0.65);
   frempty_benr->GetXaxis()->SetTitleSize(frempty_benr->GetXaxis()->GetTitleSize()*axissize*1.1);
   frempty_benr->GetYaxis()->SetTitleSize(frempty_benr->GetYaxis()->GetTitleSize()*axissize);
@@ -73,22 +75,31 @@ void fitX_drawfit(std::string input, std::string output)
   pdf->plotOn(frempty_incl, RooFit::Name("bkg"), RooFit::Components(*bkg), RooFit::Precision(1e-6), RooFit::DrawOption("L"), RooFit::LineStyle(drawfit::bkg_dump_incl->GetLineStyle()), RooFit::LineColor(drawfit::bkg_dump_incl->GetLineColor()), RooFit::LineWidth(drawfit::bkg_dump_incl->GetLineWidth()));
   pdf->plotOn(frempty_incl, RooFit::Name("pdf"), RooFit::Precision(1e-6), RooFit::Normalization(1.0, RooAbsReal::RelativeExpected), RooFit::DrawOption("L"), RooFit::LineStyle(drawfit::f_dump_incl->GetLineStyle()), RooFit::LineColor(drawfit::f_dump_incl->GetLineColor()), RooFit::LineWidth(drawfit::f_dump_incl->GetLineWidth()));
   dsh->plotOn(frempty_incl, RooFit::Name("dshist"), RooFit::Binning(fitX::NBIN), RooFit::MarkerSize(drawfit::h_dump->GetMarkerSize()), RooFit::MarkerStyle(drawfit::h_dump->GetMarkerStyle()), RooFit::LineColor(drawfit::h_dump->GetLineColor()), RooFit::LineWidth(drawfit::h_dump->GetLineWidth()), RooFit::XErrorSize(0));
-  frempty_incl->SetMinimum(130./fitX::NBIN*38.);
-  frempty_incl->SetMaximum(440./fitX::NBIN*38.);
+  frempty_incl->SetMinimum(1./fitX::NBIN*38.);
+  // frempty_incl->SetMinimum(130./fitX::NBIN*38.);
+  frempty_incl->SetMaximum(460./fitX::NBIN*38.);
   frempty_incl->Draw();
   TH1F* hforpull_incl = fitX::createhistforpull(frempty_incl, "dshist", fr, "_incl");
   fitX::drawpull(hforpull_incl, fr, fitX::color_data);
   // xjjroot::drawbox(4.02, h->GetMinimum(), 5, h->GetMaximum(), kWhite, 1);
   xjjroot::drawtex(0.99, 0.39, "Pull", frempty_incl->GetYaxis()->GetTitleSize(), 33, 42, fitX::color_data, 270);
-  xjjroot::drawtex(0.88, 0.78/*0.79*/, Form("%.0f < p_{T} < %.0f GeV/c", fitX::ptmincut, fitX::ptmaxcut), tsize, 32, 42/*62*/);
-  xjjroot::drawtex(0.88, 0.78-0.072 /*0.06*/, Form("%s|y| < %.1f", (fitX::ymincut?Form("%.1f < ", fitX::ymincut):""), fitX::ymaxcut), tsize, 32, 42);
-  xjjroot::drawtex(0.88, 0.78-0.072*2, Form("Cent. %.0f-%.0f%s", fitX::centmincut, fitX::centmaxcut, "%"), tsize, 32, 42);
-  xjjroot::drawtex(0.22, 0.13, fitX::title_a.c_str(), tsize);
-  xjjroot::drawtex(0.59, 0.32, fitX::title_b.c_str(), tsize);
-  xjjroot::drawtex(0.15/*0.14*/, 0.79, "#scale[1.25]{#bf{CMS}} #it{Internal}", tsize, 12); // 0.06
-  // xjjroot::drawtex(0.15/*0.14*/, 0.79, "#scale[1.25]{#bf{CMS}}", tsize, 12); // 0.06
+  // xjjroot::drawtex(0.88, 0.28/*0.78*/, Form("%.0f < p_{T} < %.0f GeV/c", fitX::ptmincut, fitX::ptmaxcut), tsize, 32, 42/*62*/);
+  // xjjroot::drawtex(0.88, 0.28-0.072, Form("%s|y| < %.1f", (fitX::ymincut?Form("%.1f < ", fitX::ymincut):""), fitX::ymaxcut), tsize, 32, 42);
+  // xjjroot::drawtex(0.88, 0.28-0.072*2, Form("Cent. %.0f-%.0f%s", fitX::centmincut, fitX::centmaxcut, "%"), tsize, 32, 42);
+  xjjroot::drawtex(0.15, 0.18-0.08, Form("%s|y| < %.1f", (fitX::ymincut?Form("%.1f < ", fitX::ymincut):""), fitX::ymaxcut), tsize, 12, 42);
+  xjjroot::drawtex(0.15, 0.18/*0.78*/, Form("%.0f < p_{T} < %.0f GeV/c", fitX::ptmincut, fitX::ptmaxcut), tsize, 12, 42/*62*/);
+  xjjroot::drawtex(0.30, 0.18-0.08+0.01, Form("Cent. %.0f-%.0f%s", fitX::centmincut, fitX::centmaxcut, "%"), tsize, 12, 42);
+  xjjroot::drawtex(0.52, 0.21, "#sigma_{X(3872)} = 4.7 MeV/c^{2}", tsize, 12, 42);
+  xjjroot::drawtex(0.28, 0.68/*0.13*/, fitX::title_a.c_str(), tsize);
+  xjjroot::drawtex(0.66, 0.77/*0.32*/, fitX::title_b.c_str(), tsize);
+  // xjjroot::drawtex(0.22, 0.32/*0.13*/, fitX::title_a.c_str(), tsize);
+  // xjjroot::drawtex(0.59, 0.42/*0.32*/, fitX::title_b.c_str(), tsize);
+  // xjjroot::drawtex(0.15/*0.14*/, 0.79, "#scale[1.25]{#bf{CMS}} #it{Internal}", tsize, 12); // 0.06
+  xjjroot::drawtex(0.15/*0.14*/, 0.79, "#scale[1.25]{#bf{CMS}}", tsize, 12); // 0.06
   xjjroot::drawtex(0.92, 0.92, "1.7 nb^{-1} (PbPb 5.02 TeV)", tsize, 32); // 0.055
-  xjjroot::drawtex(0.15, 0.70, "Inclusive", tsize, 12, 52, kBlack);
+  // xjjroot::drawtex(0.15, 0.70, "Inclusive", tsize, 12, 52, kBlack);
+  // xjjroot::drawtex(0.15, 0.13, "Inclusive", tsize, 12, 52, kBlack);
+  xjjroot::drawtex(0.24, 0.78, "Inclusive", tsize, 12, 52, kBlack);
   cr->cd();
 
   TPad* pbenr = new TPad("pbenr", "", 0, 0, 1, ybenr);
