@@ -1,3 +1,3 @@
 ```
-git clone --recursive git@github.com:boundino/chic1PsiRun2018.git
+git clone --recursive git@github.com:Legoinha/chic1PsiRun2018.git
 ```
